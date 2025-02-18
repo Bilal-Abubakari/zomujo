@@ -252,7 +252,7 @@ const Doctors = (): JSX.Element => {
               setQueryParameters((prev) => ({
                 ...prev,
                 page: 1,
-                gender: value as Gender,
+                gender: value,
               }));
               setDoctors([]);
             }}

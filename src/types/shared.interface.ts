@@ -28,7 +28,7 @@ export interface IQueryParams<T = undefined> {
   maxPrice?: string;
   minExperience?: string;
   maxExperience?: string;
-  gender?: Gender;
+  gender?: string;
   speciality?: string;
   minRate?: string;
   maxRate?: string;
