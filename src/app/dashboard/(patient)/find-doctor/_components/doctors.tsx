@@ -136,13 +136,13 @@ const Doctors = (): JSX.Element => {
     setShowScrollToTop(false);
   }
 
-  function handleValueChange(event: ChangeEvent<HTMLInputElement>) {
+  function handleValueChange(event: ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
     setDoctors([]);
     setQueryParameters((prev) => ({
       ...prev,
       [name]: value,
-      page:1
+      page: 1,
     }));
   }
   return (
