@@ -21,10 +21,22 @@ export const getAllDoctors = createAsyncThunk(
     status,
     pageSize,
     orderDirection,
+    gender,
+    maxExperience,
+    minExperience,
+    maxPrice,
+    maxRate,
+    minPrice,
+    minRate,
+    speciality,
+    orderBy,
   }: IQueryParams<AcceptDeclineStatus | ''>): Promise<IPagination<IDoctor> | Toast> => {
     try {
       const { data } = await axios.get<IResponse<IPagination<IDoctor>>>(
-        `doctors?page=${page}&search=${search}&status=${status}&pageSize=${pageSize || 10}&orderDirection=${orderDirection}`,
+        `doctors?page=${page}&search=${search}&status=${status}&pageSize=${pageSize || 10}&orderDirection=${orderDirection}&
+        gender=${gender}&experienceMin=${minExperience}&experienceMax=${maxExperience}&priceMin=${minPrice}&priceMax=${maxPrice}
+        &rateMin=${minRate}&rateMax=${maxRate}&specialty=${speciality}&orderBy=${orderBy}
+        `,
       );
       return data.data;
     } catch (error) {
