@@ -11,12 +11,21 @@ import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { useAppDispatch } from '@/lib/hooks';
 import { showErrorToast } from '@/lib/utils';
 import { IDoctor } from '@/types/doctor.interface';
-import { AcceptDeclineStatus } from '@/types/shared.enum';
+import { AcceptDeclineStatus, Gender } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
-import { ChevronUp, ListFilter, Search, SendHorizontal } from 'lucide-react';
+import { ChevronUp, ListFilter, Search, SendHorizontal, UserRound } from 'lucide-react';
 import Image from 'next/image';
-import React, { FormEvent, JSX, useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  FormEvent,
+  JSX,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
+import { genderOptions } from '@/constants/constants';
 
 const Doctors = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -35,6 +44,14 @@ const Doctors = (): JSX.Element => {
     search: '',
     pageSize: 20,
     status: AcceptDeclineStatus.Accepted,
+    minPrice: '',
+    maxPrice: '',
+    minExperience: '',
+    maxExperience: '',
+    gender: Gender.Other,
+    speciality: '',
+    minRate: '',
+    maxRate: '',
   });
 
   const statusFilterOptions: ISelected[] = [
@@ -118,36 +135,128 @@ const Doctors = (): JSX.Element => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setShowScrollToTop(false);
   }
+
+  function handleValueChange(event: ChangeEvent<HTMLInputElement>) {
+    const { name, value } = event.target;
+    setDoctors([]);
+    setQueryParameters((prev) => ({
+      ...prev,
+      [name]: value,
+      page:1
+    }));
+  }
   return (
     <>
-      <div className="mb-6 flex w-full flex-wrap gap-4">
-        <form className="flex gap-2" onSubmit={handleSubmit}>
+      <div className="z-20 mb-6 flex w-full flex-col flex-wrap gap-2 bg-grayscale-100 py-2 lg:sticky lg:top-0">
+        <div className="flex">
+          <form className="flex gap-2" onSubmit={handleSubmit}>
+            <Input
+              error=""
+              placeholder={'Search for a Doctor'}
+              className="w-[80vw] max-w-[670px]"
+              type="search"
+              leftIcon={<Search className="text-gray-500" size={20} />}
+              onChange={handleSearch}
+              defaultMaxWidth={false}
+            />
+            {searchTerm && <Button child={<SendHorizontal />} />}
+          </form>
+          <div className="ml-2">
+            <OptionsMenu
+              options={statusFilterOptions}
+              Icon={ListFilter}
+              menuTrigger="Filter"
+              selected={queryParameters.orderDirection}
+              setSelected={(value) => {
+                setQueryParameters((prev) => ({
+                  ...prev,
+                  page: 1,
+                  orderDirection: value,
+                }));
+                setDoctors([]);
+              }}
+              className="h-10 cursor-pointer bg-gray-50 sm:flex"
+            />
+          </div>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-4">
           <Input
-            error=""
-            placeholder={'Search for a Doctor'}
-            className="w-[80vw] max-w-[670px]"
-            type="search"
-            leftIcon={<Search className="text-gray-500" size={20} />}
-            onChange={handleSearch}
+            labelName="Min Price"
+            placeholder="GHS 100"
+            wrapperClassName="max-w-52"
             defaultMaxWidth={false}
+            type="number"
+            name="minPrice"
+            onChange={handleValueChange}
           />
-          {searchTerm && <Button child={<SendHorizontal />} />}
-        </form>
-        <div>
+          <Input
+            labelName="Max Price"
+            placeholder="GHS 1000"
+            wrapperClassName="max-w-52"
+            defaultMaxWidth={false}
+            type="number"
+            name="maxPrice"
+            onChange={handleValueChange}
+          />
+          <Input
+            labelName="Min Rating"
+            placeholder="0"
+            wrapperClassName="max-w-52"
+            defaultMaxWidth={false}
+            type="number"
+            name="minRate"
+            onChange={handleValueChange}
+          />
+          <Input
+            labelName="Max Rating"
+            placeholder="5"
+            wrapperClassName="max-w-52"
+            defaultMaxWidth={false}
+            type="number"
+            name="maxRating"
+            onChange={handleValueChange}
+          />
+          <Input
+            labelName="Min Experience"
+            placeholder="0 year"
+            wrapperClassName="max-w-52"
+            defaultMaxWidth={false}
+            type="number"
+            name="minExperience"
+            onChange={handleValueChange}
+          />
+          <Input
+            labelName="Max Experience"
+            placeholder="10 years"
+            wrapperClassName="max-w-52"
+            defaultMaxWidth={false}
+            type="number"
+            name="maxExperience"
+            onChange={handleValueChange}
+          />
+          <Input
+            labelName="Speciality"
+            placeholder="Global Health"
+            wrapperClassName="max-w-52"
+            defaultMaxWidth={false}
+            type="search"
+            name="speciality"
+            onChange={handleValueChange}
+          />
           <OptionsMenu
-            options={statusFilterOptions}
-            Icon={ListFilter}
-            menuTrigger="Filter"
-            selected={queryParameters.orderDirection}
+            options={genderOptions}
+            Icon={UserRound}
+            menuTrigger="Gender"
+            selected={queryParameters.gender}
             setSelected={(value) => {
               setQueryParameters((prev) => ({
                 ...prev,
                 page: 1,
-                orderDirection: value,
+                gender: value as Gender,
               }));
               setDoctors([]);
             }}
-            className="h-10 cursor-pointer bg-gray-50 sm:flex"
+            className="mt-auto h-10 cursor-pointer bg-gray-50 sm:flex"
           />
         </div>
       </div>

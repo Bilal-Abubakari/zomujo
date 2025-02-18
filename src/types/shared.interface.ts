@@ -24,6 +24,14 @@ export interface IQueryParams<T = undefined> {
   orderDirection?: string;
   orderBy?: string;
   status?: T;
+  minPrice?: string;
+  maxPrice?: string;
+  minExperience?: string;
+  maxExperience?: string;
+  gender?: Gender;
+  speciality?: string;
+  minRate?: string;
+  maxRate?: string;
 }
 
 export interface IAction<T = undefined> {
