@@ -1,9 +1,10 @@
 'use client';
 
+import * as React from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { cn } from '@/lib/utils';
-import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from 'react';
+import { JSX } from 'react';
 
 const TooltipProvider = TooltipPrimitive.Provider;
 
@@ -11,9 +12,9 @@ const Tooltip = TooltipPrimitive.Root;
 
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
-const TooltipContent = forwardRef<
-  ComponentRef<typeof TooltipPrimitive.Content>,
-  ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+const TooltipContent = React.forwardRef<
+  React.ComponentRef<typeof TooltipPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => (
   <TooltipPrimitive.Content
     ref={ref}
@@ -27,4 +28,20 @@ const TooltipContent = forwardRef<
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+type TooltipCompProps = {
+  children: React.ReactNode;
+  tip: string;
+};
+
+const TooltipComp = ({ children, tip }: TooltipCompProps): JSX.Element => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent>
+        <p>{tip}</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, TooltipComp };

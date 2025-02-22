@@ -1,12 +1,11 @@
 import { AppointmentStatus, VisitType } from './shared.enum';
+import { Dispatch, SetStateAction } from 'react';
+import { frequencies, weekDays } from '@/constants/appointments.constant';
 
-export interface IAppointmentRequest {
+export interface IAppointmentRequest extends ISlotBase {
   id: number;
   date: string;
-  startTime: string;
-  endTime: string;
   slotId: string;
-  type: VisitType;
   patient: {
     id: string;
     firstName: string;
@@ -20,5 +19,45 @@ export interface IAppointmentRequest {
 }
 
 export type ModalProps = Pick<IAppointmentRequest, 'patient' | 'option'> & {
-  setModal?: React.Dispatch<React.SetStateAction<boolean>>;
+  setModal?: Dispatch<SetStateAction<boolean>>;
 };
+
+export interface IRule {
+  freq?: IFrequency;
+  count?: number;
+  interval?: number;
+  byDay?: string;
+  byMonth?: string;
+  byMonthDay?: string;
+  byWeekNo?: string;
+}
+
+export type IFrequency = (typeof frequencies)[number];
+
+export type IWeekDays = (typeof weekDays)[number];
+
+interface ISlotBase {
+  startTime: string;
+  endTime: string;
+  type: VisitType;
+}
+
+export type SlotStatus = 'available';
+
+export interface ISlotPattern extends ISlotBase {
+  recurrence: string;
+  startDate: string;
+  endDate?: string;
+  duration: number;
+}
+
+export interface ISlot extends ISlotBase {
+  id: string;
+  date: string;
+  status: SlotStatus;
+  createdAt: string;
+  updatedAt: string;
+  doctorId: string;
+  patternId: string;
+  exceptionId: string | null;
+}

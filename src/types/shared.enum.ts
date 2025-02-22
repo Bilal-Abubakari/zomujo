@@ -51,6 +51,7 @@ export enum AppointmentStatus {
 export enum ToastStatus {
   Success = 'Success',
   Error = 'Error',
+  Info = 'Info',
 }
 
 export enum SidebarType {

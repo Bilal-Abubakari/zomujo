@@ -20,6 +20,7 @@ import {
   CreditCard,
   EarthLock,
   CalendarCheck2,
+  BetweenHorizontalStart,
 } from 'lucide-react';
 
 export const DASHBOARD_ROUTE = '/dashboard';
@@ -238,6 +239,11 @@ export const DOCTOR_SETTINGS_SIDEBAR: ISidebar = {
           title: 'Identification',
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/identification`,
           Icon: CreditCard,
+        },
+        {
+          title: 'Availability',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/availability`,
+          Icon: BetweenHorizontalStart,
         },
       ],
     },

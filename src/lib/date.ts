@@ -97,3 +97,13 @@ export function timeDifferenceChecker(dateStamp: Date | string, timeLimitInHours
   const hoursDifference = Math.abs(currentTime - timeToCheck) / 36e5;
   return hoursDifference > timeLimitInHours;
 }
+
+/**
+ * Extracts the time from a given date stamp and formats it as HH:MM.
+ * @param dateStamp - The date stamp to extract the time from.
+ * @returns The formatted time string.
+ */
+export function getTimeFromDateStamp(dateStamp: Date | string): string {
+  const date = new Date(dateStamp);
+  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}

@@ -105,3 +105,5 @@ export const healthInsurances = [
   { value: 'vitality', label: 'Vitality Health Insurance Limited' },
   { value: 'spectra', label: 'Spectra Health Mutual Insurance' },
 ];
+
+export const shortDaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
