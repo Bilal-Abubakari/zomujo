@@ -56,8 +56,8 @@ const CreateTimeSlots = (): JSX.Element => {
   const getSlotPattern = (): ISlotPattern => ({
     startDate: date?.from?.toISOString() ?? '',
     endDate: date?.to?.toISOString() ?? '',
-    startTime: startTime,
-    endTime: endTime,
+    startTime,
+    endTime,
     recurrence: generateRecurrenceRule(selectedWeekDays, frequency!),
     duration: slotDuration,
     type: VisitType.Virtual,
