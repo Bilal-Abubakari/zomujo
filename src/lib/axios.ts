@@ -16,9 +16,9 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (isAxiosError(error)) {
-      const user = localStorage.getItem('persist:user');
-      if (error.response?.status === 401 && user) {
-        const { loggedInAt } = JSON.parse(user);
+      const user = JSON.parse(localStorage.getItem('persist:user') || '{}');
+      const loggedInAt = user?.loggedInAt;
+      if (error.response?.status === 401 && loggedInAt) {
         // Session usually expires after 24 hours
         // Let's allow a 30 minutes backup time to gracefully log out the user
         // Hence reason for 23.5 hours

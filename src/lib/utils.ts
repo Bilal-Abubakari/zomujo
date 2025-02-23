@@ -82,7 +82,7 @@ export const downloadFileWithUrl = (url: string, filename: string): void => {
  * @returns The capitalized string or sentence
  */
 export const capitalize = (text: string): string =>
-  text.replace(/\b\w/g, (char) => char.toUpperCase());
+  text.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 
 /**
  * Opens external urls in a new tab

@@ -10,7 +10,7 @@ export const AvatarGreetings = (): JSX.Element => {
   const userName = useAppSelector(selectUserName);
 
   return (
-    <div className="mt-[14px] flex items-center justify-items-center gap-3 py-6">
+    <div className="mb-6 flex items-center justify-items-center gap-3">
       <AvatarComp imageSrc="https://github.com/shadcn.png" name={userName} imageAlt={userName} />
       <div className="flex flex-col">
         <span className="text-[18px] text-grayscale-500">
