@@ -53,7 +53,8 @@ const UpcomingAppointmentCard = (): JSX.Element => {
                 </div>
                 <div className="flex flex-col justify-center">
                   <p className="text-sm font-bold">
-                    Consultation - Dr {appointment.doctor?.firstName} {appointment.doctor?.lastName}{' '}
+                    Consultation - Dr {appointment.doctor?.firstName}{' '}
+                    {appointment.doctor?.lastName}{' '}
                   </p>
                   <p className="text-xs font-medium text-gray-400">
                     {appointment.doctor?.specializations
