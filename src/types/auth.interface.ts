@@ -45,7 +45,7 @@ export interface ISignUp extends IBaseUser {
   role: Role;
   lat: number;
   long: number;
-  gpslink: string;
+  gpsLink: string;
 }
 
 export interface ILogin {
