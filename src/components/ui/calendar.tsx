@@ -53,14 +53,8 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Chevron: ({
-          orientation,
-          className,
-          ...props
-        }: {
-          orientation: 'left' | 'right';
-          className: string;
-        }) => {
+        // eslint-disable-next-line react/prop-types
+        Chevron: ({ orientation, className, ...props }) => {
           if (orientation === 'left') {
             return <ChevronLeft className={cn('h-4 w-4', className)} {...props} />;
           }
