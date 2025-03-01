@@ -46,7 +46,7 @@ const SignUpForm = (): JSX.Element => {
     location: requiredStringSchema(),
     long: coordinatesSchema,
     lat: coordinatesSchema,
-    gpslink: requiredStringSchema(),
+    gpsLink: requiredStringSchema(),
   });
 
   const patientSchema = z
@@ -126,7 +126,7 @@ const SignUpForm = (): JSX.Element => {
 
       setValue('lat', place.geometry.location.lat());
       setValue('long', place.geometry.location.lng());
-      setValue('gpslink', place.url || '');
+      setValue('gpsLink', place.url || '');
       setValue('location', value.description, {
         shouldValidate: true,
       });

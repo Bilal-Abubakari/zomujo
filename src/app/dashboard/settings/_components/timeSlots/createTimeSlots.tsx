@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { CalendarIcon, Info } from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { IFrequency, ISlotPattern, IWeekDays } from '@/types/appointment';
@@ -27,6 +26,7 @@ import { Confirmation } from '@/components/ui/dialog';
 import { shortDaysOfTheWeek } from '@/constants/constants';
 import { TooltipComp } from '@/components/ui/tooltip';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
+import moment from 'moment/moment';
 
 const CreateTimeSlots = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
@@ -161,10 +161,10 @@ const CreateTimeSlots = (): JSX.Element => {
                           {date?.from ? (
                             date.to ? (
                               <>
-                                {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
+                                {moment(date.from).format('LT')} - {moment(date.to).format('LT')}
                               </>
                             ) : (
-                              format(date.from, 'LLL dd, y')
+                              moment(date.from).format('LT')
                             )
                           ) : (
                             <span>Pick a date</span>
