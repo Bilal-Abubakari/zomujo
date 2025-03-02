@@ -8,7 +8,7 @@ import { useAppDispatch } from '@/lib/hooks';
 import { createPatternException } from '@/lib/features/appointments/appointmentsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import moment from 'moment';
@@ -28,9 +28,7 @@ const formSchema = z
   .object({
     date: requiredStringSchema(),
     startTime: requiredStringSchema(),
-    endTime: z.string({
-      required_error: 'End time is required',
-    }),
+    endTime: requiredStringSchema(),
     type: requiredStringSchema(),
     reason: requiredStringSchema(),
   })
@@ -75,7 +73,9 @@ const CreateException = ({
     );
     toast(payload as Toast);
     setLoading(false);
-    closeCreateException();
+    if (!showErrorToast(payload)) {
+      closeCreateException();
+    }
   };
 
   return (
