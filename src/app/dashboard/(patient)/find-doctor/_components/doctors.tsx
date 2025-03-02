@@ -35,9 +35,7 @@ const Doctors = (): JSX.Element => {
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
-  const [queryParameters, setQueryParameters] = useState<
-    Required<IQueryParams<AcceptDeclineStatus>>
-  >({
+  const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus>>({
     page: 1,
     orderDirection: 'desc',
     orderBy: 'createdAt',
@@ -67,13 +65,15 @@ const Doctors = (): JSX.Element => {
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       const target = entries[0];
-      const hasMorePages = paginationData && queryParameters?.page < paginationData?.totalPages;
-      const canLoadMore = target.isIntersecting && hasMorePages && !isLoading;
-      if (canLoadMore) {
-        setQueryParameters((prev) => ({
-          ...prev,
-          page: prev.page + 1,
-        }));
+      if (queryParameters?.page) {
+        const hasMorePages = paginationData && queryParameters.page < paginationData?.totalPages;
+        const canLoadMore = target.isIntersecting && hasMorePages && !isLoading;
+        if (canLoadMore) {
+          setQueryParameters((prev) => ({
+            ...prev,
+            page: (prev.page ?? 0) + 1,
+          }));
+        }
       }
     },
     [paginationData, queryParameters],
