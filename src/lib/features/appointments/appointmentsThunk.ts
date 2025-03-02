@@ -3,8 +3,8 @@ import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { Toast } from '@/hooks/use-toast';
 import {
+  IPatternException,
   ISlot,
-  ISlotException,
   ISlotPattern,
   ISlotPatternBase,
   SlotStatus,
@@ -83,7 +83,7 @@ export const getSlotPatterns = createAsyncThunk(
 
 export const createPatternException = createAsyncThunk(
   'appointments/createPatternException',
-  async (exception: ISlotException): Promise<Toast> => {
+  async (exception: IPatternException): Promise<Toast> => {
     try {
       const { data } = await axios.post<IResponse>(`appointments/slot-exception`, exception);
       return generateSuccessToast(data.message);

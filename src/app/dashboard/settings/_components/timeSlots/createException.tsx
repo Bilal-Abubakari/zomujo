@@ -69,8 +69,8 @@ const CreateException = ({
       createPatternException({
         ...data,
         patternId,
-        startTime: parseTime(startTime),
-        endTime: parseTime(endTime),
+        startTime: parseTime(startTime).toISOString(),
+        endTime: parseTime(endTime).toISOString(),
       }),
     );
     toast(payload as Toast);
