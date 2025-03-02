@@ -16,7 +16,7 @@ import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DateRange } from 'react-day-picker';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { IFrequency, ISlotPattern, IWeekDays } from '@/types/appointment';
+import { IFrequency, ISlotPatternBase, IWeekDays } from '@/types/appointment';
 import { createAppointmentSlot } from '@/lib/features/appointments/appointmentsThunk';
 import { useAppDispatch } from '@/lib/hooks';
 import { generateRecurrenceRule, generateSlotDescription } from '@/lib/rule';
@@ -53,7 +53,7 @@ const CreateTimeSlots = (): JSX.Element => {
     return false;
   };
 
-  const getSlotPattern = (): ISlotPattern => ({
+  const getSlotPattern = (): ISlotPatternBase => ({
     startDate: date?.from?.toISOString() ?? '',
     endDate: date?.to?.toISOString() ?? '',
     startTime,
@@ -161,10 +161,10 @@ const CreateTimeSlots = (): JSX.Element => {
                           {date?.from ? (
                             date.to ? (
                               <>
-                                {moment(date.from).format('LT')} - {moment(date.to).format('LT')}
+                                {moment(date.from).format('LL')} - {moment(date.to).format('LL')}
                               </>
                             ) : (
-                              moment(date.from).format('LT')
+                              moment(date.from).format('LL')
                             )
                           ) : (
                             <span>Pick a date</span>
@@ -175,10 +175,11 @@ const CreateTimeSlots = (): JSX.Element => {
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
-                      initialFocus
+                      autoFocus
                       mode="range"
                       defaultMonth={date?.from}
-                      fromDate={new Date()}
+                      startMonth={new Date()}
+                      hidden={[{ before: new Date() }]}
                       selected={date}
                       onSelect={setDate}
                       numberOfMonths={2}

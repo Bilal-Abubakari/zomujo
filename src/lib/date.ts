@@ -5,6 +5,13 @@ interface WeekdayObject {
   weekday: string;
 }
 
+/**
+ * Returns an array of objects representing the weekdays of the current week.
+ * Each object contains the day of the month and the abbreviated weekday name.
+ *
+ * @param today - The date to use as the reference point for the current week. Defaults to the current date.
+ * @returns An array of objects representing the weekdays of the current week (Monday to Friday).
+ */
 export function getWeekdaysOfCurrentWeek(today = new Date()): WeekdayObject[] {
   const currentDay = today.getDate();
   const currentWeekday = today.getDay(); // Sunday is 0, Monday is 1, ..., Saturday is 6
@@ -29,11 +36,22 @@ export function getWeekdaysOfCurrentWeek(today = new Date()): WeekdayObject[] {
   return weekdays;
 }
 
+/**
+ * Converts a day index to its corresponding weekday string.
+ *
+ * @param dayIndex - The index of the day (0 for Sunday, 1 for Monday, ..., 6 for Saturday).
+ * @returns The abbreviated weekday string (e.g., 'Sun', 'Mon').
+ */
 function getWeekdayString(dayIndex: number): string {
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return weekdays[dayIndex];
 }
 
+/**
+ * Returns the current time in GMT (UTC) in the format HH:MM AM/PM.
+ *
+ * @returns {string} - The current time in GMT.
+ */
 export function getCurrentTimeInGMT(): string {
   const now = new Date();
 
@@ -48,12 +66,26 @@ export function getCurrentTimeInGMT(): string {
   return now.toLocaleTimeString('en-GB', options).toUpperCase();
 }
 
+/**
+ * Calculates the maximum date based on the given age limit.
+ *
+ * @param ageLimit - The age limit to calculate the maximum date. Defaults to 18.
+ * @returns The maximum date as a string in the format YYYY-MM-DD.
+ */
 export const maxDate = (ageLimit = 18): string => {
   const today = new Date();
   const maxDate = new Date(today.getFullYear() - ageLimit, today.getMonth(), today.getDate());
   return maxDate.toISOString().split('T')[0];
 };
 
+/**
+ * Returns a greeting message based on the current time.
+ *
+ * @returns {string} - The greeting message.
+ *   - "Good morning" if the current time is between 5 AM and 12 PM.
+ *   - "Good afternoon" if the current time is between 12 PM and 5 PM.
+ *   - "Good evening" if the current time is after 5 PM or before 5 AM.
+ */
 export function getGreeting(): string {
   const currentHour = new Date().getHours();
   if (currentHour >= 5 && currentHour < 12) {
@@ -64,6 +96,12 @@ export function getGreeting(): string {
   return 'Good evening';
 }
 
+/**
+ * Formats a given date to a string in the format "DD MMM YYYY" eg: 12 Dec 2025.
+ *
+ * @param date - The date to format, either as a Date object or a string.
+ * @returns The formatted date string.
+ */
 export function getFormattedDate(date: Date | string): string {
   return new Date(date).toLocaleDateString('en', {
     day: 'numeric',
@@ -107,3 +145,16 @@ export function getTimeFromDateStamp(dateStamp: Date | string): string {
   const date = new Date(dateStamp);
   return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
+
+/**
+ * Parses a time string in the format "HH:MM" and returns a Date object with the time set.
+ *
+ * @param time - The time string to parse.
+ * @returns A Date object with the time set to the parsed hours and minutes.
+ */
+export const parseTime = (time: string): Date => {
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+};
