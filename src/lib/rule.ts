@@ -1,4 +1,4 @@
-import { IFrequency, IRule, ISlotPattern, IWeekDays } from '@/types/appointment';
+import { IFrequency, IRule, ISlotPatternBase, IWeekDays } from '@/types/appointment';
 
 /**
  * Generates a recurrence rule string based on the provided weekdays and frequency.
@@ -27,7 +27,7 @@ export const generateRecurrenceRule = (weekDays: IWeekDays[], frequency: IFreque
  * @returns The formatted slot description string.
  */
 export const generateSlotDescription = (
-  { startDate, endDate, endTime, startTime, duration, type }: ISlotPattern,
+  { startDate, endDate, endTime, startTime, duration, type }: ISlotPatternBase,
   frequency: IFrequency,
   weekDays: IWeekDays[],
 ): string => {
@@ -75,4 +75,22 @@ export const weekDayMap: { [key in IWeekDays]: string } = {
   TH: 'Thursday',
   FR: 'Friday',
   SA: 'Saturday',
+};
+
+/**
+ * Extracts the frequency from an iCalendar recurrence rule.
+ * @param rule
+ */
+export const getFrequencyFromRule = (rule: string): IFrequency => {
+  const frequency = rule.match(/FREQ=(.*?);/)?.[1];
+  return frequency as IFrequency;
+};
+
+/**
+ * Extracts the weekdays from an iCalendar recurrence rule.
+ * @param rule
+ */
+export const getWeekDaysFromRule = (rule: string): IWeekDays[] => {
+  const weekdays = rule.match(/BYDAY=(.*)/)?.[1];
+  return weekdays?.split(',') as IWeekDays[];
 };

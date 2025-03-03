@@ -8,25 +8,31 @@ import { IQueryParams } from '@/types/shared.interface';
 
 interface UseDropdownActionProps<T> {
   setConfirmation: Dispatch<React.SetStateAction<ConfirmationProps>>;
-  setQueryParameters: Dispatch<React.SetStateAction<IQueryParams<T>>>;
+  setQueryParameters?: Dispatch<React.SetStateAction<IQueryParams<T>>>;
 }
 
 export const useDropdownAction = <T extends string>({
   setConfirmation,
   setQueryParameters,
 }: UseDropdownActionProps<T>): {
-  handleDropdownAction: (
+  handleDropdownAction: <U extends { id: string }>(
     actionThunks: AsyncThunk<Toast, string, object>,
     id: string,
+    data?: U[],
+    setTableData?: Dispatch<React.SetStateAction<U[]>>,
+    removeItem?: boolean,
   ) => Promise<void>;
   isConfirmationLoading: boolean;
 } => {
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false);
   const dispatch = useAppDispatch();
 
-  const handleDropdownAction = async (
+  const handleDropdownAction = async <U extends { id: string }>(
     actionThunks: AsyncThunk<Toast, string, object>,
     id: string,
+    data?: U[],
+    setTableData?: Dispatch<React.SetStateAction<U[]>>,
+    removeItem = false,
   ): Promise<void> => {
     setIsConfirmationLoading(true);
 
@@ -40,10 +46,17 @@ export const useDropdownAction = <T extends string>({
           ...prev,
           open: false,
         }));
-        setQueryParameters((prev) => ({
-          ...prev,
-          page: 1,
-        }));
+        if (setQueryParameters) {
+          setQueryParameters((prev) => ({
+            ...prev,
+            page: 1,
+          }));
+        }
+
+        if (data && setTableData && removeItem) {
+          const updatedData = data.filter((item) => item.id !== id);
+          setTableData(updatedData);
+        }
       }
     };
 
