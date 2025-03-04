@@ -27,7 +27,7 @@ export const generateRecurrenceRule = (weekDays: IWeekDays[], frequency: IFreque
  * @returns The formatted slot description string.
  */
 export const generateSlotDescription = (
-  { startDate, endDate, endTime, startTime, duration, type }: ISlotPatternBase,
+  { startDate, endDate, endTime, startTime, duration }: ISlotPatternBase,
   frequency: IFrequency,
   weekDays: IWeekDays[],
 ): string => {
@@ -58,7 +58,7 @@ export const generateSlotDescription = (
   }
 
   return (
-    `You are creating ${type} appointment slots that will occur ${daysStr} ` +
+    `You are creating appointment slots that will occur ${daysStr} ` +
     `from ${startTime} to ${endTime}, ` +
     `starting from ${startDateStr} ${endDate ? `to ${endDateStr}` : ''} on a ${frequency.toLowerCase()} basis, each slot being ${duration} minutes long.`
   );

@@ -2,6 +2,7 @@ import { Toast } from '@/hooks/use-toast';
 import { ToastStatus } from '@/types/shared.enum';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { IQueryParams } from '@/types/shared.interface';
 
 /**
  * Combines multiple class names into a single string
@@ -89,3 +90,17 @@ export const capitalize = (text: string): string =>
  * @param url
  */
 export const openExternalUrls = (url: string): Window | null => window.open(url, '_blank');
+
+/**
+ * Generates a valid query string from the given query parameters.
+ * Filters out any parameters with undefined values.
+ *
+ * @param queryParams - An object containing query parameters as key-value pairs.
+ * @returns A valid query string.
+ */
+export const getValidQueryString = (queryParams: IQueryParams<unknown>): string => {
+  const filteredQueryParams = Object.fromEntries(
+    Object.entries(queryParams).filter(([, value]) => value !== undefined),
+  );
+  return new URLSearchParams(filteredQueryParams).toString();
+};
