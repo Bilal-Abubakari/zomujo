@@ -49,6 +49,7 @@ const HospitalSettings = (): JSX.Element => {
   } = useImageUpload<IHospitalProfile>({
     setValue,
     defaultImageUrl: org.image,
+    fieldName: 'image',
   });
 
   async function onSubmit(hospitalProfile: Partial<IHospitalProfile>): Promise<void> {
