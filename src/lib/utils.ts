@@ -94,13 +94,16 @@ export const openExternalUrls = (url: string): Window | null => window.open(url,
 /**
  * Generates a valid query string from the given query parameters.
  * Filters out any parameters with undefined values.
+ * Also converts Date type to ISOString
  *
  * @param queryParams - An object containing query parameters as key-value pairs.
  * @returns A valid query string.
  */
 export const getValidQueryString = (queryParams: IQueryParams<unknown>): string => {
   const filteredQueryParams = Object.fromEntries(
-    Object.entries(queryParams).filter(([, value]) => value !== undefined),
+    Object.entries(queryParams)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => [key, value instanceof Date ? value.toISOString() : value]),
   );
   return new URLSearchParams(filteredQueryParams).toString();
 };

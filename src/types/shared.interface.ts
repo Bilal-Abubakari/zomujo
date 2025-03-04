@@ -24,8 +24,8 @@ export interface IQueryParams<T = undefined> {
   orderDirection?: string;
   orderBy?: string;
   status?: T;
-  startDate?: string;
-  endDate?: string;
+  startDate?: Date;
+  endDate?: Date;
   priceMin?: string;
   priceMax?: string;
   experienceMin?: string;
