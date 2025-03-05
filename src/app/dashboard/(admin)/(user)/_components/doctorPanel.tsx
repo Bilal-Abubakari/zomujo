@@ -2,14 +2,7 @@
 import { AvatarWithName } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
-import {
-  DropdownMenuContent,
-  OptionsMenu,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-  ISelected,
-} from '@/components/ui/dropdown-menu';
+import { OptionsMenu, ISelected, ActionsDropdownMenus } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { PaginationData, TableData } from '@/components/ui/table';
 import {
@@ -26,7 +19,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import {
   Binoculars,
   CalendarX,
-  Ellipsis,
   FileDown,
   FileUp,
   ListFilter,
@@ -53,6 +45,7 @@ import GenderBadge from '@/app/dashboard/_components/genderBadge';
 import { IBaseUser } from '@/types/auth.interface';
 import { statusFilterOptions as baseStatusOptions } from '@/constants/constants';
 import { StatusBadge } from '@/components/ui/statusBadge';
+import { AsyncThunk } from '@reduxjs/toolkit';
 
 const statusFilterOptions: ISelected[] = [
   ...baseStatusOptions,
@@ -108,6 +101,27 @@ const DoctorPanel = (): JSX.Element => {
     void fetchData();
   }, [queryParameters]);
 
+  const handleConfirmationOpen = (
+    acceptTitle: string,
+    description: string,
+    id: string,
+    actionThunk: AsyncThunk<Toast, string, object>,
+  ): void => {
+    setConfirmation((prev) => ({
+      ...prev,
+      open: true,
+      acceptCommand: (): Promise<void> => handleDropdownAction(actionThunk, id),
+      acceptTitle,
+      declineTitle: 'Cancel',
+      rejectCommand: (): void =>
+        setConfirmation((prev) => ({
+          ...prev,
+          open: false,
+        })),
+      description: `Are you sure you want to ${description}?`,
+    }));
+  };
+
   const columns: ColumnDef<IDoctor>[] = [
     {
       accessorKey: 'MDCRegistration',
@@ -148,103 +162,78 @@ const DoctorPanel = (): JSX.Element => {
         const isApproved = status === AcceptDeclineStatus.Accepted;
         const isDeactivated = status === AcceptDeclineStatus.Deactivated;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex w-11 cursor-pointer items-center justify-center text-center text-sm text-black">
-                <Ellipsis />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleView(id)}>
-                <Binoculars /> View
-              </DropdownMenuItem>
-              {isDeactivated && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    setConfirmation((prev) => ({
-                      ...prev,
-                      open: true,
-                      acceptCommand: () => handleDropdownAction(activateUser, id),
-                      acceptTitle: 'Activate',
-                      declineTitle: 'Cancel',
-                      rejectCommand: () =>
-                        setConfirmation((prev) => ({
-                          ...prev,
-                          open: false,
-                        })),
-                      description: `Are you sure you want to activate ${firstName}'s account?`,
-                    }))
-                  }
-                >
-                  <ShieldCheck /> Activate
-                </DropdownMenuItem>
-              )}
-              {isPending && (
-                <>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setConfirmation((prev) => ({
-                        ...prev,
-                        open: true,
-                        acceptCommand: () => handleDropdownAction(approveDoctorRequest, id),
-                        acceptTitle: 'Approve',
-                        declineTitle: 'Cancel',
-                        rejectCommand: () =>
-                          setConfirmation((prev) => ({
-                            ...prev,
-                            open: false,
-                          })),
-                        description: `Are you sure you want to approve ${firstName}'s account?`,
-                      }))
-                    }
-                  >
+          <ActionsDropdownMenus
+            menuContent={[
+              {
+                title: (
+                  <>
+                    <Binoculars /> View
+                  </>
+                ),
+                clickCommand: () => handleView(id),
+              },
+              {
+                title: (
+                  <>
+                    <ShieldCheck /> Activate
+                  </>
+                ),
+                visible: isDeactivated,
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Activate',
+                    `activate ${firstName}'s account`,
+                    id,
+                    activateUser,
+                  ),
+              },
+              {
+                title: (
+                  <>
                     <Signature /> Approve
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setConfirmation((prev) => ({
-                        ...prev,
-                        open: true,
-                        acceptCommand: () => handleDropdownAction(declineDoctor, id),
-                        acceptTitle: 'Decline',
-                        declineTitle: 'Cancel',
-                        rejectCommand: () =>
-                          setConfirmation((prev) => ({
-                            ...prev,
-                            open: false,
-                          })),
-                        description: `Are you sure you want to decline ${firstName}'s request?`,
-                      }))
-                    }
-                  >
+                  </>
+                ),
+                visible: isPending,
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Approve',
+                    `approve ${firstName}'s account`,
+                    id,
+                    approveDoctorRequest,
+                  ),
+              },
+              {
+                title: (
+                  <>
                     <MessageSquareX /> Decline
-                  </DropdownMenuItem>
-                </>
-              )}
-              {isApproved && (
-                <DropdownMenuItem
-                  className="text-red-600"
-                  onClick={() =>
-                    setConfirmation((prev) => ({
-                      ...prev,
-                      open: true,
-                      acceptCommand: () => handleDropdownAction(deactivateUser, id),
-                      acceptTitle: 'Deactivate',
-                      declineTitle: 'Cancel',
-                      rejectCommand: () =>
-                        setConfirmation((prev) => ({
-                          ...prev,
-                          open: false,
-                        })),
-                      description: `Are you sure you want to deactivate ${firstName}'s account?`,
-                    }))
-                  }
-                >
-                  <CalendarX /> Deactivate
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  </>
+                ),
+                visible: isPending,
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Decline',
+                    `decline ${firstName}'s request`,
+                    id,
+                    declineDoctor,
+                  ),
+              },
+              {
+                title: (
+                  <>
+                    <CalendarX /> Deactivate
+                  </>
+                ),
+                visible: isApproved,
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Deactivate',
+                    `deactivate ${firstName}'s account`,
+                    id,
+                    deactivateUser,
+                  ),
+              },
+            ]}
+          />
         );
       },
       enableHiding: false,
@@ -383,8 +372,8 @@ const DoctorPanel = (): JSX.Element => {
                   }
                   className="h-10"
                 />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                <ActionsDropdownMenus
+                  action={
                     <Button
                       variant="secondary"
                       child={
@@ -401,22 +390,26 @@ const DoctorPanel = (): JSX.Element => {
                       }
                       className="h-10"
                     />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>
-                      <label className="flex w-full gap-x-2" htmlFor="fileUploadInput">
-                        <FileUp /> Upload
-                      </label>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        downloadFileWithUrl('/csv/doctor-invitation.csv', 'doctor-invitation.csv')
-                      }
-                    >
-                      <FileDown /> Download Template
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  }
+                  menuContent={[
+                    {
+                      title: (
+                        <label className="flex w-full gap-x-2" htmlFor="fileUploadInput">
+                          <FileUp /> Upload
+                        </label>
+                      ),
+                    },
+                    {
+                      title: (
+                        <>
+                          <FileDown /> Download Template
+                        </>
+                      ),
+                      clickCommand: () =>
+                        downloadFileWithUrl('/csv/doctor-invitation.csv', 'doctor-invitation.csv'),
+                    },
+                  ]}
+                />
               </div>
             )}
           </div>
