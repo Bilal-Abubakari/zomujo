@@ -39,14 +39,14 @@ const ResetPasswordForm = (): JSX.Element => {
   });
 
   const dispatch = useAppDispatch();
-  const [successMessage, setMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const { isLoading, errorMessage } = useAppSelector(selectThunkState);
 
   const onSubmit = async (passwordCredentials: IResetPassword): Promise<void> => {
     const { payload } = await dispatch(resetPassword(passwordCredentials));
     if (payload) {
-      setMessage(String(payload));
+      setSuccessMessage(String(payload));
       reset();
     }
 

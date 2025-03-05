@@ -1,6 +1,5 @@
 'use client';
-import { AvatarComp } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { AvatarWithName } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
 import {
@@ -53,6 +52,7 @@ import { useCSVReader } from '@/hooks/useCSVReader';
 import GenderBadge from '@/app/dashboard/_components/genderBadge';
 import { IBaseUser } from '@/types/auth.interface';
 import { statusFilterOptions as baseStatusOptions } from '@/constants/constants';
+import { StatusBadge } from '@/components/ui/statusBadge';
 
 const statusFilterOptions: ISelected[] = [
   ...baseStatusOptions,
@@ -66,9 +66,9 @@ const DoctorPanel = (): JSX.Element => {
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const [openInvitationsPreview, setOpenInvitationsPreview] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<IDoctor>();
-  const [openModal, setModalOpen] = useState(false);
-  const [openInviteModal, setInviteModalOpen] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [openInviteModal, setOpenInviteModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
   const dispatch = useAppDispatch();
   const [tableData, setTableData] = useState<IDoctor[]>([]);
@@ -91,11 +91,11 @@ const DoctorPanel = (): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      setLoading(true);
+      setIsLoading(true);
       const { payload } = await dispatch(getAllDoctors(queryParameters));
       if (payload && showErrorToast(payload)) {
         toast(payload);
-        setLoading(false);
+        setIsLoading(false);
         return;
       }
 
@@ -103,7 +103,7 @@ const DoctorPanel = (): JSX.Element => {
 
       setTableData(rows);
       setPaginationData(pagination);
-      setLoading(false);
+      setIsLoading(false);
     };
     void fetchData();
   }, [queryParameters]);
@@ -117,29 +117,16 @@ const DoctorPanel = (): JSX.Element => {
       accessorKey: 'firstName',
       header: 'Name',
       cell: ({ row: { original } }): JSX.Element => {
-        const name = `${original.firstName} ${original.lastName}`;
+        const { firstName, lastName, profilePicture } = original;
         return (
-          <div className="flex items-center justify-start gap-2">
-            <AvatarComp imageSrc={original.profilePicture} name={name} className="h-7 w-7" /> {name}
-          </div>
+          <AvatarWithName imageSrc={profilePicture} firstName={firstName} lastName={lastName} />
         );
       },
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => {
-        switch (original.status) {
-          case AcceptDeclineStatus.Accepted:
-            return <Badge variant="default">Approved</Badge>;
-          case AcceptDeclineStatus.Declined:
-            return <Badge variant="destructive">Declined</Badge>;
-          case AcceptDeclineStatus.Deactivated:
-            return <Badge variant="destructive">Deactivated</Badge>;
-          default:
-            return <Badge variant="brown">Pending</Badge>;
-        }
-      },
+      cell: ({ row: { original } }): JSX.Element => <StatusBadge status={original.status} />,
     },
     {
       accessorKey: 'contact',
@@ -287,7 +274,7 @@ const DoctorPanel = (): JSX.Element => {
     const { payload } = await dispatch(inviteDoctors({ orgId, users: inviteDoctorData }));
     setIsInviting(false);
     if (payload && !showErrorToast(payload)) {
-      setInviteModalOpen(false);
+      setOpenInviteModal(false);
       setOpenInvitationsPreview(false);
     }
     setQueryParameters((prev) => ({
@@ -301,7 +288,7 @@ const DoctorPanel = (): JSX.Element => {
     const doctor = tableData.find(({ id }) => id === doctorId);
     if (doctor) {
       setSelectedDoctor(doctor);
-      setModalOpen(true);
+      setOpenModal(true);
     }
   }
 
@@ -328,7 +315,7 @@ const DoctorPanel = (): JSX.Element => {
     <>
       <Modal
         className="max-w-xl"
-        setState={setInviteModalOpen}
+        setState={setOpenInviteModal}
         open={openInviteModal}
         content={
           <InviteUser
@@ -388,7 +375,7 @@ const DoctorPanel = (): JSX.Element => {
             {isOrganizationAdmin && (
               <div className="space-x-4">
                 <Button
-                  onClick={() => setInviteModalOpen(true)}
+                  onClick={() => setOpenInviteModal(true)}
                   child={
                     <>
                       <UserRoundPlus /> Invite Doctor
@@ -454,7 +441,7 @@ const DoctorPanel = (): JSX.Element => {
         open={openModal}
         content={<DoctorDetails {...selectedDoctor!} />}
         className="max-w-screen max-h-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
-        setState={setModalOpen}
+        setState={setOpenModal}
         showClose={true}
       />
 

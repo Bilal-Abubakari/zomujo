@@ -1,6 +1,5 @@
 'use client';
-import { AvatarComp } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { AvatarWithName } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
 import {
@@ -38,11 +37,12 @@ import { getAllAdmins, inviteAdmin } from '@/lib/features/admins/adminsThunk';
 import { getFormattedDate } from '@/lib/date';
 import { IBaseUser } from '@/types/auth.interface';
 import { statusFilterOptions } from '@/constants/constants';
+import { StatusBadge } from '@/components/ui/statusBadge';
 
 const AdminPanel = (): JSX.Element => {
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
-  const [openInviteModal, setInviteModalOpen] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [openInviteModal, setOpenInviteModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
   const dispatch = useAppDispatch();
   const [tableData, setTableData] = useState<IAdmin[]>([]);
@@ -65,11 +65,11 @@ const AdminPanel = (): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      setLoading(true);
+      setIsLoading(true);
       const { payload } = await dispatch(getAllAdmins(queryParameters));
       if (payload && showErrorToast(payload)) {
         toast(payload);
-        setLoading(false);
+        setIsLoading(false);
         return;
       }
 
@@ -77,7 +77,7 @@ const AdminPanel = (): JSX.Element => {
 
       setTableData(rows);
       setPaginationData(pagination);
-      setLoading(false);
+      setIsLoading(false);
     };
     void fetchData();
   }, [queryParameters]);
@@ -87,29 +87,16 @@ const AdminPanel = (): JSX.Element => {
       accessorKey: 'firstName',
       header: 'Name',
       cell: ({ row: { original } }): JSX.Element => {
-        const name = `${original.firstName} ${original.lastName}`;
+        const { firstName, lastName, profilePicture } = original;
         return (
-          <div className="flex items-center justify-start gap-2">
-            <AvatarComp imageSrc={original.profilePicture} name={name} className="h-7 w-7" /> {name}
-          </div>
+          <AvatarWithName imageSrc={profilePicture} firstName={firstName} lastName={lastName} />
         );
       },
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => {
-        switch (original.status) {
-          case AcceptDeclineStatus.Accepted:
-            return <Badge variant="default">Approved</Badge>;
-          case AcceptDeclineStatus.Declined:
-            return <Badge variant="destructive">Declined</Badge>;
-          case AcceptDeclineStatus.Deactivated:
-            return <Badge variant="destructive">Deactivated</Badge>;
-          default:
-            return <Badge variant="brown">Pending</Badge>;
-        }
-      },
+      cell: ({ row: { original } }): JSX.Element => <StatusBadge status={original.status} />,
     },
     {
       accessorKey: 'org.name',
@@ -199,7 +186,7 @@ const AdminPanel = (): JSX.Element => {
     const { payload } = await dispatch(inviteAdmin({ orgId, ...inviteAdminData }));
     setIsInviting(false);
     if (payload && !showErrorToast(payload)) {
-      setInviteModalOpen(false);
+      setOpenInviteModal(false);
     }
     setQueryParameters((prev) => ({
       ...prev,
@@ -226,7 +213,7 @@ const AdminPanel = (): JSX.Element => {
     <>
       <Modal
         className="max-w-xl"
-        setState={setInviteModalOpen}
+        setState={setOpenInviteModal}
         open={openInviteModal}
         content={
           <InviteUser
@@ -271,7 +258,7 @@ const AdminPanel = (): JSX.Element => {
             {isOrganizationAdmin && (
               <div className="space-x-4">
                 <Button
-                  onClick={() => setInviteModalOpen(true)}
+                  onClick={() => setOpenInviteModal(true)}
                   child={
                     <>
                       <UserRoundPlus /> Invite Admin
