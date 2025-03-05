@@ -1,11 +1,11 @@
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { Badge } from '@/components/ui/badge';
-import React from 'react';
+import React, { JSX } from 'react';
 
 type StatusBadgeProps = {
   status: AcceptDeclineStatus;
 };
-const StatusBadge = ({ status }: StatusBadgeProps) => {
+const StatusBadge = ({ status }: StatusBadgeProps): JSX.Element => {
   switch (status) {
     case AcceptDeclineStatus.Accepted:
       return <Badge variant="default">Approved</Badge>;
