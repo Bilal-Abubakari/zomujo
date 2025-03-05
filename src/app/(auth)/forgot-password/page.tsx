@@ -1,8 +1,7 @@
-import { ForgotPasswordSlide } from '@/assets/images';
 import AuthenticationFrame, { ImagePosition } from '../_components/authenticationFrame';
 import Text from '@/components/text/text';
 import Image from 'next/image';
-import { Logo } from '@/assets/images';
+import { Logo, ForgotPasswordSlide } from '@/assets/images';
 import ForgetPasswordForm from '../_components/forgetPasswordForm';
 import { JSX } from 'react';
 

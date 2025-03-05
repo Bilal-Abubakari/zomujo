@@ -1,16 +1,17 @@
 'use client';
 
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { Check, ChevronDown, ChevronRight, Circle, LucideProps } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, Circle, Ellipsis, LucideProps } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import {
+import React, {
   ComponentPropsWithoutRef,
   ComponentRef,
   forwardRef,
   ForwardRefExoticComponent,
   HTMLAttributes,
   JSX,
+  ReactNode,
   RefAttributes,
 } from 'react';
 
@@ -232,6 +233,38 @@ const OptionsMenu = ({
   </DropdownMenu>
 );
 
+export interface IMenuContent {
+  clickCommand?: () => void;
+  visible?: boolean;
+  title: ReactNode | string;
+}
+type ActionDropdownMenusProps = {
+  action?: ReactNode | string;
+  menuContent: IMenuContent[];
+};
+const ActionsDropdownMenus = ({ action, menuContent }: ActionDropdownMenusProps): JSX.Element => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      {action ? (
+        action
+      ) : (
+        <div className="flex w-11 cursor-pointer items-center justify-center text-center text-sm text-black">
+          <Ellipsis />
+        </div>
+      )}
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>
+      {menuContent.map(
+        ({ clickCommand, visible = true, title }, index) =>
+          visible && (
+            <DropdownMenuItem key={index} onClick={() => clickCommand && clickCommand()}>
+              {title}
+            </DropdownMenuItem>
+          ),
+      )}
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -249,4 +282,5 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
   OptionsMenu,
+  ActionsDropdownMenus,
 };

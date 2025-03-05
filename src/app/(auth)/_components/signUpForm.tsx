@@ -73,12 +73,14 @@ const SignUpForm = (): JSX.Element => {
   } = useForm<ISignUp>({
     resolver: async (data, context, options) => {
       const { role } = data;
-      const schema =
-        role === Role.Doctor
-          ? doctorsSchema
-          : role === Role.Admin
-            ? organizationsSchema
-            : patientSchema;
+      let schema;
+      if (role === Role.Doctor) {
+        schema = doctorsSchema;
+      } else if (role === Role.Admin) {
+        schema = organizationsSchema;
+      } else {
+        schema = patientSchema;
+      }
       return zodResolver(schema)(data, context, options);
     },
     defaultValues: {
@@ -100,14 +102,14 @@ const SignUpForm = (): JSX.Element => {
     }
   };
   const dispatch = useAppDispatch();
-  const [successMessage, setMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const { isLoading, errorMessage } = useAppSelector(selectThunkState);
   const onSubmit = async (userCredentials: ISignUp): Promise<void> => {
-    setMessage('');
+    setSuccessMessage('');
     const action = userCredentials.role === Role.Admin ? requestOrganization : signUp;
     const { payload } = await dispatch(action(userCredentials));
     if (payload) {
-      setMessage(String(payload));
+      setSuccessMessage(String(payload));
       reset();
     }
 

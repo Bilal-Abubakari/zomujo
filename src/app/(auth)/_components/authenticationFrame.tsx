@@ -9,12 +9,12 @@ export enum ImagePosition {
   Right = 'right',
 }
 
-type AuthenticationFrameProps = {
+type AuthenticationFrameProps = Readonly<{
   children: ReactNode;
   imageSlide: StaticImageData;
   imagePosition?: ImagePosition;
   imageAlt: string;
-};
+}>;
 export default function AuthenticationFrame({
   children,
   imageSlide,
