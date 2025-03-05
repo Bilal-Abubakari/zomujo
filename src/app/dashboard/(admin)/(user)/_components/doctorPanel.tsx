@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
 import { OptionsMenu, ISelected, ActionsDropdownMenus } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { PaginationData, TableData } from '@/components/ui/table';
+import { TableData } from '@/components/ui/table';
 import {
   approveDoctorRequest,
   declineDoctor,
@@ -14,7 +14,6 @@ import {
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { IDoctor } from '@/types/doctor.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
-import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Binoculars,
@@ -46,6 +45,7 @@ import { IBaseUser } from '@/types/auth.interface';
 import { statusFilterOptions as baseStatusOptions } from '@/constants/constants';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { AsyncThunk } from '@reduxjs/toolkit';
+import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 
 const statusFilterOptions: ISelected[] = [
   ...baseStatusOptions,
@@ -53,25 +53,19 @@ const statusFilterOptions: ISelected[] = [
     value: AcceptDeclineStatus.Declined,
     label: 'Rejected',
   },
+  {
+    value: AcceptDeclineStatus.Pending,
+    label: 'Pending',
+  },
 ];
 
 const DoctorPanel = (): JSX.Element => {
-  const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const [openInvitationsPreview, setOpenInvitationsPreview] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<IDoctor>();
   const [openModal, setOpenModal] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
   const dispatch = useAppDispatch();
-  const [tableData, setTableData] = useState<IDoctor[]>([]);
-  const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus | ''>>({
-    page: 1,
-    orderDirection: 'desc',
-    orderBy: 'createdAt',
-    status: '',
-    search: '',
-  });
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -81,25 +75,8 @@ const DoctorPanel = (): JSX.Element => {
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
   const isOrganizationAdmin = useAppSelector(selectIsOrganizationAdmin);
   const orgId = useAppSelector(selectOrganizationId);
-
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      setIsLoading(true);
-      const { payload } = await dispatch(getAllDoctors(queryParameters));
-      if (payload && showErrorToast(payload)) {
-        toast(payload);
-        setIsLoading(false);
-        return;
-      }
-
-      const { rows, ...pagination } = payload as IPagination<IDoctor>;
-
-      setTableData(rows);
-      setPaginationData(pagination);
-      setIsLoading(false);
-    };
-    void fetchData();
-  }, [queryParameters]);
+  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData } =
+    useFetchPaginatedData<IDoctor>(getAllDoctors);
 
   const handleConfirmationOpen = (
     acceptTitle: string,

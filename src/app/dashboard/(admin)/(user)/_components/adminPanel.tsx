@@ -10,10 +10,9 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { PaginationData, TableData } from '@/components/ui/table';
+import { TableData } from '@/components/ui/table';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
-import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   CalendarX,
@@ -24,7 +23,7 @@ import {
   ShieldCheck,
   UserRoundPlus,
 } from 'lucide-react';
-import React, { FormEvent, JSX, useEffect, useState } from 'react';
+import React, { FormEvent, JSX, useState } from 'react';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { useSearch } from '@/hooks/useSearch';
@@ -38,21 +37,12 @@ import { getFormattedDate } from '@/lib/date';
 import { IBaseUser } from '@/types/auth.interface';
 import { statusFilterOptions } from '@/constants/constants';
 import { StatusBadge } from '@/components/ui/statusBadge';
+import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 
 const AdminPanel = (): JSX.Element => {
-  const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const [openInviteModal, setOpenInviteModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
   const dispatch = useAppDispatch();
-  const [tableData, setTableData] = useState<IAdmin[]>([]);
-  const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus | ''>>({
-    page: 1,
-    orderDirection: 'desc',
-    orderBy: 'createdAt',
-    status: '',
-    search: '',
-  });
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -62,25 +52,8 @@ const AdminPanel = (): JSX.Element => {
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
   const isOrganizationAdmin = useAppSelector(selectIsOrganizationAdmin);
   const orgId = useAppSelector(selectOrganizationId);
-
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      setIsLoading(true);
-      const { payload } = await dispatch(getAllAdmins(queryParameters));
-      if (payload && showErrorToast(payload)) {
-        toast(payload);
-        setIsLoading(false);
-        return;
-      }
-
-      const { rows, ...pagination } = payload as IPagination<IAdmin>;
-
-      setTableData(rows);
-      setPaginationData(pagination);
-      setIsLoading(false);
-    };
-    void fetchData();
-  }, [queryParameters]);
+  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData } =
+    useFetchPaginatedData<IAdmin>(getAllAdmins);
 
   const columns: ColumnDef<IAdmin>[] = [
     {
