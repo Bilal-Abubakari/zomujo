@@ -32,14 +32,14 @@ const ForgetPasswordForm = (): JSX.Element => {
     mode: MODE.ON_TOUCH,
   });
   const [openModal, setOpenModal] = useState(false);
-  const [successMessage, setMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const dispatch = useAppDispatch();
   const { isLoading, errorMessage } = useAppSelector(selectThunkState);
 
   const onSubmit = async ({ email }: IForgotPassword): Promise<void> => {
     const { payload } = await dispatch(forgotPassword(email));
     if (payload) {
-      setMessage(String(payload));
+      setSuccessMessage(String(payload));
       reset();
     }
 

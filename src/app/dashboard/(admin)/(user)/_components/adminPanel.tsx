@@ -1,31 +1,22 @@
 'use client';
-import { AvatarComp } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { AvatarWithName } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
-import {
-  DropdownMenuContent,
-  OptionsMenu,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
+import { OptionsMenu, ActionsDropdownMenus } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { PaginationData, TableData } from '@/components/ui/table';
+import { TableData } from '@/components/ui/table';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
-import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   CalendarX,
-  Ellipsis,
   ListFilter,
   Search,
   SendHorizontal,
   ShieldCheck,
   UserRoundPlus,
 } from 'lucide-react';
-import React, { FormEvent, JSX, useEffect, useState } from 'react';
+import React, { FormEvent, JSX, useState } from 'react';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { useSearch } from '@/hooks/useSearch';
@@ -38,21 +29,13 @@ import { getAllAdmins, inviteAdmin } from '@/lib/features/admins/adminsThunk';
 import { getFormattedDate } from '@/lib/date';
 import { IBaseUser } from '@/types/auth.interface';
 import { statusFilterOptions } from '@/constants/constants';
+import { StatusBadge } from '@/components/ui/statusBadge';
+import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 
 const AdminPanel = (): JSX.Element => {
-  const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
-  const [openInviteModal, setInviteModalOpen] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [openInviteModal, setOpenInviteModal] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
   const dispatch = useAppDispatch();
-  const [tableData, setTableData] = useState<IAdmin[]>([]);
-  const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus | ''>>({
-    page: 1,
-    orderDirection: 'desc',
-    orderBy: 'createdAt',
-    status: '',
-    search: '',
-  });
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -62,54 +45,24 @@ const AdminPanel = (): JSX.Element => {
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
   const isOrganizationAdmin = useAppSelector(selectIsOrganizationAdmin);
   const orgId = useAppSelector(selectOrganizationId);
-
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      setLoading(true);
-      const { payload } = await dispatch(getAllAdmins(queryParameters));
-      if (payload && showErrorToast(payload)) {
-        toast(payload);
-        setLoading(false);
-        return;
-      }
-
-      const { rows, ...pagination } = payload as IPagination<IAdmin>;
-
-      setTableData(rows);
-      setPaginationData(pagination);
-      setLoading(false);
-    };
-    void fetchData();
-  }, [queryParameters]);
+  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData, updatePage } =
+    useFetchPaginatedData<IAdmin>(getAllAdmins);
 
   const columns: ColumnDef<IAdmin>[] = [
     {
       accessorKey: 'firstName',
       header: 'Name',
       cell: ({ row: { original } }): JSX.Element => {
-        const name = `${original.firstName} ${original.lastName}`;
+        const { firstName, lastName, profilePicture } = original;
         return (
-          <div className="flex items-center justify-start gap-2">
-            <AvatarComp imageSrc={original.profilePicture} name={name} className="h-7 w-7" /> {name}
-          </div>
+          <AvatarWithName imageSrc={profilePicture} firstName={firstName} lastName={lastName} />
         );
       },
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => {
-        switch (original.status) {
-          case AcceptDeclineStatus.Accepted:
-            return <Badge variant="default">Approved</Badge>;
-          case AcceptDeclineStatus.Declined:
-            return <Badge variant="destructive">Declined</Badge>;
-          case AcceptDeclineStatus.Deactivated:
-            return <Badge variant="destructive">Deactivated</Badge>;
-          default:
-            return <Badge variant="brown">Pending</Badge>;
-        }
-      },
+      cell: ({ row: { original } }): JSX.Element => <StatusBadge status={original.status} />,
     },
     {
       accessorKey: 'org.name',
@@ -136,58 +89,40 @@ const AdminPanel = (): JSX.Element => {
         const isApproved = status === AcceptDeclineStatus.Accepted;
         const isDeactivated = status === AcceptDeclineStatus.Deactivated;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex w-11 cursor-pointer items-center justify-center text-center text-sm text-black">
-                <Ellipsis />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {isDeactivated && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    setConfirmation((prev) => ({
-                      ...prev,
-                      open: true,
-                      acceptCommand: () => handleDropdownAction(activateUser, id),
-                      acceptTitle: 'Activate',
-                      declineTitle: 'Cancel',
-                      rejectCommand: () =>
-                        setConfirmation((prev) => ({
-                          ...prev,
-                          open: false,
-                        })),
-                      description: `Are you sure you want to activate ${firstName}'s account?`,
-                    }))
-                  }
-                >
-                  <ShieldCheck /> Activate
-                </DropdownMenuItem>
-              )}
-              {isApproved && (
-                <DropdownMenuItem
-                  className="text-red-600"
-                  onClick={() =>
-                    setConfirmation((prev) => ({
-                      ...prev,
-                      open: true,
-                      acceptCommand: () => handleDropdownAction(deactivateUser, id),
-                      acceptTitle: 'Deactivate',
-                      declineTitle: 'Cancel',
-                      rejectCommand: () =>
-                        setConfirmation((prev) => ({
-                          ...prev,
-                          open: false,
-                        })),
-                      description: `Are you sure you want to deactivate ${firstName}'s account?`,
-                    }))
-                  }
-                >
-                  <CalendarX /> Deactivate
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ActionsDropdownMenus
+            menuContent={[
+              {
+                title: (
+                  <>
+                    <ShieldCheck /> Activate
+                  </>
+                ),
+                visible: isDeactivated,
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Activate',
+                    `activate ${firstName}'s account`,
+                    id,
+                    activateUser,
+                  ),
+              },
+              {
+                title: (
+                  <>
+                    <CalendarX /> Deactivate
+                  </>
+                ),
+                visible: isApproved,
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Deactivate',
+                    `deactivate ${firstName}'s account`,
+                    id,
+                    deactivateUser,
+                  ),
+              },
+            ]}
+          />
         );
       },
       enableHiding: false,
@@ -199,7 +134,7 @@ const AdminPanel = (): JSX.Element => {
     const { payload } = await dispatch(inviteAdmin({ orgId, ...inviteAdminData }));
     setIsInviting(false);
     if (payload && !showErrorToast(payload)) {
-      setInviteModalOpen(false);
+      setOpenInviteModal(false);
     }
     setQueryParameters((prev) => ({
       ...prev,
@@ -217,16 +152,17 @@ const AdminPanel = (): JSX.Element => {
     }));
   }
 
-  const { handleDropdownAction, isConfirmationLoading } = useDropdownAction({
-    setConfirmation,
-    setQueryParameters,
-  });
+  const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
+    useDropdownAction({
+      setConfirmation,
+      setQueryParameters,
+    });
 
   return (
     <>
       <Modal
         className="max-w-xl"
-        setState={setInviteModalOpen}
+        setState={setOpenInviteModal}
         open={openInviteModal}
         content={
           <InviteUser
@@ -271,7 +207,7 @@ const AdminPanel = (): JSX.Element => {
             {isOrganizationAdmin && (
               <div className="space-x-4">
                 <Button
-                  onClick={() => setInviteModalOpen(true)}
+                  onClick={() => setOpenInviteModal(true)}
                   child={
                     <>
                       <UserRoundPlus /> Invite Admin
@@ -285,14 +221,8 @@ const AdminPanel = (): JSX.Element => {
           <TableData
             columns={columns}
             data={tableData}
-            columnVisibility={{ profilePicture: false, lastName: false, id: false }}
             page={queryParameters.page}
-            userPaginationChange={({ pageIndex }) =>
-              setQueryParameters((prev) => ({
-                ...prev,
-                page: pageIndex + 1,
-              }))
-            }
+            userPaginationChange={({ pageIndex }) => updatePage(pageIndex)}
             paginationData={paginationData}
             isLoading={isLoading}
           />
@@ -301,12 +231,7 @@ const AdminPanel = (): JSX.Element => {
       <Confirmation
         {...confirmation}
         showClose={true}
-        setState={() =>
-          setConfirmation((prev) => ({
-            ...prev,
-            open: false,
-          }))
-        }
+        setState={() => handleConfirmationClose()}
         isLoading={isConfirmationLoading}
       />
     </>
