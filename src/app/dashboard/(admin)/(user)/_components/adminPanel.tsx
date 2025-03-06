@@ -45,7 +45,7 @@ const AdminPanel = (): JSX.Element => {
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
   const isOrganizationAdmin = useAppSelector(selectIsOrganizationAdmin);
   const orgId = useAppSelector(selectOrganizationId);
-  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData } =
+  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData, updatePage } =
     useFetchPaginatedData<IAdmin>(getAllAdmins);
 
   const columns: ColumnDef<IAdmin>[] = [
@@ -152,10 +152,11 @@ const AdminPanel = (): JSX.Element => {
     }));
   }
 
-  const { isConfirmationLoading, handleConfirmationOpen } = useDropdownAction({
-    setConfirmation,
-    setQueryParameters,
-  });
+  const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
+    useDropdownAction({
+      setConfirmation,
+      setQueryParameters,
+    });
 
   return (
     <>
@@ -220,14 +221,8 @@ const AdminPanel = (): JSX.Element => {
           <TableData
             columns={columns}
             data={tableData}
-            columnVisibility={{ profilePicture: false, lastName: false, id: false }}
             page={queryParameters.page}
-            userPaginationChange={({ pageIndex }) =>
-              setQueryParameters((prev) => ({
-                ...prev,
-                page: pageIndex + 1,
-              }))
-            }
+            userPaginationChange={({ pageIndex }) => updatePage(pageIndex)}
             paginationData={paginationData}
             isLoading={isLoading}
           />
@@ -236,12 +231,7 @@ const AdminPanel = (): JSX.Element => {
       <Confirmation
         {...confirmation}
         showClose={true}
-        setState={() =>
-          setConfirmation((prev) => ({
-            ...prev,
-            open: false,
-          }))
-        }
+        setState={() => handleConfirmationClose()}
         isLoading={isConfirmationLoading}
       />
     </>

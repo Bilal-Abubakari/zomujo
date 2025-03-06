@@ -33,6 +33,7 @@ export const useDropdownAction = <T extends string>({
     id: string,
     actionThunk: AsyncThunk<Toast, string, object>,
   ) => void;
+  handleConfirmationClose: () => void;
 } => {
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -96,5 +97,17 @@ export const useDropdownAction = <T extends string>({
     }));
   };
 
-  return { handleDropdownAction, isConfirmationLoading, handleConfirmationOpen };
+  const handleConfirmationClose = (): void => {
+    setConfirmation((prev) => ({
+      ...prev,
+      open: false,
+    }));
+  };
+
+  return {
+    handleDropdownAction,
+    isConfirmationLoading,
+    handleConfirmationOpen,
+    handleConfirmationClose,
+  };
 };

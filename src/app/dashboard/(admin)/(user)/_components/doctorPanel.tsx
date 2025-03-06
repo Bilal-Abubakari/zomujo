@@ -74,7 +74,7 @@ const DoctorPanel = (): JSX.Element => {
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
   const isOrganizationAdmin = useAppSelector(selectIsOrganizationAdmin);
   const orgId = useAppSelector(selectOrganizationId);
-  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData } =
+  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData, updatePage } =
     useFetchPaginatedData<IDoctor>(getAllDoctors);
 
   const columns: ColumnDef<IDoctor>[] = [
@@ -245,10 +245,11 @@ const DoctorPanel = (): JSX.Element => {
     }));
   }
 
-  const { isConfirmationLoading, handleConfirmationOpen } = useDropdownAction({
-    setConfirmation,
-    setQueryParameters,
-  });
+  const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
+    useDropdownAction({
+      setConfirmation,
+      setQueryParameters,
+    });
 
   const removeInvitation = (removeEmail: string): void => {
     const newInvitations = result.filter(({ email }) => email !== removeEmail);
@@ -371,14 +372,8 @@ const DoctorPanel = (): JSX.Element => {
           <TableData
             columns={columns}
             data={tableData}
-            columnVisibility={{ profilePicture: false, lastName: false, id: false }}
             page={queryParameters.page}
-            userPaginationChange={({ pageIndex }) =>
-              setQueryParameters((prev) => ({
-                ...prev,
-                page: pageIndex + 1,
-              }))
-            }
+            userPaginationChange={({ pageIndex }) => updatePage(pageIndex)}
             paginationData={paginationData}
             isLoading={isLoading}
           />
@@ -396,12 +391,7 @@ const DoctorPanel = (): JSX.Element => {
       <Confirmation
         {...confirmation}
         showClose={true}
-        setState={() =>
-          setConfirmation((prev) => ({
-            ...prev,
-            open: false,
-          }))
-        }
+        setState={() => handleConfirmationClose()}
         isLoading={isConfirmationLoading}
       />
     </>

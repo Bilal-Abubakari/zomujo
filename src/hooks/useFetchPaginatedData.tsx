@@ -33,6 +33,7 @@ export const useFetchPaginatedData = <
   setIsLoading: (value: ((prevState: boolean) => boolean) | boolean) => void;
   setQueryParameters: Dispatch<React.SetStateAction<IQueryParams<U>>>;
   queryParameters: IQueryParams<U>;
+  updatePage: (pageIndex: number) => void;
 } => {
   const [tableData, setTableData] = useState<T[]>([]);
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
@@ -61,6 +62,13 @@ export const useFetchPaginatedData = <
     void fetchData();
   }, [queryParameters, fetchAction, dispatch]);
 
+  const updatePage = (pageIndex: number): void => {
+    setQueryParameters((prev) => ({
+      ...prev,
+      page: pageIndex + 1,
+    }));
+  };
+
   return {
     tableData,
     paginationData,
@@ -70,5 +78,6 @@ export const useFetchPaginatedData = <
     setIsLoading,
     setQueryParameters,
     queryParameters,
+    updatePage,
   };
 };
