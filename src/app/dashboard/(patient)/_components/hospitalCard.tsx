@@ -72,7 +72,7 @@ const HospitalCard = (hospital: IHospital): JSX.Element => {
               <hr className="mt-2 w-full" />
             </div>
             <div className="mb-6 flex flex-col gap-4">
-              <div className="shadow-xs flex h-fit w-fit flex-row items-center gap-1 rounded-full border border-gray-100 px-2 py-1">
+              <div className="shadow-2xs flex h-fit w-fit flex-row items-center gap-1 rounded-full border border-gray-100 px-2 py-1">
                 <Navigation size={14} className="text-primary" />
                 <p className="text-sm font-medium leading-3">
                   {(distance / METERS_TO_KM_FACTOR).toFixed(1)} km away

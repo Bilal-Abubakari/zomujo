@@ -141,7 +141,7 @@ type ChartProps = {
   statistics: { title: string; value: string }[];
 };
 const Chart = ({ title, control, children, statistics }: ChartProps): JSX.Element => (
-  <div className="w-full flex-grow basis-1/2">
+  <div className="w-full grow basis-1/2">
     <Card className="rounded-2xl">
       <div className="flex justify-between p-8">
         <CardTitle className="text-base font-medium text-grayscale-500">{title}</CardTitle>
@@ -150,7 +150,7 @@ const Chart = ({ title, control, children, statistics }: ChartProps): JSX.Elemen
           options={dailyActiveFilterOptions}
           ref={null}
           control={control}
-          className="max-w-[120px] rounded-3xl bg-grayscale-300 text-sm font-medium text-black outline-none focus:border-none focus:shadow-none"
+          className="max-w-[120px] rounded-3xl bg-grayscale-300 text-sm font-medium text-black outline-hidden focus:border-none focus:shadow-none"
         />
       </div>
       <CardContent className="max-md:p-1">{children}</CardContent>

@@ -59,7 +59,7 @@ const MultiInputField = ({
         {values.map((item: string, index: number) => (
           <div
             key={index}
-            className="flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm shadow"
+            className="flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm shadow-sm"
           >
             <span>{item}</span>
             <button

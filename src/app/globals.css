@@ -1,9 +1,162 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --breakpoint-me: 1024px;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-badge: hsla(21, 70%, 29%, 1);
+  --color-badge-foreground: hsla(21, 70%, 94%, 1);
+
+  --color-sidebar-label: #8c96a5;
+  --color-sidebar-menu: #667185;
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-grayscale-10: #fcfcfc;
+  --color-grayscale-50: #f9fafb;
+  --color-grayscale-75: #f7f9fc;
+  --color-grayscale-100: #f0f2f5;
+  --color-grayscale-200: #e4e7ec;
+  --color-grayscale-300: #d0d5dd;
+  --color-grayscale-400: #98a2b3;
+  --color-grayscale-500: #667185;
+  --color-grayscale-600: #334155;
+  --color-grayscale-medium: #6b7280;
+
+  --color-success-50: #f0fdf4;
+  --color-success-75: #bbf7d0;
+  --color-success-100: #bbf7d0;
+  --color-success-200: #86efac;
+  --color-success-300: #4ade80;
+  --color-success-400: #22c55e;
+  --color-success-500: #16a34a;
+  --color-success-600: #16a34a;
+
+  --color-error-50: #fef2f2;
+  --color-error-75: #fee2e2;
+  --color-error-100: #fecaca;
+  --color-error-200: #fca5a5;
+  --color-error-300: #f87171;
+  --color-error-400: #ef4444;
+  --color-error-500: #dc2626;
+  --color-error-600: #b91c1c;
+
+  --color-warning-50: #fffbeb;
+  --color-warning-75: #fef3c7;
+  --color-warning-100: #fde68a;
+  --color-warning-200: #fcd34d;
+  --color-warning-300: #fbbf24;
+  --color-warning-400: #f59e0b;
+  --color-warning-500: #d97706;
+  --color-warning-600: #b45309;
+
+  --color-blue-cobalt: #165fa3;
+  --color-blue-light-powder: #e8eff6;
+
+  --color-primary-dark: #067458;
+  --color-primary-light: #f0f9f7;
+  --color-primary-light-base: #08af85;
+  --color-primary-light-light: #f4fbf9;
+  --color-light-orange: #ffe4cc;
+  --color-deep-orange: #ff8d24;
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--primary));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --background-image-transparent-primary-gradient: linear-gradient(
+    to bottom,
+    #033a2c00 7%,
+    #033a2cff 70%,
+    #033a2c 75%
+  );
+  --background-image-primary-gradient: linear-gradient(
+    3.01deg,
+    #3a6c82 7.18%,
+    #3fab85 97.48%
+  );
+  --background-image-primary-gradient2: linear-gradient(
+    to bottom,
+    #08af85 7.18%,
+    #256a5c 97.48%
+  );
+  --background-image-primary-gradient-undo: linear-gradient(
+    3.01deg,
+    #033a2c 7.18%,
+    #033a2c 97.48%
+  );
+  --background-image-triangle: url('../assets/images/triangle.svg');
+  --background-image-arc1: url('../assets/images/arc-1.svg');
+  --background-image-arc2: url('../assets/images/arc-2.svg');
+
+  --shadow-base: 0 1px 2px 4px rgba(15, 23, 42, 0.059);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer utilities {
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
 }
 
 @layer base {
@@ -87,25 +240,27 @@ body {
   }
 }
 
-*::-webkit-scrollbar {
-  width: 8px;
-  background-color: #d8dae5;
-  margin: 0;
-  height: 8px;
-}
-*::-webkit-scrollbar-thumb {
-  background-color: #d8dae5;
-  border-radius: 8px;
-}
-*::-webkit-scrollbar-track {
-  background-color: #fff;
-}
-
-@supports (-moz-appearance: none) {
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #d8dae5 #fff;
+@layer utilities {
+  *::-webkit-scrollbar {
+    width: 8px;
+    background-color: #d8dae5;
+    margin: 0;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: #d8dae5;
     border-radius: 8px;
+  }
+  *::-webkit-scrollbar-track {
+    background-color: #fff;
+  }
+
+  @supports (-moz-appearance: none) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #d8dae5 #fff;
+      border-radius: 8px;
+    }
   }
 }
 

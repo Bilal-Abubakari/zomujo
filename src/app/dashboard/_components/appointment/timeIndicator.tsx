@@ -38,7 +38,7 @@ const TimeIndicator = (): JSX.Element => {
         left: 40,
         width: 40 + 260 * 7,
       }}
-      className={cn('absolute z-[10] h-0.5 bg-primary')}
+      className={cn('absolute z-10 h-0.5 bg-primary')}
     >
       <div className="absolute -left-5 top-1/2 z-50 -translate-y-1/2 rounded-full bg-primary px-1.5 py-0.5 text-xs text-white">
         {formatTime(time.getHours(), time.getMinutes())}

@@ -256,7 +256,7 @@ const ProfileDropdownMenu = (): JSX.Element => {
 
   return (
     <>
-      <DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width]">
+      <DropdownMenuContent side="top" className="w-(--radix-popper-anchor-width)">
         <DropdownMenuItem>
           <span>Profile</span>
         </DropdownMenuItem>

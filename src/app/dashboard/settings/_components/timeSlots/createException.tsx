@@ -79,7 +79,7 @@ const CreateException = ({
   };
 
   return (
-    <div className="mx-auto w-full max-w-md rounded bg-white p-6 shadow">
+    <div className="mx-auto w-full max-w-md rounded bg-white p-6 shadow-sm">
       <h2 className="mb-6 text-2xl font-semibold">Create Exception</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

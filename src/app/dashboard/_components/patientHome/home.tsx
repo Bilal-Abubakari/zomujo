@@ -137,7 +137,7 @@ const PatientHome = (): JSX.Element => {
     <div className="w-full border border-grayscale-100 bg-grayscale-10 px-4 max-me:pb-[80px] max-me:pt-4 md:px-6">
       <AvatarGreetings />
       <div className="mt-[27px] w-full gap-6 md:flex">
-        <div className="flex-grow space-y-12">
+        <div className="grow space-y-12">
           <SearchDoctorsCard />
           <div className="flex w-full items-center justify-center md:hidden">
             <Tabs defaultValue="home" className="w-full text-center text-sm md:hidden">

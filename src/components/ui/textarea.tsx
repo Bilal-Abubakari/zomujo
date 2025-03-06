@@ -20,9 +20,9 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextProps>(
       <textarea
         id="text"
         className={cn(
-          'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+          'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
           className,
-          'focus:border-2 focus:border-primary focus:shadow-base focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+          'focus:border-2 focus:border-primary focus:shadow-base focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
           { 'border-red-500': error, 'focus:border-red-500': error },
         )}
         name={name}

@@ -20,7 +20,7 @@ const Toolbar = (): JSX.Element => {
       <div className="w-full"></div>
       <div className="flex gap-x-3">
         <Popover>
-          <PopoverTrigger className="outline-none">
+          <PopoverTrigger className="outline-hidden">
             <div className="relative cursor-pointer rounded-full border border-gray-200 bg-white p-2">
               <Bell className="text-grayscale-500" />
               {unreadNotifications > 0 && (

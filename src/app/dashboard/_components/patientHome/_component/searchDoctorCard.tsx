@@ -27,12 +27,12 @@ const SearchDoctorsCard = (): JSX.Element => {
           placeholder="Search by speciality"
           value={search}
           onChange={({ target }) => setSearch(target.value)}
-          className="h-full w-full pl-2 outline-none max-md:text-sm"
+          className="h-full w-full pl-2 outline-hidden max-md:text-sm"
         />
         <Button
           child="Find"
           onClick={findMedical}
-          className="rounded-md bg-black text-white outline-none duration-75 hover:bg-gray-900 max-md:text-sm"
+          className="rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm"
         />
       </div>
     </div>

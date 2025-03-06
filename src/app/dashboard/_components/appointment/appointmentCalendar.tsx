@@ -62,7 +62,7 @@ const AppointmentCalendar = ({
 
       <div className="sticky left-0 z-10 flex h-max w-[80px] shrink-0 flex-col border-r border-gray-200 bg-white text-sm">
         <TimeIndicator />
-        <div className="sticky top-0 z-[11] flex h-10 w-full shrink-0 items-center justify-center border-b border-gray-200 bg-white">
+        <div className="sticky top-0 z-11 flex h-10 w-full shrink-0 items-center justify-center border-b border-gray-200 bg-white">
           GMT
         </div>
         {Array.from({ length: 24 }).map((_, i) => (
@@ -84,7 +84,7 @@ const AppointmentCalendar = ({
         >
           <div
             className={cn(
-              'sticky top-0 z-[9] flex h-10 w-full shrink-0 items-center justify-center gap-1.5 border-b border-gray-200 bg-white',
+              'sticky top-0 z-9 flex h-10 w-full shrink-0 items-center justify-center gap-1.5 border-b border-gray-200 bg-white',
               i === selectedDay && 'border-b-2 border-primaryDark font-bold text-primaryDark',
             )}
           >
@@ -95,7 +95,7 @@ const AppointmentCalendar = ({
             <div
               key={j}
               className={cn(
-                'relative z-[5] h-[60px] shrink-0 border-b border-gray-200 bg-gray-50',
+                'relative z-5 h-[60px] shrink-0 border-b border-gray-200 bg-gray-50',
                 i === selectedDay && 'bg-primaryLight',
               )}
             ></div>
