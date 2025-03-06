@@ -44,7 +44,6 @@ import GenderBadge from '@/app/dashboard/_components/genderBadge';
 import { IBaseUser } from '@/types/auth.interface';
 import { statusFilterOptions as baseStatusOptions } from '@/constants/constants';
 import { StatusBadge } from '@/components/ui/statusBadge';
-import { AsyncThunk } from '@reduxjs/toolkit';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 
 const statusFilterOptions: ISelected[] = [
@@ -77,27 +76,6 @@ const DoctorPanel = (): JSX.Element => {
   const orgId = useAppSelector(selectOrganizationId);
   const { isLoading, setQueryParameters, paginationData, queryParameters, tableData } =
     useFetchPaginatedData<IDoctor>(getAllDoctors);
-
-  const handleConfirmationOpen = (
-    acceptTitle: string,
-    description: string,
-    id: string,
-    actionThunk: AsyncThunk<Toast, string, object>,
-  ): void => {
-    setConfirmation((prev) => ({
-      ...prev,
-      open: true,
-      acceptCommand: (): Promise<void> => handleDropdownAction(actionThunk, id),
-      acceptTitle,
-      declineTitle: 'Cancel',
-      rejectCommand: (): void =>
-        setConfirmation((prev) => ({
-          ...prev,
-          open: false,
-        })),
-      description: `Are you sure you want to ${description}?`,
-    }));
-  };
 
   const columns: ColumnDef<IDoctor>[] = [
     {
@@ -267,7 +245,7 @@ const DoctorPanel = (): JSX.Element => {
     }));
   }
 
-  const { handleDropdownAction, isConfirmationLoading } = useDropdownAction({
+  const { isConfirmationLoading, handleConfirmationOpen } = useDropdownAction({
     setConfirmation,
     setQueryParameters,
   });

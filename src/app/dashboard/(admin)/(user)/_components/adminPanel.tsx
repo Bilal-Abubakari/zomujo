@@ -2,13 +2,7 @@
 import { AvatarWithName } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
-import {
-  DropdownMenuContent,
-  OptionsMenu,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
+import { OptionsMenu, ActionsDropdownMenus } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { TableData } from '@/components/ui/table';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -16,7 +10,6 @@ import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   CalendarX,
-  Ellipsis,
   ListFilter,
   Search,
   SendHorizontal,
@@ -96,58 +89,40 @@ const AdminPanel = (): JSX.Element => {
         const isApproved = status === AcceptDeclineStatus.Accepted;
         const isDeactivated = status === AcceptDeclineStatus.Deactivated;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex w-11 cursor-pointer items-center justify-center text-center text-sm text-black">
-                <Ellipsis />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {isDeactivated && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    setConfirmation((prev) => ({
-                      ...prev,
-                      open: true,
-                      acceptCommand: () => handleDropdownAction(activateUser, id),
-                      acceptTitle: 'Activate',
-                      declineTitle: 'Cancel',
-                      rejectCommand: () =>
-                        setConfirmation((prev) => ({
-                          ...prev,
-                          open: false,
-                        })),
-                      description: `Are you sure you want to activate ${firstName}'s account?`,
-                    }))
-                  }
-                >
-                  <ShieldCheck /> Activate
-                </DropdownMenuItem>
-              )}
-              {isApproved && (
-                <DropdownMenuItem
-                  className="text-red-600"
-                  onClick={() =>
-                    setConfirmation((prev) => ({
-                      ...prev,
-                      open: true,
-                      acceptCommand: () => handleDropdownAction(deactivateUser, id),
-                      acceptTitle: 'Deactivate',
-                      declineTitle: 'Cancel',
-                      rejectCommand: () =>
-                        setConfirmation((prev) => ({
-                          ...prev,
-                          open: false,
-                        })),
-                      description: `Are you sure you want to deactivate ${firstName}'s account?`,
-                    }))
-                  }
-                >
-                  <CalendarX /> Deactivate
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ActionsDropdownMenus
+            menuContent={[
+              {
+                title: (
+                  <>
+                    <ShieldCheck /> Activate
+                  </>
+                ),
+                visible: isDeactivated,
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Activate',
+                    `activate ${firstName}'s account`,
+                    id,
+                    activateUser,
+                  ),
+              },
+              {
+                title: (
+                  <>
+                    <CalendarX /> Deactivate
+                  </>
+                ),
+                visible: isApproved,
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Deactivate',
+                    `deactivate ${firstName}'s account`,
+                    id,
+                    deactivateUser,
+                  ),
+              },
+            ]}
+          />
         );
       },
       enableHiding: false,
@@ -177,7 +152,7 @@ const AdminPanel = (): JSX.Element => {
     }));
   }
 
-  const { handleDropdownAction, isConfirmationLoading } = useDropdownAction({
+  const { isConfirmationLoading, handleConfirmationOpen } = useDropdownAction({
     setConfirmation,
     setQueryParameters,
   });

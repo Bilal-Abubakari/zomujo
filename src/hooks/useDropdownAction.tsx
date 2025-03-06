@@ -15,14 +15,24 @@ export const useDropdownAction = <T extends string>({
   setConfirmation,
   setQueryParameters,
 }: UseDropdownActionProps<T>): {
-  handleDropdownAction: <U extends { id: string }>(
+  handleDropdownAction: <
+    U extends {
+      id: string;
+    },
+  >(
     actionThunks: AsyncThunk<Toast, string, object>,
     id: string,
     data?: U[],
-    setTableData?: Dispatch<React.SetStateAction<U[]>>,
+    setTableData?: React.Dispatch<React.SetStateAction<U[]>>,
     removeItem?: boolean,
   ) => Promise<void>;
   isConfirmationLoading: boolean;
+  handleConfirmationOpen: (
+    acceptTitle: string,
+    description: string,
+    id: string,
+    actionThunk: AsyncThunk<Toast, string, object>,
+  ) => void;
 } => {
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -65,5 +75,26 @@ export const useDropdownAction = <T extends string>({
     setIsConfirmationLoading(false);
   };
 
-  return { handleDropdownAction, isConfirmationLoading };
+  const handleConfirmationOpen = (
+    acceptTitle: string,
+    description: string,
+    id: string,
+    actionThunk: AsyncThunk<Toast, string, object>,
+  ): void => {
+    setConfirmation((prev) => ({
+      ...prev,
+      open: true,
+      acceptCommand: (): Promise<void> => handleDropdownAction(actionThunk, id),
+      acceptTitle,
+      declineTitle: 'Cancel',
+      rejectCommand: (): void =>
+        setConfirmation((prev) => ({
+          ...prev,
+          open: false,
+        })),
+      description: `Are you sure you want to ${description}?`,
+    }));
+  };
+
+  return { handleDropdownAction, isConfirmationLoading, handleConfirmationOpen };
 };
