@@ -18,4 +18,5 @@ interface ISidebarMenu {
   subMenu?: ISidebarMenu[];
   phoneTitle?: string;
   only?: Role;
+  relatedUrl?: string;
 }
