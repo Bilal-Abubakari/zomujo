@@ -44,3 +44,18 @@ export const setPaymentRate = createAsyncThunk(
     }
   },
 );
+
+//Todo: make adjustment when the backend changes.
+export const initiatePayment = createAsyncThunk(
+  'payment/initiatePayment',
+  async ({ amount, doctorId }: { amount: number; doctorId: string }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.get<IResponse>(`payments/initialize?amount=${amount}&doctorId=${doctorId}`);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);

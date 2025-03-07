@@ -12,6 +12,7 @@ import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { IDoctorIdentification } from '@/types/auth.interface';
+import { ISlot } from '@/types/appointment';
 
 export const getAllDoctors = createAsyncThunk(
   'doctors/allDoctors',
@@ -111,6 +112,31 @@ export const inviteDoctors = createAsyncThunk(
     try {
       const { data } = await axios.post<IResponse>(`admins/invite-doctors`, inviteDoctors);
       return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const doctorInfo = createAsyncThunk(
+  'doctor/info',
+  async (id: string): Promise<IDoctor | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IDoctor>>(`doctors/${id}`);
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+export const doctorSlot = createAsyncThunk(
+  'doctor/slot',
+  async ({ date, id }: { date: string; id: string }): Promise<ISlot[] | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<ISlot>>>(
+        `appointments/slots?doctorId=${id}&startDate=${date}&endDate=${date}`,
+      );
+      return data.data.rows;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
