@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
 interface Bookmark extends IDoctor {
-  showBookmark: boolean;
+  showBookmark?: boolean;
 }
 
 const DoctorDetails = ({
