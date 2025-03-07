@@ -48,7 +48,7 @@ const Doctors = (): JSX.Element => {
     priceMax: '',
     experienceMin: '',
     experienceMax: '',
-    gender: Gender.Other,
+    gender: Gender.Male,
     specialty: '',
     rateMin: '',
     rateMax: '',

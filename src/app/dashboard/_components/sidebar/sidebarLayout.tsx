@@ -91,7 +91,7 @@ export const SidebarLayout = ({
               <SidebarMenu>
                 {category.menu
                   .filter(({ only }) => !only || only === role)
-                  .map(({ title, url, Icon, subMenu }) =>
+                  .map(({ title, url, Icon, subMenu, relatedUrl }) =>
                     subMenu ? (
                       <Collapsible className="group/collapsible" key={title}>
                         <SidebarMenuItem>
@@ -104,13 +104,16 @@ export const SidebarLayout = ({
 
                           <CollapsibleContent>
                             <SidebarMenuSub>
-                              {subMenu.map(({ url, title }) => (
+                              {subMenu.map(({ url, title, relatedUrl }) => (
                                 <SidebarMenuItem key={title}>
                                   <Link href={url}>
                                     <SidebarMenuButton
                                       key={title}
                                       title={title}
-                                      isActive={pathName === url}
+                                      isActive={
+                                        pathName === url ||
+                                        !!(relatedUrl && pathName.includes(relatedUrl))
+                                      }
                                       className={'data-[active=true]/menu-action:before:opacity-0'}
                                     >
                                       {title}
@@ -126,7 +129,9 @@ export const SidebarLayout = ({
                       <SidebarMenuItem key={title}>
                         <SidebarMenuButton
                           asChild
-                          isActive={pathName === url}
+                          isActive={
+                            pathName === url || !!(relatedUrl && pathName.includes(relatedUrl))
+                          }
                           title={title}
                           className={sidebarTabClassName}
                         >

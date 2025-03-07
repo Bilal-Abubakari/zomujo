@@ -14,7 +14,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
   const selectedTime = watch('time');
   const dispatch = useAppDispatch();
 
-  //Todo: Adjust according when the backend changes.
+  //Todo: Adjust accordingly when the backend changes.
   const dummyTime = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00'];
   const params = useParams();
   const doctorId = params.appointment;

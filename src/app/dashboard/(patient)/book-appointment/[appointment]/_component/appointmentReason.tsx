@@ -58,8 +58,8 @@ const AppointmentReason = ({
         labelClassName="font-medium"
         placeholder="Please share anything that will help prepare for the consult"
         {...register('additionalInfo')}
-        onChange={(event) => {
-          setValue('additionalInfo', event.target.value, {
+        onChange={({ target: { value } }) => {
+          setValue('additionalInfo', value, {
             shouldTouch: true,
             shouldValidate: true,
           });

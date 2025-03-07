@@ -59,7 +59,7 @@ const DoctorDetails = ({
             {showBookmark && (
               <Button
                 child="Book Appointment"
-                onClick={() => router.push(`/dashboard/find-doctor/${id}`)}
+                onClick={() => router.push(`/dashboard/book-appointment/${id}`)}
               />
             )}
           </div>
