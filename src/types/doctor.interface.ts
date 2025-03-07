@@ -36,6 +36,7 @@ export interface IDoctor extends IExtraBase {
   signaturePath: string;
   noOfConsultations?: number;
   ratings: number;
+  fee:number
 }
 
 export type DoctorPersonalInfo = Pick<
@@ -55,4 +56,19 @@ export type NotificationInfo = Pick<IDoctor, 'notifications'>;
 
 export interface IInviteDoctors extends Pick<IExtraBase, 'orgId'> {
   users: IBaseUser[];
+}
+
+export interface IDoctorSlot {
+  type: string;
+  status: string;
+  orgId: string;
+  updatedAt: Date;
+  patternId: string;
+  exceptionId: string;
+  id: string;
+  date: Date;
+  startTime: Date;
+  endTime: Date;
+  createdAt: Date;
+  doctorId: string;
 }

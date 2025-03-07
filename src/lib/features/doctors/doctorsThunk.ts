@@ -4,6 +4,7 @@ import {
   DoctorPersonalInfo,
   NotificationInfo,
   IInviteDoctors,
+  IDoctorSlot,
 } from '@/types/doctor.interface';
 import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import { IDoctorCountResponse } from '@/types/stats.interface';
@@ -125,6 +126,31 @@ export const inviteDoctors = createAsyncThunk(
     try {
       const { data } = await axios.post<IResponse>(`admins/invite-doctors`, inviteDoctors);
       return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const doctorInfo = createAsyncThunk(
+  'doctor/info',
+  async (id: string): Promise<IDoctor | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IDoctor>>(`doctors/${id}`);
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+export const doctorSlot = createAsyncThunk(
+  'doctor/slot',
+  async ({ date, id }: { date: string; id: string }): Promise<IDoctorSlot[] | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<IDoctorSlot>>>(
+        `appointments/slots?doctorId=${id}&startDate=${date}&endDate=${date}`,
+      );
+      return data.data.rows;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
