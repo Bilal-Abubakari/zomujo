@@ -149,7 +149,7 @@ const AvailableAppointment = (): JSX.Element => {
               </div>
             </div>
 
-            <div className="mb-8 mt-8 w-full border-b border-gray-100"></div>
+            <div className="mt-8 mb-8 w-full border-b border-gray-100"></div>
 
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Date</div>
