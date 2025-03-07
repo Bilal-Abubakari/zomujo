@@ -70,7 +70,7 @@ const EmailVerification = (): JSX.Element => {
       {successMessage && (
         <>
           <Image width={200} src={SuccessIllustration} alt="Verification Success" />
-          <h2 className="mt-4 font-semibold text-primary">{successMessage}</h2>
+          <h2 className="text-primary mt-4 font-semibold">{successMessage}</h2>
           <h1>Redirecting in {countdown} seconds...</h1>
           <Button
             child="Redirect Now"

@@ -22,7 +22,7 @@ const StatsCards = ({ statsData, numberOfCards = 3, isLoading }: StatsCardsProps
       {statsData?.map(({ title, trend, value, percentage }) => (
         <Card key={title} className="w-[380px] grow rounded-2xl">
           <div className="flex flex-row justify-between p-5">
-            <CardTitle className="text-base text-grayscale-500">{title}</CardTitle>
+            <CardTitle className="text-grayscale-500 text-base">{title}</CardTitle>
             <div>
               <CardTitle
                 className={cn('text-sm', {
@@ -32,7 +32,7 @@ const StatsCards = ({ statsData, numberOfCards = 3, isLoading }: StatsCardsProps
               >
                 {percentage}%
               </CardTitle>
-              <CardDescription className="text-xs text-grayscale-500">vs last week</CardDescription>
+              <CardDescription className="text-grayscale-500 text-xs">vs last week</CardDescription>
             </div>
           </div>
           <CardContent>

@@ -44,7 +44,7 @@ const HospitalPreview = ({
               className="rounded-lg object-cover"
             />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-primary/10">
+            <div className="bg-primary/10 flex h-20 w-20 items-center justify-center rounded-lg">
               <Building2 size={40} className="text-primary" />
             </div>
           )}

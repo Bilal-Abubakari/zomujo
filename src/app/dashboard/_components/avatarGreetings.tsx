@@ -13,7 +13,7 @@ export const AvatarGreetings = (): JSX.Element => {
     <div className="mb-6 flex items-center justify-items-center gap-3">
       <AvatarComp imageSrc="https://github.com/shadcn.png" name={userName} imageAlt={userName} />
       <div className="flex flex-col">
-        <span className="text-[18px] text-grayscale-500">
+        <span className="text-grayscale-500 text-[18px]">
           {getGreeting()}, {firstName} 👋
         </span>
         <Text variant="span" boldness="bold" variantStyle="h2">

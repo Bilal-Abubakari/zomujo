@@ -24,7 +24,7 @@ const Toolbar = (): JSX.Element => {
             <div className="relative cursor-pointer rounded-full border border-gray-200 bg-white p-2">
               <Bell className="text-grayscale-500" />
               {unreadNotifications > 0 && (
-                <span className="absolute -right-2 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 p-2.5 text-xs text-white">
+                <span className="absolute -top-1 -right-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 p-2.5 text-xs text-white">
                   {unreadNotifications}
                 </span>
               )}

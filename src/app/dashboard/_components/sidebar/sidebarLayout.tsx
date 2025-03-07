@@ -77,9 +77,9 @@ export const SidebarLayout = ({
   };
 
   return (
-    <Sidebar className={cn('hidden me:block', sidebarClassName)}>
+    <Sidebar className={cn('me:block hidden', sidebarClassName)}>
       {!type && (
-        <SidebarHeader className="pb-[50px] pt-3.5">
+        <SidebarHeader className="pt-3.5 pb-[50px]">
           <SidebarTrigger child={<Image src={Logo} alt="Zyptyk-logo" />} className="h-10 w-10" />
         </SidebarHeader>
       )}
@@ -98,7 +98,7 @@ export const SidebarLayout = ({
                           <CollapsibleTrigger asChild>
                             <SidebarMenuButton>
                               {Icon && <Icon />} {title}
-                              <ChevronDown className="ml-auto mr-1" />
+                              <ChevronDown className="mr-1 ml-auto" />
                             </SidebarMenuButton>
                           </CollapsibleTrigger>
 
@@ -151,7 +151,7 @@ export const SidebarLayout = ({
                 <AvatarComp name={userName} />
                 <div className="flex flex-col text-xs font-medium">
                   <span>{userName}</span>
-                  <span className="rounded-lg py-1.5 text-badge">{getRole()}</span>
+                  <span className="text-badge rounded-lg py-1.5">{getRole()}</span>
                 </div>
                 <EllipsisVertical className="ml-auto" />
               </SidebarMenuButton>
@@ -173,7 +173,7 @@ export const PhoneNavbar = ({ type }: SideBarProps): JSX.Element => {
     'h-full p-2 hover:bg-transparent data-[active=true]:bg-transparent relative before:absolute before:left-1/2 before:top-0 before:-translate-x-1/2 before:transform rounded-lg before:h-[3px] before:w-[30px] before:rounded before:bg-primary before:opacity-0 data-[active=true]/menu-action:before:opacity-100';
 
   return (
-    <div className="fixed bottom-0 z-50 flex h-[69px] w-full items-center justify-evenly gap-6 overflow-x-scroll bg-white me:hidden">
+    <div className="me:hidden fixed bottom-0 z-50 flex h-[69px] w-full items-center justify-evenly gap-6 overflow-x-scroll bg-white">
       {flattenedMenu.map(({ title, Icon, phoneTitle, url }) => (
         <div key={title} title={title}>
           <SidebarMenuButton isActive={pathName === url} title={title} className={style}>
@@ -193,7 +193,7 @@ export const PhoneNavbar = ({ type }: SideBarProps): JSX.Element => {
           </SidebarMenuButton>
         </div>
       ))}
-      <SidebarMenuButton title="your profile" className={cn(style, 'min-w-16 max-w-16')}>
+      <SidebarMenuButton title="your profile" className={cn(style, 'max-w-16 min-w-16')}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex flex-col items-center justify-center">
@@ -216,13 +216,13 @@ export const SettingsNavbar = (): JSX.Element => {
 
   return (
     <>
-      <div className="flex justify-evenly overflow-x-scroll bg-white me:hidden">
+      <div className="me:hidden flex justify-evenly overflow-x-scroll bg-white">
         {flattenedMenu.map(({ title, phoneTitle, url }) => (
           <div key={title} title={title}>
             <SidebarMenuButton
               isActive={pathName === url}
               title={title}
-              className="relative h-12 px-0 hover:bg-transparent data-[active=true]/menu-action:z-50 data-[active=true]/menu-action:rounded-none data-[active=true]/menu-action:border-b-2 data-[active=true]/menu-action:border-primary data-[active=true]/menu-action:bg-transparent"
+              className="data-[active=true]/menu-action:z-50 data-[active=true]/menu-action:rounded-none data-[active=true]/menu-action:border-b-2 data-[active=true]/menu-action:border-primary data-[active=true]/menu-action:bg-transparent relative h-12 px-0 hover:bg-transparent"
             >
               <Link href={url} className="flex flex-col items-center justify-center px-2">
                 <div>
@@ -240,7 +240,7 @@ export const SettingsNavbar = (): JSX.Element => {
           </div>
         ))}
       </div>
-      <hr className="relative mx-[2%] -mt-2.5 block w-auto border-b sm:mx-[5%] me:hidden" />
+      <hr className="me:hidden relative mx-[2%] -mt-2.5 block w-auto border-b sm:mx-[5%]" />
     </>
   );
 };

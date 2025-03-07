@@ -113,21 +113,9 @@
     #033a2cff 70%,
     #033a2c 75%
   );
-  --background-image-primary-gradient: linear-gradient(
-    3.01deg,
-    #3a6c82 7.18%,
-    #3fab85 97.48%
-  );
-  --background-image-primary-gradient2: linear-gradient(
-    to bottom,
-    #08af85 7.18%,
-    #256a5c 97.48%
-  );
-  --background-image-primary-gradient-undo: linear-gradient(
-    3.01deg,
-    #033a2c 7.18%,
-    #033a2c 97.48%
-  );
+  --background-image-primary-gradient: linear-gradient(3.01deg, #3a6c82 7.18%, #3fab85 97.48%);
+  --background-image-primary-gradient2: linear-gradient(to bottom, #08af85 7.18%, #256a5c 97.48%);
+  --background-image-primary-gradient-undo: linear-gradient(3.01deg, #033a2c 7.18%, #033a2c 97.48%);
   --background-image-triangle: url('../assets/images/triangle.svg');
   --background-image-arc1: url('../assets/images/arc-1.svg');
   --background-image-arc2: url('../assets/images/arc-2.svg');
@@ -263,8 +251,6 @@
     }
   }
 }
-
-
 
 @layer base {
   * {

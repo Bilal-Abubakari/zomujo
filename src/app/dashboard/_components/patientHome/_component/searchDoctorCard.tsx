@@ -11,9 +11,9 @@ const SearchDoctorsCard = (): JSX.Element => {
   const findMedical = (): void => router.push(`/dashboard/find-medical?search=${search}`);
 
   return (
-    <div className="relative flex w-full flex-col gap-8 rounded-2xl bg-primary bg-arc1 bg-no-repeat p-8">
+    <div className="bg-primary bg-arc1 relative flex w-full flex-col gap-8 rounded-2xl bg-no-repeat p-8">
       <div className="flex flex-col gap-3 text-white">
-        <p className="text-xl font-bold leading-6 md:text-2xl">
+        <p className="text-xl leading-6 font-bold md:text-2xl">
           Find the right doctor / hospital for you, faster
         </p>
         <p className="max-md:text:sm leading-4">

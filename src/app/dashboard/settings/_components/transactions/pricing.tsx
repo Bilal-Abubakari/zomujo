@@ -65,7 +65,7 @@ const Pricing = (): JSX.Element => {
           style={{
             x: `${sliderPosition(window.innerWidth < 430 ? 20 : amount, 'amount')}px`,
           }}
-          className="absolute top-[calc(100%+8px)] flex h-8 w-16 items-center justify-center rounded-full bg-primary"
+          className="bg-primary absolute top-[calc(100%+8px)] flex h-8 w-16 items-center justify-center rounded-full"
         >
           <p className="text-sm text-white">₵{amount}</p>
         </motion.div>
@@ -83,7 +83,7 @@ const Pricing = (): JSX.Element => {
           style={{
             x: `${sliderPosition(window.innerWidth < 430 ? 20 : lengthOfSession, 'sessionLength')}px`,
           }}
-          className="absolute top-[calc(100%+8px)] flex h-8 items-center justify-center rounded-full bg-primary px-2.5"
+          className="bg-primary absolute top-[calc(100%+8px)] flex h-8 items-center justify-center rounded-full px-2.5"
         >
           <p className="text-sm text-white">{lengthOfSession} mins</p>
         </motion.div>
