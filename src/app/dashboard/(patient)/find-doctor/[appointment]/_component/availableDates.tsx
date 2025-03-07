@@ -61,6 +61,12 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
                 'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
                 selectedTime === time && 'border-primary text-primary',
               )}
+              onKeyDown={() => {
+                setValue('time', time, {
+                  shouldTouch: true,
+                  shouldValidate: true,
+                });
+              }}
               onClick={() => {
                 setValue('time', time, {
                   shouldTouch: true,

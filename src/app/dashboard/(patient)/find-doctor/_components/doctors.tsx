@@ -273,6 +273,10 @@ const Doctors = (): JSX.Element => {
               setSelectedDoctor(doctor);
               setModalOpen(true);
             }}
+            onKeyDown={() => {
+              setSelectedDoctor(doctor);
+              setModalOpen(true);
+            }}
             className="cursor-pointer"
             key={doctor.id}
           >
