@@ -13,14 +13,14 @@ const AppointmentReason = ({
   isValid,
   errors,
   watch,
-}: AvailabilityProps) : JSX.Element=> {
+}: AvailabilityProps): JSX.Element => {
   const appointmentOptions = [
     { label: 'Visit', value: 'visit' },
     { label: 'Virtual', value: 'virtual' },
   ];
 
   return (
-    <div className="max-w-[447px] w-[80vw] rounded-sm border p-8">
+    <div className="w-[80vw] max-w-[447px] rounded-sm border p-8">
       <p className="mb-8 font-bold">Reason for Visit</p>
       <Textarea
         className="resize-none"
@@ -46,7 +46,7 @@ const AppointmentReason = ({
                 shouldValidate: true,
               });
             }}
-           className='bg-gray-50'
+            className="bg-gray-50"
           />
 
           <Badge variant={'blue'}>{watch('appointmentType')}</Badge>

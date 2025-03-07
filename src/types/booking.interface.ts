@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction } from "react";
-import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { Dispatch, SetStateAction } from 'react';
+import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 export type BookingForm = {
   date: string;
@@ -7,10 +7,7 @@ export type BookingForm = {
   reason: string;
   appointmentType: string;
   additionalInfo: string;
-  
 };
-
-
 
 export type AvailabilityProps = {
   register: UseFormRegister<BookingForm>;
