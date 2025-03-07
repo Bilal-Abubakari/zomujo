@@ -260,6 +260,11 @@ export const ADMIN_SETTINGS_SIDEBAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}`,
           Icon: User,
         },
+        {
+          title: 'Availability',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/availability`,
+          Icon: BetweenHorizontalStart,
+        },
       ],
     },
   ],

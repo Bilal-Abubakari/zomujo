@@ -42,9 +42,12 @@ interface ISlotBase {
   type: VisitType;
 }
 
-export type SlotStatus = 'available';
+export enum SlotStatus {
+  Available = 'available',
+  Unavailable = 'unavailable',
+}
 
-export interface ISlotPattern extends ISlotBase {
+export interface ISlotPatternBase extends ISlotBase {
   recurrence: string;
   startDate: string;
   endDate?: string;
@@ -61,3 +64,15 @@ export interface ISlot extends ISlotBase {
   patternId: string;
   exceptionId: string | null;
 }
+
+export interface ISlotPattern extends ISlotPatternBase {
+  id: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updateAt: string;
+}
+
+export type IPatternException = Pick<ISlot, 'patternId' | 'date' | 'startTime' | 'endTime'> & {
+  reason: string;
+  type: 'modification' | 'cancellation';
+};

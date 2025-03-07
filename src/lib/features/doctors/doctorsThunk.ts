@@ -9,7 +9,7 @@ import {
 import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import { IDoctorCountResponse } from '@/types/stats.interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { generateSuccessToast } from '@/lib/utils';
+import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { IDoctorIdentification } from '@/types/auth.interface';
@@ -17,28 +17,14 @@ import { IDoctorIdentification } from '@/types/auth.interface';
 export const getAllDoctors = createAsyncThunk(
   'doctors/allDoctors',
   async ({
-    page,
-    search,
-    status,
     pageSize,
-    orderDirection,
-    gender,
-    maxExperience,
-    minExperience,
-    maxPrice,
-    maxRate,
-    minPrice,
-    minRate,
-    speciality,
-    orderBy,
+    ...rest
   }: IQueryParams<AcceptDeclineStatus | ''>): Promise<IPagination<IDoctor> | Toast> => {
     try {
-      const { data } = await axios.get<IResponse<IPagination<IDoctor>>>(
-        `doctors?page=${page}&search=${search}&status=${status}&pageSize=${pageSize || 10}&orderDirection=${orderDirection}&
-        gender=${gender}&experienceMin=${minExperience}&experienceMax=${maxExperience}&priceMin=${minPrice}&priceMax=${maxPrice}
-        &rateMin=${minRate}&rateMax=${maxRate}&specialty=${speciality}&orderBy=${orderBy}
-        `,
-      );
+      const { data } = await axios.get<
+        IResponse<IPagination<IDoctor>>
+      >(`doctors?${getValidQueryString(rest)}&pageSize=${pageSize || 10}
+        `);
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

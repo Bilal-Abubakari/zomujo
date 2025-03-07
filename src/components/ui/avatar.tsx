@@ -68,4 +68,20 @@ function AvatarComp({ imageSrc, name, imageAlt, className }: AvatarCompProps): J
   );
 }
 
-export { Avatar, AvatarImage, AvatarFallback, AvatarComp };
+type AvatarWithNameProps = {
+  firstName: string;
+  lastName: string;
+  imageSrc: string;
+};
+
+function AvatarWithName({ firstName, lastName, imageSrc }: AvatarWithNameProps): JSX.Element {
+  const name = `${firstName} ${lastName}`;
+  return (
+    <div className="flex items-center justify-start gap-2">
+      <AvatarComp imageSrc={imageSrc} name={name} className="h-7 w-7" />{' '}
+      {`${firstName} ${lastName}`}
+    </div>
+  );
+}
+
+export { Avatar, AvatarImage, AvatarFallback, AvatarComp, AvatarWithName };
