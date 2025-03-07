@@ -57,4 +57,3 @@ export type NotificationInfo = Pick<IDoctor, 'notifications'>;
 export interface IInviteDoctors extends Pick<IExtraBase, 'orgId'> {
   users: IBaseUser[];
 }
-
