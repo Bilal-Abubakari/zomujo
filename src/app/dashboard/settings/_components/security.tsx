@@ -1,12 +1,11 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MODE } from '@/constants/constants';
 import { passwordSchema } from '@/schemas/zod.schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { JSX } from 'react';
 import { z } from 'zod';
 import { IUpdatePassword } from '@/types/auth.interface';
 import { useAppDispatch } from '@/lib/hooks';

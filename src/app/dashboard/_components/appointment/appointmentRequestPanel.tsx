@@ -9,7 +9,7 @@ import { AppointmentStatus, VisitType } from '@/types/shared.enum';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 const AppointmentRequestPanel = (): JSX.Element => {
-  const [openModal, setModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<ModalProps | undefined>();
 
   const suggestSmallScreen = useMemo(
@@ -35,7 +35,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
                 notes: 'Patient is on medication for hypertension.',
                 status: AppointmentStatus.Declined,
               }}
-              setShowModal={setModal}
+              setShowModal={setOpenModal}
               setSelectedPatient={setSelectedPatient}
             />
           </CarouselItem>
@@ -58,7 +58,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
                 notes: 'Patient is on medication for hypertension.',
                 status: AppointmentStatus.Declined,
               }}
-              setShowModal={setModal}
+              setShowModal={setOpenModal}
               setSelectedPatient={setSelectedPatient}
             />
           </CarouselItem>
@@ -88,8 +88,8 @@ const AppointmentRequestPanel = (): JSX.Element => {
             request?
           </>
         }
-        acceptCommand={() => setModal && setModal(false)}
-        rejectCommand={() => setModal && setModal(false)}
+        acceptCommand={() => setOpenModal && setOpenModal(false)}
+        rejectCommand={() => setOpenModal && setOpenModal(false)}
       />
       <div className="h-[calc(100vh-203px)] w-full overflow-y-scroll rounded-2xl border bg-white pt-6 max-md:h-[380px]">
         <div className="flex flex-row items-center justify-center gap-2">
@@ -116,7 +116,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
               notes: 'Patient is on medication for hypertension.',
               status: AppointmentStatus.Declined,
             }}
-            setShowModal={setModal}
+            setShowModal={setOpenModal}
             setSelectedPatient={setSelectedPatient}
           />
           <AppointmentRequestCard
@@ -137,7 +137,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
               notes: 'Patient is on medication for hypertension.',
               status: AppointmentStatus.Declined,
             }}
-            setShowModal={setModal}
+            setShowModal={setOpenModal}
             setSelectedPatient={setSelectedPatient}
           />
           <AppointmentRequestCard
@@ -158,7 +158,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
               notes: 'Patient is on medication for hypertension.',
               status: AppointmentStatus.Declined,
             }}
-            setShowModal={setModal}
+            setShowModal={setOpenModal}
             setSelectedPatient={setSelectedPatient}
           />
         </div>

@@ -14,6 +14,7 @@ module.exports = {
   },
   rules: {
     'react/react-in-jsx-scope': 'off',
+    'react/hook-use-state': 'error',
     'arrow-body-style': 'error',
     curly: 'error',
     'no-return-await': 'error',
@@ -23,6 +24,7 @@ module.exports = {
     'no-useless-escape': 'error',
     'no-unreachable': 'error',
     'import/no-cycle': 2,
+    'no-duplicate-imports': ['error'],
     '@typescript-eslint/explicit-function-return-type': ['error'],
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-explicit-any': 'error',

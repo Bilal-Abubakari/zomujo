@@ -66,7 +66,7 @@ const Doctors = (): JSX.Element => {
   ];
 
   const [selectedDoctor, setSelectedDoctor] = useState<IDoctor>();
-  const [openModal, setModalOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -271,11 +271,11 @@ const Doctors = (): JSX.Element => {
           <div
             onClick={() => {
               setSelectedDoctor(doctor);
-              setModalOpen(true);
+              setOpenModal(true);
             }}
             onKeyDown={() => {
               setSelectedDoctor(doctor);
-              setModalOpen(true);
+              setOpenModal(true);
             }}
             className="cursor-pointer"
             key={doctor.id}
@@ -318,7 +318,7 @@ const Doctors = (): JSX.Element => {
         open={openModal}
         content={<DoctorDetails {...selectedDoctor!} showBookmark={true} />}
         className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
-        setState={setModalOpen}
+        setState={setOpenModal}
         showClose={true}
       />
     </>

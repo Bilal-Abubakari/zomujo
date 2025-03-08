@@ -46,7 +46,7 @@ const CreateException = ({
   patternId,
   closeCreateException,
 }: CreateExceptionProps): JSX.Element => {
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const {
     control,
     register,
@@ -61,7 +61,7 @@ const CreateException = ({
   const dispatch = useAppDispatch();
 
   const onSubmit = async (data: IPatternException): Promise<void> => {
-    setLoading(true);
+    setIsLoading(true);
     const { startTime, endTime } = data;
     const { payload } = await dispatch(
       createPatternException({
@@ -72,7 +72,7 @@ const CreateException = ({
       }),
     );
     toast(payload as Toast);
-    setLoading(false);
+    setIsLoading(false);
     if (!showErrorToast(payload)) {
       closeCreateException();
     }
