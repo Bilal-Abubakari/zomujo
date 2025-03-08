@@ -21,7 +21,7 @@ const Pricing = (): JSX.Element => {
   const [currentSessionLength, setCurrentSessionLength] = useState(MIN_SESSION);
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const { rate } = useAppSelector(selectExtra)! as IDoctor;
+  const { fee } = useAppSelector(selectExtra)! as IDoctor;
   async function updateRate(rate: IRate): Promise<void> {
     setIsLoading(true);
     const { payload } = await dispatch(setPaymentRate(rate));
@@ -33,7 +33,7 @@ const Pricing = (): JSX.Element => {
   }
 
   useEffect(() => {
-    const { amount, lengthOfSession } = rate;
+    const { amount, lengthOfSession } = fee;
     const sectionLength = lengthOfSession.split(' ')[0];
     if (amount) {
       setCurrentAmount(amount);
