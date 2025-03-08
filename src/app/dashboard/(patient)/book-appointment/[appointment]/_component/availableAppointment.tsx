@@ -59,6 +59,7 @@ const AvailableAppointment = (): JSX.Element => {
     const { payload } = await dispatch(
       initiatePayment({ amount: doctorInformation?.fee?.amount ?? 0, doctorId: String(doctorId) }),
     );
+    console.log(payload);
   };
 
   useEffect(() => {
