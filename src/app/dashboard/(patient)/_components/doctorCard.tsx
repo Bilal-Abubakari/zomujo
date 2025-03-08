@@ -38,18 +38,18 @@ const DoctorCard = ({
           </div>
         </div>
         <div className="mb-6 flex flex-row gap-6">
-          <div className="shadow-xs flex h-fit w-fit flex-row items-center gap-1 rounded-full border border-gray-100 px-1.5 py-1">
+          <div className="flex h-fit w-fit flex-row items-center gap-1 rounded-full border border-gray-100 px-1.5 py-1 shadow-2xs">
             <Star size={14} className="fill-warning-300 text-warning-300" />
             <p className="text-sm font-medium leading-3">{rate}</p>
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex flex-row items-center gap-1.5">
-              <div className="h-[5px] w-[5px] rounded-full bg-primary"></div>
+              <div className="bg-primary h-[5px] w-[5px] rounded-full"></div>
               <p className="text-sm leading-[14px]">{experience ?? 1} year(s) of experience</p>
             </div>
             {noOfConsultations && (
               <div className="flex flex-row items-center gap-1.5">
-                <div className="h-[5px] w-[5px] rounded-full bg-primary"></div>
+                <div className="bg-primary h-[5px] w-[5px] rounded-full"></div>
                 <p className="text-sm leading-[14px]">{noOfConsultations} consultations</p>
               </div>
             )}

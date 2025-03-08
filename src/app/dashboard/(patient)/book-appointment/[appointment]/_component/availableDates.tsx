@@ -51,7 +51,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
       />
 
       <div>
-        <p className="mb-2 mt-5 font-medium">Available time (Africa/Accra - GMT (+00:00))</p>
+        <p className="mt-5 mb-2 font-medium">Available time (Africa/Accra - GMT (+00:00))</p>
 
         <div className="flex flex-wrap gap-3">
           {dummyTime.map((time) => (
@@ -80,7 +80,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         </div>
       </div>
 
-      <div className="ml-auto mt-11 flex justify-end">
+      <div className="mt-11 ml-auto flex justify-end">
         <Button
           child="Continue"
           disabled={!(date && selectedTime)}

@@ -2,27 +2,27 @@ name: Code Quality Checks
 
 on:
   pull_request:
-    branches: [ main, master ]
-    
+    branches: [main, master]
+
 jobs:
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version-file: '.nvmrc'
-        cache: 'yarn'
-    
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
-      
-    - name: Check code formatting with Prettier
-      run: yarn prettier --check "src/**/*.{ts,tsx}"
-      
-    - name: Run ESLint
-      run: yarn lint
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check code formatting with Prettier
+        run: yarn prettier --check "src/**/*.{ts,tsx}"
+
+      - name: Run ESLint
+        run: yarn lint

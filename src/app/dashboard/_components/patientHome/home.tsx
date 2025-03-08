@@ -134,10 +134,10 @@ const PatientHome = (): JSX.Element => {
   );
 
   return (
-    <div className="w-full border border-grayscale-100 bg-grayscale-10 px-4 max-me:pb-[80px] max-me:pt-4 md:px-6">
+    <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-[80px] max-me:pt-4 w-full border px-4 md:px-6">
       <AvatarGreetings />
       <div className="mt-[27px] w-full gap-6 md:flex">
-        <div className="flex-grow space-y-12">
+        <div className="grow space-y-12">
           <SearchDoctorsCard />
           <div className="flex w-full items-center justify-center md:hidden">
             <Tabs defaultValue="home" className="w-full text-center text-sm md:hidden">
@@ -170,7 +170,7 @@ type SuggestedProps = {
 export const Suggested = ({ title, children, showViewAll = true }: SuggestedProps): JSX.Element => (
   <div className="flex w-full flex-col gap-6 max-md:mt-10">
     <div className="flex flex-row items-center justify-between">
-      <p className="text-xl font-bold leading-5">{title}</p>
+      <p className="text-xl leading-5 font-bold">{title}</p>
       {showViewAll && (
         <Link href="/" className="flex flex-row items-center text-sm">
           View All <ChevronRight size={16} />

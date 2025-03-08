@@ -53,7 +53,7 @@ const OrganizationRequestsStats = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="mb-12 mt-10 flex flex-wrap justify-evenly gap-6">
+    <div className="mt-10 mb-12 flex flex-wrap justify-evenly gap-6">
       <StatsCards isLoading={isLoading} statsData={statsData} />
     </div>
   );

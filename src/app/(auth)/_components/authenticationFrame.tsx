@@ -30,7 +30,7 @@ export default function AuthenticationFrame({
           className="absolute z-0 h-full w-full object-cover object-center"
           alt={imageAlt}
         />
-        <div className="z-10 w-full space-y-4 bg-transparentPrimaryGradient px-7 py-20 text-white 2xl:px-10 2xl:py-24">
+        <div className="bg-transparentPrimaryGradient z-10 w-full space-y-4 px-7 py-20 text-white 2xl:px-10 2xl:py-24">
           <Text variant="h3" variantStyle="h3">
             Elevate patient care with seamless access to their health data.
           </Text>
@@ -45,7 +45,7 @@ export default function AuthenticationFrame({
         <div className="mt-5 flex flex-col justify-center px-4 text-center text-sm sm:flex-row sm:gap-6">
           <p className="text-sm">© {getCurrentYear()} Zyptyk. All rights reserved.</p>
 
-          <div className="space-x-1 text-primary">
+          <div className="text-primary space-x-1">
             <Link href="/">Terms & Conditions</Link>
             <span className="text-black">|</span>
             <Link href="/">Privacy & Policy</Link>

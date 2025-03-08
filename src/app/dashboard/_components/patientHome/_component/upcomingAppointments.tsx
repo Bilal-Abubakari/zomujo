@@ -26,7 +26,7 @@ const UpcomingAppointmentCard = (): JSX.Element => {
   return (
     <div className="flex w-full max-w-sm flex-col gap-7 rounded-xl border border-gray-200 bg-white p-6">
       <div className="flex flex-col gap-8">
-        <p className="text-xl font-bold leading-5">Upcoming Appointments</p>
+        <p className="text-xl leading-5 font-bold">Upcoming Appointments</p>
         <WeekPicker days={days} currentDay={currentDay} />
       </div>
       <hr />
@@ -65,8 +65,8 @@ const UpcomingAppointmentCard = (): JSX.Element => {
               </div>
               <hr />
               <div className="flex flex-row items-center justify-between">
-                <div className="flex w-fit flex-row items-center gap-1 rounded-full bg-success-50 px-4 py-2 text-primary">
-                  <div className="h-[5px] w-[5px] rounded-full bg-primary"></div>
+                <div className="bg-success-50 text-primary flex w-fit flex-row items-center gap-1 rounded-full px-4 py-2">
+                  <div className="bg-primary h-[5px] w-[5px] rounded-full"></div>
                   <p className="text-xs font-medium">Accepted</p>
                 </div>
                 <p className="text-xs font-medium text-gray-500">
@@ -93,7 +93,7 @@ const WeekPicker = ({
     <div className="flex flex-col gap-2">
       <p className="text-xs text-gray-400">{getCurrentTimeInGMT()}</p>
       <div className="flex flex-row items-center justify-between">
-        <p className="text-xl font-bold leading-5">December</p>
+        <p className="text-xl leading-5 font-bold">December</p>
         <div className="flex flex-row items-center gap-4">
           <button className="flex h-6 w-6 items-center justify-center">
             <ChevronLeft size={20} />
@@ -117,7 +117,7 @@ const WeekPicker = ({
           </div>
           <p
             className={cn(
-              'text-sm font-medium leading-[14px]',
+              'text-sm leading-[14px] font-medium',
               day === currentDay ? 'text-primaryDark' : 'text-gray-400',
             )}
           >

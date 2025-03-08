@@ -46,7 +46,7 @@ const CreateException = ({
   patternId,
   closeCreateException,
 }: CreateExceptionProps): JSX.Element => {
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const {
     control,
     register,
@@ -61,7 +61,7 @@ const CreateException = ({
   const dispatch = useAppDispatch();
 
   const onSubmit = async (data: IPatternException): Promise<void> => {
-    setLoading(true);
+    setIsLoading(true);
     const { startTime, endTime } = data;
     const { payload } = await dispatch(
       createPatternException({
@@ -72,14 +72,14 @@ const CreateException = ({
       }),
     );
     toast(payload as Toast);
-    setLoading(false);
+    setIsLoading(false);
     if (!showErrorToast(payload)) {
       closeCreateException();
     }
   };
 
   return (
-    <div className="mx-auto w-full max-w-md rounded bg-white p-6 shadow">
+    <div className="mx-auto w-full max-w-md rounded bg-white p-6 shadow-sm">
       <h2 className="mb-6 text-2xl font-semibold">Create Exception</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

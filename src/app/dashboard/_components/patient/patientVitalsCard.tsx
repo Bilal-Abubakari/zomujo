@@ -56,7 +56,7 @@ const PatientVitalsCard = ({
         <div className="flex flex-row items-center justify-between text-sm">
           <p className="text-gray-500">Heart Rate</p>
           {heartRate ? (
-            <Badge className="bg-error-50 font-medium text-error-600">{heartRate} bpm</Badge>
+            <Badge className="bg-error-50 text-error-600 font-medium">{heartRate} bpm</Badge>
           ) : (
             '<Empty>'
           )}
@@ -64,7 +64,7 @@ const PatientVitalsCard = ({
         <div className="flex flex-row items-center justify-between text-sm">
           <p className="text-gray-500">Blood Sugar Level</p>
           {bloodSugarLevel ? (
-            <Badge className="bg-warning-75 font-medium text-warning-600">
+            <Badge className="bg-warning-75 text-warning-600 font-medium">
               {bloodSugarLevel} mg/dL
             </Badge>
           ) : (

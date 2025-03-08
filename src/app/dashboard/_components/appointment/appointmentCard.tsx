@@ -50,7 +50,7 @@ const AppointmentCard = ({
         left: 80 + 260 * day,
       }}
       className={cn(
-        'absolute z-[8] flex w-[259px] cursor-pointer flex-col justify-between overflow-clip rounded-md border border-[#93C4F0] bg-[#E0EFFE] p-3.5 duration-150 hover:scale-[1.02]',
+        'absolute z-8 flex w-[259px] cursor-pointer flex-col justify-between overflow-clip rounded-md border border-[#93C4F0] bg-[#E0EFFE] p-3.5 duration-150 hover:scale-[1.02]',
         height < 101 && 'p-2.5',
         status === AppointmentStatus.Pending && 'border-[#93C4F0] bg-[#E0EFFE]',
         status === AppointmentStatus.Accepted && 'border-green-300 bg-green-100',

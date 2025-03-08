@@ -40,8 +40,8 @@ import { statusFilterOptions } from '@/constants/constants';
 const PatientPanel = (): JSX.Element => {
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const [selectedPatient, setSelectedPatient] = useState<IPatient>();
-  const [openModal, setModalOpen] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
   const [tableData, setTableData] = useState<IPatient[]>([]);
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus | ''>>({
@@ -176,11 +176,11 @@ const PatientPanel = (): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      setLoading(true);
+      setIsLoading(true);
       const { payload } = await dispatch(getAllPatients(queryParameters));
       if (payload && showErrorToast(payload)) {
         toast(payload);
-        setLoading(false);
+        setIsLoading(false);
         return;
       }
 
@@ -188,7 +188,7 @@ const PatientPanel = (): JSX.Element => {
 
       setTableData(rows);
       setPaginationData(pagination);
-      setLoading(false);
+      setIsLoading(false);
     };
 
     void fetchData();
@@ -198,7 +198,7 @@ const PatientPanel = (): JSX.Element => {
     const patient = tableData.find(({ id }) => id === patientId);
     if (patient) {
       setSelectedPatient(patient);
-      setModalOpen(true);
+      setOpenModal(true);
     }
   }
 
@@ -269,8 +269,8 @@ const PatientPanel = (): JSX.Element => {
       <Modal
         open={openModal}
         content={<PatientRecord patient={selectedPatient!} />}
-        className="max-w-screen max-h-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
-        setState={setModalOpen}
+        className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
+        setState={setOpenModal}
         showClose={true}
       />
 

@@ -43,7 +43,7 @@ const statusFilterOptions: ISelected[] = [
 
 const ViewTimeSlots = (): JSX.Element => {
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [tableData, setTableData] = useState<ISlot[]>([]);
   const [queryParameters, setQueryParameters] = useState<IQueryParams<SlotStatus | ''>>({
     page: 1,
@@ -59,18 +59,18 @@ const ViewTimeSlots = (): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      setLoading(true);
+      setIsLoading(true);
       const { payload } = await dispatch(getAppointmentSlots(queryParameters));
       if (payload && showErrorToast(payload)) {
         toast(payload);
-        setLoading(false);
+        setIsLoading(false);
         return;
       }
 
       const { rows, ...pagination } = payload as IPagination<ISlot>;
       setTableData(rows);
       setPaginationData(pagination);
-      setLoading(false);
+      setIsLoading(false);
     };
     void fetchData();
   }, [queryParameters]);

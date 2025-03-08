@@ -67,7 +67,7 @@ const Doctors = (): JSX.Element => {
   ];
 
   const [selectedDoctor, setSelectedDoctor] = useState<IDoctor>();
-  const [openModal, setModalOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -154,7 +154,7 @@ const Doctors = (): JSX.Element => {
   }
   return (
     <>
-      <div className="z-20 mb-6 flex w-full flex-col flex-wrap gap-2 bg-grayscale-100 py-2 lg:sticky lg:top-0">
+      <div className="bg-grayscale-100 z-20 mb-6 flex w-full flex-col flex-wrap gap-2 py-2 lg:sticky lg:top-0">
         <div className="flex">
           <form className="flex gap-2" onSubmit={handleSubmit}>
             <Input
@@ -272,11 +272,11 @@ const Doctors = (): JSX.Element => {
           <div
             onClick={() => {
               setSelectedDoctor(doctor);
-              setModalOpen(true);
+              setOpenModal(true);
             }}
             onKeyDown={() => {
               setSelectedDoctor(doctor);
-              setModalOpen(true);
+              setOpenModal(true);
             }}
             className="cursor-pointer"
             key={doctor.id}
@@ -308,7 +308,7 @@ const Doctors = (): JSX.Element => {
       )}
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg transition-opacity ${
+        className={`bg-primary fixed right-6 bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition-opacity ${
           showScrollToTop ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
@@ -318,8 +318,8 @@ const Doctors = (): JSX.Element => {
       <Modal
         open={openModal}
         content={<DoctorDetails {...selectedDoctor!} showBookmark={true} />}
-        className="max-w-screen max-h-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
-        setState={setModalOpen}
+        className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
+        setState={setOpenModal}
         showClose={true}
       />
     </>

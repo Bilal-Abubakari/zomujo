@@ -141,16 +141,16 @@ type ChartProps = {
   statistics: { title: string; value: string }[];
 };
 const Chart = ({ title, control, children, statistics }: ChartProps): JSX.Element => (
-  <div className="w-full flex-grow basis-1/2">
+  <div className="w-full grow basis-1/2">
     <Card className="rounded-2xl">
       <div className="flex justify-between p-8">
-        <CardTitle className="text-base font-medium text-grayscale-500">{title}</CardTitle>
+        <CardTitle className="text-grayscale-500 text-base font-medium">{title}</CardTitle>
         <SelectInput
           name={'dailyActiveFilterOptions'}
           options={dailyActiveFilterOptions}
           ref={null}
           control={control}
-          className="max-w-[120px] rounded-3xl bg-grayscale-300 text-sm font-medium text-black outline-none focus:border-none focus:shadow-none"
+          className="bg-grayscale-300 max-w-[120px] rounded-3xl text-sm font-medium text-black outline-hidden focus:border-none focus:shadow-none"
         />
       </div>
       <CardContent className="max-md:p-1">{children}</CardContent>
@@ -158,7 +158,7 @@ const Chart = ({ title, control, children, statistics }: ChartProps): JSX.Elemen
         {statistics.map(({ value, title }) => (
           <div key={title} className="flex flex-col">
             <span className="text-2xl font-bold text-black">{value}</span>
-            <span className="text-xs text-grayscale-500 2xl:text-sm">{title}</span>
+            <span className="text-grayscale-500 text-xs 2xl:text-sm">{title}</span>
           </div>
         ))}
       </CardFooter>

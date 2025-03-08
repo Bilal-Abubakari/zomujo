@@ -43,13 +43,13 @@ const PersonalDetails = (): JSX.Element => {
   return (
     <form className="flex w-full flex-col gap-11" onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col gap-1.5">
-        <p className="flex flex-row items-center gap-3 text-[32px] font-bold leading-8">
+        <p className="flex flex-row items-center gap-3 text-[32px] leading-8 font-bold">
           <span>Personal Details</span>
           <span>
             <InfoIcon size={16} />
           </span>
         </p>
-        <p className="leading-6 text-grayscale-medium">
+        <p className="text-grayscale-medium leading-6">
           Provide your personal details for a personalized Zyptyk experience tailored to your
           preferences.
         </p>

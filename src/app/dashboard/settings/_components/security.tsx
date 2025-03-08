@@ -1,12 +1,11 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MODE } from '@/constants/constants';
 import { passwordSchema } from '@/schemas/zod.schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { JSX } from 'react';
 import { z } from 'zod';
 import { IUpdatePassword } from '@/types/auth.interface';
 import { useAppDispatch } from '@/lib/hooks';
@@ -95,7 +94,7 @@ const SecurityInfo = (): JSX.Element => {
         />
         <Button
           child="Save Changes"
-          className="ml-auto mt-12 flex"
+          className="mt-12 ml-auto flex"
           disabled={!isValid || isLoading}
           isLoading={isLoading}
         />
@@ -110,7 +109,7 @@ const SecurityInfo = (): JSX.Element => {
             You&rsquo;re always welcome back if you change your mind.
           </p>
         </div>
-        <div className="flex gap-2 pb-28 pt-3 sm:pb-0 sm:pt-0">
+        <div className="flex gap-2 pt-3 pb-28 sm:pt-0 sm:pb-0">
           <Button
             child={'Delete account'}
             variant={'destructive'}

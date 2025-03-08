@@ -149,14 +149,14 @@ const SingleImageDropzone = React.forwardRef<HTMLInputElement, InputProps>(
           ) : (
             <div className="flex flex-col items-center">
               <p className="text-lg font-bold">
-                Upload {label} or <span className="cursor-pointer text-primaryDark">Browse</span>
+                Upload {label} or <span className="text-primaryDark cursor-pointer">Browse</span>
               </p>
               <p className="leading-4 text-gray-500">Supports PNG, JPG, JPEG</p>
             </div>
           )}
           {imageUrl && !disabled && showDeleteIcon && (
             <div
-              className="group absolute right-5 top-5 z-50 -translate-y-1/4 translate-x-1/4 transform"
+              className="group absolute top-5 right-5 z-50 translate-x-1/4 -translate-y-1/4 transform"
               onClick={(e) => {
                 e.stopPropagation();
                 void onChange?.(undefined);
