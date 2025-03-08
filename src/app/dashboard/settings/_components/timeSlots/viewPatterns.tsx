@@ -22,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import CreateException from '@/app/dashboard/settings/_components/timeSlots/createException';
 
 const ViewPatterns = (): JSX.Element => {
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [slotPatterns, setSlotPatterns] = useState<ISlotPattern[]>([]);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
@@ -36,16 +36,16 @@ const ViewPatterns = (): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      setLoading(true);
+      setIsLoading(true);
       const { payload } = await dispatch(getSlotPatterns());
       if (payload && showErrorToast(payload)) {
         toast(payload);
-        setLoading(false);
+        setIsLoading(false);
         return;
       }
 
       setSlotPatterns(payload as ISlotPattern[]);
-      setLoading(false);
+      setIsLoading(false);
     };
     void fetchData();
   }, []);

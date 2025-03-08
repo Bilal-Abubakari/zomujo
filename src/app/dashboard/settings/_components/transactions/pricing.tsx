@@ -17,8 +17,8 @@ const Pricing = (): JSX.Element => {
   const MIN_SESSION = 30;
   const MAX_SESSION = 120;
 
-  const [amount, setCurrentAmount] = useState(MIN_AMOUNT);
-  const [lengthOfSession, setCurrentSessionLength] = useState(MIN_SESSION);
+  const [currentAmount, setCurrentAmount] = useState(MIN_AMOUNT);
+  const [currentSessionLength, setCurrentSessionLength] = useState(MIN_SESSION);
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const { rate } = useAppSelector(selectExtra)! as IDoctor;
@@ -55,7 +55,7 @@ const Pricing = (): JSX.Element => {
       <div className="relative flex w-full flex-1 flex-col gap-4">
         <p className="text-sm">Select amount</p>
         <Slider
-          value={[amount]}
+          value={[currentAmount]}
           onValueChange={(value) => setCurrentAmount(value[0])}
           min={MIN_AMOUNT}
           max={MAX_AMOUNT}
@@ -63,17 +63,17 @@ const Pricing = (): JSX.Element => {
         />
         <motion.div
           style={{
-            x: `${sliderPosition(window.innerWidth < 430 ? 20 : amount, 'amount')}px`,
+            x: `${sliderPosition(window.innerWidth < 430 ? 20 : currentAmount, 'amount')}px`,
           }}
           className="bg-primary absolute top-[calc(100%+8px)] flex h-8 w-16 items-center justify-center rounded-full"
         >
-          <p className="text-sm text-white">₵{amount}</p>
+          <p className="text-sm text-white">₵{currentAmount}</p>
         </motion.div>
       </div>
       <div className="relative flex w-full flex-1 flex-col gap-4">
         <p className="text-sm">Length of session</p>
         <Slider
-          value={[lengthOfSession]}
+          value={[currentSessionLength]}
           onValueChange={(value) => setCurrentSessionLength(value[0])}
           min={MIN_SESSION}
           max={MAX_SESSION}
@@ -81,18 +81,20 @@ const Pricing = (): JSX.Element => {
         />
         <motion.div
           style={{
-            x: `${sliderPosition(window.innerWidth < 430 ? 20 : lengthOfSession, 'sessionLength')}px`,
+            x: `${sliderPosition(window.innerWidth < 430 ? 20 : currentSessionLength, 'sessionLength')}px`,
           }}
           className="bg-primary absolute top-[calc(100%+8px)] flex h-8 items-center justify-center rounded-full px-2.5"
         >
-          <p className="text-sm text-white">{lengthOfSession} mins</p>
+          <p className="text-sm text-white">{currentSessionLength} mins</p>
         </motion.div>
       </div>
       <Button
         child="Save Changes"
         isLoading={isLoading}
         disabled={isLoading}
-        onClick={() => updateRate({ amount, lengthOfSession: `${lengthOfSession} mins` })}
+        onClick={() =>
+          updateRate({ amount: currentAmount, lengthOfSession: `${currentSessionLength} mins` })
+        }
       />
     </div>
   );

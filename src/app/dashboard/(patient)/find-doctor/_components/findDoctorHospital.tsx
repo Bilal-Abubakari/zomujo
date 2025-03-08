@@ -9,11 +9,12 @@ enum DoctorHospital {
   Doctors = 'doctors',
   Hospital = 'hospital',
 }
+
 const FindDoctorHospital = (): JSX.Element => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParam = useSearchParams();
-  const [selectDoctorHospital, setSelectedDoctorHospital] = useState<DoctorHospital>();
+  const [selectedDoctorHospital, setSelectedDoctorHospital] = useState<DoctorHospital>();
 
   useEffect(() => {
     setSelectedDoctorHospital(
@@ -34,12 +35,12 @@ const FindDoctorHospital = (): JSX.Element => {
     <div>
       <section>
         <p className="text-[32px] font-bold">
-          {selectDoctorHospital === DoctorHospital.Doctors ? 'Find Doctors' : 'Find Hospitals'}
+          {selectedDoctorHospital === DoctorHospital.Doctors ? 'Find Doctors' : 'Find Hospitals'}
         </p>
       </section>
 
       <section className="mt-4">
-        <Tabs value={selectDoctorHospital}>
+        <Tabs value={selectedDoctorHospital}>
           <TabsList>
             <TabsTrigger
               value={DoctorHospital.Doctors}
@@ -58,7 +59,7 @@ const FindDoctorHospital = (): JSX.Element => {
           </TabsList>
 
           <TabsContent
-            hidden={selectDoctorHospital !== DoctorHospital.Doctors}
+            hidden={selectedDoctorHospital !== DoctorHospital.Doctors}
             forceMount={true}
             className="mt-2"
             value={DoctorHospital.Doctors}
@@ -66,7 +67,7 @@ const FindDoctorHospital = (): JSX.Element => {
             <Doctors />
           </TabsContent>
           <TabsContent
-            hidden={selectDoctorHospital !== DoctorHospital.Hospital}
+            hidden={selectedDoctorHospital !== DoctorHospital.Hospital}
             forceMount={true}
             className="mt-2"
             value={DoctorHospital.Hospital}
