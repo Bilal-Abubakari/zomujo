@@ -122,8 +122,8 @@ const PaymentMethod = ({ closeModal }: PaymentMethodProps): JSX.Element => {
 
     if (payload) {
       toast(payload);
-    } else {
-      closeModal && closeModal();
+    } else if (closeModal) {
+      closeModal();
     }
     setIsLoading(false);
   }
