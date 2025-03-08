@@ -66,7 +66,7 @@ const PaymentInfo = (): JSX.Element => {
       {isModalOpen && (
         <Modal
           open={isModalOpen}
-          content={<PaymentMethod key={'paymentMethod'} />}
+          content={<PaymentMethod key={'paymentMethod'} closeModal={() => setIsModalOpen(false)} />}
           showClose={true}
           setState={setIsModalOpen}
         />
@@ -93,7 +93,7 @@ const paymentMethodSchema = z.object({
 });
 
 type PaymentMethodProps = {
-  closeModal: () => void;
+  closeModal?: () => void;
 };
 const PaymentMethod = ({ closeModal }: PaymentMethodProps): JSX.Element => {
   const {
@@ -123,7 +123,7 @@ const PaymentMethod = ({ closeModal }: PaymentMethodProps): JSX.Element => {
     if (payload) {
       toast(payload);
     } else {
-      closeModal();
+      closeModal && closeModal();
     }
     setIsLoading(false);
   }
