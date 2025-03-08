@@ -193,7 +193,10 @@ const AvailableAppointment = (): JSX.Element => {
             </div>
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Total</div>
-              <div className="text-lg font-bold"> GHC {(doctorInformation?.fee?.amount ?? 0) + 5}.00</div>
+              <div className="text-lg font-bold">
+                {' '}
+                GHC {(doctorInformation?.fee?.amount ?? 0) + 5}.00
+              </div>
             </div>
 
             <div className="mt-4 flex justify-between">

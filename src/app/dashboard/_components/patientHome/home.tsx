@@ -40,7 +40,7 @@ const mockDoctors = [
     ratings: 4.8,
     experience: 10,
     noOfConsultations: 200,
-    rate:1,
+    rate: 1,
   },
 ] as IDoctor[];
 

@@ -15,7 +15,7 @@ const DoctorCard = ({
   noOfConsultations,
   id,
   profilePicture,
-  fee
+  fee,
 }: IDoctor): JSX.Element => {
   const router = useRouter();
   return (
