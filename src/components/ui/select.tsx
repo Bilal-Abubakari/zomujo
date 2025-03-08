@@ -1,11 +1,21 @@
 'use client';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { ComponentPropsWithoutRef, ComponentRef, forwardRef, JSX, Ref } from 'react';
+import { ComponentPropsWithoutRef, ComponentRef, forwardRef, JSX, Ref, useState } from 'react';
 import { Control, Controller } from 'react-hook-form';
 import { Label } from './label';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { Button } from './button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from './command';
 
 export interface SelectOption {
   label: string;
@@ -190,6 +200,85 @@ const SelectInput = ({
     )}
   />
 );
+type ComboboxProps = {
+  isLoading?: boolean;
+  wrapperClassName?: string;
+  defaultMaxWidth?: boolean;
+  value: string;
+  onChange: (value: string) => void;
+  searchPlaceholder?: string;
+} & Pick<SelectInputProps, 'options' | 'label' | 'placeholder'>;
+const Combobox = ({
+  options,
+  label,
+  defaultMaxWidth = true,
+  wrapperClassName,
+  placeholder,
+  value: currentValue,
+  onChange,
+  isLoading,
+  searchPlaceholder,
+}: ComboboxProps): JSX.Element => {
+  const [open, setOpen] = useState(false);
+  const [currentOption, setCurrentOption] = useState<string | null>(null);
+
+  return (
+    <div
+      className={cn(
+        'relative grid w-full items-center gap-2',
+        wrapperClassName,
+        defaultMaxWidth ? 'max-w-sm' : '',
+      )}
+    >
+      {label && <Label>{label}</Label>}
+      <Popover modal={true} open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="hover:bg-background! justify-between"
+            child={
+              <>
+                {isLoading ? 'Loading... Please wait' : currentOption || placeholder}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </>
+            }
+          />
+        </PopoverTrigger>
+        <PopoverContent className="w-[85vw] max-w-sm p-0">
+          <Command>
+            <CommandInput placeholder={searchPlaceholder} />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                {options.map(({ label, value }) => (
+                  <CommandItem
+                    key={value}
+                    value={label}
+                    onSelect={() => {
+                      setCurrentOption(label);
+                      onChange(value);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 h-4 w-4',
+                        value === currentValue ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                    {label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
 
 export {
   Select,
@@ -203,4 +292,5 @@ export {
   SelectScrollUpButton,
   SelectScrollDownButton,
   SelectInput,
+  Combobox,
 };
