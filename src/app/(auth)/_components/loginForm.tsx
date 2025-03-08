@@ -93,7 +93,7 @@ const LoginForm = (): JSX.Element => {
           </div>
           <div>
             <span> Don&rsquo;t have an account? </span>
-            <Link href="/sign-up" className="pl-1 text-primary">
+            <Link href="/sign-up" className="text-primary pl-1">
               Sign Up
             </Link>
           </div>

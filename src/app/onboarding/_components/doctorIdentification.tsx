@@ -47,13 +47,13 @@ const DoctorIdentification = (): JSX.Element => {
   return (
     <form className="flex w-full flex-col gap-10" onSubmit={($event) => onSubmit($event)}>
       <div className="flex flex-col gap-1.5">
-        <p className="flex flex-row items-center gap-1 text-[32px] font-bold leading-8">
+        <p className="flex flex-row items-center gap-1 text-[32px] leading-8 font-bold">
           Upload doctor’s ID
           <span>
             <InfoIcon size={16} />
           </span>
         </p>
-        <p className="leading-6 text-grayscale-medium">We require both sides of ID Card</p>
+        <p className="text-grayscale-medium leading-6">We require both sides of ID Card</p>
       </div>
       <div className="flex flex-col justify-between gap-4">
         <div className="flex flex-row justify-between">
@@ -88,7 +88,7 @@ const DoctorIdentification = (): JSX.Element => {
         <Button
           onClick={() => dispatch(updateCurrentStep(1))}
           variant="secondary"
-          className="w-full bg-accent-foreground text-white"
+          className="bg-accent-foreground w-full text-white"
           type="button"
           child="Back"
         />

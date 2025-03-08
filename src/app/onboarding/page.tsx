@@ -24,7 +24,7 @@ const DoctorOnboarding = (): JSX.Element => {
       <header className="relative w-full bg-white px-[72px] py-10">
         <Image
           src={Logo}
-          className="absolute left-1/2 top-1/2 h-11 w-11 -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 h-11 w-11 -translate-x-1/2 -translate-y-1/2"
           alt="Zyptyk Logo"
         />
       </header>

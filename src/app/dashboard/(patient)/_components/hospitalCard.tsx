@@ -19,7 +19,7 @@ const HospitalCard = (hospital: IHospital): JSX.Element => {
       <Modal
         open={showHospitalPreview}
         content={<HospitalPreview {...hospital} />}
-        className="max-w-screen max-h-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
+        className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
         setState={setShowHospitalPreview}
         showClose={true}
       />
@@ -31,7 +31,7 @@ const HospitalCard = (hospital: IHospital): JSX.Element => {
           <div className="relative max-h-[90vh] max-w-[90vw]">
             <button
               onClick={() => setShowPreview(false)}
-              className="absolute -right-4 -top-4 rounded-full bg-white p-2 shadow-lg"
+              className="absolute -top-4 -right-4 rounded-full bg-white p-2 shadow-lg"
             >
               <X size={20} />
             </button>
@@ -57,7 +57,7 @@ const HospitalCard = (hospital: IHospital): JSX.Element => {
             />
           </div>
         ) : (
-          <div className="flex h-48 w-full items-center justify-center rounded-t-[14px] border border-gray-100 bg-primary/10">
+          <div className="bg-primary/10 flex h-48 w-full items-center justify-center rounded-t-[14px] border border-gray-100">
             <Building2 size={48} className="text-primary" />
           </div>
         )}
@@ -72,16 +72,16 @@ const HospitalCard = (hospital: IHospital): JSX.Element => {
               <hr className="mt-2 w-full" />
             </div>
             <div className="mb-6 flex flex-col gap-4">
-              <div className="shadow-xs flex h-fit w-fit flex-row items-center gap-1 rounded-full border border-gray-100 px-2 py-1">
+              <div className="flex h-fit w-fit flex-row items-center gap-1 rounded-full border border-gray-100 px-2 py-1 shadow-2xs">
                 <Navigation size={14} className="text-primary" />
-                <p className="text-sm font-medium leading-3">
+                <p className="text-sm leading-3 font-medium">
                   {(distance / METERS_TO_KM_FACTOR).toFixed(1)} km away
                 </p>
               </div>
               <div className="flex flex-col gap-4">
                 {specialties?.slice(0, 2).map((specialty, index) => (
                   <div key={index} className="flex flex-row items-center gap-1.5">
-                    <div className="h-[5px] w-[5px] rounded-full bg-primary"></div>
+                    <div className="bg-primary h-[5px] w-[5px] rounded-full"></div>
                     <p className="text-sm leading-[14px]">{specialty}</p>
                   </div>
                 ))}

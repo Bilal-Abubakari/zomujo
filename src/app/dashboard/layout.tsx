@@ -25,7 +25,7 @@ export default function Layout({
         <SidebarProvider>
           <SidebarLayout />
           <PhoneNavbar />
-          <main className="w-full bg-grayscale-100 px-1 me:border 2xl:px-6">
+          <main className="bg-grayscale-100 me:border w-full px-1 2xl:px-6">
             <Toolbar />
             {children}
           </main>

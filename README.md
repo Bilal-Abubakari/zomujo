@@ -38,4 +38,3 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Documentation of API Used
 
 Checkout out docs of api https://emr-do80.onrender.com/docs#/
-

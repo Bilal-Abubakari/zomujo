@@ -155,7 +155,7 @@ const HospitalSettings = (): JSX.Element => {
         </div>
         <Button
           child="Save Changes"
-          className="my-[15px] mb-24 ml-auto flex me:mb-0"
+          className="me:mb-0 my-[15px] mb-24 ml-auto flex"
           isLoading={isLoading}
           disabled={!isValid || isLoading}
         />

@@ -43,7 +43,7 @@ const DoctorDetails = ({
           <p className="font-medium"> Consultation</p>
 
           {rate && (
-            <p className="text-xl font-bold text-primary">
+            <p className="text-primary text-xl font-bold">
               GHs {rate?.amount} <span className="text-base text-gray-400">Fee</span>
             </p>
           )}
@@ -72,7 +72,7 @@ const DoctorDetails = ({
         </div>
         <div className="mt-6 flex-wrap">
           {specializations.map((specialization) => (
-            <Badge variant={'gray'} key={specialization} className="mb-2 mr-2">
+            <Badge variant={'gray'} key={specialization} className="mr-2 mb-2">
               {specialization}
             </Badge>
           ))}
@@ -108,7 +108,7 @@ const DoctorDetails = ({
 
           {awards.length > 0 && (
             <div>
-              <h3 className="mb-5 mt-12 text-xl font-bold">Awards</h3>
+              <h3 className="mt-12 mb-5 text-xl font-bold">Awards</h3>
               {awards.map((award) => (
                 <Badge variant={'destructive'} key={award}>
                   {award}
@@ -118,7 +118,7 @@ const DoctorDetails = ({
           )}
         </div>
         <div className="mt-5">
-          <h3 className="mb-5 mt-12 text-xl font-bold">Identification Card</h3>
+          <h3 className="mt-12 mb-5 text-xl font-bold">Identification Card</h3>
           <div className="flex flex-wrap gap-4">
             <Image
               src={front}
@@ -145,7 +145,7 @@ export default DoctorDetails;
 
 const EducationCard = ({ school, degree }: { school: string; degree: string }): JSX.Element => (
   <div className="mt-6 flex items-center justify-start gap-3">
-    <div className="flex h-[35px] w-[35px] items-center justify-center rounded-[6.74px] bg-lightOrange">
+    <div className="bg-lightOrange flex h-[35px] w-[35px] items-center justify-center rounded-[6.74px]">
       <GraduationCap className="text-deepOrange" />
     </div>
     <div>

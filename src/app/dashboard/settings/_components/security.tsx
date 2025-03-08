@@ -95,7 +95,7 @@ const SecurityInfo = (): JSX.Element => {
         />
         <Button
           child="Save Changes"
-          className="ml-auto mt-12 flex"
+          className="mt-12 ml-auto flex"
           disabled={!isValid || isLoading}
           isLoading={isLoading}
         />
@@ -110,7 +110,7 @@ const SecurityInfo = (): JSX.Element => {
             You&rsquo;re always welcome back if you change your mind.
           </p>
         </div>
-        <div className="flex gap-2 pb-28 pt-3 sm:pb-0 sm:pt-0">
+        <div className="flex gap-2 pt-3 pb-28 sm:pt-0 sm:pb-0">
           <Button
             child={'Delete account'}
             variant={'destructive'}

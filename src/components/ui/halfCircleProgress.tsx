@@ -36,7 +36,7 @@ const HalfCircleProgress = ({
           borderBottomColor: color,
           borderRightColor: color,
         }}
-        className="absolute left-0 top-0 box-border rounded-[50%]"
+        className="absolute top-0 left-0 box-border rounded-[50%]"
       ></motion.div>
     </div>
     {bottomComponent}

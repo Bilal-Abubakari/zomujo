@@ -94,7 +94,7 @@ const NotificationPreference = (): JSX.Element => {
             <Button
               type="submit"
               child="Save Changes"
-              className="ml-auto mt-12 flex"
+              className="mt-12 ml-auto flex"
               isLoading={isLoading}
             />
           </div>

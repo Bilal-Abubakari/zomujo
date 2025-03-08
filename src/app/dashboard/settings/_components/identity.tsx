@@ -41,7 +41,7 @@ const Identity = (): JSX.Element => {
         <div className="flex items-center gap-2.5">
           <h2 className="text-2xl font-bold">Identification</h2>
           {status === AcceptDeclineStatus.Accepted && (
-            <span className="rounded-sm bg-success-50 p-2 text-xs text-primary">
+            <span className="bg-success-50 text-primary rounded-sm p-2 text-xs">
               Your ID has been verified
             </span>
           )}
@@ -74,7 +74,7 @@ const Identity = (): JSX.Element => {
           />
         </div>
         {status !== AcceptDeclineStatus.Accepted && (
-          <div className="mb-16 mt-4 flex justify-end sm:mb-0 sm:mt-0">
+          <div className="mt-4 mb-16 flex justify-end sm:mt-0 sm:mb-0">
             <Button child="Save Changes" isLoading={isLoading} disabled={isLoading} />
           </div>
         )}

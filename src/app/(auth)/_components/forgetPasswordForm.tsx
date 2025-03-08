@@ -74,7 +74,7 @@ const ForgetPasswordForm = (): JSX.Element => {
           />
 
           <div>
-            <Link href="/login" className="flex pl-2 text-primary">
+            <Link href="/login" className="text-primary flex pl-2">
               <ArrowLeft /> Back
             </Link>
           </div>
