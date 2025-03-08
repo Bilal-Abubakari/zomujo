@@ -49,7 +49,7 @@ const ProfileCompletionCard = (): JSX.Element => {
         onClick={() => {
           router.push('/settings');
         }}
-        className="border-opacity-20 bg-opacity-20 z-20 flex h-9 flex-col items-center justify-center self-stretch rounded-md border border-white bg-white backdrop-blur-lg"
+        className="z-20 flex h-9 flex-col items-center justify-center self-stretch rounded-md border border-white/20 bg-white/20 backdrop-blur-lg"
       >
         <p className="text-sm font-medium text-white">Complete Profile</p>
       </button>

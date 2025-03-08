@@ -79,7 +79,7 @@ export default PaymentInfo;
 
 const Card = ({ number, name, type }: CardProps): JSX.Element => (
   <div className="flex h-[139px] w-[139px] flex-col items-start justify-center rounded-[7.32px] border pl-4">
-    <Image src={type === 'bank' ? CardPayment : MobileMoney} alt={type} />
+    <Image src={type === 'ghipss' ? CardPayment : MobileMoney} alt={type} />
     <p className="mt-4 w-28 truncate font-bold"> {name}</p>
     <p className="truncate text-[12px] font-bold text-gray-400"> {number}</p>
   </div>
