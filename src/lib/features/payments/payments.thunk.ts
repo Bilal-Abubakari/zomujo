@@ -52,7 +52,7 @@ export const initiatePayment = createAsyncThunk(
     try {
       const {
         data: { message },
-      } = await axios.get<IResponse>(`payments/initialize?amount=${amount}&doctorId=${doctorId}`);
+      } = await axios.post<IResponse>(`payments/initialize`, { amount, doctorId });
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

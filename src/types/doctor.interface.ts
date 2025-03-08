@@ -28,15 +28,15 @@ export interface IDoctor extends IExtraBase {
     front: string;
     back: string;
   };
-  rate: {
-    lengthOfSession: string;
-    amount: number;
-  };
+  rate: number;
   balance: number | null;
   signaturePath: string;
   noOfConsultations?: number;
   ratings: number;
-  fee: number;
+  fee: {
+    lengthOfSession: string;
+    amount: number;
+  };
 }
 
 export type DoctorPersonalInfo = Pick<
@@ -49,7 +49,7 @@ export type DoctorPersonalInfo = Pick<
   | 'awards'
   | 'specializations'
   | 'bio'
-  | 'schoolsAttended'
+  | 'education'
 >;
 
 export type NotificationInfo = Pick<IDoctor, 'notifications'>;

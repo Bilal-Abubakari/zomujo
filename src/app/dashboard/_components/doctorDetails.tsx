@@ -25,6 +25,7 @@ const DoctorDetails = ({
   awards,
   IDs: { back, front },
   showBookmark = false,
+  fee,
   id,
 }: Bookmark): JSX.Element => {
   const router = useRouter();
@@ -44,7 +45,7 @@ const DoctorDetails = ({
 
           {rate && (
             <p className="text-xl font-bold text-primary">
-              GHs {rate?.amount} <span className="text-base text-gray-400">Fee</span>
+              GHs {fee?.amount} <span className="text-base text-gray-400">Fee</span>
             </p>
           )}
         </div>

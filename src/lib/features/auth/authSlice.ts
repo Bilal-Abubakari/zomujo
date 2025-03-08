@@ -9,9 +9,10 @@ import {
   verifyEmail,
 } from '@/lib/features/auth/authThunk';
 import { IDoctorIdentification, IPersonalDetails, IUser } from '@/types/auth.interface';
-import { IDoctor } from '@/types/doctor.interface';
+import {  IDoctor } from '@/types/doctor.interface';
 import { IAdmin } from '@/types/admin.interface';
 import { IPatient } from '@/types/patient.interface';
+
 
 interface AuthenticationState {
   errorMessage: string;

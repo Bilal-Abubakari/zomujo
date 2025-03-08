@@ -13,6 +13,7 @@ import { Toast } from '@/hooks/use-toast';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { IDoctorIdentification } from '@/types/auth.interface';
 import { ISlot } from '@/types/appointment';
+import { updateExtra } from '../auth/authSlice';
 
 export const getAllDoctors = createAsyncThunk(
   'doctors/allDoctors',
@@ -94,12 +95,14 @@ export const uploadDoctorId = createAsyncThunk(
 
 export const updateDoctorProfile = createAsyncThunk(
   'doctors/profile',
-  async (doctorInfo: DoctorPersonalInfo | NotificationInfo): Promise<Toast> => {
+  async (
+    doctorInfo: DoctorPersonalInfo | NotificationInfo,
+    { dispatch },
+  ): Promise<Toast | IResponse<IDoctor>> => {
     try {
-      const {
-        data: { message },
-      } = await axios.patchForm<IResponse<DoctorPersonalInfo>>(`doctors/me`, doctorInfo);
-      return generateSuccessToast(message);
+      const { data } = await axios.patch<IResponse<IDoctor>>(`doctors/me`, doctorInfo);
+      dispatch(updateExtra(data.data));
+      return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

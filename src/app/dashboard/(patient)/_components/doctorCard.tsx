@@ -15,6 +15,7 @@ const DoctorCard = ({
   noOfConsultations,
   id,
   profilePicture,
+  fee
 }: IDoctor): JSX.Element => {
   const router = useRouter();
   return (
@@ -39,7 +40,7 @@ const DoctorCard = ({
         <div className="mb-6 flex flex-row gap-6">
           <div className="shadow-xs flex h-fit w-fit flex-row items-center gap-1 rounded-full border border-gray-100 px-1.5 py-1">
             <Star size={14} className="fill-warning-300 text-warning-300" />
-            <p className="text-sm font-medium leading-3">{5}</p>
+            <p className="text-sm font-medium leading-3">{rate}</p>
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex flex-row items-center gap-1.5">
@@ -57,7 +58,7 @@ const DoctorCard = ({
       </div>
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-col gap-0.5">
-          <p className="text-xl font-bold leading-5 text-primaryDark">GHs {rate?.amount}/</p>
+          <p className="text-xl font-bold leading-5 text-primaryDark">GHs {fee?.amount}/hr</p>
           <p className="text-sm font-medium leading-[14px] text-gray-400">Consult</p>
         </div>
         <button

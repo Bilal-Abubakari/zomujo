@@ -11,7 +11,7 @@ import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { useAppDispatch } from '@/lib/hooks';
 import { showErrorToast } from '@/lib/utils';
 import { IDoctor } from '@/types/doctor.interface';
-import { AcceptDeclineStatus, Gender } from '@/types/shared.enum';
+import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ChevronUp, ListFilter, Search, SendHorizontal, UserRound } from 'lucide-react';
 import Image from 'next/image';
@@ -48,10 +48,11 @@ const Doctors = (): JSX.Element => {
     priceMax: '',
     experienceMin: '',
     experienceMax: '',
-    gender: Gender.Male,
+    gender: '',
     specialty: '',
     rateMin: '',
     rateMax: '',
+    booking: true
   });
 
   const statusFilterOptions: ISelected[] = [
