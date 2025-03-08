@@ -71,7 +71,10 @@ export const initiatePayment = createAsyncThunk(
     doctorId: string;
   }): Promise<Toast | ICheckout> => {
     try {
-      const { data } = await axios.post<IResponse<ICheckout>>(`payments/initialize`, { amount, doctorId });
+      const { data } = await axios.post<IResponse<ICheckout>>(`payments/initialize`, {
+        amount,
+        doctorId,
+      });
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

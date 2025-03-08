@@ -55,7 +55,7 @@ const AvailableAppointment = (): JSX.Element => {
       appointmentType: 'virtual',
       date: dateToday.toISOString(),
     },
-  });                                                   
+  });
 
   const onSubmit = async (): Promise<void> => {
     setIsPaymentInitiated(true);
