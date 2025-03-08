@@ -102,7 +102,7 @@ export const openExternalUrls = (url: string): Window | null => window.open(url,
 export const getValidQueryString = (queryParams: IQueryParams<unknown>): string => {
   const filteredQueryParams = Object.fromEntries(
     Object.entries(queryParams)
-      .filter(([, value]) => value !== undefined)
+      .filter(([, value]) => !!value)
       .map(([key, value]) => [key, value instanceof Date ? value.toISOString() : value]),
   );
   return new URLSearchParams(filteredQueryParams).toString();

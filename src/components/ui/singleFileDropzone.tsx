@@ -149,7 +149,7 @@ const SingleImageDropzone = React.forwardRef<HTMLInputElement, InputProps>(
           ) : (
             <div className="flex flex-col items-center">
               <p className="text-lg font-bold">
-                Upload {label} or <span className="text-primaryDark cursor-pointer">Browse</span>
+                Upload {label} or <span className="text-primary-dark cursor-pointer">Browse</span>
               </p>
               <p className="leading-4 text-gray-500">Supports PNG, JPG, JPEG</p>
             </div>

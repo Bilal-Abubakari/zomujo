@@ -93,7 +93,6 @@
   --color-primary-light-light: #f4fbf9;
   --color-light-orange: #ffe4cc;
   --color-deep-orange: #ff8d24;
-
   --color-sidebar: hsl(var(--sidebar-background));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-primary: hsl(var(--sidebar-primary));

@@ -12,6 +12,7 @@ type MultiInputProps = {
   ref?: Ref<HTMLInputElement>;
   handleValueChange: (values: string[]) => void;
   onBlur?: () => void;
+  defaultValues?: string[];
 };
 
 const MultiInputField = ({
@@ -22,9 +23,10 @@ const MultiInputField = ({
   ref,
   handleValueChange,
   onBlur,
+  defaultValues = [],
 }: MultiInputProps): JSX.Element => {
   const [inputValue, setInputValue] = useState<string>('');
-  const [values, setValues] = useState<string[]>([]);
+  const [values, setValues] = useState<string[]>(defaultValues);
 
   const handleAddValue = (): void => {
     if (inputValue.trim() && !values.includes(inputValue)) {

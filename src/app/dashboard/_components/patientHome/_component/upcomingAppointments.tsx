@@ -118,7 +118,7 @@ const WeekPicker = ({
           <p
             className={cn(
               'text-sm leading-[14px] font-medium',
-              day === currentDay ? 'text-primaryDark' : 'text-gray-400',
+              day === currentDay ? 'text-primary-dark' : 'text-gray-400',
             )}
           >
             {weekday}

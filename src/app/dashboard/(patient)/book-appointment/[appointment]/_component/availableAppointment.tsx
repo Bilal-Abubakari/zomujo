@@ -57,9 +57,8 @@ const AvailableAppointment = (): JSX.Element => {
   //Todo: refactor once the backend makes adjustment
   const onSubmit = async (): Promise<void> => {
     const { payload } = await dispatch(
-      initiatePayment({ amount: doctorInformation?.fee ?? 0, doctorId: String(doctorId) }),
+      initiatePayment({ amount: doctorInformation?.fee?.amount ?? 0, doctorId: String(doctorId) }),
     );
-
     console.log(payload);
   };
 
@@ -185,7 +184,7 @@ const AvailableAppointment = (): JSX.Element => {
 
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Consultation Fee</div>
-              <div className="font-medium"> GHC {doctorInformation?.fee ?? 0}.00</div>
+              <div className="font-medium"> GHC {doctorInformation?.fee?.amount ?? 0}.00</div>
             </div>
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Booking Fee</div>
@@ -193,7 +192,10 @@ const AvailableAppointment = (): JSX.Element => {
             </div>
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Total</div>
-              <div className="text-lg font-bold"> GHC {(doctorInformation?.fee ?? 0) + 5}.00</div>
+              <div className="text-lg font-bold">
+                {' '}
+                GHC {(doctorInformation?.fee?.amount ?? 0) + 5}.00
+              </div>
             </div>
 
             <div className="mt-4 flex justify-between">

@@ -102,7 +102,7 @@ const OnboardingSuccessful = (): JSX.Element => {
   return (
     <div className="relative flex flex-col items-center gap-12 p-8 pt-16">
       <div className="absolute top-0 left-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gray-50">
-        <div className="from-primaryLightBase to-primaryDark flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-b">
+        <div className="from-primary-light-base to-primary-dark flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-b">
           <Check size={32} strokeWidth={3} className="text-white" />
         </div>
       </div>

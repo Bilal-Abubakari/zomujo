@@ -12,6 +12,7 @@ import {
   nameArraySchema,
   nameSchema,
   phoneNumberSchema,
+  positiveNumberSchema,
   requiredStringSchema,
   textAreaSchema,
 } from '@/schemas/zod.schemas';
@@ -25,8 +26,18 @@ import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
 
 const PersonalInfo = (): JSX.Element => {
-  const { firstName, lastName, specializations, bio, experience, contact, profilePicture } =
-    useAppSelector(selectExtra) as IDoctor;
+  const {
+    firstName,
+    lastName,
+    specializations,
+    bio,
+    experience,
+    contact,
+    profilePicture,
+    education,
+    languages: spokenLanguages,
+    awards,
+  } = useAppSelector(selectExtra) as IDoctor;
   const personalDetails = {
     firstName,
     lastName,
@@ -34,15 +45,21 @@ const PersonalInfo = (): JSX.Element => {
     bio,
     experience,
     contact: contact,
+    education,
+    languages: spokenLanguages,
+    awards,
   };
   const PersonalDetailsSchema = z.object({
     firstName: nameSchema,
     lastName: nameSchema,
-    schoolsAttended: nameArraySchema,
+    education: z.object({
+      school: requiredStringSchema(),
+      degree: nameSchema,
+    }),
     languages: nameArraySchema,
     awards: nameArraySchema,
     bio: textAreaSchema,
-    experience: requiredStringSchema(),
+    experience: positiveNumberSchema,
     specializations: nameArraySchema,
     contact: phoneNumberSchema,
   });
@@ -71,7 +88,6 @@ const PersonalInfo = (): JSX.Element => {
 
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const schoolsAttended = watch('schoolsAttended');
   const languages = watch('languages');
   const userAwards = watch('awards');
   const specialization = watch('specializations');
@@ -85,7 +101,6 @@ const PersonalInfo = (): JSX.Element => {
     }
     setIsLoading(false);
   }
-
   return (
     <>
       <section>
@@ -160,38 +175,23 @@ const PersonalInfo = (): JSX.Element => {
         </div>
         <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <div className="w-full max-w-[384px]">
-            <MultiInputField
-              ref={register('schoolsAttended').ref}
-              handleValueChange={(value) =>
-                setValue('schoolsAttended', value, { shouldTouch: true, shouldValidate: true })
-              }
-              error={errors.schoolsAttended?.message || ''}
-              label="Schools Attended"
+            <Input
+              labelName="School attended"
+              className="bg-transparent"
               placeholder="University of Ghana"
-              onBlur={() => {
-                if (!schoolsAttended) {
-                  setValue('schoolsAttended', [], {
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  });
-                }
-              }}
+              error={errors.education?.school?.message || ''}
+              type="text"
+              {...register('education.school')}
             />
           </div>
           <div className="w-full max-w-[384px]">
-            <MultiInputField
-              ref={register('languages').ref}
-              handleValueChange={(value) => {
-                setValue('languages', value, { shouldTouch: true, shouldValidate: true });
-              }}
-              error={errors.languages?.message || ''}
-              label="Languages"
-              placeholder="English"
-              onBlur={() => {
-                if (!languages) {
-                  setValue('languages', [], { shouldTouch: true, shouldValidate: true });
-                }
-              }}
+            <Input
+              labelName="Certificate acquired"
+              className="bg-transparent"
+              placeholder="Bachelor of Medicine and Bachelor of Surgery"
+              error={errors.education?.degree?.message || ''}
+              type="text"
+              {...register('education.degree')}
             />
           </div>
         </div>
@@ -210,6 +210,7 @@ const PersonalInfo = (): JSX.Element => {
                   setValue('awards', [], { shouldTouch: true, shouldValidate: true });
                 }
               }}
+              defaultValues={userAwards}
             />
           </div>
           <div className="w-full max-w-[384px]">
@@ -226,10 +227,27 @@ const PersonalInfo = (): JSX.Element => {
                   setValue('specializations', [], { shouldTouch: true, shouldValidate: true });
                 }
               }}
+              defaultValues={specialization}
             />
           </div>
         </div>
-
+        <div className="mt-2 w-full max-w-[384px]">
+          <MultiInputField
+            ref={register('languages').ref}
+            handleValueChange={(value) => {
+              setValue('languages', value, { shouldTouch: true, shouldValidate: true });
+            }}
+            error={errors.languages?.message || ''}
+            label="Languages"
+            placeholder="English"
+            onBlur={() => {
+              if (!languages) {
+                setValue('languages', [], { shouldTouch: true, shouldValidate: true });
+              }
+            }}
+            defaultValues={languages}
+          />
+        </div>
         <div className="mt-8 max-w-[384px] items-baseline">
           <Textarea
             labelName=" Bio (something your patients will love about you)"

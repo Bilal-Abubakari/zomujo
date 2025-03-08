@@ -85,10 +85,10 @@ const AppointmentCalendar = ({
           <div
             className={cn(
               'sticky top-0 z-9 flex h-10 w-full shrink-0 items-center justify-center gap-1.5 border-b border-gray-200 bg-white',
-              i === selectedDay && 'border-primaryDark text-primaryDark border-b-2 font-bold',
+              i === selectedDay && 'border-primary-dark text-primary-dark border-b-2 font-bold',
             )}
           >
-            {i === selectedDay && <div className="bg-primaryDark h-2 w-2 rounded-full"></div>}
+            {i === selectedDay && <div className="bg-primary-dark h-2 w-2 rounded-full"></div>}
             <p>{day}</p>
           </div>
           {Array.from({ length: 24 }).map((_, j) => (

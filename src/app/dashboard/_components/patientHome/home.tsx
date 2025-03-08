@@ -30,7 +30,7 @@ const mockDoctors = [
     ratings: 4.5,
     experience: 8,
     noOfConsultations: 120,
-    rate: { amount: 150 },
+    rate: 2,
   },
   {
     id: '2',
@@ -40,7 +40,7 @@ const mockDoctors = [
     ratings: 4.8,
     experience: 10,
     noOfConsultations: 200,
-    rate: { amount: 200 },
+    rate: 1,
   },
 ] as IDoctor[];
 
