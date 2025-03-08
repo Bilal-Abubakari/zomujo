@@ -3,6 +3,7 @@ import authReducer from '@/lib/features/auth/authSlice';
 import hospitalReducer from '@/lib/features/hospitals/hospitalSlice';
 import organizationRequestsReducer from '@/lib/features/organization-requests/organizationRequestsSlice';
 import notificationsReducer from '@/lib/features/notifications/notificationsSlice';
+import paymentsReducer from '@/lib/features/payments/paymentSlice';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   hospital: hospitalReducer,
   organizationRequests: organizationRequestsReducer,
   notifications: notificationsReducer,
+  payments: paymentsReducer,
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type

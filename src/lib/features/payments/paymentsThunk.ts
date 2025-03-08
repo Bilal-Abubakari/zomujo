@@ -1,9 +1,10 @@
 import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { generateSuccessToast } from '@/lib/utils';
-import { IRate, PaymentDetails } from '@/types/payment.interface';
+import { IBank, IRate, PaymentDetails } from '@/types/payment.interface';
 import { IResponse } from '@/types/shared.interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { setError } from '@/lib/features/payments/paymentSlice';
 
 export const addPaymentsDetails = createAsyncThunk(
   'payment/addingPayments',
@@ -41,6 +42,21 @@ export const setPaymentRate = createAsyncThunk(
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getBanks = createAsyncThunk(
+  'payment/getBanks',
+  async (_, { dispatch }): Promise<boolean | IBank[]> => {
+    try {
+      const {
+        data: { data },
+      } = await axios.get<IResponse<{ data: IBank[] }>>('payments/banks?perPage=100');
+      return data.data;
+    } catch (error) {
+      dispatch(setError(axiosErrorHandler(error)));
+      return false;
     }
   },
 );
