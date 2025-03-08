@@ -2,30 +2,38 @@
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { cn, showErrorToast } from '@/lib/utils';
-import { JSX, useEffect } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { useAppDispatch } from '@/lib/hooks';
 import { doctorSlot } from '@/lib/features/doctors/doctorsThunk';
 import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
+import { ISlot } from '@/types/appointment';
+import { extractGMTTime } from '@/lib/date';
 
 const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps): JSX.Element => {
   const date = watch('date');
   const selectedTime = watch('time');
   const dispatch = useAppDispatch();
-
-  //Todo: Adjust accordingly when the backend changes.
-  const dummyTime = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00'];
   const params = useParams();
   const doctorId = params.appointment;
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [isAvailableSlotLoading, setIsAvailableSlotLoading] = useState(false);
 
   useEffect(() => {
     async function slotsAvailable(): Promise<void> {
+      setAvailableTimeSlots([]);
+      setIsAvailableSlotLoading(true);
       const { payload } = await dispatch(doctorSlot({ date, id: String(doctorId) }));
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
       }
+      const response = payload as ISlot[];
+      const availableSlots = response.map((slot: ISlot) => `${extractGMTTime(slot.startTime)}`);
+
+      setAvailableTimeSlots(availableSlots);
+      setIsAvailableSlotLoading(false);
     }
 
     void slotsAvailable();
@@ -52,33 +60,50 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
 
       <div>
         <p className="mt-5 mb-2 font-medium">Available time (Africa/Accra - GMT (+00:00))</p>
-
+        {!!availableTimeSlots.length && (
+          <small className="m-auto text-center text-red-500">*Each session is 45 minutes </small>
+        )}
         <div className="flex flex-wrap gap-3">
-          {dummyTime.map((time) => (
-            <div
-              key={time}
-              className={cn(
-                'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
-                selectedTime === time && 'border-primary text-primary',
-              )}
-              onKeyDown={() => {
-                setValue('time', time, {
-                  shouldTouch: true,
-                  shouldValidate: true,
-                });
-              }}
-              onClick={() => {
-                setValue('time', time, {
-                  shouldTouch: true,
-                  shouldValidate: true,
-                });
-              }}
-            >
-              {time}
-            </div>
-          ))}
+          {!!availableTimeSlots.length &&
+            availableTimeSlots.map((time) => (
+              <div
+                key={time}
+                className={cn(
+                  'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
+                  selectedTime === time && 'border-primary text-primary',
+                )}
+                onKeyDown={() => {
+                  setValue('time', time, {
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
+                }}
+                onClick={() => {
+                  setValue('time', time, {
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
+                }}
+              >
+                {time}
+              </div>
+            ))}
+          {!availableTimeSlots.length && !isAvailableSlotLoading && (
+            <div className="text-red-500"> Sorry, no available slot for the selected date 😕 </div>
+          )}
         </div>
       </div>
+
+      {isAvailableSlotLoading && (
+        <div className="flex gap-2">
+          {[...Array(5)].map((_, index) => (
+            <div
+              key={index}
+              className={cn('h-8 w-16 animate-pulse rounded-sm border bg-gray-200')}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="mt-11 ml-auto flex justify-end">
         <Button
