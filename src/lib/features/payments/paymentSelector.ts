@@ -5,11 +5,6 @@ import { SelectOption } from '@/components/ui/select';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const selectPayments = ({ payments }: RootState) => payments;
 
-export const selectIsLoadingBanks = createSelector(
-  selectPayments,
-  ({ isLoadingBank }) => isLoadingBank,
-);
-
 export const selectBanks = createSelector(selectPayments, ({ banks }) => banks);
 
 export const selectBankOptions = createSelector(selectBanks, (banks) =>
