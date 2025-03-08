@@ -4,7 +4,7 @@ import React, { JSX, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { setPaymentRate } from '@/lib/features/payments/payments.thunk';
+import { setPaymentRate } from '@/lib/features/payments/paymentsThunk';
 import { toast } from '@/hooks/use-toast';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { IRate } from '@/types/payment.interface';

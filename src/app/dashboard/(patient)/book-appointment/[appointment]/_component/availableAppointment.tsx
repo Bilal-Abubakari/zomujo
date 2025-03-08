@@ -19,7 +19,7 @@ import { IDoctor } from '@/types/doctor.interface';
 import { useAppDispatch } from '@/lib/hooks';
 import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
 import { toast } from '@/hooks/use-toast';
-import { initiatePayment } from '@/lib/features/payments/payments.thunk';
+import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);

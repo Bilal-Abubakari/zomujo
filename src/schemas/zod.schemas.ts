@@ -38,6 +38,18 @@ export const mdcNumberSchema = requiredStringSchema().regex(
 
 export const phoneNumberSchema = requiredStringSchema().regex(/^\d{10}$/, 'Invalid phone number');
 
+export const cardNumberSchema = z
+  .string()
+  .min(13, 'Credit card number must be at least 13 digits')
+  .max(19, 'Credit card number must be at most 19 digits')
+  .regex(/^\d{13,19}$/, 'Credit card number must contain only digits');
+
+export const phoneOrCardNumberSchema = requiredStringSchema().refine(
+  (value) => /^\d{10}$/.test(value) || /^\d{13,19}$/.test(value),
+  {
+    message: 'Invalid phone or credit card number',
+  },
+);
 export const coordinatesSchema = z.number().optional();
 
 export const textAreaSchema = z
@@ -47,13 +59,9 @@ export const textAreaSchema = z
   .max(500, 'Field should not exceed 500 characters')
   .regex(/^[A-Za-z0-9\s.,!?'"-]+$/, 'Field contains invalid characters');
 
-export const cardNumberSchema = z
-  .string()
-  .min(13, 'Credit card number must be at least 13 digits')
-  .max(19, 'Credit card number must be at most 19 digits')
-  .regex(/^\d{13,19}$/, 'Credit card number must contain only digits');
-
 export const positiveNumberSchema = z.preprocess(
   (val) => Number(val),
   z.number().positive('Value must be greater than zero'),
 );
+
+export const booleanSchema = z.boolean();

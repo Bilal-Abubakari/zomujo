@@ -1,18 +1,38 @@
-type PaymentOption = 'mobile_money' | 'bank';
+type PaymentType = 'mobile_money' | 'ghipss';
 
-export interface CardProps {
-  type: PaymentOption;
+export type CardProps = {
+  type: PaymentType;
   name: string;
   number: number;
-}
+};
 
 export interface PaymentDetails {
   reference: string;
   accountNumber: number;
-  type: PaymentOption;
+  type: PaymentType;
+  bankCode: string;
+  isDefault: boolean;
 }
 
 export interface IRate {
   amount: number;
   lengthOfSession: string;
+}
+
+export interface IBank {
+  id: number;
+  name: string;
+  slug: string;
+  code: string;
+  longcode: string;
+  gateway: string | null;
+  pay_with_bank: boolean;
+  supports_transfer: boolean;
+  active: boolean;
+  country: string;
+  currency: string;
+  type: PaymentType;
+  is_deleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
