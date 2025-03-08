@@ -63,7 +63,7 @@ const AppointmentRequestCard = ({
             option: 'Accept',
           });
         }}
-        className="border-primary bg-primaryLightBase h-8 w-[145px] border-[1.5px] text-sm"
+        className="border-primary bg-primary-light-base h-8 w-[145px] border-[1.5px] text-sm"
         child="Accept"
       />
 

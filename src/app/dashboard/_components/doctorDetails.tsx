@@ -20,7 +20,6 @@ const DoctorDetails = ({
   specializations,
   bio,
   education,
-  rate,
   languages,
   awards,
   IDs: { back, front },
@@ -43,8 +42,8 @@ const DoctorDetails = ({
         <div className="mt-[38px] flex items-center justify-between">
           <p className="font-medium"> Consultation</p>
 
-          {rate && (
-            <p className="text-xl font-bold text-primary">
+          {!!fee && (
+            <p className="text-primary text-xl font-bold">
               GHs {fee?.amount} <span className="text-base text-gray-400">Fee</span>
             </p>
           )}
@@ -146,11 +145,11 @@ export default DoctorDetails;
 
 const EducationCard = ({ school, degree }: { school: string; degree: string }): JSX.Element => (
   <div className="mt-6 flex items-center justify-start gap-3">
-    <div className="bg-lightOrange flex h-[35px] w-[35px] items-center justify-center rounded-[6.74px]">
-      <GraduationCap className="text-deepOrange" />
+    <div className="bg-light-orange flex h-[35px] w-[35px] items-center justify-center rounded-[6.74px]">
+      <GraduationCap className="text-deep-orange" />
     </div>
     <div>
-      <h4 className="font-medium text-gray-600">Bachelor of Science - {degree}</h4>
+      <h4 className="font-medium text-gray-600">{degree}</h4>
       <p className="flex text-sm text-gray-500">{school}</p>
     </div>
   </div>

@@ -52,7 +52,7 @@ const Doctors = (): JSX.Element => {
     specialty: '',
     rateMin: '',
     rateMax: '',
-    booking: true,
+    booking:true
   });
 
   const statusFilterOptions: ISelected[] = [

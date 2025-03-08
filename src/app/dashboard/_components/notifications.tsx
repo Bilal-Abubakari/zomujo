@@ -86,11 +86,11 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
               <div className="mt-2 flex justify-between">
                 <button
                   onClick={() => dispatch(markAsRead(id))}
-                  className="hover:text-primaryDark flex items-center gap-2 text-sm text-gray-500"
+                  className="hover:text-primary-dark flex items-center gap-2 text-sm text-gray-500"
                 >
                   <CheckCheck /> <span>Mark as Read</span>
                 </button>
-                <button className="hover:text-primaryDark flex items-center gap-2 text-sm text-gray-500">
+                <button className="hover:text-primary-dark flex items-center gap-2 text-sm text-gray-500">
                   <EyeIcon /> <span>View</span>
                 </button>
               </div>

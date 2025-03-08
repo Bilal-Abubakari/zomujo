@@ -58,7 +58,7 @@ const DoctorCard = ({
       </div>
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-col gap-0.5">
-          <p className="text-xl font-bold leading-5 text-primaryDark">GHs {fee?.amount}/hr</p>
+          <p className="text-xl font-bold leading-5 text-primary-dark">GHs {fee?.amount}/hr</p>
           <p className="text-sm font-medium leading-[14px] text-gray-400">Consult</p>
         </div>
         <button
