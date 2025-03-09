@@ -31,14 +31,14 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
           endDate: new Date(date),
           doctorId: String(doctorId),
           pageSize: 35,
-          page:1
+          page: 1,
         }),
       );
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
       }
-      const {rows} = payload as IPagination<ISlot>;
+      const { rows } = payload as IPagination<ISlot>;
       const availableSlots = rows.map(({ startTime }) => `${extractGMTTime(startTime)}`);
 
       setAvailableTimeSlots(availableSlots);

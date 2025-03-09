@@ -25,8 +25,7 @@ export const createAppointmentSlot = createAsyncThunk(
 
 export const getAppointmentSlots = createAsyncThunk(
   'appointments/getSlots',
-  async (
-    queryParams: IQueryParams<SlotStatus | ''>): Promise<Toast | IPagination<ISlot>> => {
+  async (queryParams: IQueryParams<SlotStatus | ''>): Promise<Toast | IPagination<ISlot>> => {
     try {
       const { data } = await axios.get<IResponse<IPagination<ISlot>>>(
         `appointments/slots?${getValidQueryString(queryParams)}&orderDirection=asc`,
