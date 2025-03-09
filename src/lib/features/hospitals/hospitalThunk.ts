@@ -22,8 +22,20 @@ export const getHospitals = createAsyncThunk(
   },
 );
 
+export const getHospital = createAsyncThunk(
+  'hospitals/getHospital',
+  async (id: string): Promise<Toast | IHospital> => {
+    try {
+      const { data } = await axios.get<IResponse<IHospital>>(`common/orgs/${id}`);
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const getNearByHospitals = createAsyncThunk(
-  'hospitals/getHospitals',
+  'hospitals/getNearByHospitals',
   async ({ long, lat, radius }: INearByQueryParams) => {
     try {
       const { data } = await axios.get<IResponse<IHospital>>(
