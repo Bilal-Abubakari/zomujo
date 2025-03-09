@@ -1,7 +1,7 @@
 import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { generateSuccessToast } from '@/lib/utils';
-import { IBank, IRate, PaymentDetails } from '@/types/payment.interface';
+import { IBank, ICheckout, IRate, PaymentDetails } from '@/types/payment.interface';
 import { IResponse } from '@/types/shared.interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setError } from '@/lib/features/payments/paymentSlice';
@@ -38,7 +38,7 @@ export const setPaymentRate = createAsyncThunk(
     try {
       const {
         data: { message },
-      } = await axios.patch<IResponse<IRate>>('doctors/set-rate', rate);
+      } = await axios.patch<IResponse<IRate>>('doctors/set-fee', rate);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -61,15 +61,21 @@ export const getBanks = createAsyncThunk(
   },
 );
 
-//Todo: make adjustment when the backend changes.
 export const initiatePayment = createAsyncThunk(
   'payment/initiatePayment',
-  async ({ amount, doctorId }: { amount: number; doctorId: string }): Promise<Toast> => {
+  async ({
+    amount,
+    doctorId,
+  }: {
+    amount: number;
+    doctorId: string;
+  }): Promise<Toast | ICheckout> => {
     try {
-      const {
-        data: { message },
-      } = await axios.post<IResponse>(`payments/initialize`, { amount, doctorId });
-      return generateSuccessToast(message);
+      const { data } = await axios.post<IResponse<ICheckout>>(`payments/initialize`, {
+        amount,
+        doctorId,
+      });
+      return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

@@ -158,3 +158,21 @@ export const parseTime = (time: string): Date => {
   date.setHours(hours, minutes, 0, 0);
   return date;
 };
+
+/**
+ * Extracts the time in GMT format from an ISO date string and converts it to a 12-hour format with AM/PM.
+ *
+ * @param {string} isoString - The ISO date string (e.g., "1970-01-01T09:00:00.000Z").
+ * @returns {string} - The formatted time in GMT (e.g., "9:00 AM" or "10:30 PM").
+ *
+ */
+export function extractGMTTime(isoString: string): string {
+  const date = new Date(isoString);
+  let hours = date.getUTCHours();
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  const amPm = hours >= 12 ? 'PM' : 'AM';
+
+  hours = hours % 12 || 12;
+
+  return `${hours}:${minutes} ${amPm}`;
+}

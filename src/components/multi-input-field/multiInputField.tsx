@@ -43,7 +43,7 @@ const MultiInputField = ({
 
   return (
     <div className="w-full space-y-4">
-      <div className="-mb-4">{label && <Label htmlFor={name}>{label}</Label>}</div>
+      <div className="mb-2">{label && <Label htmlFor={name}>{label}</Label>}</div>
       <div className="flex items-baseline space-x-2">
         <Input
           value={inputValue}

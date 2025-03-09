@@ -36,3 +36,8 @@ export interface IBank {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ICheckout {
+  authorization_url: string;
+  access_code: string;
+}

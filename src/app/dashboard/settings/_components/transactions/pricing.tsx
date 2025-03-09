@@ -33,11 +33,13 @@ const Pricing = (): JSX.Element => {
   }
 
   useEffect(() => {
-    const { amount, lengthOfSession } = fee;
-    const sectionLength = lengthOfSession.split(' ')[0];
-    if (amount) {
-      setCurrentAmount(amount);
-      setCurrentSessionLength(Number(sectionLength));
+    if (fee) {
+      const { amount, lengthOfSession } = fee;
+      const sectionLength = lengthOfSession.split(' ')[0];
+      if (amount) {
+        setCurrentAmount(amount);
+        setCurrentSessionLength(Number(sectionLength));
+      }
     }
   }, []);
   function sliderPosition(value: number, type: 'amount' | 'sessionLength'): number {

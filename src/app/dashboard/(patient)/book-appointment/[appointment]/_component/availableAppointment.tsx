@@ -20,10 +20,13 @@ import { useAppDispatch } from '@/lib/hooks';
 import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
 import { toast } from '@/hooks/use-toast';
 import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
+import { ICheckout } from '@/types/payment.interface';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
   const [doctorInformation, setDoctorInformation] = useState<IDoctor>();
+  const [isPaymentInitiated, setIsPaymentInitiated] = useState<boolean>(false);
+
   const dispatch = useAppDispatch();
   const params = useParams();
   const doctorId = params.appointment;
@@ -54,12 +57,21 @@ const AvailableAppointment = (): JSX.Element => {
     },
   });
 
-  //Todo: refactor once the backend makes adjustment
   const onSubmit = async (): Promise<void> => {
+    setIsPaymentInitiated(true);
     const { payload } = await dispatch(
       initiatePayment({ amount: doctorInformation?.fee?.amount ?? 0, doctorId: String(doctorId) }),
     );
-    console.log(payload);
+
+    if (payload && showErrorToast(payload)) {
+      toast(payload);
+      setIsPaymentInitiated(false);
+      return;
+    }
+
+    const { authorization_url } = payload as ICheckout;
+    window.location.replace(authorization_url);
+    setIsPaymentInitiated(false);
   };
 
   useEffect(() => {
@@ -204,6 +216,7 @@ const AvailableAppointment = (): JSX.Element => {
                 child={'Make Payment'}
                 onClick={() => setCurrentStep(3)}
                 disabled={!isValid}
+                isLoading={isPaymentInitiated}
               />
             </div>
           </form>
