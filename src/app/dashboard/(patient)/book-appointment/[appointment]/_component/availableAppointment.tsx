@@ -62,11 +62,14 @@ const AvailableAppointment = (): JSX.Element => {
   });
 
   const onSubmit = async (): Promise<void> => {
+    if (!information) {
+      return;
+    }
     let amount;
-    if ('fee' in information!) {
+    if ('fee' in information) {
       amount = information.fee.amount;
     } else {
-      amount = information!.regularFee;
+      amount = information.regularFee;
     }
     const { payload } = await dispatch(initiatePayment({ amount, doctorId: id }));
 
@@ -90,11 +93,11 @@ const AvailableAppointment = (): JSX.Element => {
     async function getInfo(): Promise<void> {
       let payload: unknown;
       if (appointmentType === AppointmentType.Doctor) {
-        const { payload: doctorPayload } = await dispatch(doctorInfo(id));
-        payload = doctorPayload as IDoctor;
+        const { payload: doctorResponse } = await dispatch(doctorInfo(id));
+        payload = doctorResponse;
       } else {
-        const { payload: hospitalPayload } = await dispatch(getHospital(id));
-        payload = hospitalPayload as IHospital;
+        const { payload: hospitalResponse } = await dispatch(getHospital(id));
+        payload = hospitalResponse;
       }
 
       if (payload && showErrorToast(payload)) {
