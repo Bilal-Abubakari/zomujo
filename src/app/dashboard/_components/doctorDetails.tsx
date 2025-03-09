@@ -6,6 +6,7 @@ import { IDoctor } from '@/types/doctor.interface';
 import { JSX } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { AppointmentType } from '@/hooks/useQueryParam';
 
 interface Bookmark extends IDoctor {
   showBookmark?: boolean;
@@ -59,7 +60,11 @@ const DoctorDetails = ({
             {showBookmark && (
               <Button
                 child="Book Appointment"
-                onClick={() => router.push(`/dashboard/book-appointment/${id}`)}
+                onClick={() =>
+                  router.push(
+                    `/dashboard/book-appointment/${id}?appointmentType=${AppointmentType.Doctor}`,
+                  )
+                }
               />
             )}
           </div>

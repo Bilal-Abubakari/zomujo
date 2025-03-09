@@ -11,13 +11,16 @@ import { ISlot } from '@/types/appointment';
 import { extractGMTTime } from '@/lib/date';
 import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
+import { AppointmentType, useQueryParam } from '@/hooks/useQueryParam';
 
 const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps): JSX.Element => {
   const date = watch('date');
   const selectedTime = watch('time');
   const dispatch = useAppDispatch();
   const params = useParams();
-  const doctorId = params.appointment;
+  const id = params.appointment as string;
+  const { getQueryParam } = useQueryParam();
+  const appointmentType = getQueryParam('appointmentType');
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isAvailableSlotLoading, setIsAvailableSlotLoading] = useState(false);
 
@@ -29,7 +32,8 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         getAppointmentSlots({
           startDate: new Date(date),
           endDate: new Date(date),
-          doctorId: String(doctorId),
+          doctorId: appointmentType === AppointmentType.Doctor ? id : '',
+          orgId: appointmentType === AppointmentType.Hospital ? id : '',
           pageSize: 35,
           page: 1,
         }),

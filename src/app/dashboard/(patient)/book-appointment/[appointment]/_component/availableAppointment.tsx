@@ -1,6 +1,6 @@
 'use client';
 import { cn, showErrorToast } from '@/lib/utils';
-import { ChevronLeft } from 'lucide-react';
+import { Building2, ChevronLeft } from 'lucide-react';
 import React, { JSX, useEffect, useState } from 'react';
 import AvailableDates from './availableDates';
 import AppointmentReason from './appointmentReason';
@@ -21,16 +21,20 @@ import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
 import { toast } from '@/hooks/use-toast';
 import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
 import { ICheckout } from '@/types/payment.interface';
+import { IHospital } from '@/types/hospital.interface';
+import { AppointmentType, useQueryParam } from '@/hooks/useQueryParam';
+import { getHospital } from '@/lib/features/hospitals/hospitalThunk';
+import Image from 'next/image';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [doctorInformation, setDoctorInformation] = useState<IDoctor>();
   const [isPaymentInitiated, setIsPaymentInitiated] = useState<boolean>(false);
-
+  const [information, setInformation] = useState<IDoctor | IHospital>();
   const dispatch = useAppDispatch();
   const params = useParams();
-  const doctorId = params.appointment;
   const router = useRouter();
+  const { getQueryParam } = useQueryParam();
+  const id = params.appointment as string;
   const dateToday = new Date();
 
   const BookingSchema = z.object({
@@ -58,10 +62,16 @@ const AvailableAppointment = (): JSX.Element => {
   });
 
   const onSubmit = async (): Promise<void> => {
-    setIsPaymentInitiated(true);
-    const { payload } = await dispatch(
-      initiatePayment({ amount: doctorInformation?.fee?.amount ?? 0, doctorId: String(doctorId) }),
-    );
+    if (!information) {
+      return;
+    }
+    let amount;
+    if ('fee' in information) {
+      amount = information.fee.amount;
+    } else {
+      amount = information.regularFee;
+    }
+    const { payload } = await dispatch(initiatePayment({ amount, doctorId: id }));
 
     if (payload && showErrorToast(payload)) {
       toast(payload);
@@ -75,17 +85,30 @@ const AvailableAppointment = (): JSX.Element => {
   };
 
   useEffect(() => {
-    async function getDoctorInfo(): Promise<void> {
-      const { payload } = await dispatch(doctorInfo(String(doctorId)));
+    const appointmentType = getQueryParam('appointmentType');
+    if (!appointmentType) {
+      router.push('/dashboard/find-doctor');
+      return;
+    }
+    async function getInfo(): Promise<void> {
+      let payload: unknown;
+      if (appointmentType === AppointmentType.Doctor) {
+        const { payload: doctorResponse } = await dispatch(doctorInfo(id));
+        payload = doctorResponse;
+      } else {
+        const { payload: hospitalResponse } = await dispatch(getHospital(id));
+        payload = hospitalResponse;
+      }
 
       if (payload && showErrorToast(payload)) {
+        router.push('/dashboard/find-doctor');
         toast(payload);
         return;
       }
 
-      setDoctorInformation(payload as IDoctor);
+      setInformation(payload as IHospital | IDoctor);
     }
-    void getDoctorInfo();
+    void getInfo();
   }, []);
 
   return (
@@ -94,7 +117,7 @@ const AvailableAppointment = (): JSX.Element => {
         className="mb-5 flex rounded-lg border border-gray-300 bg-gray-200 p-2 sm:mb-0"
         onClick={() => router.back()}
       >
-        <ChevronLeft /> <span className="hidden sm:block">Find doctors</span>
+        <ChevronLeft /> <span className="hidden sm:block">Go back</span>
       </button>
 
       <div className="m-auto w-[80vw] max-w-[447px]">
@@ -146,18 +169,46 @@ const AvailableAppointment = (): JSX.Element => {
             </div>
 
             <div className="mt-8 flex gap-2">
-              <AvatarComp
-                name={doctorInformation?.firstName ?? ''}
-                imageSrc={doctorInformation?.profilePicture}
-              />
-              <div className="flex flex-col">
-                <p className="text-lg font-bold">
-                  Dr. {doctorInformation?.firstName} {doctorInformation?.lastName}
-                </p>
-                <p className="text-sm font-medium text-gray-400">
-                  {doctorInformation?.specializations[0]}
-                </p>
-              </div>
+              {information && 'firstName' in information && (
+                <>
+                  <AvatarComp name={information.firstName} imageSrc={information.profilePicture} />
+                  <div className="flex flex-col">
+                    <p className="text-lg font-bold">
+                      Dr. {information.firstName} {information.lastName}
+                    </p>
+                    <p className="text-sm font-medium text-gray-400">
+                      {information.specializations[0]}
+                    </p>
+                  </div>
+                </>
+              )}
+              {information && 'name' in information && (
+                <>
+                  {information.image ? (
+                    <Image
+                      src={information.image}
+                      alt={information.name}
+                      width={80}
+                      height={80}
+                      className="rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="bg-primary/10 flex h-20 w-20 items-center justify-center rounded-lg">
+                      <Building2 size={40} className="text-primary" />
+                    </div>
+                  )}
+                  <div className="flex flex-col">
+                    <p className="text-lg font-bold">{information.name}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {information.specialties?.map((specialty, index) => (
+                        <Badge key={index} variant="secondary">
+                          {specialty}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="mt-8 mb-8 w-full border-b border-gray-100"></div>
@@ -196,17 +247,21 @@ const AvailableAppointment = (): JSX.Element => {
 
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Consultation Fee</div>
-              <div className="font-medium"> GHC {doctorInformation?.fee?.amount ?? 0}.00</div>
-            </div>
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-gray-500">Booking Fee</div>
-              <div className="font-medium"> GHC 5.00</div>
+              {information && 'fee' in information ? (
+                <div className="font-medium"> GHC {information?.fee?.amount ?? 0}.00</div>
+              ) : (
+                <div className="font-medium"> GHC {information?.regularFee}.00</div>
+              )}
             </div>
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Total</div>
               <div className="text-lg font-bold">
                 {' '}
-                GHC {(doctorInformation?.fee?.amount ?? 0) + 5}.00
+                GHC{' '}
+                {information && 'fee' in information
+                  ? (information?.fee?.amount ?? 0)
+                  : (information?.regularFee ?? 0)}
+                .00
               </div>
             </div>
 
