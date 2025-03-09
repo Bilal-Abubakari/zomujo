@@ -65,14 +65,12 @@ const AvailableAppointment = (): JSX.Element => {
 
     if (payload && showErrorToast(payload)) {
       toast(payload);
+      setIsPaymentInitiated(false);
       return;
     }
 
-    const response = payload as ICheckout;
-    if (response) {
-      window.open(response.authorization_url, '_blank');
-    }
-
+    const { authorization_url } = payload as ICheckout;
+    window.location.replace(authorization_url);
     setIsPaymentInitiated(false);
   };
 

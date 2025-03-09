@@ -4,12 +4,13 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn, showErrorToast } from '@/lib/utils';
 import { JSX, useEffect, useState } from 'react';
 import { useAppDispatch } from '@/lib/hooks';
-import { doctorSlot } from '@/lib/features/doctors/doctorsThunk';
 import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
 import { ISlot } from '@/types/appointment';
 import { extractGMTTime } from '@/lib/date';
+import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
+import { IPagination } from '@/types/shared.interface';
 
 const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps): JSX.Element => {
   const date = watch('date');
@@ -24,13 +25,21 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
     async function slotsAvailable(): Promise<void> {
       setAvailableTimeSlots([]);
       setIsAvailableSlotLoading(true);
-      const { payload } = await dispatch(doctorSlot({ date, id: String(doctorId) }));
+      const { payload } = await dispatch(
+        getAppointmentSlots({
+          startDate: new Date(date),
+          endDate: new Date(date),
+          doctorId: String(doctorId),
+          pageSize: 35,
+          page:1
+        }),
+      );
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
       }
-      const response = payload as ISlot[];
-      const availableSlots = response.map((slot: ISlot) => `${extractGMTTime(slot.startTime)}`);
+      const {rows} = payload as IPagination<ISlot>;
+      const availableSlots = rows.map(({ startTime }) => `${extractGMTTime(startTime)}`);
 
       setAvailableTimeSlots(availableSlots);
       setIsAvailableSlotLoading(false);
@@ -56,6 +65,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
           }
         }}
         className="mx-auto w-max rounded-md border"
+        disabled={{ before: new Date() }}
       />
 
       <div>

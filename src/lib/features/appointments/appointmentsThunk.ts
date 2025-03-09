@@ -9,7 +9,7 @@ import {
   ISlotPatternBase,
   SlotStatus,
 } from '@/types/appointment';
-import { generateSuccessToast } from '@/lib/utils';
+import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 
 export const createAppointmentSlot = createAsyncThunk(
   'appointments/createSlot',
@@ -25,18 +25,11 @@ export const createAppointmentSlot = createAsyncThunk(
 
 export const getAppointmentSlots = createAsyncThunk(
   'appointments/getSlots',
-  async ({
-    page,
-    status,
-    startDate,
-    endDate,
-  }: IQueryParams<SlotStatus | ''>): Promise<Toast | IPagination<ISlot>> => {
-    const statusQuery = status ? `&status=${status}` : '';
-    const startDateQuery = startDate ? `&startDate=${startDate.toISOString()}` : '';
-    const endDateQuery = endDate ? `&endDate=${endDate.toISOString()}` : '';
+  async (
+    queryParams: IQueryParams<SlotStatus | ''>): Promise<Toast | IPagination<ISlot>> => {
     try {
       const { data } = await axios.get<IResponse<IPagination<ISlot>>>(
-        `appointments/slots?page=${page}${statusQuery}${startDateQuery}${endDateQuery}&orderDirection=asc`,
+        `appointments/slots?${getValidQueryString(queryParams)}&orderDirection=asc`,
       );
       return data.data;
     } catch (error) {
