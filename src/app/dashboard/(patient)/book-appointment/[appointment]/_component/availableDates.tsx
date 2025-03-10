@@ -7,7 +7,7 @@ import { useAppDispatch } from '@/lib/hooks';
 import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
-import { ISlot } from '@/types/appointment';
+import { ISlot } from '@/types/appointment.interface';
 import { extractGMTTime } from '@/lib/date';
 import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
@@ -21,7 +21,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
   const id = params.appointment as string;
   const { getQueryParam } = useQueryParam();
   const appointmentType = getQueryParam('appointmentType');
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<ISlot[]>([]);
   const [isAvailableSlotLoading, setIsAvailableSlotLoading] = useState(false);
 
   useEffect(() => {
@@ -43,7 +43,10 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         toast(payload);
       }
       const { rows } = payload as IPagination<ISlot>;
-      const availableSlots = rows.map(({ startTime }) => `${extractGMTTime(startTime)}`);
+      const availableSlots = rows.map(({ startTime, ...rest }) => ({
+        ...rest,
+        startTime: `${extractGMTTime(startTime)}`,
+      }));
 
       setAvailableTimeSlots(availableSlots);
       setIsAvailableSlotLoading(false);
@@ -79,27 +82,29 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         )}
         <div className="flex flex-wrap gap-3">
           {!!availableTimeSlots.length &&
-            availableTimeSlots.map((time) => (
+            availableTimeSlots.map(({ startTime, id }) => (
               <div
-                key={time}
+                key={id}
                 className={cn(
                   'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
-                  selectedTime === time && 'border-primary text-primary',
+                  selectedTime === startTime && 'border-primary text-primary',
                 )}
                 onKeyDown={() => {
-                  setValue('time', time, {
+                  setValue('slotId', id);
+                  setValue('time', startTime, {
                     shouldTouch: true,
                     shouldValidate: true,
                   });
                 }}
                 onClick={() => {
-                  setValue('time', time, {
+                  setValue('slotId', id);
+                  setValue('time', startTime, {
                     shouldTouch: true,
                     shouldValidate: true,
                   });
                 }}
               >
-                {time}
+                {startTime}
               </div>
             ))}
           {!availableTimeSlots.length && !isAvailableSlotLoading && (

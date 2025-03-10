@@ -16,7 +16,7 @@ import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DateRange } from 'react-day-picker';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { IFrequency, ISlotPatternBase, IWeekDays } from '@/types/appointment';
+import { IFrequency, ISlotPatternBase, IWeekDays } from '@/types/appointment.interface';
 import { createAppointmentSlot } from '@/lib/features/appointments/appointmentsThunk';
 import { useAppDispatch } from '@/lib/hooks';
 import { generateRecurrenceRule, generateSlotDescription } from '@/lib/rule';

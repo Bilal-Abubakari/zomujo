@@ -4,7 +4,7 @@ import AppointmentRequestCard from './appointmentRequestCard';
 import { Badge } from '@/components/ui/badge';
 import { Confirmation } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { ModalProps } from '@/types/appointment';
+import { ModalProps } from '@/types/appointment.interface';
 import { AppointmentStatus, VisitType } from '@/types/shared.enum';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
