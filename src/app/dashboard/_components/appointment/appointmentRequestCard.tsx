@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import React, { JSX } from 'react';
 import { Badge } from '@/components/ui/badge';
 import moment from 'moment';
-import { IAppointmentRequest, ModalProps } from '@/types/appointment';
+import { IAppointmentRequest, ModalProps } from '@/types/appointment.interface';
 
 export type AppointmentCardProps = {
   request: IAppointmentRequest;

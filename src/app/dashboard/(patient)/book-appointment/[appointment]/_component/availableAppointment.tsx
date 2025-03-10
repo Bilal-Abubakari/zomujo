@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
-import { BookingForm } from '@/types/booking.interface';
+import { IBookingForm } from '@/types/booking.interface';
 import { AvatarComp } from '@/components/ui/avatar';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +40,7 @@ const AvailableAppointment = (): JSX.Element => {
   const BookingSchema = z.object({
     date: requiredStringSchema(),
     time: requiredStringSchema(),
+    slotId: requiredStringSchema(),
     reason: requiredStringSchema(),
     appointmentType: requiredStringSchema(),
     additionalInfo: requiredStringSchema(false),
@@ -52,7 +53,7 @@ const AvailableAppointment = (): JSX.Element => {
     getValues,
     watch,
     formState: { errors, isValid },
-  } = useForm<BookingForm>({
+  } = useForm<IBookingForm>({
     resolver: zodResolver(BookingSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
@@ -61,7 +62,7 @@ const AvailableAppointment = (): JSX.Element => {
     },
   });
 
-  const onSubmit = async (): Promise<void> => {
+  const onSubmit = async ({ reason, additionalInfo, slotId }: IBookingForm): Promise<void> => {
     if (!information) {
       return;
     }
@@ -71,7 +72,7 @@ const AvailableAppointment = (): JSX.Element => {
     } else {
       amount = information.regularFee;
     }
-    const { payload } = await dispatch(initiatePayment({ amount, doctorId: id }));
+    const { payload } = await dispatch(initiatePayment({ amount, additionalInfo, reason, slotId }));
 
     if (payload && showErrorToast(payload)) {
       toast(payload);

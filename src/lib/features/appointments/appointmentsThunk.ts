@@ -8,7 +8,7 @@ import {
   ISlotPattern,
   ISlotPatternBase,
   SlotStatus,
-} from '@/types/appointment';
+} from '@/types/appointment.interface';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 
 export const createAppointmentSlot = createAsyncThunk(
@@ -79,6 +79,18 @@ export const createPatternException = createAsyncThunk(
     try {
       const { data } = await axios.post<IResponse>(`appointments/slot-exception`, exception);
       return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getAppointments = createAsyncThunk(
+  'appointments/get',
+  async (): Promise<Toast | ISlotPattern> => {
+    try {
+      const { data } = await axios.get<IResponse<ISlotPattern>>('appointments');
+      return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
