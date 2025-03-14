@@ -18,7 +18,6 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
   const selectedTime = watch('time');
   const dispatch = useAppDispatch();
   const params = useParams();
-  const doctorId = params.appointment;
   const id = params.appointment as string;
   const { getQueryParam } = useQueryParam();
   const appointmentType = getQueryParam('appointmentType');

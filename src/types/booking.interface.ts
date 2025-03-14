@@ -14,7 +14,7 @@ export interface IBookingForm extends IInitializeAppointment {
   appointmentType: string;
   additionalInfo: string;
   slotId: string;
-};
+}
 
 export type AvailabilityProps = {
   register: UseFormRegister<IBookingForm>;
