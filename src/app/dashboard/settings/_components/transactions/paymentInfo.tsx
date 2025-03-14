@@ -19,7 +19,7 @@ import {
   phoneOrCardNumberSchema,
   requiredStringSchema,
 } from '@/schemas/zod.schemas';
-import { CardProps, PaymentDetails } from '@/types/payment.interface';
+import { CardProps, IPaymentDetails } from '@/types/payment.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus } from 'lucide-react';
 import Image from 'next/image';
@@ -31,11 +31,13 @@ import { AlertMessage } from '@/components/ui/alert';
 import { selectBankOptions, selectPayments } from '@/lib/features/payments/paymentSelector';
 import { Checkbox } from '@/components/ui/checkbox';
 
+type PaymentInfoWithoutType = Omit<IPaymentDetails, 'type'>;
+
 const PaymentInfo = (): JSX.Element => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
   const userId = useAppSelector(selectUserId);
-  const [userPaymentDetails, setUserPaymentDetails] = useState<PaymentDetails[]>([]);
+  const [userPaymentDetails, setUserPaymentDetails] = useState<IPaymentDetails[]>([]);
 
   useEffect(() => {
     const paymentDetails = async (): Promise<void> => {
@@ -44,7 +46,7 @@ const PaymentInfo = (): JSX.Element => {
         toast(payload);
         return;
       }
-      setUserPaymentDetails(payload as PaymentDetails[]);
+      setUserPaymentDetails(payload as IPaymentDetails[]);
     };
     void paymentDetails();
   }, [isModalOpen]);
@@ -102,7 +104,7 @@ const PaymentMethod = ({ closeModal }: PaymentMethodProps): JSX.Element => {
     setValue,
     watch,
     formState: { errors, isValid },
-  } = useForm<PaymentDetails>({
+  } = useForm<PaymentInfoWithoutType>({
     resolver: zodResolver(paymentMethodSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
@@ -115,7 +117,7 @@ const PaymentMethod = ({ closeModal }: PaymentMethodProps): JSX.Element => {
   const bankOptions = useAppSelector(selectBankOptions);
   const dispatch = useAppDispatch();
 
-  async function handleFormSubmit(formData: PaymentDetails): Promise<void> {
+  async function handleFormSubmit(formData: PaymentInfoWithoutType): Promise<void> {
     setIsLoading(true);
     const { type } = banks.find(({ code }) => code === formData.bankCode)!; // If bank doesn't exist user cannot select;
     const { payload } = await dispatch(addPaymentsDetails({ ...formData, type }));
