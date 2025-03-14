@@ -45,7 +45,6 @@ const UserSignUp = forwardRef<UserSignUpMethods, UserSignUpProps>(
 
     useImperativeHandle(ref, () => ({
       resetUserSignUp(): void {
-        console.log('Hey trigger');
         reset();
       },
     }));
