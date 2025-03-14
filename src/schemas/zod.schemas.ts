@@ -26,8 +26,7 @@ export const nameSchema = z
   .min(3, 'Field should be more than 3 characters')
   .regex(/^[A-Za-z\s]+$/, 'Field should only contain alphabets');
 
-export const nameArraySchema = z.array(nameSchema).min(1, 'Must have atleast one entry');
-
+export const nameArraySchema = z.array(nameSchema).min(1, 'Must have at least one entry');
 export const mdcNumberSchema = requiredStringSchema().regex(
   /^MDC\/(RN|PN)\/\d{5}$/,
   'Invalid MDC Registration Number',
