@@ -37,12 +37,14 @@ export interface IUser extends IBaseUser {
   createdAt: Date;
 }
 
-export interface ISignUp extends IBaseUser {
+export interface IUserSignUp extends IBaseUser {
   password: string;
   confirmPassword: string;
+}
+
+export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {
   name: string;
   location: string;
-  role: Role;
   lat: number;
   long: number;
   gpsLink: string;

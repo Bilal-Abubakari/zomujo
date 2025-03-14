@@ -26,10 +26,7 @@ export const nameSchema = z
   .min(3, 'Field should be more than 3 characters')
   .regex(/^[A-Za-z\s]+$/, 'Field should only contain alphabets');
 
-export const nameArraySchema = z
-  .array(nameSchema)
-  .nonempty('Must have at least one item')
-  .max(10, 'Must not exceed 10 items');
+export const nameArraySchema = z.array(nameSchema).min(1, 'Must have atleast one entry');
 
 export const mdcNumberSchema = requiredStringSchema().regex(
   /^MDC\/(RN|PN)\/\d{5}$/,
@@ -50,7 +47,6 @@ export const phoneOrCardNumberSchema = requiredStringSchema().refine(
     message: 'Invalid phone or credit card number',
   },
 );
-export const coordinatesSchema = z.number().optional();
 
 export const textAreaSchema = z
   .string()
