@@ -13,7 +13,7 @@ const ProfileCompletionCard = (): JSX.Element => {
   useEffect(() => {
     if (extra) {
       const values = Object.values(extra);
-      const total = values.length;
+      const total = values.length - 6;
       const userProvidedFields = values.filter(
         (value) => Boolean(value) && (!Array.isArray(value) || value.length > 0),
       );

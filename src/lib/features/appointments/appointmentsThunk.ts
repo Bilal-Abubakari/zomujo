@@ -3,6 +3,7 @@ import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { Toast } from '@/hooks/use-toast';
 import {
+  IAppointmentRequest,
   IPatternException,
   ISlot,
   ISlotPattern,
@@ -10,6 +11,7 @@ import {
   SlotStatus,
 } from '@/types/appointment';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
+import { AppointmentStatus } from '@/types/shared.enum';
 
 export const createAppointmentSlot = createAsyncThunk(
   'appointments/createSlot',
@@ -78,6 +80,34 @@ export const createPatternException = createAsyncThunk(
   async (exception: IPatternException): Promise<Toast> => {
     try {
       const { data } = await axios.post<IResponse>(`appointments/slot-exception`, exception);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getAppointment = createAsyncThunk(
+  'appointments/getAppointments',
+  async (
+    queryParams: IQueryParams<AppointmentStatus | ''>,
+  ): Promise<Toast | IPagination<IAppointmentRequest>> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<IAppointmentRequest>>>(
+        `appointments?${getValidQueryString(queryParams)}&orderDirection=asc`,
+      );
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const acceptAppointment = createAsyncThunk(
+  'appointment/acceptRequest',
+  async (id: string): Promise<Toast> => {
+    try {
+      const { data } = await axios.patch<IResponse>(`appointments/accept/${id}`);
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

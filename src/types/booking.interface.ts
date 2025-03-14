@@ -7,6 +7,7 @@ export type BookingForm = {
   reason: string;
   appointmentType: string;
   additionalInfo: string;
+  slotId: string;
 };
 
 export type AvailabilityProps = {

@@ -7,7 +7,7 @@ import { useAppDispatch } from '@/lib/hooks';
 import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
-import { ISlot } from '@/types/appointment';
+import { ISlot, SlotStatus } from '@/types/appointment';
 import { extractGMTTime } from '@/lib/date';
 import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
@@ -18,7 +18,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
   const dispatch = useAppDispatch();
   const params = useParams();
   const doctorId = params.appointment;
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<{ time: string; id: string }[]>([]);
   const [isAvailableSlotLoading, setIsAvailableSlotLoading] = useState(false);
 
   useEffect(() => {
@@ -32,6 +32,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
           doctorId: String(doctorId),
           pageSize: 35,
           page: 1,
+          status:SlotStatus.Available
         }),
       );
 
@@ -39,7 +40,10 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         toast(payload);
       }
       const { rows } = payload as IPagination<ISlot>;
-      const availableSlots = rows.map(({ startTime }) => `${extractGMTTime(startTime)}`);
+      const availableSlots = rows.map(({ startTime, id }) => ({
+        time: `${extractGMTTime(startTime)}`,
+        id,
+      }));
 
       setAvailableTimeSlots(availableSlots);
       setIsAvailableSlotLoading(false);
@@ -75,7 +79,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         )}
         <div className="flex flex-wrap gap-3">
           {!!availableTimeSlots.length &&
-            availableTimeSlots.map((time) => (
+            availableTimeSlots.map(({ time, id }) => (
               <div
                 key={time}
                 className={cn(
@@ -87,9 +91,18 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
                     shouldTouch: true,
                     shouldValidate: true,
                   });
+                  setValue('slotId', id, {
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
                 }}
                 onClick={() => {
                   setValue('time', time, {
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
+
+                  setValue('slotId', id, {
                     shouldTouch: true,
                     shouldValidate: true,
                   });

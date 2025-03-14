@@ -65,15 +65,21 @@ export const initiatePayment = createAsyncThunk(
   'payment/initiatePayment',
   async ({
     amount,
-    doctorId,
+    additionalInfo,
+    reason,
+    slotId,
   }: {
     amount: number;
-    doctorId: string;
+    slotId: string;
+    reason: string;
+    additionalInfo: string;
   }): Promise<Toast | ICheckout> => {
     try {
       const { data } = await axios.post<IResponse<ICheckout>>(`payments/initialize`, {
         amount,
-        doctorId,
+        additionalInfo,
+        reason,
+        slotId,
       });
       return data.data;
     } catch (error) {

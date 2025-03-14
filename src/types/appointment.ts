@@ -16,6 +16,17 @@ export interface IAppointmentRequest extends ISlotBase {
   notes: string;
   status: AppointmentStatus;
   option?: 'Accept' | 'Decline';
+  slot?: {
+    startTime: string;
+    endTime: string;
+    date: string;
+    type: AppointmentType;
+  };
+}
+
+export enum AppointmentType {
+  Virtual = 'virtual',
+  Visit = 'visit',
 }
 
 export type ModalProps = Pick<IAppointmentRequest, 'patient' | 'option'> & {

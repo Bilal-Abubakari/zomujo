@@ -36,6 +36,7 @@ const AvailableAppointment = (): JSX.Element => {
   const BookingSchema = z.object({
     date: requiredStringSchema(),
     time: requiredStringSchema(),
+    slotId: requiredStringSchema(),
     reason: requiredStringSchema(),
     appointmentType: requiredStringSchema(),
     additionalInfo: requiredStringSchema(false),
@@ -57,10 +58,15 @@ const AvailableAppointment = (): JSX.Element => {
     },
   });
 
-  const onSubmit = async (): Promise<void> => {
+  const onSubmit = async ({ slotId, reason, additionalInfo }: BookingForm): Promise<void> => {
     setIsPaymentInitiated(true);
     const { payload } = await dispatch(
-      initiatePayment({ amount: doctorInformation?.fee?.amount ?? 0, doctorId: String(doctorId) }),
+      initiatePayment({
+        amount: doctorInformation?.fee?.amount ?? 0,
+        slotId,
+        reason,
+        additionalInfo,
+      }),
     );
 
     if (payload && showErrorToast(payload)) {
