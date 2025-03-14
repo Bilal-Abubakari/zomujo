@@ -1,76 +1,57 @@
 'use client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect } from 'react';
 import Doctors from './doctors';
 import Hospitals from '@/app/dashboard/(patient)/find-doctor/_components/hospitals';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-
-enum DoctorHospital {
-  Doctors = 'doctors',
-  Hospital = 'hospital',
-}
+import { Tab, useQueryParam } from '@/hooks/useQueryParam';
 
 const FindDoctorHospital = (): JSX.Element => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParam = useSearchParams();
-  const [selectedDoctorHospital, setSelectedDoctorHospital] = useState<DoctorHospital>();
+  const { updateQuery, getQueryParam } = useQueryParam();
 
   useEffect(() => {
-    setSelectedDoctorHospital(
-      searchParam.get('tab') === DoctorHospital.Hospital
-        ? DoctorHospital.Hospital
-        : DoctorHospital.Doctors,
-    );
+    updateQuery('tab', getQueryParam('tab') === Tab.Hospitals ? Tab.Hospitals : Tab.Doctors);
   }, []);
-
-  const handleTabChange = (tab: DoctorHospital): void => {
-    setSelectedDoctorHospital(tab);
-    const updatedSearchParams = new URLSearchParams(searchParam.toString());
-    updatedSearchParams.set('tab', tab);
-    router.push(`${pathname}?${updatedSearchParams.toString()}`);
-  };
 
   return (
     <div>
       <section>
         <p className="text-[32px] font-bold">
-          {selectedDoctorHospital === DoctorHospital.Doctors ? 'Find Doctors' : 'Find Hospitals'}
+          {getQueryParam('tab') === Tab.Doctors ? 'Find Doctors' : 'Find Hospitals'}
         </p>
       </section>
 
       <section className="mt-4">
-        <Tabs value={selectedDoctorHospital}>
+        <Tabs value={getQueryParam('tab')}>
           <TabsList>
             <TabsTrigger
-              value={DoctorHospital.Doctors}
+              value={Tab.Doctors}
               className="rounded-2xl"
-              onClick={() => handleTabChange(DoctorHospital.Doctors)}
+              onClick={() => updateQuery('tab', Tab.Doctors)}
             >
               Doctors
             </TabsTrigger>
             <TabsTrigger
-              value={DoctorHospital.Hospital}
+              value={Tab.Hospitals}
               className="rounded-2xl"
-              onClick={() => handleTabChange(DoctorHospital.Hospital)}
+              onClick={() => updateQuery('tab', Tab.Hospitals)}
             >
               Hospital
             </TabsTrigger>
           </TabsList>
 
           <TabsContent
-            hidden={selectedDoctorHospital !== DoctorHospital.Doctors}
+            hidden={getQueryParam('tab') !== Tab.Doctors}
             forceMount={true}
             className="mt-2"
-            value={DoctorHospital.Doctors}
+            value={Tab.Doctors}
           >
             <Doctors />
           </TabsContent>
           <TabsContent
-            hidden={selectedDoctorHospital !== DoctorHospital.Hospital}
+            hidden={getQueryParam('tab') !== Tab.Hospitals}
             forceMount={true}
             className="mt-2"
-            value={DoctorHospital.Hospital}
+            value={Tab.Hospitals}
           >
             <Hospitals />
           </TabsContent>

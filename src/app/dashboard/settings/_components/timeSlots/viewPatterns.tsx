@@ -14,7 +14,7 @@ import { toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { deletePattern, getSlotPatterns } from '@/lib/features/appointments/appointmentsThunk';
-import { ISlotPattern } from '@/types/appointment';
+import { ISlotPattern } from '@/types/appointment.interface';
 import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
 import { TableData } from '@/components/ui/table';
 import { getFrequencyFromRule, getWeekDaysFromRule } from '@/lib/rule';

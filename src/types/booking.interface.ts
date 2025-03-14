@@ -1,20 +1,26 @@
 import { Dispatch, SetStateAction } from 'react';
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
-export type BookingForm = {
+export interface IInitializeAppointment {
+  slotId: string;
+  amount: number;
+  reason: string;
+  additionalInfo: string;
+}
+
+export interface IBookingForm extends IInitializeAppointment {
   date: string;
   time: string;
-  reason: string;
   appointmentType: string;
   additionalInfo: string;
   slotId: string;
 };
 
 export type AvailabilityProps = {
-  register: UseFormRegister<BookingForm>;
-  setValue: UseFormSetValue<BookingForm>;
+  register: UseFormRegister<IBookingForm>;
+  setValue: UseFormSetValue<IBookingForm>;
   setCurrentStep: Dispatch<SetStateAction<number>>;
   isValid?: boolean;
-  watch: UseFormWatch<BookingForm>;
-  errors?: FieldErrors<BookingForm>;
+  watch: UseFormWatch<IBookingForm>;
+  errors?: FieldErrors<IBookingForm>;
 };

@@ -2,7 +2,7 @@ import React, { JSX, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IPatternException } from '@/types/appointment';
+import { IPatternException } from '@/types/appointment.interface';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
 import { useAppDispatch } from '@/lib/hooks';
 import { createPatternException } from '@/lib/features/appointments/appointmentsThunk';

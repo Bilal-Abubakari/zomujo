@@ -5,6 +5,7 @@ import { IBank, ICheckout, IRate, PaymentDetails } from '@/types/payment.interfa
 import { IResponse } from '@/types/shared.interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setError } from '@/lib/features/payments/paymentSlice';
+import { IInitializeAppointment } from '@/types/booking.interface';
 
 export const addPaymentsDetails = createAsyncThunk(
   'payment/addingPayments',
@@ -63,24 +64,12 @@ export const getBanks = createAsyncThunk(
 
 export const initiatePayment = createAsyncThunk(
   'payment/initiatePayment',
-  async ({
-    amount,
-    additionalInfo,
-    reason,
-    slotId,
-  }: {
-    amount: number;
-    slotId: string;
-    reason: string;
-    additionalInfo: string;
-  }): Promise<Toast | ICheckout> => {
+  async (initializeAppointment: IInitializeAppointment): Promise<Toast | ICheckout> => {
     try {
-      const { data } = await axios.post<IResponse<ICheckout>>(`payments/initialize`, {
-        amount,
-        additionalInfo,
-        reason,
-        slotId,
-      });
+      const { data } = await axios.post<IResponse<ICheckout>>(
+        `payments/initialize`,
+        initializeAppointment,
+      );
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

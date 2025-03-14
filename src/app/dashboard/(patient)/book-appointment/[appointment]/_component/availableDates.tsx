@@ -11,6 +11,7 @@ import { ISlot, SlotStatus } from '@/types/appointment';
 import { extractGMTTime } from '@/lib/date';
 import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
+import { AppointmentType, useQueryParam } from '@/hooks/useQueryParam';
 
 const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps): JSX.Element => {
   const date = watch('date');
@@ -18,7 +19,10 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
   const dispatch = useAppDispatch();
   const params = useParams();
   const doctorId = params.appointment;
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<{ time: string; id: string }[]>([]);
+  const id = params.appointment as string;
+  const { getQueryParam } = useQueryParam();
+  const appointmentType = getQueryParam('appointmentType');
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<ISlot[]>([]);
   const [isAvailableSlotLoading, setIsAvailableSlotLoading] = useState(false);
 
   useEffect(() => {
@@ -29,7 +33,8 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         getAppointmentSlots({
           startDate: new Date(date),
           endDate: new Date(date),
-          doctorId: String(doctorId),
+          doctorId: appointmentType === AppointmentType.Doctor ? id : '',
+          orgId: appointmentType === AppointmentType.Hospital ? id : '',
           pageSize: 35,
           page: 1,
           status: SlotStatus.Available,
@@ -40,9 +45,9 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         toast(payload);
       }
       const { rows } = payload as IPagination<ISlot>;
-      const availableSlots = rows.map(({ startTime, id }) => ({
-        time: `${extractGMTTime(startTime)}`,
-        id,
+      const availableSlots = rows.map(({ startTime, ...rest }) => ({
+        ...rest,
+        startTime: `${extractGMTTime(startTime)}`,
       }));
 
       setAvailableTimeSlots(availableSlots);
@@ -79,15 +84,16 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         )}
         <div className="flex flex-wrap gap-3">
           {!!availableTimeSlots.length &&
-            availableTimeSlots.map(({ time, id }) => (
+            availableTimeSlots.map(({ startTime, id }) => (
               <div
-                key={time}
+                key={id}
                 className={cn(
                   'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
-                  selectedTime === time && 'border-primary text-primary',
+                  selectedTime === startTime && 'border-primary text-primary',
                 )}
                 onKeyDown={() => {
-                  setValue('time', time, {
+                  setValue('slotId', id);
+                  setValue('time', startTime, {
                     shouldTouch: true,
                     shouldValidate: true,
                   });
@@ -97,7 +103,8 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
                   });
                 }}
                 onClick={() => {
-                  setValue('time', time, {
+                  setValue('slotId', id);
+                  setValue('time', startTime, {
                     shouldTouch: true,
                     shouldValidate: true,
                   });
@@ -108,7 +115,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
                   });
                 }}
               >
-                {time}
+                {startTime}
               </div>
             ))}
           {!availableTimeSlots.length && !isAvailableSlotLoading && (

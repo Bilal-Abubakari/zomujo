@@ -9,7 +9,7 @@ import {
   ISlotPattern,
   ISlotPatternBase,
   SlotStatus,
-} from '@/types/appointment';
+} from '@/types/appointment.interface';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { AppointmentStatus } from '@/types/shared.enum';
 
