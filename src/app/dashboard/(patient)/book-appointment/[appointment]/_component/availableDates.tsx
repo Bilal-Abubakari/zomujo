@@ -7,11 +7,11 @@ import { useAppDispatch } from '@/lib/hooks';
 import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
-import { ISlot, SlotStatus } from '@/types/appointment';
 import { extractGMTTime } from '@/lib/date';
 import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
 import { AppointmentType, useQueryParam } from '@/hooks/useQueryParam';
+import { ISlot, SlotStatus } from '@/types/appointment.interface';
 
 const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps): JSX.Element => {
   const date = watch('date');

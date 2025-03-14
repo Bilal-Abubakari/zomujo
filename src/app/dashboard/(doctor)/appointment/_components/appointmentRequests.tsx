@@ -13,7 +13,7 @@ import { acceptAppointment, getAppointment } from '@/lib/features/appointments/a
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { showErrorToast } from '@/lib/utils';
-import { AppointmentType, IAppointmentRequest } from '@/types/appointment';
+import { AppointmentType, IAppointmentRequest } from '@/types/appointment.interface';
 import { AcceptDeclineStatus, AppointmentStatus, ApproveDeclineStatus } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ColumnDef } from '@tanstack/react-table';
