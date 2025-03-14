@@ -186,7 +186,7 @@ export function extractGMTTime(isoString: string): string {
  *
  */
 export function mergeDateAndTime(dateString: string, timeString: string): Date {
-  const date = dateString.split('T')[0]; 
-  const time = timeString.split('T')[1]; 
-  return  new Date(`${date}T${time}`);
+  const date = dateString.split('T')[0];
+  const time = timeString.split('T')[1];
+  return new Date(`${date}T${time}`);
 }

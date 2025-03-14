@@ -60,7 +60,9 @@ const AppointmentCard = ({
     >
       <div className="flex flex-row items-start justify-between">
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-bold">{visitType === AppointmentType.Visit ? 'Visit' : 'Virtual'}</p>
+          <p className="text-sm font-bold">
+            {visitType === AppointmentType.Visit ? 'Visit' : 'Virtual'}
+          </p>
           <p className="text-xs font-medium text-gray-500">
             {moment(startDate).format('LT')} - {moment(endDate).format('LT')}
           </p>
@@ -68,8 +70,13 @@ const AppointmentCard = ({
         {visitType === AppointmentType.Virtual ? <Video /> : <House className="h-4 w-4" />}
       </div>
       {patient && (
-        <div className={cn('flex flex-row items-center gap-2 text-xs justify-end', height < 51 && 'hidden')}>
-             {patient.firstName} {patient.lastName}
+        <div
+          className={cn(
+            'flex flex-row items-center justify-end gap-2 text-xs',
+            height < 51 && 'hidden',
+          )}
+        >
+          {patient.firstName} {patient.lastName}
         </div>
       )}
     </div>

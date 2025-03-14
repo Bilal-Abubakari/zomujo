@@ -23,7 +23,7 @@ type StatusProps = {
   status: AppointmentStatus;
 };
 
-const AppointmentPanel = ({customClass }: AppointmentProps): JSX.Element => {
+const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
 
@@ -88,7 +88,12 @@ const AppointmentPanel = ({customClass }: AppointmentProps): JSX.Element => {
   }, [selectedDate]);
 
   return (
-    <div className={cn("w-[calc(100vw - 48px)] me:w-[calc(100vw-316px-264px-48px-16px-16px)] flex flex-col overflow-clip rounded-2xl border border-gray-200 bg-white md:w-[calc(100vw-316px-60px)]", customClass)}>
+    <div
+      className={cn(
+        'w-[calc(100vw - 48px)] me:w-[calc(100vw-316px-264px-48px-16px-16px)] flex flex-col overflow-clip rounded-2xl border border-gray-200 bg-white md:w-[calc(100vw-316px-60px)]',
+        customClass,
+      )}
+    >
       <div className="relative flex flex-col gap-8 border-b border-gray-200 p-6">
         <div className="flex flex-row items-center gap-2.5">
           <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>
@@ -107,7 +112,7 @@ const AppointmentPanel = ({customClass }: AppointmentProps): JSX.Element => {
           </div>
         </div>
       </div>
-      <div className='flex justify-center gap-10'>
+      <div className="flex justify-center gap-10">
         <StatusBadge status={AppointmentStatus.Pending} />
         <StatusBadge status={AppointmentStatus.Declined} />
         <StatusBadge status={AppointmentStatus.Accepted} />
@@ -131,10 +136,10 @@ const statusStyles: Record<AppointmentStatus, string> = {
 };
 
 const StatusBadge: React.FC<StatusProps> = ({ status }) => (
-    <div className={`flex items-center gap-2 ${statusStyles[status]}`}>
-      <span className="h-2 w-2 rounded-full bg-current" />
-      <span className="text-sm font-medium">
-        {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
-      </span>
-    </div>
-  );
+  <div className={`flex items-center gap-2 ${statusStyles[status]}`}>
+    <span className="h-2 w-2 rounded-full bg-current" />
+    <span className="text-sm font-medium">
+      {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+    </span>
+  </div>
+);
