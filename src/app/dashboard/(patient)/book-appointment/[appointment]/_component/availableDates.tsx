@@ -32,7 +32,7 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
           doctorId: String(doctorId),
           pageSize: 35,
           page: 1,
-          status:SlotStatus.Available
+          status: SlotStatus.Available,
         }),
       );
 

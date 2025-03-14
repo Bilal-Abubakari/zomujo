@@ -20,5 +20,5 @@ interface IPayload {
 
 export enum NotificationEvent {
   NewNotification = 'newNotification',
-  NewRequest = 'newRequest'
+  NewRequest = 'newRequest',
 }

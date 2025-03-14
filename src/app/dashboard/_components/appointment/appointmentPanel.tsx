@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
-import { getAppointment, getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
+import { getAppointment } from '@/lib/features/appointments/appointmentsThunk';
 
 type AppointmentProps = {
   customClass?: string;
