@@ -66,7 +66,7 @@ const AppointmentCalendar = ({
           GMT
         </div>
         {Array.from({ length: 24 }).map((_, i) => (
-          <div key={i} className="relative h-[60px] shrink-0">
+          <div key={i} className="relative h-[90px] shrink-0">
             {i !== 0 && (
               <p className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 truncate">
                 {i > TWELVE_HOUR_SYSTEM ? i - TWELVE_HOUR_SYSTEM : i}{' '}
@@ -95,8 +95,8 @@ const AppointmentCalendar = ({
             <div
               key={j}
               className={cn(
-                'relative z-5 h-[60px] shrink-0 border-b border-gray-200 bg-gray-50',
-                i === selectedDay && 'bg-primaryLight',
+                'relative z-5 h-[90px] shrink-0 border-b border-gray-200 bg-gray-50',
+                i === selectedDay && 'bg-primary-light',
               )}
             ></div>
           ))}

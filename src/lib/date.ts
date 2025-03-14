@@ -176,3 +176,17 @@ export function extractGMTTime(isoString: string): string {
 
   return `${hours}:${minutes} ${amPm}`;
 }
+
+/**
+ * Combines a given date and time into a single ISO 8601 datetime string.
+ *
+ * @param {string} dateString - The date string in ISO format (e.g., "2025-03-14T00:00:00.000Z").
+ * @param {string} timeString - The time string in ISO format (e.g., "1970-01-01T10:30:00.000Z").
+ * @returns {Date} A new Date object with the combined date and time.
+ *
+ */
+export function mergeDateAndTime(dateString: string, timeString: string): Date {
+  const date = dateString.split('T')[0]; 
+  const time = timeString.split('T')[1]; 
+  return  new Date(`${date}T${time}`);
+}
