@@ -44,7 +44,18 @@ const AvailableAppointment = (): JSX.Element => {
     reason: requiredStringSchema(),
     appointmentType: requiredStringSchema(),
     additionalInfo: requiredStringSchema(false),
+    amount: z.number(),
   });
+
+  const getAmount = (): number => {
+    if (!information) {
+      return 0;
+    }
+    if ('fee' in information) {
+      return information.fee.amount;
+    }
+    return information.regularFee;
+  };
 
   const {
     register,
@@ -59,19 +70,20 @@ const AvailableAppointment = (): JSX.Element => {
     defaultValues: {
       appointmentType: 'virtual',
       date: dateToday.toISOString(),
+      amount: getAmount(),
     },
   });
 
-  const onSubmit = async ({ reason, additionalInfo, slotId }: IBookingForm): Promise<void> => {
+  const onSubmit = async ({
+    reason,
+    additionalInfo,
+    slotId,
+    amount,
+  }: IBookingForm): Promise<void> => {
     if (!information) {
       return;
     }
-    let amount;
-    if ('fee' in information) {
-      amount = information.fee.amount;
-    } else {
-      amount = information.regularFee;
-    }
+
     const { payload } = await dispatch(initiatePayment({ amount, additionalInfo, reason, slotId }));
 
     if (payload && showErrorToast(payload)) {
@@ -248,11 +260,7 @@ const AvailableAppointment = (): JSX.Element => {
 
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Consultation Fee</div>
-              {information && 'fee' in information ? (
-                <div className="font-medium"> GHC {information?.fee?.amount ?? 0}.00</div>
-              ) : (
-                <div className="font-medium"> GHC {information?.regularFee}.00</div>
-              )}
+              <div className="font-medium"> GHC {getAmount()}.00</div>
             </div>
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Total</div>
