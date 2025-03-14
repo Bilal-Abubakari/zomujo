@@ -15,7 +15,6 @@ import {
   IOrganizationRequest,
   IResetPassword,
   IUpdatePassword,
-  IUserSignUp,
   IUserSignUpRole,
 } from '@/types/auth.interface';
 import { IResponse } from '@/types/shared.interface';
