@@ -2,7 +2,7 @@ import { Gender, Role, Status } from '@/types/shared.enum';
 
 export interface IPersonalDetails {
   MDCRegistration: string;
-  dob: Date;
+  dob: string;
   contact: string;
   gender: Gender;
 }
