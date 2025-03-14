@@ -16,6 +16,7 @@ import {
   IResetPassword,
   IUpdatePassword,
   IUserSignUp,
+  IUserSignUpRole,
 } from '@/types/auth.interface';
 import { IResponse } from '@/types/shared.interface';
 import { RootState } from '@/lib/store';
@@ -79,7 +80,7 @@ export const doctorOnboarding = createAsyncThunk(
 
 export const signUp = createAsyncThunk(
   'authentication/signUp',
-  async (signUpCredentials: IUserSignUp, { dispatch }) => {
+  async (signUpCredentials: IUserSignUpRole, { dispatch }) => {
     try {
       const { data } = await axios.post<IResponse>(`${authPath}signUp`, signUpCredentials);
       return data.message;

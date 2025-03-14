@@ -42,6 +42,10 @@ export interface IUserSignUp extends IBaseUser {
   confirmPassword: string;
 }
 
+export interface IUserSignUpRole extends IUserSignUp {
+  role: Role;
+}
+
 export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {
   name: string;
   location: string;

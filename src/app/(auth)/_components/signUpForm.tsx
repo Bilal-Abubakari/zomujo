@@ -60,14 +60,19 @@ const SignUpForm = (): JSX.Element => {
   const { isLoading, errorMessage } = useAppSelector(selectThunkState);
 
   const onSubmit = async (userCredentials: IOrganizationRequest | IUserSignUp): Promise<void> => {
+    let payload: unknown;
     setSuccessMessage('');
-    const action = role === Role.Admin ? requestOrganization : signUp;
-    const { payload } = await dispatch(
-      action({
-        ...userCredentials,
-        role,
-      }),
-    );
+    if (role === Role.Admin && 'name' in userCredentials) {
+      const { payload: organizationRequestResponse } = await dispatch(
+        requestOrganization(userCredentials),
+      );
+      payload = organizationRequestResponse;
+    } else if (role !== Role.Admin && 'firstName' in userCredentials) {
+      const { payload: userSignUpResponse } = await dispatch(signUp({ ...userCredentials, role }));
+      payload = userSignUpResponse;
+    } else {
+      return;
+    }
     if (payload) {
       setSuccessMessage(String(payload));
       reset();
