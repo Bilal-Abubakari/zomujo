@@ -1,7 +1,7 @@
 'use client';
 import { cn, showErrorToast } from '@/lib/utils';
 import { Building2, ChevronLeft } from 'lucide-react';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useCallback, useEffect, useState } from 'react';
 import AvailableDates from './availableDates';
 import AppointmentReason from './appointmentReason';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
@@ -47,7 +47,7 @@ const AvailableAppointment = (): JSX.Element => {
     amount: z.number(),
   });
 
-  const getAmount = (): number => {
+  const getAmount = useCallback((): number => {
     if (!information) {
       return 0;
     }
@@ -55,7 +55,7 @@ const AvailableAppointment = (): JSX.Element => {
       return information.fee.amount;
     }
     return information.regularFee;
-  };
+  }, [information]);
 
   const {
     register,
@@ -68,23 +68,20 @@ const AvailableAppointment = (): JSX.Element => {
     resolver: zodResolver(BookingSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
+      amount: getAmount(),
       appointmentType: 'virtual',
       date: dateToday.toISOString(),
-      amount: getAmount(),
     },
   });
 
-  const onSubmit = async ({
-    reason,
-    additionalInfo,
-    slotId,
-    amount,
-  }: IBookingForm): Promise<void> => {
+  const onSubmit = async ({ reason, additionalInfo, slotId }: IBookingForm): Promise<void> => {
     if (!information) {
       return;
     }
 
-    const { payload } = await dispatch(initiatePayment({ amount, additionalInfo, reason, slotId }));
+    const { payload } = await dispatch(
+      initiatePayment({ amount: getAmount(), additionalInfo, reason, slotId }),
+    );
 
     if (payload && showErrorToast(payload)) {
       toast(payload);
