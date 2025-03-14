@@ -27,7 +27,7 @@ const DoctorIdentification = (): JSX.Element => {
     watch,
     getValues,
     formState: { isValid },
-  } = useForm<IDoctorIdentification>({
+  } = useForm<IDoctorIdentification<File>>({
     resolver: zodResolver(DoctorIdentificationSchema),
     defaultValues: doctorIdentification,
   });

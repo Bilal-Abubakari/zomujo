@@ -11,9 +11,9 @@ export interface IDoctorPhotoUpload {
   profilePicture: File;
 }
 
-export interface IDoctorIdentification {
-  front: File | string;
-  back: File | string;
+export interface IDoctorIdentification<T = File | string> {
+  front: T;
+  back: T;
 }
 
 export type DoctorOnboarding = IPersonalDetails & IDoctorPhotoUpload & IDoctorIdentification;
