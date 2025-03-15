@@ -24,7 +24,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
                 startTime: '10:00 AM',
                 endTime: '12:00 PM',
                 slotId: '12345',
-                type: AppointmentType,
+                type: AppointmentType.Virtual,
                 patient: {
                   id: 'P001',
                   firstName: 'John',
