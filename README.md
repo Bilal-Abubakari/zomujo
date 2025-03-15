@@ -48,3 +48,4 @@ Checkout out docs of api https://emr-do80.onrender.com/docs#/
 - Improve Logout and session ending
 - Improve booking of a doctor on mobile view (button hides during selection of a doctor's availability)
 - Let's add a decline to doctor's requests actions (Rescheduling possibility???)
+- Fix all possible sonar qube code smell issues
