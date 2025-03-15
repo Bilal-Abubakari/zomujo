@@ -14,7 +14,6 @@ import { toast } from '@/hooks/use-toast';
 import { mergeDateAndTime } from '@/lib/date';
 import { IAppointmentCardProps } from './appointmentCard';
 import { getAppointment } from '@/lib/features/appointments/appointmentsThunk';
-import { AppointmentType } from '@/types/appointment.interface';
 
 type AppointmentProps = {
   customClass?: string;
@@ -87,7 +86,6 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
       }));
     }
   }, [selectedDate]);
-
 
   useEffect(() => {
     setQueryParams((prev) => ({
