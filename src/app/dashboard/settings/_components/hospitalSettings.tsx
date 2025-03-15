@@ -19,7 +19,7 @@ import { IAdmin } from '@/types/admin.interface';
 import useImageUpload from '@/hooks/useImageUpload';
 
 const hospitalSettingsSchema = z.object({
-  image: z.union([z.instanceof(File), z.string().url()]),
+  image: z.union([z.instanceof(File), z.string().url(), z.null()]),
   name: nameSchema,
   specialties: nameArraySchema,
   regularFee: positiveNumberSchema,
@@ -36,7 +36,7 @@ const HospitalSettings = (): JSX.Element => {
     watch,
     setValue,
     formState: { errors, isValid },
-  } = useForm<IHospitalProfile>({
+  } = useForm<Required<IHospitalProfile>>({
     resolver: zodResolver(hospitalSettingsSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: org,
@@ -46,7 +46,7 @@ const HospitalSettings = (): JSX.Element => {
     imageUrl: hospitalImage,
     handleImageChange,
     resetImage,
-  } = useImageUpload<IHospitalProfile>({
+  } = useImageUpload<Required<IHospitalProfile>>({
     setValue,
     defaultImageUrl: org.image,
     fieldName: 'image',

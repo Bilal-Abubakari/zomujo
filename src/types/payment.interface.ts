@@ -3,12 +3,12 @@ type PaymentType = 'mobile_money' | 'ghipss';
 export type CardProps = {
   type: PaymentType;
   name: string;
-  number: number;
+  number: string;
 };
 
-export interface PaymentDetails {
+export interface IPaymentDetails {
   reference: string;
-  accountNumber: number;
+  accountNumber: string;
   type: PaymentType;
   bankCode: string;
   isDefault: boolean;

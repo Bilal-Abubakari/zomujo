@@ -1,7 +1,7 @@
 import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { generateSuccessToast } from '@/lib/utils';
-import { IBank, ICheckout, IRate, PaymentDetails } from '@/types/payment.interface';
+import { IBank, ICheckout, IRate, IPaymentDetails } from '@/types/payment.interface';
 import { IResponse } from '@/types/shared.interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setError } from '@/lib/features/payments/paymentSlice';
@@ -9,7 +9,7 @@ import { IInitializeAppointment } from '@/types/booking.interface';
 
 export const addPaymentsDetails = createAsyncThunk(
   'payment/addingPayments',
-  async (paymentInfo: PaymentDetails): Promise<Toast> => {
+  async (paymentInfo: IPaymentDetails): Promise<Toast> => {
     try {
       const {
         data: { message },
@@ -23,9 +23,9 @@ export const addPaymentsDetails = createAsyncThunk(
 
 export const getPaymentDetails = createAsyncThunk(
   'payment/getPaymentDetails',
-  async (userId: string): Promise<PaymentDetails[] | Toast> => {
+  async (userId: string): Promise<IPaymentDetails[] | Toast> => {
     try {
-      const { data } = await axios.get<IResponse<PaymentDetails[]>>(`payments/methods/${userId}`);
+      const { data } = await axios.get<IResponse<IPaymentDetails[]>>(`payments/methods/${userId}`);
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

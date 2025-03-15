@@ -1,21 +1,15 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { MODE, unMatchingPasswords } from '@/constants/constants';
-import {
-  coordinatesSchema,
-  emailSchema,
-  nameSchema,
-  passwordSchema,
-  requiredStringSchema,
-} from '@/schemas/zod.schemas';
+import { MODE } from '@/constants/constants';
+import { emailSchema, nameSchema, requiredStringSchema } from '@/schemas/zod.schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { JSX, useState } from 'react';
-import { useForm, UseFormRegister, FieldErrors } from 'react-hook-form';
+import React, { ChangeEvent, JSX, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { AlertMessage } from '@/components/ui/alert';
-import { ISignUp } from '@/types/auth.interface';
+import { IOrganizationRequest, IUserSignUp } from '@/types/auth.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { requestOrganization, signUp } from '@/lib/features/auth/authThunk';
 import { selectThunkState } from '@/lib/features/auth/authSelector';
@@ -23,45 +17,28 @@ import { Role } from '@/types/shared.enum';
 import { ImageVariant, Modal } from '@/components/ui/dialog';
 import Location from '@/components/location/location';
 import { Option } from 'react-google-places-autocomplete/build/types';
+import { ISelected } from '@/components/ui/dropdown-menu';
+import UserSignUp, { UserSignUpMethods } from '@/app/(auth)/_components/userSignUp';
+
+const roleOptions: ISelected[] = [
+  {
+    label: 'Patient',
+    value: Role.Patient,
+  },
+  { label: 'Doctor', value: Role.Doctor },
+  { label: 'Organization', value: Role.Admin },
+];
 
 const SignUpForm = (): JSX.Element => {
-  const doctorsSchema = z
-    .object({
-      firstName: nameSchema,
-      lastName: nameSchema,
-      email: emailSchema(),
-      password: passwordSchema,
-      confirmPassword: passwordSchema,
-      role: requiredStringSchema(),
-    })
-    .refine(({ password, confirmPassword }) => password === confirmPassword, {
-      message: unMatchingPasswords,
-      path: ['confirmPassword'],
-    });
-
+  const userSignUpRef = useRef<UserSignUpMethods>(null);
   const organizationsSchema = z.object({
     name: nameSchema,
     email: emailSchema(),
-    role: requiredStringSchema(),
     location: requiredStringSchema(),
-    long: coordinatesSchema,
-    lat: coordinatesSchema,
+    long: z.number(),
+    lat: z.number(),
     gpsLink: requiredStringSchema(),
   });
-
-  const patientSchema = z
-    .object({
-      firstName: nameSchema,
-      lastName: nameSchema,
-      email: emailSchema(),
-      password: passwordSchema,
-      confirmPassword: passwordSchema,
-      role: requiredStringSchema(),
-    })
-    .refine(({ password, confirmPassword }) => password === confirmPassword, {
-      message: unMatchingPasswords,
-      path: ['confirmPassword'],
-    });
 
   const {
     register,
@@ -70,47 +47,36 @@ const SignUpForm = (): JSX.Element => {
     reset,
     setValue,
     formState: { errors, isValid },
-  } = useForm<ISignUp>({
-    resolver: async (data, context, options) => {
-      const { role } = data;
-      let schema;
-      if (role === Role.Doctor) {
-        schema = doctorsSchema;
-      } else if (role === Role.Admin) {
-        schema = organizationsSchema;
-      } else {
-        schema = patientSchema;
-      }
-      return zodResolver(schema)(data, context, options);
-    },
-    defaultValues: {
-      role: Role.Patient,
-    },
+  } = useForm<IOrganizationRequest>({
+    resolver: zodResolver(organizationsSchema),
     mode: MODE.ON_TOUCH,
   });
-  const role = watch('role');
+
   const location = watch('location');
 
-  const getFormTitle = (selectedForm: Role): string => {
-    switch (selectedForm) {
-      case Role.Doctor:
-        return 'Sign Up as Doctor';
-      case Role.Admin:
-        return 'Request Organizational Access';
-      default:
-        return 'Sign Up as Patient';
-    }
-  };
   const dispatch = useAppDispatch();
+  const [role, setRole] = useState<Role>(Role.Patient);
   const [successMessage, setSuccessMessage] = useState('');
   const { isLoading, errorMessage } = useAppSelector(selectThunkState);
-  const onSubmit = async (userCredentials: ISignUp): Promise<void> => {
+
+  const onSubmit = async (userCredentials: IOrganizationRequest | IUserSignUp): Promise<void> => {
+    let payload: unknown;
     setSuccessMessage('');
-    const action = userCredentials.role === Role.Admin ? requestOrganization : signUp;
-    const { payload } = await dispatch(action(userCredentials));
+    if (role === Role.Admin && 'name' in userCredentials) {
+      const { payload: organizationRequestResponse } = await dispatch(
+        requestOrganization(userCredentials),
+      );
+      payload = organizationRequestResponse;
+    } else if (role !== Role.Admin && 'firstName' in userCredentials) {
+      const { payload: userSignUpResponse } = await dispatch(signUp({ ...userCredentials, role }));
+      payload = userSignUpResponse;
+    } else {
+      return;
+    }
     if (payload) {
       setSuccessMessage(String(payload));
       reset();
+      userSignUpRef.current?.resetUserSignUp();
     }
 
     setOpenModal(true);
@@ -134,6 +100,9 @@ const SignUpForm = (): JSX.Element => {
       });
     });
   };
+
+  const handleRoleChange = ({ target }: ChangeEvent<HTMLInputElement>): void =>
+    setRole(target.value as Role);
 
   return (
     <div className="mx-auto w-full max-w-sm">
@@ -159,51 +128,35 @@ const SignUpForm = (): JSX.Element => {
         )}
       </div>
       <div className="mt-4 mb-5 flex justify-center space-x-6">
-        <label className="flex items-center space-x-2">
-          <input
-            type="radio"
-            value={Role.Patient}
-            className="accent-primary h-4 w-4"
-            {...register('role')}
-          />
-          <span>Patient</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input
-            type="radio"
-            value={Role.Doctor}
-            {...register('role')}
-            className="accent-primary h-4 w-4"
-          />
-          <span>Doctor</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input
-            type="radio"
-            value={Role.Admin}
-            {...register('role')}
-            className="accent-primary h-4 w-4"
-          />
-          <span>Organization</span>
-        </label>
+        {roleOptions.map(({ label, value }) => (
+          <label key={value} className="flex items-center space-x-2">
+            <input
+              type="radio"
+              value={value}
+              className="accent-primary h-4 w-4"
+              checked={role === value}
+              onChange={handleRoleChange}
+            />
+            <span>{label}</span>
+          </label>
+        ))}
       </div>
-      {role === Role.Admin && (
-        <AlertMessage
-          message="This selection doesn&rsquo;t create an account automatically. We&rsquo;ll contact you
-            after processing your request."
-          title="Importance Notice"
-          className="border-primary"
-          titleClassName="font-semibold text-primary"
-        />
+      {role !== Role.Admin && (
+        <UserSignUp ref={userSignUpRef} role={role} isLoading={isLoading} submit={onSubmit} />
       )}
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-8">
-        {role === Role.Doctor && <NameFields register={register} errors={errors} />}
-
-        {role === Role.Admin && (
-          <>
+      {role === Role.Admin && (
+        <>
+          <AlertMessage
+            message="This selection doesn&rsquo;t create an account automatically. We&rsquo;ll contact you
+            after processing your request."
+            title="Importance Notice"
+            className="border-primary"
+            titleClassName="font-semibold text-primary"
+          />
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-8">
             <Input
               labelName="Hospital's Name"
-              error={errors.name?.message || ''}
+              error={'name' in errors ? errors.name?.message : ''}
               placeholder="Zyptyk Hospital"
               {...register('name')}
             />
@@ -216,75 +169,31 @@ const SignUpForm = (): JSX.Element => {
                 !location && setValue('location', '', { shouldTouch: true, shouldValidate: true })
               }
             />
-          </>
-        )}
-
-        {role === Role.Patient && <NameFields register={register} errors={errors} />}
-
-        <Input
-          labelName="Email"
-          error={errors.email?.message?.toString() || ''}
-          placeholder="johndoe@gmail.com"
-          {...register('email')}
-        />
-        {role !== Role.Admin && (
-          <>
             <Input
-              labelName="Password"
-              type="password"
-              error={errors.password?.message || ''}
-              placeholder="***********************"
-              enablePasswordToggle={true}
-              {...register('password')}
+              labelName="Email"
+              error={errors.email?.message?.toString() || ''}
+              placeholder="johndoe@gmail.com"
+              {...register('email')}
             />
-            <Input
-              labelName="Confirm Password"
-              type="password"
-              error={errors.confirmPassword?.message || ''}
-              placeholder="***********************"
-              enablePasswordToggle={true}
-              {...register('confirmPassword')}
-            />
-          </>
-        )}
 
-        <Button
-          type="submit"
-          className="mt-4 w-full"
-          child={getFormTitle(role)}
-          disabled={!isValid || isLoading}
-          isLoading={isLoading}
-        />
-        <div className="text-center">
-          <span>Already have an account?</span>
-          <Link href="/login" className="text-primary pl-1">
-            Login
-          </Link>
-        </div>
-      </form>
+            <Button
+              type="submit"
+              className="mt-4 w-full"
+              child="Request Organization Access"
+              disabled={!isValid || isLoading}
+              isLoading={isLoading}
+            />
+          </form>
+        </>
+      )}
+      <div className="mt-4 text-center">
+        <span>Already have an account?</span>
+        <Link href="/login" className="text-primary pl-1">
+          Login
+        </Link>
+      </div>
     </div>
   );
 };
 
 export default SignUpForm;
-
-type NameFieldsProps = {
-  register: UseFormRegister<ISignUp>;
-  errors: FieldErrors;
-};
-const NameFields = ({ register, errors }: NameFieldsProps): JSX.Element => (
-  <div className="mt-8 flex w-full flex-col items-baseline justify-center gap-8 md:w-full md:flex-row md:gap-2">
-    <Input
-      labelName="First Name"
-      error={errors.firstName?.message?.toString() || ''}
-      placeholder="John"
-      {...register('firstName')}
-    />
-    <Input
-      labelName="Last Name"
-      error={errors.lastName?.message?.toString() || ''}
-      placeholder="Doe"
-      {...register('lastName')}
-    />
-  </div>
-);

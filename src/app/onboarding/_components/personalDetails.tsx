@@ -12,12 +12,13 @@ import { IPersonalDetails } from '@/types/auth.interface';
 import { genderOptions, MODE } from '@/constants/constants';
 import { maxDate } from '@/lib/date';
 import { JSX } from 'react';
+import { Gender } from '../../../types/shared.enum';
 
 const PersonalDetailsSchema = z.object({
   MDCRegistration: mdcNumberSchema,
   dob: requiredStringSchema(),
   contact: phoneNumberSchema,
-  gender: requiredStringSchema(),
+  gender: z.nativeEnum(Gender),
 });
 
 const PersonalDetails = (): JSX.Element => {

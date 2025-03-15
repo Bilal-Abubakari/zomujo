@@ -2,7 +2,7 @@ import { Gender, Role, Status } from '@/types/shared.enum';
 
 export interface IPersonalDetails {
   MDCRegistration: string;
-  dob: Date;
+  dob: string;
   contact: string;
   gender: Gender;
 }
@@ -11,9 +11,9 @@ export interface IDoctorPhotoUpload {
   profilePicture: File;
 }
 
-export interface IDoctorIdentification {
-  front: File | string;
-  back: File | string;
+export interface IDoctorIdentification<T = File | string> {
+  front: T;
+  back: T;
 }
 
 export type DoctorOnboarding = IPersonalDetails & IDoctorPhotoUpload & IDoctorIdentification;
@@ -37,12 +37,18 @@ export interface IUser extends IBaseUser {
   createdAt: Date;
 }
 
-export interface ISignUp extends IBaseUser {
+export interface IUserSignUp extends IBaseUser {
   password: string;
   confirmPassword: string;
+}
+
+export interface IUserSignUpRole extends IUserSignUp {
+  role: Role;
+}
+
+export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {
   name: string;
   location: string;
-  role: Role;
   lat: number;
   long: number;
   gpsLink: string;

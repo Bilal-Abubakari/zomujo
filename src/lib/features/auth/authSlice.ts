@@ -18,7 +18,7 @@ interface AuthenticationState {
   isLoading: boolean;
   currentStep: number;
   doctorPersonalDetails: IPersonalDetails | undefined;
-  doctorIdentification: IDoctorIdentification | undefined;
+  doctorIdentification: IDoctorIdentification<File> | undefined;
   user: IUser | undefined;
   extra: IDoctor | IAdmin | IPatient | undefined;
   loggedInAt: undefined | string;
