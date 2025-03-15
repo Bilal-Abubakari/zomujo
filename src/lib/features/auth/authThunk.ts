@@ -12,9 +12,10 @@ import {
   IDoctorPhotoUpload,
   ILogin,
   ILoginResponse,
+  IOrganizationRequest,
   IResetPassword,
-  ISignUp,
   IUpdatePassword,
+  IUserSignUpRole,
 } from '@/types/auth.interface';
 import { IResponse } from '@/types/shared.interface';
 import { RootState } from '@/lib/store';
@@ -78,7 +79,7 @@ export const doctorOnboarding = createAsyncThunk(
 
 export const signUp = createAsyncThunk(
   'authentication/signUp',
-  async (signUpCredentials: ISignUp, { dispatch }) => {
+  async (signUpCredentials: IUserSignUpRole, { dispatch }) => {
     try {
       const { data } = await axios.post<IResponse>(`${authPath}signUp`, signUpCredentials);
       return data.message;
@@ -91,7 +92,7 @@ export const signUp = createAsyncThunk(
 
 export const requestOrganization = createAsyncThunk(
   'authentication/organizationsRequest',
-  async (organizationCredentials: ISignUp, { dispatch }) => {
+  async (organizationCredentials: IOrganizationRequest, { dispatch }) => {
     try {
       const { data } = await axios.post<IResponse>(
         `${authPath}org-request`,

@@ -1,7 +1,7 @@
 'use client';
 import { cn, showErrorToast } from '@/lib/utils';
 import { Building2, ChevronLeft } from 'lucide-react';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useCallback, useEffect, useState } from 'react';
 import AvailableDates from './availableDates';
 import AppointmentReason from './appointmentReason';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
@@ -22,9 +22,10 @@ import { toast } from '@/hooks/use-toast';
 import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
 import { ICheckout } from '@/types/payment.interface';
 import { IHospital } from '@/types/hospital.interface';
-import { AppointmentType, useQueryParam } from '@/hooks/useQueryParam';
+import { MedicalAppointmentType, useQueryParam } from '@/hooks/useQueryParam';
 import { getHospital } from '@/lib/features/hospitals/hospitalThunk';
 import Image from 'next/image';
+import { AppointmentType } from '@/types/appointment.interface';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -44,7 +45,18 @@ const AvailableAppointment = (): JSX.Element => {
     reason: requiredStringSchema(),
     appointmentType: requiredStringSchema(),
     additionalInfo: requiredStringSchema(false),
+    amount: z.number(),
   });
+
+  const getAmount = useCallback((): number => {
+    if (!information) {
+      return 0;
+    }
+    if ('fee' in information) {
+      return information.fee.amount;
+    }
+    return information.regularFee;
+  }, [information]);
 
   const {
     register,
@@ -57,7 +69,8 @@ const AvailableAppointment = (): JSX.Element => {
     resolver: zodResolver(BookingSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
-      appointmentType: 'virtual',
+      amount: getAmount(),
+      appointmentType: AppointmentType.Virtual,
       date: dateToday.toISOString(),
     },
   });
@@ -66,13 +79,10 @@ const AvailableAppointment = (): JSX.Element => {
     if (!information) {
       return;
     }
-    let amount;
-    if ('fee' in information) {
-      amount = information.fee.amount;
-    } else {
-      amount = information.regularFee;
-    }
-    const { payload } = await dispatch(initiatePayment({ amount, additionalInfo, reason, slotId }));
+
+    const { payload } = await dispatch(
+      initiatePayment({ amount: getAmount(), additionalInfo, reason, slotId }),
+    );
 
     if (payload && showErrorToast(payload)) {
       toast(payload);
@@ -93,7 +103,7 @@ const AvailableAppointment = (): JSX.Element => {
     }
     async function getInfo(): Promise<void> {
       let payload: unknown;
-      if (appointmentType === AppointmentType.Doctor) {
+      if (appointmentType === MedicalAppointmentType.Doctor) {
         const { payload: doctorResponse } = await dispatch(doctorInfo(id));
         payload = doctorResponse;
       } else {
@@ -248,11 +258,7 @@ const AvailableAppointment = (): JSX.Element => {
 
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Consultation Fee</div>
-              {information && 'fee' in information ? (
-                <div className="font-medium"> GHC {information?.fee?.amount ?? 0}.00</div>
-              ) : (
-                <div className="font-medium"> GHC {information?.regularFee}.00</div>
-              )}
+              <div className="font-medium"> GHC {getAmount()}.00</div>
             </div>
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Total</div>

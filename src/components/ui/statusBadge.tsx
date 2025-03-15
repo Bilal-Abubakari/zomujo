@@ -1,14 +1,15 @@
-import { AcceptDeclineStatus } from '@/types/shared.enum';
+import { AcceptDeclineStatus, AppointmentStatus } from '@/types/shared.enum';
 import { Badge } from '@/components/ui/badge';
 import React, { JSX } from 'react';
 
 type StatusBadgeProps = {
-  status: AcceptDeclineStatus;
+  status: AcceptDeclineStatus | AppointmentStatus;
+  approvedTitle?: string;
 };
-const StatusBadge = ({ status }: StatusBadgeProps): JSX.Element => {
+const StatusBadge = ({ status, approvedTitle }: StatusBadgeProps): JSX.Element => {
   switch (status) {
     case AcceptDeclineStatus.Accepted:
-      return <Badge variant="default">Approved</Badge>;
+      return <Badge variant="default">{approvedTitle ?? 'Approved'}</Badge>;
     case AcceptDeclineStatus.Declined:
       return <Badge variant="destructive">Declined</Badge>;
     case AcceptDeclineStatus.Deactivated:

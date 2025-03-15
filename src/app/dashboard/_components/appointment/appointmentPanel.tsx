@@ -13,7 +13,8 @@ import { IAppointmentRequest } from '@/types/appointment.interface';
 import { toast } from '@/hooks/use-toast';
 import { mergeDateAndTime } from '@/lib/date';
 import { IAppointmentCardProps } from './appointmentCard';
-import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
+import { getAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { AppointmentType } from '@/types/appointment.interface';
 
 type AppointmentProps = {
   customClass?: string;
@@ -41,7 +42,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
 
   useEffect(() => {
     async function getUpcomingAppointments(): Promise<void> {
-      const { payload } = await dispatch(getAppointments(queryParams));
+      const { payload } = await dispatch(getAppointment(queryParams));
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
@@ -87,10 +88,18 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
     }
   }, [selectedDate]);
 
+
+  useEffect(() => {
+    setQueryParams((prev) => ({
+      ...prev,
+      startDate: selectedDate,
+    }));
+  }, [selectedDate]);
+
   return (
     <div
       className={cn(
-        'w-[calc(100vw - 48px)] me:w-[calc(100vw-316px-264px-48px-16px-16px)] flex flex-col overflow-clip rounded-2xl border border-gray-200 bg-white md:w-[calc(100vw-316px-60px)]',
+        'w-[calc(100vw - 48px)] flex flex-col overflow-clip rounded-2xl border border-gray-200 bg-white md:w-[calc(100vw-286px-60px)] lg:w-[calc(100vw-316px-264px-48px-16px-16px)]',
         customClass,
       )}
     >

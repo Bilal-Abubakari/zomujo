@@ -16,12 +16,17 @@ import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DateRange } from 'react-day-picker';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { IFrequency, ISlotPatternBase, IWeekDays } from '@/types/appointment.interface';
+import {
+  AppointmentType,
+  IFrequency,
+  ISlotPatternBase,
+  IWeekDays,
+} from '@/types/appointment.interface';
 import { createAppointmentSlot } from '@/lib/features/appointments/appointmentsThunk';
 import { useAppDispatch } from '@/lib/hooks';
 import { generateRecurrenceRule, generateSlotDescription } from '@/lib/rule';
 import { toast } from '@/hooks/use-toast';
-import { ToastStatus, VisitType } from '@/types/shared.enum';
+import { ToastStatus } from '@/types/shared.enum';
 import { Confirmation } from '@/components/ui/dialog';
 import { shortDaysOfTheWeek } from '@/constants/constants';
 import { TooltipComp } from '@/components/ui/tooltip';
@@ -60,7 +65,7 @@ const CreateTimeSlots = (): JSX.Element => {
     endTime,
     recurrence: generateRecurrenceRule(selectedWeekDays, frequency!),
     duration: slotDuration,
-    type: VisitType.Virtual,
+    type: AppointmentType.Virtual,
   });
 
   const generateTimeSlots = async (): Promise<void> => {

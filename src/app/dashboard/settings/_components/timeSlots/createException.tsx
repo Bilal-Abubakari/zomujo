@@ -29,8 +29,9 @@ const formSchema = z
     date: requiredStringSchema(),
     startTime: requiredStringSchema(),
     endTime: requiredStringSchema(),
-    type: requiredStringSchema(),
+    type: z.enum(['modification', 'cancellation']),
     reason: requiredStringSchema(),
+    patternId: requiredStringSchema(),
   })
   .refine(({ endTime, startTime }) => parseTime(endTime) > parseTime(startTime), {
     path: ['endTime'],
@@ -55,6 +56,9 @@ const CreateException = ({
     setValue,
     formState: { errors, isValid },
   } = useForm<IPatternException>({
+    defaultValues: {
+      patternId,
+    },
     resolver: zodResolver(formSchema),
     mode: MODE.ON_TOUCH,
   });

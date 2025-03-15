@@ -4,8 +4,8 @@ import AppointmentRequestCard from './appointmentRequestCard';
 import { Badge } from '@/components/ui/badge';
 import { Confirmation } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { ModalProps } from '@/types/appointment.interface';
-import { AppointmentStatus, VisitType } from '@/types/shared.enum';
+import { AppointmentType, ModalProps } from '@/types/appointment.interface';
+import { AppointmentStatus } from '@/types/shared.enum';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 const AppointmentRequestPanel = (): JSX.Element => {
@@ -24,7 +24,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
                 startTime: '10:00 AM',
                 endTime: '12:00 PM',
                 slotId: '12345',
-                type: VisitType.Virtual,
+                type: AppointmentType.Virtual,
                 patient: {
                   id: 'P001',
                   firstName: 'John',
@@ -47,7 +47,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
                 startTime: '10:00 AM',
                 endTime: '12:00 PM',
                 slotId: '12345',
-                type: VisitType.Virtual,
+                type: AppointmentType.Virtual,
                 patient: {
                   id: 'P001',
                   firstName: 'John',
@@ -105,7 +105,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
               startTime: '10:00 AM',
               endTime: '12:00 PM',
               slotId: '12345',
-              type: VisitType.Virtual,
+              type: AppointmentType.Virtual,
               patient: {
                 id: 'P001',
                 firstName: 'John',
@@ -126,7 +126,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
               startTime: '12:00 pM',
               endTime: '2:00 PM',
               slotId: '12345',
-              type: VisitType.Virtual,
+              type: AppointmentType.Virtual,
               patient: {
                 id: 'P001',
                 firstName: 'killer',
@@ -147,7 +147,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
               startTime: '12:00 pM',
               endTime: '2:00 PM',
               slotId: '12345',
-              type: VisitType.Virtual,
+              type: AppointmentType.Virtual,
               patient: {
                 id: 'P001',
                 firstName: 'killer',

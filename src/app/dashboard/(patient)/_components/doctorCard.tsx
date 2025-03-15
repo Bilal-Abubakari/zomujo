@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import React, { JSX } from 'react';
 import { DummyDoctorProfile } from '@/assets/images';
 import { IDoctor } from '@/types/doctor.interface';
-import { AppointmentType } from '@/hooks/useQueryParam';
+import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 
 const DoctorCard = ({
   firstName,
@@ -66,7 +66,7 @@ const DoctorCard = ({
           onClick={(event) => {
             event.stopPropagation();
             router.push(
-              `/dashboard/book-appointment/${id}?appointmentType=${AppointmentType.Doctor}`,
+              `/dashboard/book-appointment/${id}?appointmentType=${MedicalAppointmentType.Doctor}`,
             );
           }}
           className="h-10 w-[175px] rounded-md border border-gray-300 bg-white text-sm text-black duration-100 hover:bg-gray-50"
