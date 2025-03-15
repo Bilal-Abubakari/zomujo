@@ -1,6 +1,5 @@
 'use client';
 import { AvatarWithName } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps } from '@/components/ui/dialog';
 import { ActionsDropdownMenus, ISelected, OptionsMenu } from '@/components/ui/dropdown-menu';
@@ -14,7 +13,7 @@ import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { showErrorToast } from '@/lib/utils';
 import { AppointmentType, IAppointmentRequest } from '@/types/appointment.interface';
-import { AcceptDeclineStatus, AppointmentStatus, ApproveDeclineStatus } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ColumnDef } from '@tanstack/react-table';
 import {

@@ -1,9 +1,9 @@
-import { AcceptDeclineStatus } from '@/types/shared.enum';
+import { AcceptDeclineStatus, AppointmentStatus } from '@/types/shared.enum';
 import { Badge } from '@/components/ui/badge';
 import React, { JSX } from 'react';
 
 type StatusBadgeProps = {
-  status: AcceptDeclineStatus;
+  status: AcceptDeclineStatus | AppointmentStatus;
   approvedTitle?: string;
 };
 const StatusBadge = ({ status, approvedTitle }: StatusBadgeProps): JSX.Element => {
