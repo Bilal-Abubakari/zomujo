@@ -34,7 +34,7 @@ const TimeIndicator = (): JSX.Element => {
     <div
       ref={indicatorRef}
       style={{
-        top: 40 + totalHours * 60,
+        top: 40 + totalHours * 90,
         left: 40,
         width: 40 + 260 * 7,
       }}

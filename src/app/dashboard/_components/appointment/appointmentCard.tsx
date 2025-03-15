@@ -1,4 +1,3 @@
-import { AvatarComp } from '@/components/ui/avatar';
 import {
   DAYS_IN_WEEK,
   MILLISECONDS_IN_SECOND,
@@ -41,13 +40,13 @@ const AppointmentCard = ({
     MINUTES_IN_HOUR /
     SECONDS_IN_MINUTE;
 
-  const height = 60 * duration;
+  const height = 90 * duration;
 
   return (
     <div
       style={{
         height,
-        top: 40 + hour * 60,
+        top: 40 + hour * 90,
         left: 80 + 260 * day,
       }}
       className={cn(
@@ -71,8 +70,13 @@ const AppointmentCard = ({
         {visitType === AppointmentType.Virtual ? <Video /> : <House className="h-4 w-4" />}
       </div>
       {patient && (
-        <div className={cn('flex flex-row items-center gap-2', height < 101 && 'hidden')}>
-          <AvatarComp name="Theta" />
+        <div
+          className={cn(
+            'flex flex-row items-center justify-end gap-2 text-xs',
+            height < 51 && 'hidden',
+          )}
+        >
+          {patient.firstName} {patient.lastName}
         </div>
       )}
     </div>

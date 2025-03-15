@@ -5,43 +5,87 @@ import AppointmentCalendar from './appointmentCalendar';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
 import { AppointmentStatus } from '@/types/shared.enum';
-import { cn } from '@/lib/utils';
-import { IQueryParams } from '@/types/shared.interface';
+import { cn, showErrorToast } from '@/lib/utils';
+import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
+import { IAppointmentRequest } from '@/types/appointment.interface';
+import { toast } from '@/hooks/use-toast';
+import { mergeDateAndTime } from '@/lib/date';
+import { IAppointmentCardProps } from './appointmentCard';
 import { getAppointment } from '@/lib/features/appointments/appointmentsThunk';
-import { AppointmentType } from '@/types/appointment.interface';
 
 type AppointmentProps = {
   customClass?: string;
 };
-const AppointmentPanel = ({ customClass = '' }: AppointmentProps): JSX.Element => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const user = useAppSelector(selectUser);
-  //Todo: Remove them, they were used for testing purposes
-  const today = new Date();
-  const today1 = new Date(2024, 11, 29);
-  const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10, 0, 0);
-  const startDate1 = new Date(today.getFullYear(), today.getMonth(), today1.getDate(), 2, 0, 0);
-  const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 13, 0, 0);
-  const endDate1 = new Date(today.getFullYear(), today.getMonth(), today1.getDate(), 5, 0, 0);
 
+type StatusProps = {
+  status: AppointmentStatus;
+};
+
+const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
+
+  const newToday = moment();
+  const startOfWeek = newToday.clone().startOf('isoWeek');
+  const endOfWeek = startOfWeek.clone().add(6, 'days');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [now, setNow] = useState(moment());
   const [queryParams, setQueryParams] = useState<IQueryParams<''>>({
     doctorId: user?.id,
-    startDate: today,
-    endDate: new Date(2025, 2, 17),
+    startDate: startOfWeek.toDate(),
+    endDate: endOfWeek.toDate(),
   });
+  const [upcomingAppointment, setUpcomingAppointment] = useState<IAppointmentCardProps[]>([]);
 
   useEffect(() => {
-    async function getAppointments(): Promise<void> {
-      const payload = await dispatch(getAppointment(queryParams));
-      //Todo: remove this when working on upcoming appointments
-      console.log(payload);
+    async function getUpcomingAppointments(): Promise<void> {
+      const { payload } = await dispatch(getAppointment(queryParams));
+
+      if (payload && showErrorToast(payload)) {
+        toast(payload);
+        return;
+      }
+
+      const { rows } = payload as IPagination<IAppointmentRequest>;
+      const upcomingAppointments = rows.map(
+        ({ id, slot, status, patient: { firstName, lastName } }) => ({
+          id: String(id),
+          visitType: slot!.type,
+          startDate: mergeDateAndTime(slot!.date, slot!.startTime),
+          endDate: mergeDateAndTime(slot!.date, slot!.endTime),
+          status,
+          patient: {
+            firstName,
+            lastName,
+          },
+        }),
+      );
+
+      setUpcomingAppointment(upcomingAppointments);
     }
 
-    void getAppointments();
-  }, []);
+    void getUpcomingAppointments();
+  }, [queryParams]);
+
+  useEffect(() => {
+    const selectedMoment = moment(selectedDate);
+    const currentWeekStart = now.clone().startOf('isoWeek');
+    const currentWeekEnd = currentWeekStart.clone().add(6, 'days');
+
+    const selectedWeekStart = selectedMoment.clone().startOf('isoWeek');
+    const selectedWeekEnd = selectedWeekStart.clone().add(6, 'days');
+
+    if (!selectedMoment.isBetween(currentWeekStart, currentWeekEnd, 'day', '[]')) {
+      setNow(moment(selectedDate));
+      setQueryParams((prev) => ({
+        ...prev,
+        startDate: selectedWeekStart.toDate(),
+        endDate: selectedWeekEnd.toDate(),
+      }));
+    }
+  }, [selectedDate]);
 
   useEffect(() => {
     setQueryParams((prev) => ({
@@ -61,7 +105,7 @@ const AppointmentPanel = ({ customClass = '' }: AppointmentProps): JSX.Element =
         <div className="flex flex-row items-center gap-2.5">
           <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>
           <Badge variant={'brown'}>
-            3 <span className="ml-1 hidden sm:block">patients</span>
+            {upcomingAppointment.length} <span className="ml-1 hidden sm:block">patients</span>
           </Badge>
         </div>
         <div className="flex flex-row items-center justify-between">
@@ -75,25 +119,14 @@ const AppointmentPanel = ({ customClass = '' }: AppointmentProps): JSX.Element =
           </div>
         </div>
       </div>
-
+      <div className="flex justify-center gap-10">
+        <StatusBadge status={AppointmentStatus.Pending} />
+        <StatusBadge status={AppointmentStatus.Declined} />
+        <StatusBadge status={AppointmentStatus.Accepted} />
+      </div>
       <AppointmentCalendar
         className="h-[calc(100vh-356px)]"
-        slots={[
-          {
-            id: '1',
-            startDate: startDate,
-            endDate: endDate,
-            visitType: AppointmentType.Virtual,
-            status: AppointmentStatus.Pending,
-          },
-          {
-            id: '2',
-            startDate: startDate1,
-            endDate: endDate1,
-            visitType: AppointmentType.Visit,
-            status: AppointmentStatus.Declined,
-          },
-        ]}
+        slots={upcomingAppointment}
         selectedDate={selectedDate}
       />
     </div>
@@ -101,3 +134,19 @@ const AppointmentPanel = ({ customClass = '' }: AppointmentProps): JSX.Element =
 };
 
 export default AppointmentPanel;
+
+const statusStyles: Record<AppointmentStatus, string> = {
+  [AppointmentStatus.Pending]: 'text-[#93C4F0]',
+  [AppointmentStatus.Accepted]: 'text-green-300',
+  [AppointmentStatus.Declined]: 'text-red-400',
+  [AppointmentStatus.Completed]: 'text-green-400',
+};
+
+const StatusBadge: React.FC<StatusProps> = ({ status }) => (
+  <div className={`flex items-center gap-2 ${statusStyles[status]}`}>
+    <span className="h-2 w-2 rounded-full bg-current" />
+    <span className="text-sm font-medium">
+      {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+    </span>
+  </div>
+);
