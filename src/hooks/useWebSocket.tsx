@@ -52,6 +52,11 @@ const useWebSocket = (): WebSocketHook => {
         });
       });
 
+      // TODO: Let's connect websocket to get instant notification of a new request
+      // websocket.on(NotificationEvent.NewRequest, (data: INotification) => {
+      //   console.log('Hey there new request', data);
+      // });
+
       websocket.on('error', (error) => {
         console.error('WebSocket Error:', error);
       });

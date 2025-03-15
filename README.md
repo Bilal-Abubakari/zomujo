@@ -38,3 +38,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Documentation of API Used
 
 Checkout out docs of api https://emr-do80.onrender.com/docs#/
+
+### TODO TO MAKE APPLICATION BETTER
+- Incorporate availability settings to getting started profile completion card progress
+- Incorporate pricing settings to getting started profile completion card progress
+- Allow selection of a single date on availability settings (Currently only accepts a range)
+- Lock length of session to 45 minutes per the MVP in setting the pricing of Doctor
+- Update doctors fee state after setting pricing in settings
+- Improve Logout and session ending
+- Improve booking of a doctor on mobile view (button hides during selection of a doctor's availability)
+- Let's add a decline to doctor's requests actions (Rescheduling possibility???)
