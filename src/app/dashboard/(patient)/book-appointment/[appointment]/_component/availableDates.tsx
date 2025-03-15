@@ -7,11 +7,11 @@ import { useAppDispatch } from '@/lib/hooks';
 import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
-import { ISlot } from '@/types/appointment.interface';
 import { extractGMTTime } from '@/lib/date';
 import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
-import { AppointmentType, useQueryParam } from '@/hooks/useQueryParam';
+import { MedicalAppointmentType, useQueryParam } from '@/hooks/useQueryParam';
+import { ISlot, SlotStatus } from '@/types/appointment.interface';
 
 const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps): JSX.Element => {
   const date = watch('date');
@@ -32,10 +32,11 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         getAppointmentSlots({
           startDate: new Date(date),
           endDate: new Date(date),
-          doctorId: appointmentType === AppointmentType.Doctor ? id : '',
-          orgId: appointmentType === AppointmentType.Hospital ? id : '',
+          doctorId: appointmentType === MedicalAppointmentType.Doctor ? id : '',
+          orgId: appointmentType === MedicalAppointmentType.Hospital ? id : '',
           pageSize: 35,
           page: 1,
+          status: SlotStatus.Available,
         }),
       );
 
@@ -54,6 +55,17 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
 
     void slotsAvailable();
   }, [date]);
+
+  const handleSlotSelection = (startTime: string, id: string): void => {
+    setValue('time', startTime, {
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue('slotId', id, {
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
 
   return (
     <div className="rounded-md border p-8">
@@ -89,20 +101,8 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
                   'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
                   selectedTime === startTime && 'border-primary text-primary',
                 )}
-                onKeyDown={() => {
-                  setValue('slotId', id);
-                  setValue('time', startTime, {
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  });
-                }}
-                onClick={() => {
-                  setValue('slotId', id);
-                  setValue('time', startTime, {
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  });
-                }}
+                onKeyDown={() => handleSlotSelection(startTime, id)}
+                onClick={() => handleSlotSelection(startTime, id)}
               >
                 {startTime}
               </div>

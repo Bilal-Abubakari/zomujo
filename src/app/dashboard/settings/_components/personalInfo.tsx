@@ -25,44 +25,23 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
 
+const PersonalDetailsSchema = z.object({
+  firstName: nameSchema,
+  lastName: nameSchema,
+  education: z.object({
+    school: requiredStringSchema(),
+    degree: nameSchema,
+  }),
+  languages: nameArraySchema,
+  awards: nameArraySchema,
+  bio: textAreaSchema,
+  experience: positiveNumberSchema,
+  specializations: nameArraySchema,
+  contact: phoneNumberSchema,
+});
+
 const PersonalInfo = (): JSX.Element => {
-  const {
-    firstName,
-    lastName,
-    specializations,
-    bio,
-    experience,
-    contact,
-    profilePicture,
-    education,
-    languages: spokenLanguages,
-    awards,
-  } = useAppSelector(selectExtra) as IDoctor;
-  const personalDetails = {
-    firstName,
-    lastName,
-    specializations,
-    bio,
-    experience,
-    contact: contact,
-    education,
-    languages: spokenLanguages,
-    awards,
-  };
-  const PersonalDetailsSchema = z.object({
-    firstName: nameSchema,
-    lastName: nameSchema,
-    education: z.object({
-      school: requiredStringSchema(),
-      degree: nameSchema,
-    }),
-    languages: nameArraySchema,
-    awards: nameArraySchema,
-    bio: textAreaSchema,
-    experience: positiveNumberSchema,
-    specializations: nameArraySchema,
-    contact: phoneNumberSchema,
-  });
+  const personalDetails = useAppSelector(selectExtra) as IDoctor;
 
   const {
     register,
@@ -83,15 +62,11 @@ const PersonalInfo = (): JSX.Element => {
     resetImage,
   } = useImageUpload<DoctorPersonalInfo>({
     setValue,
-    defaultImageUrl: profilePicture,
+    defaultImageUrl: personalDetails.profilePicture,
   });
 
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const languages = watch('languages');
-  const userAwards = watch('awards');
-  const specialization = watch('specializations');
-  const userBio = watch('bio');
 
   async function onSubmit(doctorPersonalInfo: DoctorPersonalInfo): Promise<void> {
     setIsLoading(true);
@@ -101,6 +76,10 @@ const PersonalInfo = (): JSX.Element => {
     }
     setIsLoading(false);
   }
+
+  const handleMultiInputChange = (key: keyof DoctorPersonalInfo, value: string[]): void =>
+    setValue(key, value, { shouldTouch: true, shouldValidate: true });
+
   return (
     <>
       <section>
@@ -199,53 +178,32 @@ const PersonalInfo = (): JSX.Element => {
           <div className="w-full max-w-[384px]">
             <MultiInputField
               ref={register('awards').ref}
-              handleValueChange={(value) => {
-                setValue('awards', value, { shouldTouch: true, shouldValidate: true });
-              }}
+              handleValueChange={(value) => handleMultiInputChange('awards', value)}
               error={errors.awards?.message || ''}
               label="Awards"
               placeholder="Best Doctor"
-              onBlur={() => {
-                if (!userAwards) {
-                  setValue('awards', [], { shouldTouch: true, shouldValidate: true });
-                }
-              }}
-              defaultValues={userAwards}
+              defaultValues={watch('awards')}
             />
           </div>
           <div className="w-full max-w-[384px]">
             <MultiInputField
               ref={register('specializations').ref}
-              handleValueChange={(value) => {
-                setValue('specializations', value, { shouldTouch: true, shouldValidate: true });
-              }}
+              handleValueChange={(value) => handleMultiInputChange('specializations', value)}
               error={errors.specializations?.message || ''}
               label="Specialization"
               placeholder="Ophthalmology"
-              onBlur={() => {
-                if (!specialization) {
-                  setValue('specializations', [], { shouldTouch: true, shouldValidate: true });
-                }
-              }}
-              defaultValues={specialization}
+              defaultValues={watch('specializations')}
             />
           </div>
         </div>
         <div className="mt-2 w-full max-w-[384px]">
           <MultiInputField
             ref={register('languages').ref}
-            handleValueChange={(value) => {
-              setValue('languages', value, { shouldTouch: true, shouldValidate: true });
-            }}
+            handleValueChange={(value) => handleMultiInputChange('languages', value)}
             error={errors.languages?.message || ''}
             label="Languages"
             placeholder="English"
-            onBlur={() => {
-              if (!languages) {
-                setValue('languages', [], { shouldTouch: true, shouldValidate: true });
-              }
-            }}
-            defaultValues={languages}
+            defaultValues={watch('languages')}
           />
         </div>
         <div className="mt-8 max-w-[384px] items-baseline">
@@ -254,14 +212,6 @@ const PersonalInfo = (): JSX.Element => {
             className="w-full resize-none bg-transparent"
             error={errors.bio?.message || ''}
             {...register('bio')}
-            onChange={(event) => {
-              setValue('bio', event.target.value, { shouldTouch: true, shouldValidate: true });
-            }}
-            onBlur={() => {
-              if (!userBio) {
-                setValue('bio', '', { shouldTouch: true, shouldValidate: true });
-              }
-            }}
           />
         </div>
         <Button

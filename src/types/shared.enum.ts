@@ -24,6 +24,13 @@ export enum AcceptDeclineStatus {
   Deactivated = 'deactivated',
 }
 
+export enum AppointmentStatus {
+  Completed = 'completed',
+  Accepted = 'accepted',
+  Declined = 'declined',
+  Pending = 'pending',
+}
+
 export enum Role {
   Admin = 'admin',
   SuperAdmin = 'superadmin',
@@ -34,18 +41,6 @@ export enum Role {
 export enum CalendarType {
   Week = 'week',
   Month = 'month',
-}
-
-export enum VisitType {
-  Virtual = 'virtual',
-  Visit = 'visit',
-}
-
-export enum AppointmentStatus {
-  Completed = 'completed',
-  Accepted = 'accepted',
-  Declined = 'declined',
-  Pending = 'pending',
 }
 
 export enum ToastStatus {

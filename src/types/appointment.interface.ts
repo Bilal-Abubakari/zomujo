@@ -1,4 +1,4 @@
-import { AppointmentStatus, VisitType } from './shared.enum';
+import { AppointmentStatus } from './shared.enum';
 import { Dispatch, SetStateAction } from 'react';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
 
@@ -16,6 +16,17 @@ export interface IAppointmentRequest extends ISlotBase {
   notes: string;
   status: AppointmentStatus;
   option?: 'Accept' | 'Decline';
+  slot?: {
+    startTime: string;
+    endTime: string;
+    date: string;
+    type: AppointmentType;
+  };
+}
+
+export enum AppointmentType {
+  Virtual = 'virtual',
+  Visit = 'visit',
 }
 
 export type ModalProps = Pick<IAppointmentRequest, 'patient' | 'option'> & {
@@ -39,7 +50,7 @@ export type IWeekDays = (typeof weekDays)[number];
 interface ISlotBase {
   startTime: string;
   endTime: string;
-  type: VisitType;
+  type: AppointmentType;
 }
 
 export enum SlotStatus {

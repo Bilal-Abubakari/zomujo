@@ -6,14 +6,14 @@ export enum Tab {
   Hospitals = 'hospitals',
 }
 
-export enum AppointmentType {
+export enum MedicalAppointmentType {
   Doctor = 'doctor',
   Hospital = 'hospital',
 }
 
 interface IQuery {
   tab: Tab;
-  appointmentType: AppointmentType;
+  appointmentType: MedicalAppointmentType;
 }
 
 type QueryParamKey = keyof IQuery;

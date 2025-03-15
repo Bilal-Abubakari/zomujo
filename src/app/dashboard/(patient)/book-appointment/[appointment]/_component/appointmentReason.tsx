@@ -5,6 +5,7 @@ import { Calendar } from 'lucide-react';
 import React, { JSX } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { AvailabilityProps } from '@/types/booking.interface';
+import { AppointmentType } from '@/types/appointment.interface';
 
 const AppointmentReason = ({
   register,
@@ -15,8 +16,8 @@ const AppointmentReason = ({
   watch,
 }: AvailabilityProps): JSX.Element => {
   const appointmentOptions = [
-    { label: 'Visit', value: 'visit' },
-    { label: 'Virtual', value: 'virtual' },
+    { label: 'Visit', value: AppointmentType.Visit },
+    { label: 'Virtual', value: AppointmentType.Virtual },
   ];
 
   return (

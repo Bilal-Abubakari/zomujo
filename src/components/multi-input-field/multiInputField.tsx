@@ -37,8 +37,9 @@ const MultiInputField = ({
   };
 
   const handleRemoveValue = (index: number): void => {
-    setValues(values.filter((_, i) => i !== index));
-    handleValueChange([...values, inputValue.trim()]);
+    const filtereValues = values.filter((_, i) => i !== index);
+    setValues(filtereValues);
+    handleValueChange(filtereValues);
   };
 
   return (
