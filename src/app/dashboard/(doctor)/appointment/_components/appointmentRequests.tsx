@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import moment from 'moment';
 import React, { FormEvent, JSX, useEffect, useState } from 'react';
+import { StatusBadge } from '@/components/ui/statusBadge';
 
 type RequestColumnsProps = {
   id: string;
@@ -75,10 +76,6 @@ const AppointmentRequests = (): JSX.Element => {
   ];
   const columns: ColumnDef<RequestColumnsProps>[] = [
     {
-      accessorKey: 'id',
-      header: 'ID',
-    },
-    {
       accessorKey: 'patient',
       header: () => <div className="flex cursor-pointer whitespace-nowrap">Patient Name</div>,
       cell: ({ row: { original } }): JSX.Element => {
@@ -120,25 +117,17 @@ const AppointmentRequests = (): JSX.Element => {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }): JSX.Element => {
-        switch (row.getValue('status')) {
-          case AcceptDeclineStatus.Accepted:
-            return <Badge variant="default">Accepted</Badge>;
-          case ApproveDeclineStatus.Declined:
-            return <Badge variant="destructive">Declined</Badge>;
-          default:
-            return <Badge variant="brown">Pending</Badge>;
-        }
-      },
+      cell: ({ row: { original } }): JSX.Element => (
+        <StatusBadge status={original.status} approvedTitle="Accepted" />
+      ),
     },
     {
       id: 'actions',
       header: 'Action',
       cell: ({ row: { original } }): JSX.Element => {
         const { status, firstName, lastName, id } = original;
-        const canApprove = status === AppointmentStatus.Pending;
-        const canReschedule = status === AppointmentStatus.Pending;
-        return canApprove ? (
+        const isPending = status === AppointmentStatus.Pending;
+        return isPending ? (
           <ActionsDropdownMenus
             menuContent={[
               {
@@ -147,7 +136,6 @@ const AppointmentRequests = (): JSX.Element => {
                     <Signature /> Approve
                   </>
                 ),
-                visible: canApprove,
                 clickCommand: () =>
                   handleConfirmationOpen(
                     'Accept',
@@ -162,7 +150,6 @@ const AppointmentRequests = (): JSX.Element => {
                     <RotateCcw /> Reschedule
                   </>
                 ),
-                visible: canReschedule,
                 clickCommand: () =>
                   handleConfirmationOpen(
                     'Reschedule',

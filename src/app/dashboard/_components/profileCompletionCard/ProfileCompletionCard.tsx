@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import React, { JSX, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
+/**
+ * Fields not need for the calculation of progress
+ */
+const EXCLUDED_FIELDS_NUMBER = 6;
 const ProfileCompletionCard = (): JSX.Element => {
   const router = useRouter();
   const extra = useSelector(selectExtra);
@@ -13,7 +17,7 @@ const ProfileCompletionCard = (): JSX.Element => {
   useEffect(() => {
     if (extra) {
       const values = Object.values(extra);
-      const total = values.length - 6;
+      const total = values.length - EXCLUDED_FIELDS_NUMBER;
       const userProvidedFields = values.filter(
         (value) => Boolean(value) && (!Array.isArray(value) || value.length > 0),
       );

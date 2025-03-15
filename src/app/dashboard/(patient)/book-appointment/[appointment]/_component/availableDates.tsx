@@ -56,6 +56,17 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
     void slotsAvailable();
   }, [date]);
 
+  const handleSlotSelection = (startTime: string, id: string): void => {
+    setValue('time', startTime, {
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue('slotId', id, {
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
   return (
     <div className="rounded-md border p-8">
       <div>
@@ -90,29 +101,8 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
                   'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
                   selectedTime === startTime && 'border-primary text-primary',
                 )}
-                onKeyDown={() => {
-                  setValue('slotId', id);
-                  setValue('time', startTime, {
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  });
-                  setValue('slotId', id, {
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  });
-                }}
-                onClick={() => {
-                  setValue('slotId', id);
-                  setValue('time', startTime, {
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  });
-
-                  setValue('slotId', id, {
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  });
-                }}
+                onKeyDown={() => handleSlotSelection(startTime, id)}
+                onClick={() => handleSlotSelection(startTime, id)}
               >
                 {startTime}
               </div>
