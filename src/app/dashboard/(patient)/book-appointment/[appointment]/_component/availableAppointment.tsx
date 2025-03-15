@@ -58,7 +58,7 @@ const AvailableAppointment = (): JSX.Element => {
     resolver: zodResolver(BookingSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
-      appointmentType: AppointmentType.virtual,
+      appointmentType: AppointmentType.Virtual,
       date: dateToday.toISOString(),
     },
   });
