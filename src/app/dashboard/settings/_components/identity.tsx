@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { fileSchema } from '@/schemas/zod.schemas';
 import { IDoctorIdentification } from '@/types/auth.interface';
 import { IDoctor } from '@/types/doctor.interface';
-import { AcceptDeclineStatus } from '@/types/shared.enum';
+import { AcceptDeclineStatus, ToastStatus } from '@/types/shared.enum';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { JSX, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -20,8 +20,8 @@ const Identity = (): JSX.Element => {
   const { IDs, status } = useAppSelector(selectExtra) as IDoctor;
 
   const identificationSchema = z.object({
-    front: fileSchema,
-    back: fileSchema,
+    front: z.union([fileSchema, z.string()]),
+    back: z.union([fileSchema, z.string()]),
   });
   const { register, setValue, watch, handleSubmit, getValues } = useForm<IDoctorIdentification>({
     resolver: zodResolver(identificationSchema),
@@ -30,6 +30,19 @@ const Identity = (): JSX.Element => {
 
   async function onSubmit(): Promise<void> {
     setIsLoading(true);
+    const values = getValues();
+    for (const key in values) {
+      if (typeof values[key as keyof IDoctorIdentification] === 'string') {
+        toast({
+          title: ToastStatus.Info,
+          description: 'You have to upload both back and front images to proceed',
+          variant: 'default',
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
     const { payload } = await dispatch(uploadDoctorId(getValues()));
     toast(payload as Toast);
     setIsLoading(false);

@@ -75,7 +75,7 @@ export const countAllDoctors = createAsyncThunk(
 );
 
 export const uploadDoctorId = createAsyncThunk(
-  'settings/uploadDoctorsId',
+  'settings/uploadDoctorId',
   async (doctorIdentification: IDoctorIdentification): Promise<Toast> => {
     try {
       const {
