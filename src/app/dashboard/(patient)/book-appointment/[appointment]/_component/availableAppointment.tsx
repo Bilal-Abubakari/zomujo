@@ -22,9 +22,10 @@ import { toast } from '@/hooks/use-toast';
 import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
 import { ICheckout } from '@/types/payment.interface';
 import { IHospital } from '@/types/hospital.interface';
-import { AppointmentType, useQueryParam } from '@/hooks/useQueryParam';
+import { MedicalAppointmentType, useQueryParam } from '@/hooks/useQueryParam';
 import { getHospital } from '@/lib/features/hospitals/hospitalThunk';
 import Image from 'next/image';
+import { AppointmentType } from '@/types/appointment.interface';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -57,7 +58,7 @@ const AvailableAppointment = (): JSX.Element => {
     resolver: zodResolver(BookingSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
-      appointmentType: 'virtual',
+      appointmentType: AppointmentType.virtual,
       date: dateToday.toISOString(),
     },
   });
@@ -93,7 +94,7 @@ const AvailableAppointment = (): JSX.Element => {
     }
     async function getInfo(): Promise<void> {
       let payload: unknown;
-      if (appointmentType === AppointmentType.Doctor) {
+      if (appointmentType === MedicalAppointmentType.Doctor) {
         const { payload: doctorResponse } = await dispatch(doctorInfo(id));
         payload = doctorResponse;
       } else {

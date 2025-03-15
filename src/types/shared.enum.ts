@@ -36,11 +36,6 @@ export enum CalendarType {
   Month = 'month',
 }
 
-export enum VisitType {
-  Virtual = 'virtual',
-  Visit = 'visit',
-}
-
 export enum AppointmentStatus {
   Completed = 'completed',
   Accepted = 'accepted',

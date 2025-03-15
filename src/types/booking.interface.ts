@@ -12,8 +12,6 @@ export interface IBookingForm extends IInitializeAppointment {
   date: string;
   time: string;
   appointmentType: string;
-  additionalInfo: string;
-  slotId: string;
 }
 
 export type AvailabilityProps = {

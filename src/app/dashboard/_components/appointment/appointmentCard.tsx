@@ -9,14 +9,15 @@ import { cn } from '@/lib/utils';
 import { House, Video } from 'lucide-react';
 import React, { JSX } from 'react';
 import moment from 'moment';
-import { AppointmentStatus, VisitType } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/shared.enum';
+import { AppointmentType } from '@/types/appointment.interface';
 
 export type IAppointmentCardProps = {
   id: string;
   className?: string;
   startDate: Date;
   endDate: Date;
-  visitType: VisitType;
+  visitType: AppointmentType;
   status: AppointmentStatus;
   patient?: {
     firstName: string;
@@ -60,12 +61,14 @@ const AppointmentCard = ({
     >
       <div className="flex flex-row items-start justify-between">
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-bold">{visitType === VisitType.Visit ? 'Visit' : 'Virtual'}</p>
+          <p className="text-sm font-bold">
+            {visitType === AppointmentType.Visit ? 'Visit' : 'Virtual'}
+          </p>
           <p className="text-xs font-medium text-gray-500">
             {moment(startDate).format('LT')} - {moment(endDate).format('LT')}
           </p>
         </div>
-        {visitType === VisitType.Virtual ? <Video /> : <House className="h-4 w-4" />}
+        {visitType === AppointmentType.Virtual ? <Video /> : <House className="h-4 w-4" />}
       </div>
       {patient && (
         <div className={cn('flex flex-row items-center gap-2', height < 101 && 'hidden')}>

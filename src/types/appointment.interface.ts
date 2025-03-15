@@ -1,4 +1,4 @@
-import { AppointmentStatus, VisitType } from './shared.enum';
+import { AppointmentStatus } from './shared.enum';
 import { Dispatch, SetStateAction } from 'react';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
 
@@ -50,7 +50,7 @@ export type IWeekDays = (typeof weekDays)[number];
 interface ISlotBase {
   startTime: string;
   endTime: string;
-  type: VisitType;
+  type: AppointmentType;
 }
 
 export enum SlotStatus {

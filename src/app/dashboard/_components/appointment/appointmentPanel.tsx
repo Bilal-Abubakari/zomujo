@@ -4,12 +4,13 @@ import DateSelector from './dateSelector';
 import AppointmentCalendar from './appointmentCalendar';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
-import { AppointmentStatus, VisitType } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/shared.enum';
 import { cn } from '@/lib/utils';
 import { IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { getAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { AppointmentType } from '@/types/appointment.interface';
 
 type AppointmentProps = {
   customClass?: string;
@@ -82,14 +83,14 @@ const AppointmentPanel = ({ customClass = '' }: AppointmentProps): JSX.Element =
             id: '1',
             startDate: startDate,
             endDate: endDate,
-            visitType: VisitType.Virtual,
+            visitType: AppointmentType.Virtual,
             status: AppointmentStatus.Pending,
           },
           {
             id: '2',
             startDate: startDate1,
             endDate: endDate1,
-            visitType: VisitType.Visit,
+            visitType: AppointmentType.Visit,
             status: AppointmentStatus.Declined,
           },
         ]}

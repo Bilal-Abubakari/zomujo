@@ -10,7 +10,7 @@ import { AvailabilityProps } from '@/types/booking.interface';
 import { extractGMTTime } from '@/lib/date';
 import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
-import { AppointmentType, useQueryParam } from '@/hooks/useQueryParam';
+import { MedicalAppointmentType, useQueryParam } from '@/hooks/useQueryParam';
 import { ISlot, SlotStatus } from '@/types/appointment.interface';
 
 const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps): JSX.Element => {
@@ -32,8 +32,8 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         getAppointmentSlots({
           startDate: new Date(date),
           endDate: new Date(date),
-          doctorId: appointmentType === AppointmentType.Doctor ? id : '',
-          orgId: appointmentType === AppointmentType.Hospital ? id : '',
+          doctorId: appointmentType === MedicalAppointmentType.Doctor ? id : '',
+          orgId: appointmentType === MedicalAppointmentType.Hospital ? id : '',
           pageSize: 35,
           page: 1,
           status: SlotStatus.Available,

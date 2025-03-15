@@ -20,7 +20,7 @@ import { IHospital } from '@/types/hospital.interface';
 import { METERS_TO_KM_FACTOR } from '@/constants/constants';
 import { openExternalUrls } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { AppointmentType } from '@/hooks/useQueryParam';
+import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 
 const HospitalPreview = (hospital: IHospital): JSX.Element => {
   const {
@@ -139,7 +139,7 @@ const HospitalPreview = (hospital: IHospital): JSX.Element => {
           <Button
             onClick={() => {
               router.push(
-                `/dashboard/book-appointment/${id}?appointmentType=${AppointmentType.Hospital}`,
+                `/dashboard/book-appointment/${id}?appointmentType=${MedicalAppointmentType.Hospital}`,
               );
             }}
             child={
