@@ -3,7 +3,7 @@ import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { Toast } from '@/hooks/use-toast';
 import {
-  IAppointmentRequest,
+  IAppointment,
   IPatternException,
   ISlot,
   ISlotPattern,
@@ -87,13 +87,13 @@ export const createPatternException = createAsyncThunk(
   },
 );
 
-export const getAppointment = createAsyncThunk(
+export const getAppointments = createAsyncThunk(
   'appointments/getAppointments',
   async (
     queryParams: IQueryParams<AppointmentStatus | ''>,
-  ): Promise<Toast | IPagination<IAppointmentRequest>> => {
+  ): Promise<Toast | IPagination<IAppointment>> => {
     try {
-      const { data } = await axios.get<IResponse<IPagination<IAppointmentRequest>>>(
+      const { data } = await axios.get<IResponse<IPagination<IAppointment>>>(
         `appointments?${getValidQueryString(queryParams)}&orderDirection=asc`,
       );
       return data.data;

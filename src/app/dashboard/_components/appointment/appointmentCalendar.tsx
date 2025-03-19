@@ -1,19 +1,20 @@
 import React, { JSX, useEffect, useRef } from 'react';
-import AppointmentCard, { IAppointmentCardProps } from './appointmentCard';
+import AppointmentCard from './appointmentCard';
 import { cn } from '@/lib/utils';
 import { DAYS_IN_WEEK, DAYS_OF_WEEK, TWELVE_HOUR_SYSTEM } from '@/constants/constants';
 import TimeIndicator from './timeIndicator';
 import { AnimatePresence } from 'framer-motion';
+import { IAppointment } from '@/types/appointment.interface';
 
 interface AppointmentCalendarProps {
   className?: string;
-  slots: IAppointmentCardProps[];
+  appointments: IAppointment[];
   selectedDate: Date;
 }
 
 const AppointmentCalendar = ({
   className,
-  slots = [],
+  appointments,
   selectedDate,
 }: AppointmentCalendarProps): JSX.Element => {
   const selectedDay = (selectedDate.getDay() + 6) % DAYS_IN_WEEK;
@@ -47,16 +48,8 @@ const AppointmentCalendar = ({
       )}
     >
       <AnimatePresence>
-        {slots.map((slot) => (
-          <AppointmentCard
-            key={slot.id}
-            id={slot.id}
-            startDate={new Date(slot.startDate)}
-            endDate={new Date(slot.endDate)}
-            visitType={slot.visitType}
-            status={slot.status}
-            patient={slot.patient}
-          />
+        {appointments.map((appointment) => (
+          <AppointmentCard key={appointment.id} appointment={appointment} />
         ))}
       </AnimatePresence>
 

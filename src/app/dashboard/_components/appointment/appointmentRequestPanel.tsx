@@ -1,67 +1,58 @@
 'use client';
-import React, { JSX, useMemo, useState } from 'react';
+import React, { JSX, useEffect, useMemo, useState } from 'react';
 import AppointmentRequestCard from './appointmentRequestCard';
 import { Badge } from '@/components/ui/badge';
 import { Confirmation } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { AppointmentType, ModalProps } from '@/types/appointment.interface';
+import { IAppointment } from '@/types/appointment.interface';
 import { AppointmentStatus } from '@/types/shared.enum';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
+import { selectUser } from '@/lib/features/auth/authSelector';
+import { IPagination } from '@/types/shared.interface';
 
 const AppointmentRequestPanel = (): JSX.Element => {
+  const [requests, setRequests] = useState<IAppointment[]>([]);
   const [openModal, setOpenModal] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState<ModalProps | undefined>();
+  const [selectedRequest, setSelectedRequest] = useState<{
+    action: 'accept' | 'decline';
+    request: IAppointment;
+  }>();
+  const dispatch = useAppDispatch();
+  const { id } = useAppSelector(selectUser)!;
+
+  useEffect(() => {
+    const getAppointmentRequests = async (): Promise<void> => {
+      const { payload } = await dispatch(
+        getAppointments({
+          status: AppointmentStatus.Pending,
+          doctorId: id,
+          page: 1,
+          pageSize: 20,
+        }),
+      );
+
+      if (payload) {
+        setRequests((payload as IPagination<IAppointment>).rows);
+      }
+    };
+    void getAppointmentRequests();
+  }, []);
 
   const suggestSmallScreen = useMemo(
     () => (
       <Carousel>
         <CarouselContent className="m-auto">
-          <CarouselItem>
-            <AppointmentRequestCard
-              request={{
-                id: 1,
-                date: '2025-01-2',
-                startTime: '10:00 AM',
-                endTime: '12:00 PM',
-                slotId: '12345',
-                type: AppointmentType.Virtual,
-                patient: {
-                  id: 'P001',
-                  firstName: 'John',
-                  lastName: 'Doe',
-                  profilePicture: null,
-                },
-                reason: 'Blood pressure',
-                notes: 'Patient is on medication for hypertension.',
-                status: AppointmentStatus.Declined,
-              }}
-              setShowModal={setOpenModal}
-              setSelectedPatient={setSelectedPatient}
-            />
-          </CarouselItem>
-          <CarouselItem>
-            <AppointmentRequestCard
-              request={{
-                id: 1,
-                date: '2025-01-2',
-                startTime: '10:00 AM',
-                endTime: '12:00 PM',
-                slotId: '12345',
-                type: AppointmentType.Virtual,
-                patient: {
-                  id: 'P001',
-                  firstName: 'John',
-                  lastName: 'Doe',
-                  profilePicture: null,
-                },
-                reason: 'Blood pressure',
-                notes: 'Patient is on medication for hypertension.',
-                status: AppointmentStatus.Declined,
-              }}
-              setShowModal={setOpenModal}
-              setSelectedPatient={setSelectedPatient}
-            />
-          </CarouselItem>
+          {requests.map((request) => (
+            <CarouselItem key={request.id}>
+              <AppointmentRequestCard
+                request={request}
+                approveRequest={() => setSelectedRequest({ action: 'accept', request })}
+                rejectRequest={() => setSelectedRequest({ action: 'decline', request })}
+              />
+            </CarouselItem>
+          ))}
         </CarouselContent>
       </Carousel>
     ),
@@ -77,13 +68,14 @@ const AppointmentRequestPanel = (): JSX.Element => {
             <span
               className={cn(
                 'px-1',
-                selectedPatient?.option == 'Accept' ? 'text-primary' : 'text-error-400',
+                selectedRequest?.action == 'accept' ? 'text-primary' : 'text-error-400',
               )}
             >
-              {selectedPatient?.option}
+              {selectedRequest?.action}
             </span>
             <span className={'pr-1 font-semibold'}>
-              {selectedPatient?.patient.firstName} {selectedPatient?.patient.lastName}
+              {selectedRequest?.request.patient.firstName}{' '}
+              {selectedRequest?.request.patient.lastName}
             </span>
             request?
           </>
@@ -98,69 +90,14 @@ const AppointmentRequestPanel = (): JSX.Element => {
         </div>
         <hr className="mx-6 mt-6 border border-gray-200" />
         <div className="hidden md:block">
-          <AppointmentRequestCard
-            request={{
-              id: 1,
-              date: '2025-01-2',
-              startTime: '10:00 AM',
-              endTime: '12:00 PM',
-              slotId: '12345',
-              type: AppointmentType.Virtual,
-              patient: {
-                id: 'P001',
-                firstName: 'John',
-                lastName: 'Doe',
-                profilePicture: null,
-              },
-              reason: 'Blood pressure',
-              notes: 'Patient is on medication for hypertension.',
-              status: AppointmentStatus.Declined,
-            }}
-            setShowModal={setOpenModal}
-            setSelectedPatient={setSelectedPatient}
-          />
-          <AppointmentRequestCard
-            request={{
-              id: 2,
-              date: '2025-01-10',
-              startTime: '12:00 pM',
-              endTime: '2:00 PM',
-              slotId: '12345',
-              type: AppointmentType.Virtual,
-              patient: {
-                id: 'P001',
-                firstName: 'killer',
-                lastName: 'lapopo',
-                profilePicture: null,
-              },
-              reason: 'Cold',
-              notes: 'Patient is on medication for hypertension.',
-              status: AppointmentStatus.Declined,
-            }}
-            setShowModal={setOpenModal}
-            setSelectedPatient={setSelectedPatient}
-          />
-          <AppointmentRequestCard
-            request={{
-              id: 3,
-              date: '2025-01-20',
-              startTime: '12:00 pM',
-              endTime: '2:00 PM',
-              slotId: '12345',
-              type: AppointmentType.Virtual,
-              patient: {
-                id: 'P001',
-                firstName: 'killer',
-                lastName: 'lapopo',
-                profilePicture: null,
-              },
-              reason: 'Cold',
-              notes: 'Patient is on medication for hypertension.',
-              status: AppointmentStatus.Declined,
-            }}
-            setShowModal={setOpenModal}
-            setSelectedPatient={setSelectedPatient}
-          />
+          {requests.map((request) => (
+            <AppointmentRequestCard
+              key={request.id}
+              request={request}
+              approveRequest={() => setSelectedRequest({ action: 'accept', request })}
+              rejectRequest={() => setSelectedRequest({ action: 'decline', request })}
+            />
+          ))}
         </div>
         <div className="mx-2 md:hidden">{suggestSmallScreen}</div>
       </div>
