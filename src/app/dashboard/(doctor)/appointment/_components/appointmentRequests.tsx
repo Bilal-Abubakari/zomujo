@@ -8,15 +8,16 @@ import { PaginationData, TableData } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { useSearch } from '@/hooks/useSearch';
-import { acceptAppointment, getAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { acceptAppointment, getAppointments } from '@/lib/features/appointments/appointmentsThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { showErrorToast } from '@/lib/utils';
-import { AppointmentType, IAppointmentRequest } from '@/types/appointment.interface';
-import { AppointmentStatus } from '@/types/shared.enum';
+import { AppointmentType, IAppointment } from '@/types/appointment.interface';
+import { AppointmentStatus, Role } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ColumnDef } from '@tanstack/react-table';
 import {
+  Ban,
   House,
   ListFilter,
   Presentation,
@@ -29,27 +30,17 @@ import moment from 'moment';
 import React, { FormEvent, JSX, useEffect, useState } from 'react';
 import { StatusBadge } from '@/components/ui/statusBadge';
 
-type RequestColumnsProps = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  status: AppointmentStatus;
-  type: AppointmentType;
-  date: string;
-  time: string;
-  profilePicture: string | null;
-};
-
 const AppointmentRequests = (): JSX.Element => {
-  const user = useAppSelector(selectUser);
+  const { role, id } = useAppSelector(selectUser)!;
   const dispatch = useAppDispatch();
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AppointmentStatus | ''>>({
-    doctorId: user?.id,
+    doctorId: role === Role.Doctor ? id : undefined,
+    patientId: role === Role.Patient ? id : undefined,
     page: 1,
     search: '',
     status: '',
   });
-  const [requestData, setRequestData] = useState<RequestColumnsProps[]>([]);
+  const [requestData, setRequestData] = useState<IAppointment[]>([]);
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const [isTableLoading, setIsTableLoading] = useState(false);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
@@ -73,17 +64,18 @@ const AppointmentRequests = (): JSX.Element => {
       label: 'Pending',
     },
   ];
-  const columns: ColumnDef<RequestColumnsProps>[] = [
+  const columns: ColumnDef<IAppointment>[] = [
     {
       accessorKey: 'patient',
       header: () => <div className="flex cursor-pointer whitespace-nowrap">Patient Name</div>,
       cell: ({ row: { original } }): JSX.Element => {
-        const { firstName, lastName, profilePicture } = original;
+        const { doctor, patient } = original;
+        const isDoctor = role === Role.Doctor;
         return (
           <AvatarWithName
-            imageSrc={profilePicture ?? ''}
-            firstName={firstName}
-            lastName={lastName}
+            imageSrc={isDoctor ? patient.profilePicture : doctor.profilePicture}
+            firstName={isDoctor ? patient.firstName : doctor.firstName}
+            lastName={isDoctor ? patient.lastName : doctor.lastName}
           />
         );
       },
@@ -108,10 +100,12 @@ const AppointmentRequests = (): JSX.Element => {
     {
       accessorKey: 'date',
       header: 'Date',
+      cell: ({ row: { original } }): string => moment(original.slot.date).format('LL'),
     },
     {
       accessorKey: 'time',
-      header: () => <div className="flex cursor-pointer whitespace-nowrap">Time</div>,
+      header: 'Time',
+      cell: ({ row: { original } }): string => moment(original.slot.startTime).format('hh:mm A'),
     },
     {
       accessorKey: 'status',
@@ -124,9 +118,16 @@ const AppointmentRequests = (): JSX.Element => {
       id: 'actions',
       header: 'Action',
       cell: ({ row: { original } }): JSX.Element => {
-        const { status, firstName, lastName, id } = original;
+        const { status, patient, doctor, id } = original;
         const isPending = status === AppointmentStatus.Pending;
-        return isPending ? (
+        const isDone = status === AppointmentStatus.Completed;
+        const getName = (): string => {
+          if (role === Role.Patient) {
+            return `${doctor.firstName} ${doctor.lastName}`;
+          }
+          return `${patient.firstName} ${patient.lastName}`;
+        };
+        return (
           <ActionsDropdownMenus
             menuContent={[
               {
@@ -138,11 +139,29 @@ const AppointmentRequests = (): JSX.Element => {
                 clickCommand: () =>
                   handleConfirmationOpen(
                     'Accept',
-                    `accept ${firstName} ${lastName}'s appointment request`,
+                    `accept ${getName()}'s appointment request`,
                     id,
                     acceptAppointment,
                   ),
+                visible: role === Role.Doctor && isPending,
               },
+              {
+                //TODO: Finish up implementation as soon refund functionality implemented on the backend
+                title: (
+                  <>
+                    <Ban /> Cancel
+                  </>
+                ),
+                clickCommand: () =>
+                  handleConfirmationOpen(
+                    'Accept',
+                    `accept ${getName()}'s appointment request`,
+                    id,
+                    acceptAppointment,
+                  ),
+                visible: !isDone,
+              },
+              // TODO: Is a refund functionality feasible???
               {
                 title: (
                   <>
@@ -152,15 +171,13 @@ const AppointmentRequests = (): JSX.Element => {
                 clickCommand: () =>
                   handleConfirmationOpen(
                     'Reschedule',
-                    `reschedule ${firstName} ${lastName}'s request`,
+                    `reschedule ${getName()}'s request`,
                     id,
                     acceptAppointment,
                   ),
               },
             ]}
           />
-        ) : (
-          <div />
         );
       },
       enableHiding: false,
@@ -168,9 +185,9 @@ const AppointmentRequests = (): JSX.Element => {
   ];
 
   useEffect(() => {
-    async function getAppointments(): Promise<void> {
+    async function handleGetAppointments(): Promise<void> {
       setIsTableLoading(true);
-      const { payload } = await dispatch(getAppointment(queryParameters));
+      const { payload } = await dispatch(getAppointments(queryParameters));
       setIsTableLoading(false);
       if (payload && showErrorToast(payload)) {
         toast(payload);
@@ -178,25 +195,13 @@ const AppointmentRequests = (): JSX.Element => {
       }
 
       if (payload) {
-        const { rows, ...pagination } = payload as IPagination<IAppointmentRequest>;
-        const requestData = rows.map(
-          ({ id, patient: { firstName, lastName, profilePicture }, status, slot }) => ({
-            id: String(id),
-            firstName,
-            lastName,
-            status,
-            type: slot!.type,
-            time: moment(slot!.startTime).format('hh:mm A'),
-            date: moment(slot!.date).format('LL'),
-            profilePicture,
-          }),
-        );
+        const { rows, ...pagination } = payload as IPagination<IAppointment>;
         setPaginationData(pagination);
-        setRequestData(requestData);
+        setRequestData(rows);
       }
     }
 
-    void getAppointments();
+    void handleGetAppointments();
   }, [queryParameters]);
 
   const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =

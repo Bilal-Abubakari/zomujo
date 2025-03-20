@@ -37,6 +37,7 @@ export interface IQueryParams<T = undefined> {
   rateMax?: string;
   booking?: boolean;
   doctorId?: string;
+  patientId?: string;
 }
 
 export interface IAction<T = undefined> {

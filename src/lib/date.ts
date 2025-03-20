@@ -1,6 +1,6 @@
 export const getCurrentYear = (): number => new Date().getFullYear();
 
-interface WeekdayObject {
+interface IWeekday {
   day: number;
   weekday: string;
 }
@@ -12,20 +12,20 @@ interface WeekdayObject {
  * @param today - The date to use as the reference point for the current week. Defaults to the current date.
  * @returns An array of objects representing the weekdays of the current week (Monday to Friday).
  */
-export function getWeekdaysOfCurrentWeek(today = new Date()): WeekdayObject[] {
+export function getWeekdaysOfCurrentWeek(today = new Date()): IWeekday[] {
   const currentDay = today.getDate();
   const currentWeekday = today.getDay(); // Sunday is 0, Monday is 1, ..., Saturday is 6
 
   const monday = new Date(today);
   monday.setDate(currentDay - currentWeekday + (currentWeekday === 0 ? -6 : 1)); // Adjust for Sunday
-  const weekdays: WeekdayObject[] = [];
+  const weekdays: IWeekday[] = [];
 
   for (let i = 0; i < 5; i++) {
     // Monday to Friday
     const currentDate = new Date(monday);
     currentDate.setDate(monday.getDate() + i);
 
-    const weekdayObject: WeekdayObject = {
+    const weekdayObject: IWeekday = {
       day: currentDate.getDate(),
       weekday: getWeekdayString(currentDate.getDay()),
     };

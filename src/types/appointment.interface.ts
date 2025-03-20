@@ -1,37 +1,20 @@
 import { AppointmentStatus } from './shared.enum';
-import { Dispatch, SetStateAction } from 'react';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
+import { IDoctor } from '@/types/doctor.interface';
+import { IPatient } from '@/types/patient.interface';
 
-export interface IAppointmentRequest extends ISlotBase {
-  id: number;
-  date: string;
-  slotId: string;
-  patient: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    profilePicture: string | null;
-  };
-  reason: string;
-  notes: string;
+export interface IAppointment extends ISlotBase {
+  id: string;
+  patient: IPatient;
+  doctor: IDoctor;
+  slot: ISlot;
   status: AppointmentStatus;
-  option?: 'Accept' | 'Decline';
-  slot?: {
-    startTime: string;
-    endTime: string;
-    date: string;
-    type: AppointmentType;
-  };
 }
 
 export enum AppointmentType {
   Virtual = 'virtual',
   Visit = 'visit',
 }
-
-export type ModalProps = Pick<IAppointmentRequest, 'patient' | 'option'> & {
-  setModal?: Dispatch<SetStateAction<boolean>>;
-};
 
 export interface IRule {
   freq?: IFrequency;

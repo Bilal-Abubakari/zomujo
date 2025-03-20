@@ -4,16 +4,15 @@ import DateSelector from './dateSelector';
 import AppointmentCalendar from './appointmentCalendar';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
-import { AppointmentStatus } from '@/types/shared.enum';
+import { AppointmentStatus, Role } from '@/types/shared.enum';
 import { cn, showErrorToast } from '@/lib/utils';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
-import { IAppointmentRequest } from '@/types/appointment.interface';
+import { IAppointment } from '@/types/appointment.interface';
 import { toast } from '@/hooks/use-toast';
-import { mergeDateAndTime } from '@/lib/date';
-import { IAppointmentCardProps } from './appointmentCard';
-import { getAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
+import { Loader2 } from 'lucide-react';
 
 type AppointmentProps = {
   customClass?: string;
@@ -24,6 +23,7 @@ type StatusProps = {
 };
 
 const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
+  const [loading, setLoading] = useState(false);
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
 
@@ -33,37 +33,27 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [now, setNow] = useState(moment());
   const [queryParams, setQueryParams] = useState<IQueryParams<''>>({
-    doctorId: user?.id,
+    doctorId: user?.role === Role.Doctor ? user?.id : undefined,
+    patientId: user?.role === Role.Patient ? user?.id : undefined,
     startDate: startOfWeek.toDate(),
     endDate: endOfWeek.toDate(),
   });
-  const [upcomingAppointment, setUpcomingAppointment] = useState<IAppointmentCardProps[]>([]);
+  const [upcomingAppointment, setUpcomingAppointment] = useState<IAppointment[]>([]);
 
   useEffect(() => {
     async function getUpcomingAppointments(): Promise<void> {
-      const { payload } = await dispatch(getAppointment(queryParams));
+      setLoading(true);
+      const { payload } = await dispatch(getAppointments(queryParams));
+      setLoading(false);
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
         return;
       }
 
-      const { rows } = payload as IPagination<IAppointmentRequest>;
-      const upcomingAppointments = rows.map(
-        ({ id, slot, status, patient: { firstName, lastName } }) => ({
-          id: String(id),
-          visitType: slot!.type,
-          startDate: mergeDateAndTime(slot!.date, slot!.startTime),
-          endDate: mergeDateAndTime(slot!.date, slot!.endTime),
-          status,
-          patient: {
-            firstName,
-            lastName,
-          },
-        }),
-      );
+      const { rows } = payload as IPagination<IAppointment>;
 
-      setUpcomingAppointment(upcomingAppointments);
+      setUpcomingAppointment(rows);
     }
 
     void getUpcomingAppointments();
@@ -97,16 +87,26 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   return (
     <div
       className={cn(
-        'w-[calc(100vw - 48px)] flex flex-col overflow-clip rounded-2xl border border-gray-200 bg-white md:w-[calc(100vw-286px-60px)] lg:w-[calc(100vw-316px-264px-48px-16px-16px)]',
+        'w-[calc(100vw - 48px)] relative flex flex-col overflow-clip rounded-2xl border border-gray-200 bg-white md:w-[calc(100vw-286px-60px)] lg:w-[calc(100vw-316px-264px-48px-16px-16px)]',
         customClass,
       )}
     >
+      {loading && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/75">
+          <div className="loader">Loading...</div>
+          <div>
+            <Loader2 className="animate-spin" />
+          </div>
+        </div>
+      )}
       <div className="relative flex flex-col gap-8 border-b border-gray-200 p-6">
         <div className="flex flex-row items-center gap-2.5">
           <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>
-          <Badge variant={'brown'}>
-            {upcomingAppointment.length} <span className="ml-1 hidden sm:block">patients</span>
-          </Badge>
+          {user?.role === Role.Doctor && (
+            <Badge variant={'brown'}>
+              {upcomingAppointment.length} <span className="ml-1 hidden sm:block">patients</span>
+            </Badge>
+          )}
         </div>
         <div className="flex flex-row items-center justify-between">
           <DateSelector
@@ -126,7 +126,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
       </div>
       <AppointmentCalendar
         className="h-[calc(100vh-356px)]"
-        slots={upcomingAppointment}
+        appointments={upcomingAppointment}
         selectedDate={selectedDate}
       />
     </div>

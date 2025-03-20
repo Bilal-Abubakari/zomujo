@@ -45,7 +45,7 @@ export const PATIENT_SIDE_BAR: ISidebar = {
         },
         {
           title: 'Appointments',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/appointment`,
           Icon: CalendarDays,
         },
         {
