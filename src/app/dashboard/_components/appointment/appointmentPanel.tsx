@@ -77,13 +77,6 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
     }
   }, [selectedDate]);
 
-  useEffect(() => {
-    setQueryParams((prev) => ({
-      ...prev,
-      startDate: selectedDate,
-    }));
-  }, [selectedDate]);
-
   return (
     <div
       className={cn(

@@ -88,7 +88,7 @@ const AppointmentCalendar = ({
             <div
               key={j}
               className={cn(
-                'relative z-5 h-[60px] shrink-0 border-b border-gray-200 bg-gray-50',
+                'relative z-5 h-[90px] shrink-0 border-b border-gray-200 bg-gray-50',
                 i === selectedDay && 'bg-primary-light',
               )}
             ></div>
