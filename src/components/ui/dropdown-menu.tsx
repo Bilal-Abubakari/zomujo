@@ -244,7 +244,7 @@ type ActionDropdownMenusProps = {
 };
 const ActionsDropdownMenus = ({ action, menuContent }: ActionDropdownMenusProps): JSX.Element => (
   <DropdownMenu>
-    <DropdownMenuTrigger asChild>
+    <DropdownMenuTrigger asChild className="absolute">
       {action ? (
         action
       ) : (
@@ -253,7 +253,7 @@ const ActionsDropdownMenus = ({ action, menuContent }: ActionDropdownMenusProps)
         </div>
       )}
     </DropdownMenuTrigger>
-    <DropdownMenuContent>
+    <DropdownMenuContent className="relative">
       {menuContent.map(
         ({ clickCommand, visible = true, title }, index) =>
           visible && (

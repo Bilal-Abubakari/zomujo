@@ -103,7 +103,7 @@ export const DOCTOR_SIDE_BAR: ISidebar = {
         },
         {
           title: 'Patients',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/patients`,
           Icon: User,
         },
         {
