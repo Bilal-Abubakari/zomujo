@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Confirmation } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { IAppointment } from '@/types/appointment.interface';
-import { AppointmentStatus } from '@/types/shared.enum';
+import { AppointmentStatus, OrderDirection } from '@/types/shared.enum';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
@@ -26,6 +26,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
     const getAppointmentRequests = async (): Promise<void> => {
       const { payload } = await dispatch(
         getAppointments({
+          orderDirection: OrderDirection.Ascending,
           status: AppointmentStatus.Pending,
           doctorId: id,
           page: 1,

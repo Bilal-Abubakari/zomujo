@@ -4,17 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps } from '@/components/ui/dialog';
 import { ActionsDropdownMenus, ISelected, OptionsMenu } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { PaginationData, TableData } from '@/components/ui/table';
-import { toast } from '@/hooks/use-toast';
+import { TableData } from '@/components/ui/table';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { useSearch } from '@/hooks/useSearch';
 import { acceptAppointment, getAppointments } from '@/lib/features/appointments/appointmentsThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { showErrorToast } from '@/lib/utils';
+import { useAppSelector } from '@/lib/hooks';
 import { AppointmentType, IAppointment } from '@/types/appointment.interface';
-import { AppointmentStatus, Role } from '@/types/shared.enum';
-import { IPagination, IQueryParams } from '@/types/shared.interface';
+import { AppointmentStatus, OrderDirection, Role } from '@/types/shared.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
@@ -27,28 +24,28 @@ import {
   Signature,
 } from 'lucide-react';
 import moment from 'moment';
-import React, { FormEvent, JSX, useEffect, useState } from 'react';
+import React, { FormEvent, JSX, useState } from 'react';
 import { StatusBadge } from '@/components/ui/statusBadge';
+import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 
 const AppointmentRequests = (): JSX.Element => {
   const { role, id } = useAppSelector(selectUser)!;
-  const dispatch = useAppDispatch();
-  const [queryParameters, setQueryParameters] = useState<IQueryParams<AppointmentStatus | ''>>({
-    doctorId: role === Role.Doctor ? id : undefined,
-    patientId: role === Role.Patient ? id : undefined,
-    page: 1,
-    search: '',
-    status: '',
-  });
-  const [requestData, setRequestData] = useState<IAppointment[]>([]);
-  const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
-  const [isTableLoading, setIsTableLoading] = useState(false);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
     description: '',
     open: false,
   });
+  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData, updatePage } =
+    useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
+      orderBy: 'createdAt',
+      orderDirection: OrderDirection.Descending,
+      doctorId: role === Role.Doctor ? id : undefined,
+      patientId: role === Role.Patient ? id : undefined,
+      page: 1,
+      search: '',
+      status: '',
+    });
 
   const statusFilterOptions: ISelected[] = [
     {
@@ -184,26 +181,6 @@ const AppointmentRequests = (): JSX.Element => {
     },
   ];
 
-  useEffect(() => {
-    async function handleGetAppointments(): Promise<void> {
-      setIsTableLoading(true);
-      const { payload } = await dispatch(getAppointments(queryParameters));
-      setIsTableLoading(false);
-      if (payload && showErrorToast(payload)) {
-        toast(payload);
-        return;
-      }
-
-      if (payload) {
-        const { rows, ...pagination } = payload as IPagination<IAppointment>;
-        setPaginationData(pagination);
-        setRequestData(rows);
-      }
-    }
-
-    void handleGetAppointments();
-  }, [queryParameters]);
-
   const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
     useDropdownAction({
       setConfirmation,
@@ -252,10 +229,11 @@ const AppointmentRequests = (): JSX.Element => {
       <div className="mt-5">
         <TableData
           columns={columns}
-          data={requestData}
+          page={queryParameters.page}
+          data={tableData}
           paginationData={paginationData}
-          columnVisibility={{ id: false }}
-          isLoading={isTableLoading}
+          userPaginationChange={({ pageIndex }) => updatePage(pageIndex)}
+          isLoading={isLoading}
         />
       </div>
       <Confirmation

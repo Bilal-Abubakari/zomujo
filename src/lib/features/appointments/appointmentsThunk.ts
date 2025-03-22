@@ -94,7 +94,7 @@ export const getAppointments = createAsyncThunk(
   ): Promise<Toast | IPagination<IAppointment>> => {
     try {
       const { data } = await axios.get<IResponse<IPagination<IAppointment>>>(
-        `appointments?${getValidQueryString(queryParams)}&orderDirection=asc`,
+        `appointments?${getValidQueryString(queryParams)}`,
       );
       return data.data;
     } catch (error) {
