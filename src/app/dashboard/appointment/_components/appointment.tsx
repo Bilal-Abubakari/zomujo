@@ -42,14 +42,14 @@ const Appointment = (): JSX.Element => {
             </div>
           </div>
           {getQueryParam('appointmentView') === AppointmentView.Upcoming && (
-          <TabsContent
-            className="mt-6"
-            value={AppointmentView.Upcoming}
-            forceMount={true}
-            hidden={getQueryParam('appointmentView') !== AppointmentView.Upcoming}
-          >
-            <UpcomingAppointments />
-          </TabsContent>
+            <TabsContent
+              className="mt-6"
+              value={AppointmentView.Upcoming}
+              forceMount={true}
+              hidden={getQueryParam('appointmentView') !== AppointmentView.Upcoming}
+            >
+              <UpcomingAppointments />
+            </TabsContent>
           )}
           {getQueryParam('appointmentView') === AppointmentView.Requests && (
             <TabsContent
