@@ -79,6 +79,7 @@ const AvailableAppointment = (): JSX.Element => {
     if (!information) {
       return;
     }
+    setIsPaymentInitiated(true);
 
     const { payload } = await dispatch(
       initiatePayment({ amount: getAmount(), additionalInfo, reason, slotId }),

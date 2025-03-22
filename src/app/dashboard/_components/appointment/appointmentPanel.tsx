@@ -4,7 +4,7 @@ import DateSelector from './dateSelector';
 import AppointmentCalendar from './appointmentCalendar';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
-import { AppointmentStatus, Role } from '@/types/shared.enum';
+import { AppointmentStatus, OrderDirection, Role } from '@/types/shared.enum';
 import { cn, showErrorToast } from '@/lib/utils';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -32,7 +32,8 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const endOfWeek = startOfWeek.clone().add(6, 'days');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [now, setNow] = useState(moment());
-  const [queryParams, setQueryParams] = useState<IQueryParams<''>>({
+  const [queryParams, setQueryParams] = useState<IQueryParams<AppointmentStatus | ''>>({
+    orderDirection: OrderDirection.Ascending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
     patientId: user?.role === Role.Patient ? user?.id : undefined,
     startDate: startOfWeek.toDate(),

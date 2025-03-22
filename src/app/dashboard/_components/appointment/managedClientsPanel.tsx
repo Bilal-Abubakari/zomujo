@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { OptionsMenu } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { TableData } from '@/components/ui/table';
-import { Gender } from '@/types/shared.enum';
+import { Gender, OrderDirection } from '@/types/shared.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowDownAZ, ChevronsUpDown, Eye, ListFilter } from 'lucide-react';
 import React, { JSX, useState } from 'react';
@@ -59,11 +59,11 @@ const ManagedClientsPanel = (): JSX.Element => {
   //Todo: To be replaced with the right options
   const options = [
     {
-      value: 'asc',
+      value: OrderDirection.Ascending,
       label: 'Ascending',
     },
     {
-      value: 'desc',
+      value: OrderDirection.Descending,
       label: 'Descending',
     },
   ];
@@ -71,11 +71,11 @@ const ManagedClientsPanel = (): JSX.Element => {
   const [filter, setFilter] = useState<string>();
   const filterOptions = [
     {
-      value: 'asc',
+      value: OrderDirection.Ascending,
       label: 'Ascending',
     },
     {
-      value: 'desc',
+      value: OrderDirection.Descending,
       label: 'Descending',
     },
   ];

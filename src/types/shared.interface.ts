@@ -1,4 +1,4 @@
-import { AcceptDeclineStatus, Gender } from '@/types/shared.enum';
+import { AcceptDeclineStatus, Gender, OrderDirection } from '@/types/shared.enum';
 import { IUser } from '@/types/auth.interface';
 
 export interface IResponse<T = undefined> {
@@ -26,7 +26,7 @@ export interface IQueryParams<T = undefined> {
   page?: number;
   search?: string;
   pageSize?: number;
-  orderDirection?: string;
+  orderDirection?: OrderDirection;
   orderBy?: string;
   status?: T;
   startDate?: Date;
