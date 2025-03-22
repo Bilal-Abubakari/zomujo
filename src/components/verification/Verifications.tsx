@@ -17,7 +17,7 @@ type VerificationsProps = {
 };
 
 const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
-  const redirectUrl = `/dashboard${type === 'email' ? '' : '/appointment'}`;
+  const redirectUrl = `/dashboard${type === 'email' ? '' : '/appointment?appointmentView=requests'}`;
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(7);

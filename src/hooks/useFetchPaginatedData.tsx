@@ -12,13 +12,13 @@ export const useFetchPaginatedData = <
   U extends string = AcceptDeclineStatus | '',
 >(
   fetchAction: AsyncThunk<Toast | IPagination<T>, IQueryParams<U>, object>,
-  initialQuery = {
+  initialQuery: IQueryParams<U> = {
     page: 1,
     orderDirection: 'desc',
     orderBy: 'createdAt',
     status: '' as U,
     search: '',
-  } satisfies IQueryParams<U>,
+  },
 ): {
   tableData: T[];
   paginationData: PaginationData | undefined;

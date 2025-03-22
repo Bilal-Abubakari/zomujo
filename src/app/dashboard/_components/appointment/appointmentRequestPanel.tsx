@@ -26,6 +26,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
     const getAppointmentRequests = async (): Promise<void> => {
       const { payload } = await dispatch(
         getAppointments({
+          orderDirection: 'asc',
           status: AppointmentStatus.Pending,
           doctorId: id,
           page: 1,

@@ -26,7 +26,7 @@ export interface IQueryParams<T = undefined> {
   page?: number;
   search?: string;
   pageSize?: number;
-  orderDirection?: string;
+  orderDirection?: 'asc' | 'desc';
   orderBy?: string;
   status?: T;
   startDate?: Date;
