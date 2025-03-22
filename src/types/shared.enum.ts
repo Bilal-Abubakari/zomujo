@@ -77,3 +77,8 @@ export enum BloodGroup {
   OPositive = 'O+',
   ONegative = '0-',
 }
+
+export enum OrderDirection {
+  Ascending = 'asc',
+  Descending = 'desc',
+}

@@ -2,10 +2,10 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { IHospital } from '@/types/hospital.interface';
 import { PaginationData, TableData } from '@/components/ui/table';
-import React, { FormEvent, useEffect, useState, JSX } from 'react';
+import React, { FormEvent, JSX, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { Ellipsis, Signature, Ban, Search, SendHorizontal, ListFilter } from 'lucide-react';
-import { ApproveDeclineStatus } from '@/types/shared.enum';
+import { Ban, Ellipsis, ListFilter, Search, SendHorizontal, Signature } from 'lucide-react';
+import { ApproveDeclineStatus, OrderDirection } from '@/types/shared.enum';
 import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
@@ -64,7 +64,7 @@ const OrganizationRequests = (): JSX.Element => {
   const isLoading = useAppSelector(({ organizationRequests }) => organizationRequests.isLoading);
   const [queryParameters, setQueryParameters] = useState<IQueryParams<ApproveDeclineStatus | ''>>({
     page: 1,
-    orderDirection: 'desc',
+    orderDirection: OrderDirection.Descending,
     orderBy: 'createdAt',
     search: '',
     status: '',

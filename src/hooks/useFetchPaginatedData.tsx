@@ -5,7 +5,7 @@ import { showErrorToast } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
 import { AsyncThunk } from '@reduxjs/toolkit';
 import { useAppDispatch } from '@/lib/hooks';
-import { AcceptDeclineStatus } from '@/types/shared.enum';
+import { AcceptDeclineStatus, OrderDirection } from '@/types/shared.enum';
 
 export const useFetchPaginatedData = <
   T extends object,
@@ -14,7 +14,7 @@ export const useFetchPaginatedData = <
   fetchAction: AsyncThunk<Toast | IPagination<T>, IQueryParams<U>, object>,
   initialQuery: IQueryParams<U> = {
     page: 1,
-    orderDirection: 'desc',
+    orderDirection: OrderDirection.Descending,
     orderBy: 'createdAt',
     status: '' as U,
     search: '',

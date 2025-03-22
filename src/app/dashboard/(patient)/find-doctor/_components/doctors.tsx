@@ -11,7 +11,7 @@ import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { useAppDispatch } from '@/lib/hooks';
 import { showErrorToast } from '@/lib/utils';
 import { IDoctor } from '@/types/doctor.interface';
-import { AcceptDeclineStatus } from '@/types/shared.enum';
+import { AcceptDeclineStatus, OrderDirection } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ChevronUp, ListFilter, Search, SendHorizontal, UserRound } from 'lucide-react';
 import Image from 'next/image';
@@ -39,7 +39,7 @@ const Doctors = (): JSX.Element => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus>>({
     page: 1,
-    orderDirection: 'desc',
+    orderDirection: OrderDirection.Descending,
     orderBy: 'createdAt',
     search: '',
     pageSize: 20,
@@ -57,11 +57,11 @@ const Doctors = (): JSX.Element => {
 
   const statusFilterOptions: ISelected[] = [
     {
-      value: 'asc',
+      value: OrderDirection.Ascending,
       label: 'Ascending',
     },
     {
-      value: 'desc',
+      value: OrderDirection.Descending,
       label: 'Descending',
     },
   ];
@@ -178,7 +178,7 @@ const Doctors = (): JSX.Element => {
                 setQueryParameters((prev) => ({
                   ...prev,
                   page: 1,
-                  orderDirection: value,
+                  orderDirection: value as OrderDirection,
                 }));
                 setDoctors([]);
               }}

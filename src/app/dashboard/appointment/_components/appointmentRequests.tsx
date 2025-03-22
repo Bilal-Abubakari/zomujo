@@ -11,7 +11,7 @@ import { acceptAppointment, getAppointments } from '@/lib/features/appointments/
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppSelector } from '@/lib/hooks';
 import { AppointmentType, IAppointment } from '@/types/appointment.interface';
-import { AppointmentStatus, Role } from '@/types/shared.enum';
+import { AppointmentStatus, OrderDirection, Role } from '@/types/shared.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
@@ -39,7 +39,7 @@ const AppointmentRequests = (): JSX.Element => {
   const { isLoading, setQueryParameters, paginationData, queryParameters, tableData, updatePage } =
     useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
       orderBy: 'createdAt',
-      orderDirection: 'desc',
+      orderDirection: OrderDirection.Descending,
       doctorId: role === Role.Doctor ? id : undefined,
       patientId: role === Role.Patient ? id : undefined,
       page: 1,
