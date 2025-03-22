@@ -17,7 +17,7 @@ import {
   IUpdatePassword,
   IUserSignUpRole,
 } from '@/types/auth.interface';
-import { IResponse } from '@/types/shared.interface';
+import { ICustomResponse, IResponse } from '@/types/shared.interface';
 import { RootState } from '@/lib/store';
 import { IDoctor } from '@/types/doctor.interface';
 import { generateSuccessToast } from '@/lib/utils';
@@ -137,16 +137,21 @@ export const resetPassword = createAsyncThunk(
 
 export const verifyEmail = createAsyncThunk(
   'authentication/verifyEmail',
-  async (token: string, { dispatch }) => {
+  async (token: string, { dispatch }): Promise<ICustomResponse> => {
     try {
       const {
         data: { data, message },
       } = await axios.post<IResponse<ILoginResponse>>(`${authPath}verify-email/${token}`);
       dispatch(setUserInfo(data));
-      return message;
+      return {
+        success: true,
+        message,
+      };
     } catch (error) {
-      dispatch(setErrorMessage(axiosErrorHandler(error)));
-      return false;
+      return {
+        message: axiosErrorHandler(error) as string,
+        success: false,
+      };
     }
   },
 );

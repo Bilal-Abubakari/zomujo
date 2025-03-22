@@ -11,9 +11,20 @@ export enum MedicalAppointmentType {
   Hospital = 'hospital',
 }
 
+export enum AppointmentView {
+  Upcoming = 'upcoming',
+  Requests = 'requests',
+}
+
+export enum PaymentVerification {
+  reference = 'reference',
+}
+
 interface IQuery {
   tab: Tab;
   appointmentType: MedicalAppointmentType;
+  [PaymentVerification.reference]: string;
+  appointmentView: AppointmentView;
 }
 
 type QueryParamKey = keyof IQuery;

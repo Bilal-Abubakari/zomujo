@@ -76,3 +76,20 @@ export const initiatePayment = createAsyncThunk(
     }
   },
 );
+
+export const verifyPayment = createAsyncThunk('payment/verification', async (reference: string) => {
+  try {
+    const {
+      data: { message },
+    } = await axios.get<IResponse>(`payments/verify/${reference}`);
+    return {
+      success: true,
+      message,
+    };
+  } catch (error) {
+    return {
+      message: axiosErrorHandler(error),
+      success: false,
+    };
+  }
+});

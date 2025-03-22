@@ -7,6 +7,11 @@ export interface IResponse<T = undefined> {
   message: string;
 }
 
+export interface ICustomResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface IPagination<T> {
   rows: T[];
   total: number;
