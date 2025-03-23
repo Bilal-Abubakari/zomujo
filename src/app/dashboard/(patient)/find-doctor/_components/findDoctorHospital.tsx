@@ -39,22 +39,26 @@ const FindDoctorHospital = (): JSX.Element => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent
-            hidden={getQueryParam('tab') !== Tab.Doctors}
-            forceMount={true}
-            className="mt-2"
-            value={Tab.Doctors}
-          >
-            <Doctors />
-          </TabsContent>
-          <TabsContent
-            hidden={getQueryParam('tab') !== Tab.Hospitals}
-            forceMount={true}
-            className="mt-2"
-            value={Tab.Hospitals}
-          >
-            <Hospitals />
-          </TabsContent>
+          {getQueryParam('tab') === Tab.Doctors && (
+            <TabsContent
+              hidden={getQueryParam('tab') !== Tab.Doctors}
+              forceMount={true}
+              className="mt-2"
+              value={Tab.Doctors}
+            >
+              <Doctors />
+            </TabsContent>
+          )}
+          {getQueryParam('tab') === Tab.Hospitals && (
+            <TabsContent
+              hidden={getQueryParam('tab') !== Tab.Hospitals}
+              forceMount={true}
+              className="mt-2"
+              value={Tab.Hospitals}
+            >
+              <Hospitals />
+            </TabsContent>
+          )}
         </Tabs>
       </section>
     </div>

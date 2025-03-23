@@ -42,6 +42,8 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
+        setIsAvailableSlotLoading(false);
+        return;
       }
       const { rows } = payload as IPagination<ISlot>;
       const availableSlots = rows.map(({ startTime, ...rest }) => ({
