@@ -20,9 +20,7 @@ const AppointmentCalendar = ({
   const selectedDay = (selectedDate.getDay() + 6) % DAYS_IN_WEEK;
 
   const calendarRef = useRef<HTMLDivElement>(null);
-  const [showAppointmentDetails, setShowAppointmentDetails] = useState<boolean[]>(
-    new Array(appointments.length).fill(false),
-  );
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
 
   useEffect(() => {
     setTimeout(() => {
@@ -51,18 +49,18 @@ const AppointmentCalendar = ({
       )}
     >
       <AnimatePresence>
-        {appointments.map((appointment, index) => (
+        {appointments.map((appointment) => (
           <AppointmentCard
             key={appointment.id}
             appointment={appointment}
             handleSelectedCard={(): void => {
-              setShowAppointmentDetails((prevDetails) => {
-                const newDetails = prevDetails.map(() => false);
-                newDetails[index] = !prevDetails[index];
-                return newDetails;
-              });
+              if (selectedAppointmentId === appointment.id) {
+                setSelectedAppointmentId(null);
+              } else {
+                setSelectedAppointmentId(appointment.id);
+              }
             }}
-            showDetails={showAppointmentDetails[index]}
+            showDetails={selectedAppointmentId === appointment.id}
           />
         ))}
       </AnimatePresence>
