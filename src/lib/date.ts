@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export const getCurrentYear = (): number => new Date().getFullYear();
 
 interface IWeekday {
@@ -160,21 +162,29 @@ export const parseTime = (time: string): Date => {
 };
 
 /**
- * Extracts the time in GMT format from an ISO date string and converts it to a 12-hour format with AM/PM.
+ * Extracts the time in GMT format from an ISO date string and converts it to a 12-hour or 24-hour format.
  *
- * @param {string} isoString - The ISO date string (e.g., "1970-01-01T09:00:00.000Z").
- * @returns {string} - The formatted time in GMT (e.g., "9:00 AM" or "10:30 PM").
+ * @param {string | Date} isoString - The ISO date string (e.g., "1970-01-01T09:00:00.000Z").
+ * @param {Object} [options] - Optional configuration object.
+ * @param {boolean} [options.showAmPm=true] - Whether to show AM/PM indicator.
+ * @returns {string} - The formatted time (e.g., "9:00 AM", "9:00", "21:00").
  *
  */
-export function extractGMTTime(isoString: string): string {
+export function extractGMTTime(
+  isoString: string | Date,
+  options: { showAmPm?: boolean } = {},
+): string {
+  const { showAmPm = true } = options;
   const date = new Date(isoString);
   let hours = date.getUTCHours();
   const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-  const amPm = hours >= 12 ? 'PM' : 'AM';
 
-  hours = hours % 12 || 12;
-
-  return `${hours}:${minutes} ${amPm}`;
+  if (showAmPm) {
+    const amPm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return `${hours}:${minutes} ${amPm}`;
+  }
+  return `${hours}:${minutes}`;
 }
 
 /**
@@ -189,4 +199,14 @@ export function mergeDateAndTime(dateString: string, timeString: string): Date {
   const date = dateString.split('T')[0];
   const time = timeString.split('T')[1];
   return new Date(`${date}T${time}`);
+}
+
+/**
+ * Checks if the given date is today
+ *
+ * @param {Date | string} date - The date to check
+ * @returns {boolean} - True if the date is today, false otherwise
+ */
+export function isToday(date: Date | string): boolean {
+  return moment(date).isSame(moment(), 'day');
 }
