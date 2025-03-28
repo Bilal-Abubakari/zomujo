@@ -67,6 +67,9 @@ const AppointmentCard = ({
           className,
         )}
         onClick={() => handleSelectedCard()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleSelectedCard()}
       >
         <div className="flex flex-row items-start justify-between">
           <div className="flex flex-col gap-1">
