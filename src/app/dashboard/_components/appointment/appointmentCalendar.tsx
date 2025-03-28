@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useRef } from 'react';
+import React, { JSX, useEffect, useRef, useState } from 'react';
 import AppointmentCard from './appointmentCard';
 import { cn } from '@/lib/utils';
 import { DAYS_IN_WEEK, DAYS_OF_WEEK, TWELVE_HOUR_SYSTEM } from '@/constants/constants';
@@ -20,6 +20,7 @@ const AppointmentCalendar = ({
   const selectedDay = (selectedDate.getDay() + 6) % DAYS_IN_WEEK;
 
   const calendarRef = useRef<HTMLDivElement>(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
 
   useEffect(() => {
     setTimeout(() => {
@@ -49,7 +50,18 @@ const AppointmentCalendar = ({
     >
       <AnimatePresence>
         {appointments.map((appointment) => (
-          <AppointmentCard key={appointment.id} appointment={appointment} />
+          <AppointmentCard
+            key={appointment.id}
+            appointment={appointment}
+            handleSelectedCard={(): void => {
+              if (selectedAppointmentId === appointment.id) {
+                setSelectedAppointmentId(null);
+              } else {
+                setSelectedAppointmentId(appointment.id);
+              }
+            }}
+            showDetails={selectedAppointmentId === appointment.id}
+          />
         ))}
       </AnimatePresence>
 

@@ -9,6 +9,9 @@ export interface IAppointment extends ISlotBase {
   doctor: IDoctor;
   slot: ISlot;
   status: AppointmentStatus;
+  reason: string;
+  additionalInfo: string;
+  meetingLink: string | null;
 }
 
 export enum AppointmentType {
