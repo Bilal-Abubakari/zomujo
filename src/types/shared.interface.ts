@@ -29,6 +29,8 @@ export interface IQueryParams<T = undefined> {
   orderDirection?: OrderDirection;
   orderBy?: string;
   status?: T;
+  startTime?: string;
+  endTime?: string;
   startDate?: Date;
   orgId?: string;
   endDate?: Date;

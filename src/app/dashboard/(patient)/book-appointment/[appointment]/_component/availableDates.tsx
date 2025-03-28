@@ -7,7 +7,7 @@ import { useAppDispatch } from '@/lib/hooks';
 import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
-import { extractGMTTime } from '@/lib/date';
+import { extractGMTTime, isToday } from '@/lib/date';
 import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
 import { MedicalAppointmentType, useQueryParam } from '@/hooks/useQueryParam';
@@ -32,6 +32,8 @@ const AvailableDates = ({ setValue, setCurrentStep, watch }: AvailabilityProps):
         getAppointmentSlots({
           startDate: new Date(date),
           endDate: new Date(date),
+          startTime: isToday(date) ? extractGMTTime(new Date(), { showAmPm: false }) : '00:00',
+          endTime: '23:59',
           doctorId: appointmentType === MedicalAppointmentType.Doctor ? id : '',
           orgId: appointmentType === MedicalAppointmentType.Hospital ? id : '',
           pageSize: 35,
