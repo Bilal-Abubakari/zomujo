@@ -3,41 +3,32 @@ import React, { JSX, useEffect, useMemo, useState } from 'react';
 import AppointmentRequestCard from './appointmentRequestCard';
 import { Badge } from '@/components/ui/badge';
 import { Confirmation } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
 import { IAppointment } from '@/types/appointment.interface';
 import { AppointmentStatus, OrderDirection } from '@/types/shared.enum';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
+import {
+  acceptAppointment,
+  declineAppointment,
+  getAppointments,
+} from '@/lib/features/appointments/appointmentsThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
-import { IPagination } from '@/types/shared.interface';
+import { AcceptDecline, IPagination } from '@/types/shared.interface';
+import { Toast, toast } from '@/hooks/use-toast';
 
 const AppointmentRequestPanel = (): JSX.Element => {
   const [requests, setRequests] = useState<IAppointment[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<{
-    action: 'accept' | 'decline';
+    action: AcceptDecline;
     request: IAppointment;
   }>();
   const dispatch = useAppDispatch();
   const { id } = useAppSelector(selectUser)!;
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const getAppointmentRequests = async (): Promise<void> => {
-      const { payload } = await dispatch(
-        getAppointments({
-          orderDirection: OrderDirection.Ascending,
-          status: AppointmentStatus.Pending,
-          doctorId: id,
-          page: 1,
-          pageSize: 20,
-        }),
-      );
-
-      if (payload) {
-        setRequests((payload as IPagination<IAppointment>).rows);
-      }
-    };
     void getAppointmentRequests();
   }, []);
 
@@ -49,8 +40,8 @@ const AppointmentRequestPanel = (): JSX.Element => {
             <CarouselItem key={request.id}>
               <AppointmentRequestCard
                 request={request}
-                approveRequest={() => setSelectedRequest({ action: 'accept', request })}
-                rejectRequest={() => setSelectedRequest({ action: 'decline', request })}
+                approveRequest={() => handleAppointmentAction(request, 'accept')}
+                rejectRequest={() => handleAppointmentAction(request, 'decline')}
               />
             </CarouselItem>
           ))}
@@ -59,10 +50,52 @@ const AppointmentRequestPanel = (): JSX.Element => {
     ),
     [],
   );
+
+  function handleAppointmentAction(request: IAppointment, action: AcceptDecline): void {
+    setOpenModal(true);
+    setSelectedRequest({ action, request });
+  }
+
+  async function getAppointmentRequests(): Promise<void> {
+    const { payload } = await dispatch(
+      getAppointments({
+        orderDirection: OrderDirection.Ascending,
+        status: AppointmentStatus.Pending,
+        doctorId: id,
+        page: 1,
+        pageSize: 20,
+      }),
+    );
+
+    if (payload) {
+      setRequests((payload as IPagination<IAppointment>).rows);
+    }
+  }
+
+  async function acceptDeclineRequest(mode: AcceptDecline): Promise<void> {
+    setIsLoading(true);
+    if (!selectedRequest?.request) {
+      return;
+    }
+    const request =
+      mode === 'accept'
+        ? dispatch(acceptAppointment(selectedRequest?.request.id))
+        : dispatch(declineAppointment(selectedRequest?.request.id));
+
+    const { payload } = await request;
+    setIsLoading(false);
+    toast(payload as Toast);
+
+    if (payload && !showErrorToast(payload)) {
+      setOpenModal(false);
+      getAppointmentRequests();
+    }
+  }
   return (
     <>
       <Confirmation
         open={openModal}
+        isLoading={isLoading}
         description={
           <>
             Are you sure you want to
@@ -81,13 +114,15 @@ const AppointmentRequestPanel = (): JSX.Element => {
             request?
           </>
         }
-        acceptCommand={() => setOpenModal && setOpenModal(false)}
+        acceptButtonTitle={selectedRequest?.action == 'accept' ? 'Yes, accept' : 'Yes decline'}
+        rejectButtonTitle={'Cancel'}
+        acceptCommand={() => acceptDeclineRequest(selectedRequest!.action)}
         rejectCommand={() => setOpenModal && setOpenModal(false)}
       />
       <div className="h-[calc(100vh-203px)] w-full overflow-y-scroll rounded-2xl border bg-white pt-6 max-md:h-[380px]">
         <div className="flex flex-row items-center justify-center gap-2">
           <p className="text-xl font-bold">Appointment Requests</p>
-          <Badge variant={'brown'}>5</Badge>
+          <Badge variant={'brown'}>{requests.length}</Badge>
         </div>
         <hr className="mx-6 mt-6 border border-gray-200" />
         <div className="hidden md:block">
@@ -95,8 +130,8 @@ const AppointmentRequestPanel = (): JSX.Element => {
             <AppointmentRequestCard
               key={request.id}
               request={request}
-              approveRequest={() => setSelectedRequest({ action: 'accept', request })}
-              rejectRequest={() => setSelectedRequest({ action: 'decline', request })}
+              approveRequest={() => handleAppointmentAction(request, 'accept')}
+              rejectRequest={() => handleAppointmentAction(request, 'decline')}
             />
           ))}
         </div>

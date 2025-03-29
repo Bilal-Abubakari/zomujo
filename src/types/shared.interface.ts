@@ -64,3 +64,5 @@ export interface IExtraBase extends Pick<IUser, 'email'> {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type AcceptDecline = 'accept' | 'decline';
