@@ -32,8 +32,8 @@ export const useDropdownAction = <T extends string>({
     description: string,
     id: string,
     actionThunk: AsyncThunk<Toast, string, object>,
-    acceptButtonTitle?:string,
-    rejectButtonTitle?:string,
+    acceptButtonTitle?: string,
+    rejectButtonTitle?: string,
   ) => void;
   handleConfirmationClose: () => void;
 } => {

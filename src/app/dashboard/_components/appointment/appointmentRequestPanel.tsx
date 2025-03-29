@@ -51,7 +51,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
     [],
   );
 
-  function handleAppointmentAction(request: IAppointment, action: AcceptDecline) {
+  function handleAppointmentAction(request: IAppointment, action: AcceptDecline): void {
     setOpenModal(true);
     setSelectedRequest({ action, request });
   }

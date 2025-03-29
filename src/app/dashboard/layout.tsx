@@ -18,7 +18,10 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { acceptAppointment, declineAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import {
+  acceptAppointment,
+  declineAppointment,
+} from '@/lib/features/appointments/appointmentsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { INotification, NotificationEvent } from '@/types/notification.interface';
 import { IAppointment } from '@/types/appointment.interface';
@@ -40,7 +43,8 @@ export default function Layout({
 
   const handleAcceptDecline = async (id: string, action: AcceptDecline): Promise<void> => {
     setIsLoading(true);
-    const request = action === 'accept' ? dispatch(acceptAppointment(id)) : dispatch(declineAppointment(id));
+    const request =
+      action === 'accept' ? dispatch(acceptAppointment(id)) : dispatch(declineAppointment(id));
     const { payload } = await request;
     toast(payload as Toast);
     setIsLoading(false);
@@ -117,7 +121,7 @@ export default function Layout({
               />
               <Button
                 variant="outline"
-                onClick={() => handleAcceptDecline(String(appointment?.id), 'decline')} 
+                onClick={() => handleAcceptDecline(String(appointment?.id), 'decline')}
                 child="Decline"
                 disabled={isLoading}
                 isLoading={isLoading}

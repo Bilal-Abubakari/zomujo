@@ -7,7 +7,11 @@ import { Input } from '@/components/ui/input';
 import { TableData } from '@/components/ui/table';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { useSearch } from '@/hooks/useSearch';
-import { acceptAppointment, declineAppointment, getAppointments } from '@/lib/features/appointments/appointmentsThunk';
+import {
+  acceptAppointment,
+  declineAppointment,
+  getAppointments,
+} from '@/lib/features/appointments/appointmentsThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppSelector } from '@/lib/hooks';
 import { AppointmentType, IAppointment } from '@/types/appointment.interface';
@@ -140,7 +144,7 @@ const AppointmentRequests = (): JSX.Element => {
                     id,
                     acceptAppointment,
                     'Yes, accept',
-                    'Cancel'
+                    'Cancel',
                   ),
                 visible: role === Role.Doctor && isPending,
               },
@@ -157,7 +161,7 @@ const AppointmentRequests = (): JSX.Element => {
                     id,
                     declineAppointment,
                     'Yes, decline',
-                    'Cancel'
+                    'Cancel',
                   ),
                 visible: !isDone,
               },
