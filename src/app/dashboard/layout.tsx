@@ -18,12 +18,13 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { acceptAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { acceptAppointment, declineAppointment } from '@/lib/features/appointments/appointmentsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { INotification, NotificationEvent } from '@/types/notification.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import moment from 'moment';
 import { X } from 'lucide-react';
+import { AcceptDecline } from '@/types/shared.interface';
 
 export default function Layout({
   children,
@@ -37,9 +38,10 @@ export default function Layout({
   const dispatch = useAppDispatch();
   const [appointment, setAppointment] = useState<IAppointment>();
 
-  const handleAccept = async (id: string): Promise<void> => {
+  const handleAcceptDecline = async (id: string, action: AcceptDecline): Promise<void> => {
     setIsLoading(true);
-    const { payload } = await dispatch(acceptAppointment(id));
+    const request = action === 'accept' ? dispatch(acceptAppointment(id)) : dispatch(declineAppointment(id));
+    const { payload } = await request;
     toast(payload as Toast);
     setIsLoading(false);
     setShowNewRequest(false);
@@ -108,14 +110,14 @@ export default function Layout({
             </div>
             <DrawerFooter className="flex justify-between">
               <Button
-                onClick={() => handleAccept(String(appointment?.id))}
+                onClick={() => handleAcceptDecline(String(appointment?.id), 'accept')}
                 child="Accept"
                 disabled={isLoading}
                 isLoading={isLoading}
               />
               <Button
                 variant="outline"
-                onClick={() => handleAccept(String(appointment?.id))} // TODO: Handle decline request
+                onClick={() => handleAcceptDecline(String(appointment?.id), 'decline')} 
                 child="Decline"
                 disabled={isLoading}
                 isLoading={isLoading}
