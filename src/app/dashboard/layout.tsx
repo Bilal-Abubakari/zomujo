@@ -23,6 +23,7 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { INotification, NotificationEvent } from '@/types/notification.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import moment from 'moment';
+import { X } from 'lucide-react';
 
 export default function Layout({
   children,
@@ -67,11 +68,19 @@ export default function Layout({
       <Drawer open={showNewRequest}>
         <DrawerContent>
           <div className="mx-auto w-full max-w-sm p-4">
-            <DrawerHeader>
-              <DrawerTitle className="text-lg">New Appointment Request</DrawerTitle>
-              <DrawerDescription>
-                Review the details of the new appointment request below.
-              </DrawerDescription>
+            <DrawerHeader className="flex items-center justify-between">
+              <div>
+                <DrawerTitle className="text-lg">New Appointment Request</DrawerTitle>
+                <DrawerDescription>
+                  Review the details of the new appointment request below.
+                </DrawerDescription>
+              </div>
+              <Button
+                child={<X size={20} />}
+                variant="ghost"
+                onClick={() => setShowNewRequest(false)}
+                className="p-2"
+              />
             </DrawerHeader>
             <div className="p-4 pb-0">
               <div className="mb-4">
