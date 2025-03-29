@@ -8,13 +8,15 @@ import { toast } from '@/hooks/use-toast';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
 
-interface WebSocketHook {
+interface IWebSocketHook {
   isConnected: boolean;
   emit: (eventName: NotificationEvent, data: unknown) => void;
   on: (eventName: NotificationEvent, callback: (...args: unknown[]) => void) => void;
+  playNotificationSound: () => void;
+  updateNotificationsHandler: (data: INotification) => void;
 }
 
-const useWebSocket = (): WebSocketHook => {
+const useWebSocket = (): IWebSocketHook => {
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
   const dispatch = useAppDispatch();
@@ -40,10 +42,7 @@ const useWebSocket = (): WebSocketHook => {
       });
 
       websocket.on(NotificationEvent.NewNotification, (data: INotification) => {
-        const audio = new Audio('/audio/zomujo-notification-sound.wav');
-        audio.load();
-        dispatch(updateNotifications(data));
-        void audio.play();
+        updateNotificationsHandler(data);
         const { message, topic } = data.payload;
         toast({
           title: topic,
@@ -51,11 +50,6 @@ const useWebSocket = (): WebSocketHook => {
           variant: 'default',
         });
       });
-
-      // TODO: Let's connect websocket to get instant notification of a new request
-      // websocket.on(NotificationEvent.NewRequest, (data: INotification) => {
-      //   console.log('Hey there new request', data);
-      // });
 
       websocket.on('error', (error) => {
         console.error('WebSocket Error:', error);
@@ -66,6 +60,17 @@ const useWebSocket = (): WebSocketHook => {
       console.error('WebSocket connection error:', error);
     }
   }, []);
+
+  const updateNotificationsHandler = (data: INotification): void => {
+    dispatch(updateNotifications(data));
+    playNotificationSound();
+  };
+
+  const playNotificationSound = (): void => {
+    const audio = new Audio('/audio/zomujo-notification-sound.wav');
+    audio.load();
+    void audio.play();
+  };
 
   const emit = useCallback((eventName: NotificationEvent, data: unknown) => {
     if (socketRef.current) {
@@ -90,7 +95,7 @@ const useWebSocket = (): WebSocketHook => {
     };
   }, [connect]);
 
-  return { isConnected, emit, on };
+  return { isConnected, emit, on, playNotificationSound, updateNotificationsHandler };
 };
 
 export default useWebSocket;

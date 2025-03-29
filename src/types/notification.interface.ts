@@ -1,4 +1,5 @@
 import { Role } from '@/types/shared.enum';
+import { IAppointment } from '@/types/appointment.interface';
 
 export interface INotification {
   id: number;
@@ -16,6 +17,7 @@ interface IPayload {
   requestId: string;
   scope: Role;
   message: string;
+  appointment: IAppointment;
 }
 
 export enum NotificationEvent {
