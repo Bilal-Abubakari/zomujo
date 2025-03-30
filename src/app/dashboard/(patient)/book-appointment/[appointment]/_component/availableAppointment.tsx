@@ -278,7 +278,7 @@ const AvailableAppointment = (): JSX.Element => {
               <Button
                 child={'Make Payment'}
                 onClick={() => setCurrentStep(3)}
-                disabled={!isValid}
+                disabled={!isValid || isPaymentInitiated}
                 isLoading={isPaymentInitiated}
               />
             </div>

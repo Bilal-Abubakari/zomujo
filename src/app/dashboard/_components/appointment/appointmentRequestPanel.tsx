@@ -59,7 +59,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
   async function getAppointmentRequests(): Promise<void> {
     const { payload } = await dispatch(
       getAppointments({
-        orderDirection: OrderDirection.Ascending,
+        orderDirection: OrderDirection.Descending,
         status: AppointmentStatus.Pending,
         doctorId: id,
         page: 1,
@@ -88,7 +88,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
 
     if (payload && !showErrorToast(payload)) {
       setOpenModal(false);
-      getAppointmentRequests();
+      void getAppointmentRequests();
     }
   }
   return (

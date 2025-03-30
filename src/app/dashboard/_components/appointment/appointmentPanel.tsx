@@ -12,7 +12,7 @@ import { selectUser } from '@/lib/features/auth/authSelector';
 import { IAppointment } from '@/types/appointment.interface';
 import { toast } from '@/hooks/use-toast';
 import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
-import { Loader2 } from 'lucide-react';
+import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 
 type AppointmentProps = {
   customClass?: string;
@@ -85,14 +85,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
         customClass,
       )}
     >
-      {loading && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/75">
-          <div className="loader">Loading...</div>
-          <div>
-            <Loader2 className="animate-spin" />
-          </div>
-        </div>
-      )}
+      {loading && <LoadingOverlay />}
       <div className="relative flex flex-col gap-8 border-b border-gray-200 p-6">
         <div className="flex flex-row items-center gap-2.5">
           <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>

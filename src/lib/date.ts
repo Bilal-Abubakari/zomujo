@@ -182,9 +182,9 @@ export function extractGMTTime(
   if (showAmPm) {
     const amPm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
-    return `${hours}:${minutes} ${amPm}`;
+    return `${String(hours).padStart(2, '0')}:${minutes} ${amPm}`;
   }
-  return `${hours}:${minutes}`;
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
 }
 
 /**

@@ -33,14 +33,17 @@ const DialogOverlay = React.forwardRef<
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
+type DialogOverlayProps = { dialogOverlayClassName?: string };
+
 const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
     React.HTMLAttributes<typeof DialogPrimitive.Content> &
-    Pick<ModalProps, 'showClose' | 'setState'>
->(({ className, children, showClose, setState, ...props }, ref) => (
+    Pick<ModalProps, 'showClose' | 'setState'> &
+    DialogOverlayProps
+>(({ className, children, showClose, setState, dialogOverlayClassName, ...props }, ref) => (
   <DialogPortal>
-    <DialogOverlay />
+    <DialogOverlay className={dialogOverlayClassName} />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
@@ -132,7 +135,7 @@ type ModalProps = {
   showImage?: boolean;
   setState?: React.Dispatch<React.SetStateAction<boolean>>;
   className?: string;
-};
+} & DialogOverlayProps;
 
 const Modal = ({
   description,
@@ -146,9 +149,15 @@ const Modal = ({
   showImage = false,
   setState,
   className,
+  dialogOverlayClassName,
 }: ModalProps): JSX.Element => (
   <Dialog open={open} modal={true}>
-    <DialogContent showClose={showClose} setState={setState} className={className}>
+    <DialogContent
+      dialogOverlayClassName={dialogOverlayClassName}
+      showClose={showClose}
+      setState={setState}
+      className={className}
+    >
       {showImage && (
         <div>
           {imageVariant === ImageVariant.Success && (
