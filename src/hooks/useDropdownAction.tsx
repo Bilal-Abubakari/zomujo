@@ -32,6 +32,8 @@ export const useDropdownAction = <T extends string>({
     description: string,
     id: string,
     actionThunk: AsyncThunk<Toast, string, object>,
+    acceptButtonTitle?: string,
+    rejectButtonTitle?: string,
   ) => void;
   handleConfirmationClose: () => void;
 } => {
@@ -81,6 +83,8 @@ export const useDropdownAction = <T extends string>({
     description: string,
     id: string,
     actionThunk: AsyncThunk<Toast, string, object>,
+    acceptButtonTitle: string = 'Yes, accept',
+    rejectButtonTitle: string = 'No, decline',
   ): void => {
     setConfirmation((prev) => ({
       ...prev,
@@ -94,6 +98,8 @@ export const useDropdownAction = <T extends string>({
           open: false,
         })),
       description: `Are you sure you want to ${description}?`,
+      acceptButtonTitle,
+      rejectButtonTitle,
     }));
   };
 

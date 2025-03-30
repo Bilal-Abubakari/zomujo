@@ -7,7 +7,11 @@ import { Input } from '@/components/ui/input';
 import { TableData } from '@/components/ui/table';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { useSearch } from '@/hooks/useSearch';
-import { acceptAppointment, getAppointments } from '@/lib/features/appointments/appointmentsThunk';
+import {
+  acceptAppointment,
+  declineAppointment,
+  getAppointments,
+} from '@/lib/features/appointments/appointmentsThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppSelector } from '@/lib/hooks';
 import { AppointmentType, IAppointment } from '@/types/appointment.interface';
@@ -139,11 +143,12 @@ const AppointmentRequests = (): JSX.Element => {
                     `accept ${getName()}'s appointment request`,
                     id,
                     acceptAppointment,
+                    'Yes, accept',
+                    'Cancel',
                   ),
                 visible: role === Role.Doctor && isPending,
               },
               {
-                //TODO: Finish up implementation as soon refund functionality implemented on the backend
                 title: (
                   <>
                     <Ban /> Cancel
@@ -151,10 +156,12 @@ const AppointmentRequests = (): JSX.Element => {
                 ),
                 clickCommand: () =>
                   handleConfirmationOpen(
-                    'Accept',
-                    `accept ${getName()}'s appointment request`,
+                    'Decline',
+                    `decline ${getName()}'s appointment request`,
                     id,
-                    acceptAppointment,
+                    declineAppointment,
+                    'Yes, decline',
+                    'Cancel',
                   ),
                 visible: !isDone,
               },

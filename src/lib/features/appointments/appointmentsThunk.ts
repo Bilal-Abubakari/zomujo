@@ -114,3 +114,14 @@ export const acceptAppointment = createAsyncThunk(
     }
   },
 );
+export const declineAppointment = createAsyncThunk(
+  'appointment/declineRequest',
+  async (id: string): Promise<Toast> => {
+    try {
+      const { data } = await axios.delete<IResponse>(`appointments/decline/${id}`);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
