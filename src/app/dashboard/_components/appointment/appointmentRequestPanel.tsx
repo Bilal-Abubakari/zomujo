@@ -16,6 +16,7 @@ import {
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { AcceptDecline, IPagination } from '@/types/shared.interface';
 import { Toast, toast } from '@/hooks/use-toast';
+import SkeletonAcceptDeclineRequestCard from '@/components/skeleton/skeletonAcceptDeclineRequestCard';
 
 const AppointmentRequestPanel = (): JSX.Element => {
   const [requests, setRequests] = useState<IAppointment[]>([]);
@@ -27,6 +28,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { id } = useAppSelector(selectUser)!;
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
 
   useEffect(() => {
     void getAppointmentRequests();
@@ -57,6 +59,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
   }
 
   async function getAppointmentRequests(): Promise<void> {
+    setIsLoadingAppointments(true);
     const { payload } = await dispatch(
       getAppointments({
         orderDirection: OrderDirection.Descending,
@@ -70,6 +73,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
     if (payload) {
       setRequests((payload as IPagination<IAppointment>).rows);
     }
+    setIsLoadingAppointments(false);
   }
 
   async function acceptDeclineRequest(mode: AcceptDecline): Promise<void> {
@@ -125,16 +129,25 @@ const AppointmentRequestPanel = (): JSX.Element => {
           <Badge variant={'brown'}>{requests.length}</Badge>
         </div>
         <hr className="mx-6 mt-6 border border-gray-200" />
-        <div className="hidden md:block">
-          {requests.map((request) => (
-            <AppointmentRequestCard
-              key={request.id}
-              request={request}
-              approveRequest={() => handleAppointmentAction(request, 'accept')}
-              rejectRequest={() => handleAppointmentAction(request, 'decline')}
-            />
-          ))}
-        </div>
+
+        {!isLoadingAppointments ? (
+          <div className="hidden md:block">
+            {requests.map((request) => (
+              <AppointmentRequestCard
+                key={request.id}
+                request={request}
+                approveRequest={() => handleAppointmentAction(request, 'accept')}
+                rejectRequest={() => handleAppointmentAction(request, 'decline')}
+              />
+            ))}
+          </div>
+        ) : (
+          <div>
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SkeletonAcceptDeclineRequestCard key={index} />
+            ))}
+          </div>
+        )}
         <div className="mx-2 md:hidden">{suggestSmallScreen}</div>
       </div>
     </>
