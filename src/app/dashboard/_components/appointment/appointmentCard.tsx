@@ -122,7 +122,7 @@ const AppointmentDetails = ({
 
   const router = useRouter();
   const redirectToPatient = (patientId: string): void => {
-    router.push(`/dashboard/patient/${patientId}`);
+    router.push(`/dashboard/patients/${patientId}`);
   };
 
   return (
