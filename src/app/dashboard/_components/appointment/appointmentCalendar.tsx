@@ -1,3 +1,4 @@
+'use client';
 import React, { JSX, useEffect, useRef, useState } from 'react';
 import AppointmentCard from './appointmentCard';
 import { cn } from '@/lib/utils';
@@ -6,11 +7,11 @@ import TimeIndicator from './timeIndicator';
 import { AnimatePresence } from 'framer-motion';
 import { IAppointment } from '@/types/appointment.interface';
 
-interface AppointmentCalendarProps {
+type AppointmentCalendarProps = {
   className?: string;
   appointments: IAppointment[];
   selectedDate: Date;
-}
+};
 
 const AppointmentCalendar = ({
   className,
@@ -25,20 +26,22 @@ const AppointmentCalendar = ({
   useEffect(() => {
     setTimeout(() => {
       if (calendarRef.current) {
+        const scrollOptions: ScrollToOptions = {
+          behavior: 'smooth',
+        };
+
         if (selectedDay >= DAYS_OF_WEEK.indexOf('Thursday')) {
-          calendarRef.current.scrollTo({
-            left: calendarRef.current.scrollWidth,
-            behavior: 'smooth',
-          });
+          scrollOptions.left = calendarRef.current.scrollWidth;
         } else {
-          calendarRef.current.scrollTo({
-            left: 0,
-            behavior: 'smooth',
-          });
+          scrollOptions.left = 0;
         }
+
+        scrollOptions.top = (selectedDate.getHours() * 60 + selectedDate.getMinutes()) * 1.3;
+
+        calendarRef.current.scrollTo(scrollOptions);
       }
     }, 500);
-  }, [selectedDay]);
+  }, [selectedDay, selectedDate]);
 
   return (
     <div

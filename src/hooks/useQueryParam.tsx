@@ -20,10 +20,15 @@ export enum PaymentVerification {
   reference = 'reference',
 }
 
+export enum AppointmentDate {
+  selectedDate = 'selectedDate',
+}
+
 interface IQuery {
   tab: Tab;
   appointmentType: MedicalAppointmentType;
   [PaymentVerification.reference]: string;
+  [AppointmentDate.selectedDate]: string;
   appointmentView: AppointmentView;
   specialty: string;
 }

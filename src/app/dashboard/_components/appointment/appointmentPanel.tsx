@@ -13,6 +13,7 @@ import { IAppointment } from '@/types/appointment.interface';
 import { toast } from '@/hooks/use-toast';
 import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
+import { AppointmentDate, useQueryParam } from '@/hooks/useQueryParam';
 
 type AppointmentProps = {
   customClass?: string;
@@ -26,11 +27,15 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
+  const { getQueryParam } = useQueryParam();
+  const selectedDateParam = getQueryParam(AppointmentDate.selectedDate);
 
   const newToday = moment();
   const startOfWeek = newToday.clone().startOf('isoWeek');
   const endOfWeek = startOfWeek.clone().add(6, 'days');
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(
+    selectedDateParam ? new Date(selectedDateParam) : new Date(),
+  );
   const [now, setNow] = useState(moment());
   const [queryParams, setQueryParams] = useState<IQueryParams<AppointmentStatus | ''>>({
     orderDirection: OrderDirection.Ascending,
