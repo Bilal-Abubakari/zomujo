@@ -25,6 +25,7 @@ interface IQuery {
   appointmentType: MedicalAppointmentType;
   [PaymentVerification.reference]: string;
   appointmentView: AppointmentView;
+  specialty: string;
 }
 
 type QueryParamKey = keyof IQuery;
