@@ -37,7 +37,7 @@ const SearchDoctorsCard = (): JSX.Element => {
           child="Find"
           onClick={findMedical}
           className="rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm"
-          disabled={!!(!search.length)}
+          disabled={!search.length}
         />
       </div>
     </div>
