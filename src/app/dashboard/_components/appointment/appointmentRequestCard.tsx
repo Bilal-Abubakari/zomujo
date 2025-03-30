@@ -18,9 +18,9 @@ const AppointmentRequestCard = ({
 }: AppointmentCardProps): JSX.Element => {
   const {
     patient: { firstName, lastName },
-    slot: { date,startTime,endTime },
+    slot: { date, startTime, endTime },
     additionalInfo,
-    reason
+    reason,
   } = request;
   return (
     <div className="mx-auto mt-6 flex max-w-[249px] flex-col gap-4 rounded-2xl bg-gray-50 px-2.5 py-[18px]">
