@@ -30,6 +30,7 @@ interface IQuery {
   [PaymentVerification.reference]: string;
   [AppointmentDate.selectedDate]: string;
   appointmentView: AppointmentView;
+  specialty: string;
 }
 
 type QueryParamKey = keyof IQuery;

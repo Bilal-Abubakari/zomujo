@@ -28,6 +28,7 @@ import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
 import { genderOptions } from '@/constants/constants';
 import DoctorDetails from '@/app/dashboard/_components/doctorDetails';
 import { Modal } from '@/components/ui/dialog';
+import { useQueryParam } from '@/hooks/useQueryParam';
 
 const Doctors = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -37,6 +38,7 @@ const Doctors = (): JSX.Element => {
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const { getQueryParam } = useQueryParam();
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus>>({
     page: 1,
     orderDirection: OrderDirection.Descending,
@@ -49,7 +51,7 @@ const Doctors = (): JSX.Element => {
     experienceMin: '',
     experienceMax: '',
     gender: '',
-    specialty: '',
+    specialty: getQueryParam('specialty'),
     rateMin: '',
     rateMax: '',
     booking: true,
@@ -248,6 +250,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="search"
             name="specialty"
+            value={queryParameters.specialty}
             onChange={handleValueChange}
           />
           <OptionsMenu

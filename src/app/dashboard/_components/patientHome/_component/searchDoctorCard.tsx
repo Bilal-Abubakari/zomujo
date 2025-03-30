@@ -3,12 +3,14 @@ import { useRouter } from 'next/navigation';
 import React, { JSX, useState } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/select';
+import { specialties } from '@/constants/constants';
 
 const SearchDoctorsCard = (): JSX.Element => {
   const router = useRouter();
   const [search, setSearch] = useState('');
 
-  const findMedical = (): void => router.push(`/dashboard/find-medical?search=${search}`);
+  const findMedical = (): void => router.push(`/dashboard/find-doctor?specialty=${search}`);
 
   return (
     <div className="bg-primary bg-arc1 relative flex w-full flex-col gap-8 rounded-2xl bg-no-repeat p-8">
@@ -20,19 +22,22 @@ const SearchDoctorsCard = (): JSX.Element => {
           Search for top hospitals or qualified doctors and book an appointment online.
         </p>
       </div>
-      <div className="flex h-12 w-full flex-row items-center justify-between rounded-xl bg-white p-1.5">
-        <Search color={'#8C96A5'} className="ml-1.5" />
-        <input
-          type="text"
-          placeholder="Search by speciality"
+      <div className="flex h-12 w-full flex-row items-center justify-between gap-2 rounded-xl bg-white p-1.5">
+        <Search color={'#000'} className="ml-1.5" />
+        <Combobox
+          isLoading={false}
+          onChange={(value) => setSearch(value)}
+          options={specialties}
           value={search}
-          onChange={({ target }) => setSearch(target.value)}
-          className="h-full w-full pl-2 outline-hidden max-md:text-sm"
+          placeholder="Search by specialty"
+          searchPlaceholder="Search specialty..."
+          defaultMaxWidth={false}
         />
         <Button
           child="Find"
           onClick={findMedical}
           className="rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm"
+          disabled={!search.length}
         />
       </div>
     </div>
