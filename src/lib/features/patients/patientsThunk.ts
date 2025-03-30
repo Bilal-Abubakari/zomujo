@@ -5,18 +5,14 @@ import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { IPatient } from '@/types/patient.interface';
 import { IDoctorCountResponse } from '@/types/stats.interface';
+import { getValidQueryString } from '@/lib/utils';
 
 export const getAllPatients = createAsyncThunk(
   'patients/allPatients',
-  async ({
-    page,
-    search,
-    status,
-  }: IQueryParams<AcceptDeclineStatus | ''>): Promise<IPagination<IPatient> | Toast> => {
-    const statusQuery = status === '' ? '' : `&status=${status}`;
+  async (query: IQueryParams<AcceptDeclineStatus | ''>): Promise<IPagination<IPatient> | Toast> => {
     try {
       const { data } = await axios.get<IResponse<IPagination<IPatient>>>(
-        `patients?page=${page}&search=${search}${statusQuery}`,
+        `patients?${getValidQueryString(query)}`,
       );
       return data.data;
     } catch (error) {

@@ -20,6 +20,7 @@ import {
   Binoculars,
   CalendarX,
   Ellipsis,
+  Eye,
   ListFilter,
   Search,
   SendHorizontal,
@@ -36,8 +37,13 @@ import { IPatient } from '@/types/patient.interface';
 import PatientRecord from '@/app/dashboard/_components/patient/patientRecord';
 import GenderBadge from '@/app/dashboard/_components/genderBadge';
 import { statusFilterOptions } from '@/constants/constants';
+import { useRouter } from 'next/navigation';
 
-const PatientPanel = (): JSX.Element => {
+type PatientPanelProps = {
+  doctorView?: boolean;
+};
+
+const PatientPanel = ({ doctorView }: PatientPanelProps): JSX.Element => {
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const [selectedPatient, setSelectedPatient] = useState<IPatient>();
   const [openModal, setOpenModal] = useState(false);
@@ -56,17 +62,9 @@ const PatientPanel = (): JSX.Element => {
     open: false,
   });
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
+  const router = useRouter();
 
   const columns: ColumnDef<IPatient>[] = [
-    {
-      accessorKey: 'profilePicture',
-    },
-    {
-      accessorKey: 'lastName',
-    },
-    {
-      accessorKey: 'id',
-    },
     {
       accessorKey: 'firstName',
       header: 'Name',
@@ -110,6 +108,16 @@ const PatientPanel = (): JSX.Element => {
       header: 'Action',
       cell: ({ row: { original } }): JSX.Element => {
         const { status, id, firstName } = original;
+        if (doctorView) {
+          return (
+            <button
+              className="hover:text-primary cursor-pointer"
+              onClick={() => router.push(`/dashboard/patients/${id}`)}
+            >
+              <Eye />
+            </button>
+          );
+        }
         const isApproved = status === AcceptDeclineStatus.Accepted;
         const isDeactivated = status === AcceptDeclineStatus.Deactivated;
         return (
@@ -233,26 +241,28 @@ const PatientPanel = (): JSX.Element => {
                 />
                 {searchTerm && <Button child={<SendHorizontal />} className="ml-2" />}
               </form>
-              <OptionsMenu
-                options={statusFilterOptions}
-                Icon={ListFilter}
-                menuTrigger="Filter"
-                selected={queryParameters.status}
-                setSelected={(value: string) =>
-                  setQueryParameters((prev) => ({
-                    ...prev,
-                    page: 1,
-                    status: value as AcceptDeclineStatus,
-                  }))
-                }
-                className="h-10 cursor-pointer bg-gray-50 sm:flex"
-              />
+              {!doctorView && (
+                <OptionsMenu
+                  options={statusFilterOptions}
+                  Icon={ListFilter}
+                  menuTrigger="Filter"
+                  selected={queryParameters.status}
+                  setSelected={(value: string) =>
+                    setQueryParameters((prev) => ({
+                      ...prev,
+                      page: 1,
+                      status: value as AcceptDeclineStatus,
+                    }))
+                  }
+                  className="h-10 cursor-pointer bg-gray-50 sm:flex"
+                />
+              )}
             </div>
           </div>
           <TableData
             columns={columns}
             data={tableData}
-            columnVisibility={{ profilePicture: false, lastName: false, id: false }}
+            columnVisibility={{ status: !doctorView }}
             page={queryParameters.page}
             userPaginationChange={({ pageIndex }) =>
               setQueryParameters((prev) => ({

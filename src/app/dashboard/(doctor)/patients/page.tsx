@@ -1,9 +1,6 @@
 import { JSX } from 'react';
+import PatientPanel from '@/app/dashboard/(admin)/(user)/_components/patientPanel';
 
-const Patients = (): JSX.Element => (
-  <div>
-    <h1>TODO - Patients Doctor has interactions with</h1>
-  </div>
-);
+const Patients = (): JSX.Element => <PatientPanel doctorView={true} />;
 
 export default Patients;
