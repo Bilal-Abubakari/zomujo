@@ -6,7 +6,6 @@ import { DAYS_IN_WEEK, DAYS_OF_WEEK, TWELVE_HOUR_SYSTEM } from '@/constants/cons
 import TimeIndicator from './timeIndicator';
 import { AnimatePresence } from 'framer-motion';
 import { IAppointment } from '@/types/appointment.interface';
-import { useQueryParam } from '@/hooks/useQueryParam';
 
 type AppointmentCalendarProps = {
   className?: string;
@@ -23,7 +22,6 @@ const AppointmentCalendar = ({
 
   const calendarRef = useRef<HTMLDivElement>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
-  const { getQueryParam } = useQueryParam();
 
   useEffect(() => {
     setTimeout(() => {
@@ -43,7 +41,7 @@ const AppointmentCalendar = ({
         calendarRef.current.scrollTo(scrollOptions);
       }
     }, 500);
-  }, [selectedDay, getQueryParam]);
+  }, [selectedDay, selectedDate]);
 
   return (
     <div
