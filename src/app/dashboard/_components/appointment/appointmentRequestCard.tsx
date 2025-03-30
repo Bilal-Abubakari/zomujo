@@ -10,19 +10,17 @@ export type AppointmentCardProps = {
   approveRequest: () => void;
   rejectRequest: () => void;
 };
-// TODO: Remove once we have a proper reason
-const reason = 'I have a severe sore throat and high fever';
-const notes = 'Patient is a regular visitor and has a history of high blood pressure';
+
 const AppointmentRequestCard = ({
   request,
   approveRequest,
   rejectRequest,
 }: AppointmentCardProps): JSX.Element => {
   const {
-    endTime,
     patient: { firstName, lastName },
-    startTime,
-    slot: { date },
+    slot: { date, startTime, endTime },
+    additionalInfo,
+    reason,
   } = request;
   return (
     <div className="mx-auto mt-6 flex max-w-[249px] flex-col gap-4 rounded-2xl bg-gray-50 px-2.5 py-[18px]">
@@ -44,16 +42,16 @@ const AppointmentRequestCard = ({
       </div>
       <div className="flex flex-row justify-between text-xs font-medium">
         <p>
-          {startTime} - {endTime}
+          {moment(startTime).format('hh:mm A')} - {moment(endTime).format('hh:mm A')}
         </p>
         <p>{moment(date).fromNow()}</p>
       </div>
       <hr className="border-gray-200" />
 
-      {notes && (
+      {additionalInfo && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-bold">Notes</p>
-          <p className="text-xs leading-5 text-gray-500">{notes}</p>
+          <p className="text-xs leading-5 text-gray-500">{additionalInfo}</p>
         </div>
       )}
       <div className="flex flex-row gap-3">
