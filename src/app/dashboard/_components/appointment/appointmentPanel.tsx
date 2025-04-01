@@ -43,6 +43,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
     patientId: user?.role === Role.Patient ? user?.id : undefined,
     startDate: startOfWeek.toDate(),
     endDate: endOfWeek.toDate(),
+    pageSize: 100,
   });
   const [upcomingAppointment, setUpcomingAppointment] = useState<IAppointment[]>([]);
 

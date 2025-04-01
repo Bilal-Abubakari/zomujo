@@ -220,7 +220,7 @@ const NotificationActions = (): JSX.Element => {
                   <Button
                     onClick={() =>
                       handleAcceptDeclineAction(
-                        String(appointment?.id),
+                        String(recordRequest?.id),
                         'accept',
                         acceptRecordRequest,
                         setShowNewRecordRequest,
@@ -234,7 +234,7 @@ const NotificationActions = (): JSX.Element => {
                     variant="outline"
                     onClick={() =>
                       handleAcceptDeclineAction(
-                        String(appointment?.id),
+                        String(recordRequest?.id),
                         'decline',
                         declineRecordRequest,
                         setShowNewRecordRequest,

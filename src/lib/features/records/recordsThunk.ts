@@ -40,7 +40,6 @@ export const getPatientRecords = createAsyncThunk('records/patient', async (id: 
     const {
       data: { data },
     } = await axios.get<IResponse>(`${recordsPath}${id}`);
-    console.log(data);
     return data;
   } catch (error) {
     return axiosErrorHandler(error, true) as Toast;
