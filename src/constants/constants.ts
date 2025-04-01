@@ -1,5 +1,11 @@
 import { SelectOption } from '@/components/ui/select';
-import { AcceptDeclineStatus, BloodGroup, Denomination, Gender, MaritalStatus } from '@/types/shared.enum';
+import {
+  AcceptDeclineStatus,
+  BloodGroup,
+  Denomination,
+  Gender,
+  MaritalStatus,
+} from '@/types/shared.enum';
 import { ISelected } from '@/components/ui/dropdown-menu';
 
 export const MODE = {
@@ -130,12 +136,12 @@ export const denominationOptions = [
 ];
 
 export const bloodGroupOptions = [
-  {value: BloodGroup.APositive, label: 'APositive'},
-  {value: BloodGroup.ANegative, label: 'ANegative'},
-  {value: BloodGroup.BPositive, label: 'BPositive'},
-  {value: BloodGroup.BNegative, label: 'BNegative'},
-  {value: BloodGroup.ABPositive, label: 'ABPositive'},
-  {value: BloodGroup.ABNegative, label: 'ABNegative'},
-  {value: BloodGroup.OPositive, label: 'OPositive'},
-  {value: BloodGroup.ONegative, label: 'ONegative'},
-]
+  { value: BloodGroup.APositive, label: 'APositive' },
+  { value: BloodGroup.ANegative, label: 'ANegative' },
+  { value: BloodGroup.BPositive, label: 'BPositive' },
+  { value: BloodGroup.BNegative, label: 'BNegative' },
+  { value: BloodGroup.ABPositive, label: 'ABPositive' },
+  { value: BloodGroup.ABNegative, label: 'ABNegative' },
+  { value: BloodGroup.OPositive, label: 'OPositive' },
+  { value: BloodGroup.ONegative, label: 'ONegative' },
+];

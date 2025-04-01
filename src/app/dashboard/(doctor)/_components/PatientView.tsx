@@ -47,8 +47,8 @@ const PatientView = ({
   }, []);
 
   on(NotificationEvent.RecordRequest, (data: unknown) => {
-    const notification = data as INotification;
-    setStatus(notification.payload.request.status);
+    const { payload } = data as INotification;
+    setStatus(payload.request.status);
   });
 
   return (

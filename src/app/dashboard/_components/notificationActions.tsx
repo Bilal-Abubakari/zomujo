@@ -55,8 +55,8 @@ const NotificationActions = (): JSX.Element => {
   });
 
   on(NotificationEvent.RecordRequest, (data: unknown) => {
-    const notification = data as INotification;
-    setRecordRequest(notification.payload.request);
+    const { payload } = data as INotification;
+    setRecordRequest(payload.request);
     setShowNewRequest(false);
     setShowNewRecordRequest(true);
   });
