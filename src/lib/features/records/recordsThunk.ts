@@ -5,7 +5,7 @@ import { generateSuccessToast } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { ApproveDeclineStatus } from '@/types/shared.enum';
 
-const recordsPath = 'records/' as const;
+const recordsPath = 'records/';
 
 export const sendRequest = createAsyncThunk(
   'records/send-request',
