@@ -69,7 +69,7 @@ const useWebSocket = (): IWebSocketHook => {
   const playNotificationSound = (): void => {
     const audio = new Audio('/audio/zomujo-notification-sound.wav');
     audio.load();
-    void audio.play();
+    void audio.play().catch(() => console.error('Failed to play notification sound'));
   };
 
   const emit = useCallback((eventName: NotificationEvent, data: unknown) => {
