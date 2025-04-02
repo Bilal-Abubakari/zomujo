@@ -90,12 +90,12 @@ const NotificationActions = (): JSX.Element => {
 
   const recordRequestMessage = (): string => {
     if (recordRequest?.status === ApproveDeclineStatus.Approved) {
-      return `You request to access the medical records of ${recordRequest?.patient.firstName} ${recordRequest?.patient.lastName} has been accepted.`;
+      return `Your request to access the medical records of ${recordRequest?.patient.firstName} ${recordRequest?.patient.lastName} has been accepted.`;
     } else if (recordRequest?.status === ApproveDeclineStatus.Declined) {
-      return `You request to access the medical records of ${recordRequest?.patient.firstName} ${recordRequest?.patient.lastName} has been declined.`;
+      return `Your request to access the medical records of ${recordRequest?.patient.firstName} ${recordRequest?.patient.lastName} has been declined.`;
     }
     return `Dr. ${recordRequest?.doctor.firstName} ${recordRequest?.doctor.lastName} has requested
-                access to your medical records. If you accept they he will be granted access to your
+                access to your medical records. If you accept he/she will be granted access to your
                 records. If you decline then no further actions will be required`;
   };
 
