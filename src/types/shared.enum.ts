@@ -15,6 +15,7 @@ export enum ApproveDeclineStatus {
   Approved = 'approved',
   Declined = 'declined',
   Pending = 'pending',
+  Idle = 'idle',
 }
 
 export enum AcceptDeclineStatus {
@@ -51,6 +52,7 @@ export enum ToastStatus {
 
 export enum SidebarType {
   Settings = 'settings',
+  PatientRecord = 'patientRecord',
 }
 
 export enum MaritalStatus {

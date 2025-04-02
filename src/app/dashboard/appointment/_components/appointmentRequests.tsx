@@ -33,7 +33,7 @@ import { StatusBadge } from '@/components/ui/statusBadge';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 
 const AppointmentRequests = (): JSX.Element => {
-  const { role, id } = useAppSelector(selectUser)!;
+  const user = useAppSelector(selectUser);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -44,8 +44,8 @@ const AppointmentRequests = (): JSX.Element => {
     useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
       orderBy: 'createdAt',
       orderDirection: OrderDirection.Descending,
-      doctorId: role === Role.Doctor ? id : undefined,
-      patientId: role === Role.Patient ? id : undefined,
+      doctorId: user?.role === Role.Doctor ? user?.id : undefined,
+      patientId: user?.role === Role.Patient ? user?.id : undefined,
       page: 1,
       search: '',
       status: '',
@@ -71,7 +71,7 @@ const AppointmentRequests = (): JSX.Element => {
       header: () => <div className="flex cursor-pointer whitespace-nowrap">Patient Name</div>,
       cell: ({ row: { original } }): JSX.Element => {
         const { doctor, patient } = original;
-        const isDoctor = role === Role.Doctor;
+        const isDoctor = user?.role === Role.Doctor;
         return (
           <AvatarWithName
             imageSrc={isDoctor ? patient.profilePicture : doctor.profilePicture}
@@ -123,7 +123,7 @@ const AppointmentRequests = (): JSX.Element => {
         const isPending = status === AppointmentStatus.Pending;
         const isDone = status === AppointmentStatus.Completed;
         const getName = (): string => {
-          if (role === Role.Patient) {
+          if (user?.role === Role.Patient) {
             return `${doctor.firstName} ${doctor.lastName}`;
           }
           return `${patient.firstName} ${patient.lastName}`;
@@ -146,7 +146,7 @@ const AppointmentRequests = (): JSX.Element => {
                     'Yes, accept',
                     'Cancel',
                   ),
-                visible: role === Role.Doctor && isPending,
+                visible: user?.role === Role.Doctor && isPending,
               },
               {
                 title: (

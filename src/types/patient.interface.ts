@@ -16,7 +16,14 @@ export interface IPatient extends IExtraBase {
   address?: string;
   NHISnumber?: string;
   insuranceInfo: string;
+  respiratoryRate?: number;
+  oxygenSaturation?: number;
 }
+
+export type IPatientBasic = Pick<
+  IPatient,
+  'maritalStatus' | 'gender' | 'dob' | 'denomination' | 'height' | 'bloodGroup'
+>;
 
 export interface IBloodPressure {
   systolic: number;

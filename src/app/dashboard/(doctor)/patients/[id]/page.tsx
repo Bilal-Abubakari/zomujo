@@ -1,9 +1,6 @@
 import { JSX } from 'react';
+import PatientOverview from '@/app/dashboard/(doctor)/_components/PatientRecord';
 
-const PatientRecords = (): JSX.Element => (
-  <div>
-    <h1>This is where the doctor view and possibly edit a patient&#39;s records</h1>
-  </div>
-);
+const PatientOverviewPage = (): JSX.Element => <PatientOverview />;
 
-export default PatientRecords;
+export default PatientOverviewPage;

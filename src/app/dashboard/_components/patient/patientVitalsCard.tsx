@@ -5,6 +5,8 @@ import { interpolateRange } from '@/lib/utils';
 import HalfCircleProgress from '@/components/ui/halfCircleProgress';
 import { Badge } from '@/components/ui/badge';
 import { IBloodPressure, IPatient } from '@/types/patient.interface';
+import { FilePenLine } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const PatientVitalsCard = ({
   weight,
@@ -12,10 +14,12 @@ const PatientVitalsCard = ({
   bloodSugarLevel,
   temperature,
   bloodPressure,
+  respiratoryRate,
+  oxygenSaturation,
 }: IPatient): JSX.Element => {
   const vitalsColor = interpolate(
     [0, 0.25, 0.75, 1],
-    ['#F59E0B', '#16A34A', '#16A34A', '#DC2626'],
+    ['#F59E0B', '#08AF85', '#08AF85', '#DC2626'],
     {
       clamp: true,
     },
@@ -25,12 +29,21 @@ const PatientVitalsCard = ({
     <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
       <div className="flex flex-row items-center justify-between">
         <p className="font-bold">Vitals</p>
+        <Button
+          variant="outline"
+          child={
+            <>
+              <FilePenLine />
+              Edit
+            </>
+          }
+        />
       </div>
       <hr className="my-4" />
       <div className="flex h-28 items-center justify-center">
         <HalfCircleProgress
           progress={vitalsRange(pressure)}
-          size={224}
+          size={250}
           stroke={32}
           color={vitalsColor(vitalsRange(pressure))}
           bottomComponent={
@@ -62,6 +75,14 @@ const PatientVitalsCard = ({
           )}
         </div>
         <div className="flex flex-row items-center justify-between text-sm">
+          <p className="text-gray-500">Respiratory Rate</p>
+          {heartRate ? (
+            <Badge className="bg-[#F2F8FE] font-medium text-[#1178DF]">{respiratoryRate} cpm</Badge>
+          ) : (
+            '<Empty>'
+          )}
+        </div>
+        <div className="flex flex-row items-center justify-between text-sm">
           <p className="text-gray-500">Blood Sugar Level</p>
           {bloodSugarLevel ? (
             <Badge className="bg-warning-75 text-warning-600 font-medium">
@@ -74,6 +95,10 @@ const PatientVitalsCard = ({
         <div className="flex flex-row items-center justify-between text-sm">
           <p className="text-gray-500">Temperature</p>
           <p className="font-medium">{temperature ? `${temperature} ˚C` : '<Empty>'}</p>
+        </div>
+        <div className="flex flex-row items-center justify-between text-sm">
+          <p className="text-gray-500">SpO2</p>
+          <p className="font-medium">{oxygenSaturation ? `${oxygenSaturation} ˚%` : '<Empty>'}</p>
         </div>
       </div>
     </div>

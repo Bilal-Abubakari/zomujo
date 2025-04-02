@@ -107,3 +107,25 @@ export const getValidQueryString = (queryParams: IQueryParams<unknown>): string 
   );
   return new URLSearchParams(filteredQueryParams).toString();
 };
+
+/**
+ * Extracts a dynamic parameter from the current URL.
+ * If a preceding string is provided, it returns the parameter following that string.
+ * Otherwise, it returns the last segment of the URL.
+ *
+ * @param precedingString - The string preceding the desired parameter in the URL.
+ * @returns The dynamic parameter from the URL.
+ */
+export const getDynamicParamFromUrl = (precedingString?: string): string => {
+  const currentUrl = window.location.href;
+  const urlParts = currentUrl.split('/');
+
+  if (precedingString) {
+    const precedingIndex = urlParts.indexOf(precedingString);
+    if (precedingIndex !== -1 && precedingIndex + 1 < urlParts.length) {
+      return urlParts[precedingIndex + 1];
+    }
+  }
+
+  return urlParts[urlParts.length - 1];
+};

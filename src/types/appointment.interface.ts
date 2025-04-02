@@ -1,17 +1,24 @@
-import { AppointmentStatus } from './shared.enum';
+import { AppointmentStatus, ApproveDeclineStatus } from './shared.enum';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
 import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
 
-export interface IAppointment extends ISlotBase {
+interface IBaseAppointment {
   id: string;
   patient: IPatient;
   doctor: IDoctor;
+}
+
+export interface IAppointment extends IBaseAppointment, ISlotBase {
   slot: ISlot;
   status: AppointmentStatus;
   reason: string;
   additionalInfo: string;
   meetingLink: string | null;
+}
+
+export interface IRecordRequest extends IBaseAppointment {
+  status: ApproveDeclineStatus;
 }
 
 export enum AppointmentType {
