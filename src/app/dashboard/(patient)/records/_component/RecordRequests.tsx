@@ -36,6 +36,7 @@ const RecordRequests = (): JSX.Element => {
       search: '',
       status: '',
     });
+  const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
   const statusFilterOptions: ISelected[] = [
     {
@@ -140,7 +141,6 @@ const RecordRequests = (): JSX.Element => {
       setConfirmation,
       setQueryParameters,
     });
-  const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
     event.preventDefault();
@@ -153,6 +153,12 @@ const RecordRequests = (): JSX.Element => {
 
   return (
     <div>
+      <Confirmation
+        {...confirmation}
+        showClose={true}
+        setState={() => handleConfirmationClose()}
+        isLoading={isConfirmationLoading}
+      />
       <div className="flex justify-between">
         <form className="flex" onSubmit={handleSubmit}>
           <Input
@@ -190,12 +196,6 @@ const RecordRequests = (): JSX.Element => {
           isLoading={isLoading}
         />
       </div>
-      <Confirmation
-        {...confirmation}
-        showClose={true}
-        setState={() => handleConfirmationClose()}
-        isLoading={isConfirmationLoading}
-      />
     </div>
   );
 };
