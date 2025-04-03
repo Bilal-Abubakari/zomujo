@@ -132,7 +132,6 @@ const RecordRequests = (): JSX.Element => {
           />
         );
       },
-      enableHiding: false,
     },
   ];
 
