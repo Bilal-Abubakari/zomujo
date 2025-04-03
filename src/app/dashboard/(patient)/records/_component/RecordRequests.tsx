@@ -7,10 +7,8 @@ import { Input } from '@/components/ui/input';
 import { TableData } from '@/components/ui/table';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { useSearch } from '@/hooks/useSearch';
-import { selectUser } from '@/lib/features/auth/authSelector';
-import { useAppSelector } from '@/lib/hooks';
 import { IRecordRequest } from '@/types/appointment.interface';
-import { ApproveDeclineStatus, OrderDirection, Role } from '@/types/shared.enum';
+import { ApproveDeclineStatus, OrderDirection } from '@/types/shared.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import { Ban, ListFilter, Search, SendHorizontal, Signature } from 'lucide-react';
 import moment from 'moment';
@@ -24,7 +22,6 @@ import {
 } from '@/lib/features/records/recordsThunk';
 
 const RecordRequests = (): JSX.Element => {
-  const user = useAppSelector(selectUser);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -89,16 +86,11 @@ const RecordRequests = (): JSX.Element => {
       id: 'actions',
       header: 'Action',
       cell: ({ row: { original } }): JSX.Element => {
-        const { status, patient, doctor, id } = original;
+        const { status, doctor, id } = original;
         const isPending = status === ApproveDeclineStatus.Pending;
         const isApproved = status === ApproveDeclineStatus.Approved;
         const isDeclined = status === ApproveDeclineStatus.Declined;
-        const getName = (): string => {
-          if (user?.role === Role.Patient) {
-            return `${doctor.firstName} ${doctor.lastName}`;
-          }
-          return `${patient.firstName} ${patient.lastName}`;
-        };
+        const doctorName = `${doctor.firstName} ${doctor.lastName}`;
         return (
           <ActionsDropdownMenus
             menuContent={[
@@ -111,7 +103,7 @@ const RecordRequests = (): JSX.Element => {
                 clickCommand: () =>
                   handleConfirmationOpen(
                     'Accept',
-                    `grant ${getName()}'s access to your records`,
+                    `grant ${doctorName}'s access to your records`,
                     id,
                     acceptRecordRequest,
                     'Yes, accept',
@@ -128,7 +120,7 @@ const RecordRequests = (): JSX.Element => {
                 clickCommand: () =>
                   handleConfirmationOpen(
                     'Decline',
-                    `disapprove ${getName()}'s access`,
+                    `disapprove ${doctorName}'s access`,
                     id,
                     declineRecordRequest,
                     'Yes, disapprove',
