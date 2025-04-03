@@ -52,7 +52,7 @@ export const PATIENT_SIDE_BAR: ISidebar = {
         },
         {
           title: 'Records',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/records`,
           Icon: Archive,
         },
         {

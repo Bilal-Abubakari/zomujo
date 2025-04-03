@@ -19,6 +19,7 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
 
 export interface IRecordRequest extends IBaseAppointment {
   status: ApproveDeclineStatus;
+  createdAt: string;
 }
 
 export enum AppointmentType {

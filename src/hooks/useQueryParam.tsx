@@ -24,6 +24,11 @@ export enum AppointmentDate {
   selectedDate = 'selectedDate',
 }
 
+export enum RecordsTab {
+  Requests = 'requests',
+  MyRecord = 'myRecord',
+}
+
 interface IQuery {
   tab: Tab;
   appointmentType: MedicalAppointmentType;
@@ -31,6 +36,7 @@ interface IQuery {
   [AppointmentDate.selectedDate]: string;
   appointmentView: AppointmentView;
   specialty: string;
+  recordsTab: RecordsTab;
 }
 
 type QueryParamKey = keyof IQuery;
