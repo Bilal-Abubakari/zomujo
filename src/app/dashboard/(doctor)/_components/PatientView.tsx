@@ -20,10 +20,21 @@ const PatientView = ({
   const [status, setStatus] = useState<ApproveDeclineStatus>(ApproveDeclineStatus.Idle);
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
   const { on } = useWebSocket();
-  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const dispatch = useAppDispatch();
   const params = useParams();
   const patientId = params.id as string;
+
+  const fetchPatientRecords = async (status: ApproveDeclineStatus): Promise<void> => {
+    if (status === ApproveDeclineStatus.Approved) {
+      setIsLoading(true);
+      const { payload } = await dispatch(getPatientRecords(patientId));
+      if (showErrorToast(payload)) {
+        toast(payload as Toast);
+      }
+      setIsLoading(false);
+    }
+  };
 
   const submitRequest = async (): Promise<void> => {
     setIsSubmittingRequest(true);
@@ -38,29 +49,30 @@ const PatientView = ({
 
   useEffect(() => {
     const handleStatusCheck = async (): Promise<void> => {
-      setIsCheckingStatus(true);
+      setIsLoading(true);
       const { payload } = await dispatch(requestStatus(patientId));
+      if (showErrorToast(payload)) {
+        toast(payload as Toast);
+      }
       const status = payload as ApproveDeclineStatus;
       setStatus(status);
-      setIsCheckingStatus(false);
-      if (status === ApproveDeclineStatus.Approved) {
-        const { payload } = await dispatch(getPatientRecords(patientId));
-        // Yet to be implemented or used once backend finalizes records structure
-        console.log('payload', payload);
-      }
+      setIsLoading(false);
+      void fetchPatientRecords(status);
     };
     void handleStatusCheck();
   }, []);
 
   on(NotificationEvent.RecordRequest, (data: unknown) => {
     const { payload } = data as INotification;
-    setStatus(payload.request.status);
+    const status = payload.request.status;
+    setStatus(status);
+    void fetchPatientRecords(status);
   });
 
   return (
     <div className="relative -ml-6">
-      {isCheckingStatus && <LoadingOverlay />}
-      {!isCheckingStatus && status === ApproveDeclineStatus.Idle && (
+      {isLoading && <LoadingOverlay />}
+      {!isLoading && status === ApproveDeclineStatus.Idle && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#EDEDED80] backdrop-blur-[3px]">
           <div className="relative flex w-full max-w-lg flex-col items-center gap-6 rounded-3xl bg-white p-10 text-center shadow-lg">
             <div className="max-w-sm text-2xl font-bold">Request access to patient records</div>
@@ -76,7 +88,7 @@ const PatientView = ({
           </div>
         </div>
       )}
-      {!isCheckingStatus && status === ApproveDeclineStatus.Pending && (
+      {!isLoading && status === ApproveDeclineStatus.Pending && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#EDEDED80] backdrop-blur-[3px]">
           <div className="relative flex w-full max-w-lg flex-col items-center gap-6 rounded-3xl bg-white p-10 text-center shadow-lg">
             <div className="max-w-sm text-2xl font-bold">
@@ -88,7 +100,7 @@ const PatientView = ({
           </div>
         </div>
       )}
-      {!isCheckingStatus && status === ApproveDeclineStatus.Declined && (
+      {!isLoading && status === ApproveDeclineStatus.Declined && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#EDEDED80] backdrop-blur-[3px]">
           <div className="relative flex w-full max-w-lg flex-col items-center gap-6 rounded-3xl bg-white p-10 text-center shadow-lg">
             <div className="max-w-sm text-2xl font-bold">

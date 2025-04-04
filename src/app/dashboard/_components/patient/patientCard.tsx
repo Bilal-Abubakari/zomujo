@@ -1,4 +1,4 @@
-import { IPatient, IPatientBasic } from '@/types/patient.interface';
+import { IPatientBasic } from '@/types/patient.interface';
 import React, { JSX, useState } from 'react';
 import { AvatarWithName } from '@/components/ui/avatar';
 import { capitalize } from '@/lib/utils';
@@ -27,6 +27,8 @@ import { z } from 'zod';
 import { BloodGroup, Denomination, Gender, MaritalStatus } from '@/types/shared.enum';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
+import { useAppSelector } from '@/lib/hooks';
+import { selectPatientWithRecord } from '@/lib/features/patients/patientsSelector';
 
 const patientBasicSchema = z.object({
   gender: z.nativeEnum(Gender),
@@ -37,17 +39,8 @@ const patientBasicSchema = z.object({
   maritalStatus: z.nativeEnum(MaritalStatus).optional(),
 });
 
-const PatientCard = ({
-  profilePicture,
-  firstName,
-  lastName,
-  maritalStatus,
-  gender,
-  dob,
-  denomination,
-  height,
-  bloodGroup,
-}: IPatient): JSX.Element => {
+const PatientCard = (): JSX.Element => {
+  const patientWithRecord = useAppSelector(selectPatientWithRecord);
   const {
     register,
     control,
@@ -56,12 +49,12 @@ const PatientCard = ({
     resolver: zodResolver(patientBasicSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
-      gender,
-      dob,
-      denomination,
-      height,
-      bloodGroup,
-      maritalStatus,
+      gender: patientWithRecord?.gender,
+      dob: patientWithRecord?.dob,
+      denomination: patientWithRecord?.denomination,
+      height: patientWithRecord?.record.height,
+      bloodGroup: patientWithRecord?.record.bloodGroup,
+      maritalStatus: patientWithRecord?.maritalStatus,
     },
   });
   const [edit, setEdit] = useState(false);
@@ -70,7 +63,11 @@ const PatientCard = ({
       <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-[0px_1px_2px_0px_#0F172A0F]">
         <div className="flex flex-row items-center justify-between">
           <div className="flex w-full justify-between">
-            <AvatarWithName firstName={firstName} lastName={lastName} imageSrc={profilePicture} />
+            <AvatarWithName
+              firstName={patientWithRecord?.firstName ?? ''}
+              lastName={patientWithRecord?.lastName ?? ''}
+              imageSrc={patientWithRecord?.profilePicture ?? ''}
+            />
             <Button
               variant="outline"
               onClick={() => setEdit(true)}
@@ -88,34 +85,48 @@ const PatientCard = ({
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Marital Status</span>
             <span className="text-sm font-medium">
-              {maritalStatus ? capitalize(maritalStatus) : '<Empty>'}
+              {patientWithRecord?.maritalStatus
+                ? capitalize(patientWithRecord.maritalStatus)
+                : '<Empty>'}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Gender</span>
             <span className="text-sm font-medium">
-              {gender ? <GenderBadge gender={gender} /> : '<Empty>'}
+              {patientWithRecord?.gender ? (
+                <GenderBadge gender={patientWithRecord.gender} />
+              ) : (
+                '<Empty>'
+              )}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Date of Birth</span>
             <span className="text-sm font-medium">
-              {dob ? formatDateToDDMMYYYY(dob) : '<Empty>'}
+              {patientWithRecord?.dob ? formatDateToDDMMYYYY(patientWithRecord.dob) : '<Empty>'}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Denomination</span>
             <span className="text-sm font-medium">
-              {denomination ? capitalize(denomination) : '<Empty>'}
+              {patientWithRecord?.denomination
+                ? capitalize(patientWithRecord.denomination)
+                : '<Empty>'}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Height</span>
-            <span className="text-sm font-medium">{height ? height : '<Empty>'}</span>
+            <span className="text-sm font-medium">
+              {patientWithRecord?.record.height ? patientWithRecord.record.height : '<Empty>'}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Blood Group</span>
-            <span className="text-sm font-medium">{bloodGroup ? bloodGroup : '<Empty>'}</span>
+            <span className="text-sm font-medium">
+              {patientWithRecord?.record.bloodGroup
+                ? patientWithRecord.record.bloodGroup
+                : '<Empty>'}
+            </span>
           </div>
         </div>
       </div>
@@ -125,7 +136,7 @@ const PatientCard = ({
             <DrawerHeader className="flex items-center justify-between">
               <div>
                 <DrawerTitle className="text-lg">
-                  Edit {firstName} {lastName}
+                  Edit {patientWithRecord?.firstName} {patientWithRecord?.lastName}
                 </DrawerTitle>
                 <DrawerDescription>
                   Review the details of the new appointment request below.

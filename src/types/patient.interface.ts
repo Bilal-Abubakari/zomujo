@@ -4,13 +4,6 @@ import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
 export interface IPatient extends IExtraBase {
   maritalStatus?: MaritalStatus;
   denomination?: Denomination;
-  height?: number;
-  bloodGroup?: BloodGroup;
-  weight?: number;
-  heartRate?: number;
-  bloodSugarLevel?: number;
-  bloodPressure?: IBloodPressure;
-  temperature?: number;
   lifestyle: unknown;
   city?: string;
   address?: string;
@@ -20,10 +13,43 @@ export interface IPatient extends IExtraBase {
   oxygenSaturation?: number;
 }
 
-export type IPatientBasic = Pick<
-  IPatient,
-  'maritalStatus' | 'gender' | 'dob' | 'denomination' | 'height' | 'bloodGroup'
->;
+export interface IMedicalRecord {
+  id: string;
+  allergies: string[];
+  bloodGroup?: BloodGroup;
+  bloodPressure?: IBloodPressure;
+  bloodSugarLevel?: number;
+  complaints: string;
+  diagnosis: string[];
+  examination: string[];
+  familyMembers: string[];
+  futureVisits: string[];
+  gynae: string[];
+  height?: number;
+  weight?: number;
+  heartRate?: number;
+  invoice?: string;
+  lab: string[];
+  lifestyle?: string;
+  prescription: string[];
+  prescriptionPreviewUrl?: string;
+  reasonEnded?: string;
+  review?: string;
+  status: 'active';
+  surgeries: string[];
+  temperature?: number;
+  symptoms: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IPatientWithRecord extends IPatient {
+  record: IMedicalRecord;
+  recordId: string;
+}
+
+export type IPatientBasic = Pick<IMedicalRecord, 'height' | 'bloodGroup'> &
+  Pick<IPatient, 'maritalStatus' | 'denomination' | 'dob' | 'gender'>;
 
 export interface IBloodPressure {
   systolic: number;
