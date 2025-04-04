@@ -1,9 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { IResponse } from '@/types/shared.interface';
+import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import axios, { axiosErrorHandler } from '@/lib/axios';
-import { generateSuccessToast } from '@/lib/utils';
+import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { ApproveDeclineStatus } from '@/types/shared.enum';
+import { IRecordRequest } from '@/types/appointment.interface';
 
 const recordsPath = 'records/';
 
@@ -68,6 +69,22 @@ export const declineRecordRequest = createAsyncThunk(
         data: { message },
       } = await axios.delete<IResponse>(`${recordsPath}request-decline/${id}`);
       return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getRecordRequests = createAsyncThunk(
+  'records/requests',
+  async (query: IQueryParams<'' | ApproveDeclineStatus>) => {
+    try {
+      const {
+        data: { data },
+      } = await axios.get<IResponse<IPagination<IRecordRequest>>>(
+        `${recordsPath}requests?${getValidQueryString(query)}`,
+      );
+      return data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

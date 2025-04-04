@@ -2,7 +2,7 @@
 import React, { JSX, ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/lib/hooks';
-import { requestStatus, sendRequest } from '@/lib/features/records/recordsThunk';
+import { getPatientRecords, requestStatus, sendRequest } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
@@ -40,8 +40,14 @@ const PatientView = ({
     const handleStatusCheck = async (): Promise<void> => {
       setIsCheckingStatus(true);
       const { payload } = await dispatch(requestStatus(patientId));
-      setStatus(payload as ApproveDeclineStatus);
+      const status = payload as ApproveDeclineStatus;
+      setStatus(status);
       setIsCheckingStatus(false);
+      if (status === ApproveDeclineStatus.Approved) {
+        const { payload } = await dispatch(getPatientRecords(patientId));
+        // Yet to be implemented or used once backend finalizes records structure
+        console.log('payload', payload);
+      }
     };
     void handleStatusCheck();
   }, []);
