@@ -116,9 +116,7 @@ const PatientCard = (): JSX.Element => {
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Blood Group</span>
             <span className="text-sm font-medium">
-              {patientWithRecord?.record.bloodGroup
-                ??
-                '<Empty>'}
+              {patientWithRecord?.record.bloodGroup ?? '<Empty>'}
             </span>
           </div>
         </div>
