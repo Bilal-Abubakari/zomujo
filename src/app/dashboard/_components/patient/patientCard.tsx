@@ -48,14 +48,7 @@ const PatientCard = (): JSX.Element => {
   } = useForm<IPatientBasic>({
     resolver: zodResolver(patientBasicSchema),
     mode: MODE.ON_TOUCH,
-    defaultValues: {
-      gender: patientWithRecord?.gender,
-      dob: patientWithRecord?.dob,
-      denomination: patientWithRecord?.denomination,
-      height: patientWithRecord?.record.height,
-      bloodGroup: patientWithRecord?.record.bloodGroup,
-      maritalStatus: patientWithRecord?.maritalStatus,
-    },
+    defaultValues: patientWithRecord,
   });
   const [edit, setEdit] = useState(false);
   return (
