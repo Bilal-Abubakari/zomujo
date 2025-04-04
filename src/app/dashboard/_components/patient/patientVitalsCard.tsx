@@ -8,15 +8,7 @@ import { IBloodPressure, IPatient } from '@/types/patient.interface';
 import { FilePenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const PatientVitalsCard = ({
-  weight,
-  heartRate,
-  bloodSugarLevel,
-  temperature,
-  bloodPressure,
-  respiratoryRate,
-  oxygenSaturation,
-}: IPatient): JSX.Element => {
+const PatientVitalsCard = ({ respiratoryRate, oxygenSaturation }: IPatient): JSX.Element => {
   const vitalsColor = interpolate(
     [0, 0.25, 0.75, 1],
     ['#F59E0B', '#08AF85', '#08AF85', '#DC2626'],
@@ -24,6 +16,11 @@ const PatientVitalsCard = ({
       clamp: true,
     },
   );
+  const bloodPressure = { systolic: 120, diastolic: 80 };
+  const weight = 80;
+  const heartRate = 83;
+  const bloodSugarLevel = 1.8;
+  const temperature = 37.5;
   const pressure: IBloodPressure = bloodPressure ? bloodPressure : { systolic: 120, diastolic: 80 };
   return (
     <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
