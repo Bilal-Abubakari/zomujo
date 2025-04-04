@@ -19,7 +19,7 @@ const PatientOverview = (): JSX.Element => {
       </div>
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <PatientCard {...patient!} />
+          <PatientCard />
         </div>
         <div>
           <PatientVitalsCard {...patient!} />

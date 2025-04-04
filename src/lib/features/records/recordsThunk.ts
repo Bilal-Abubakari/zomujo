@@ -5,6 +5,8 @@ import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { ApproveDeclineStatus } from '@/types/shared.enum';
 import { IRecordRequest } from '@/types/appointment.interface';
+import { IPatientWithRecord } from '@/types/patient.interface';
+import { setPatientWithRecords } from '@/lib/features/patients/patientsSlice';
 
 const recordsPath = 'records/';
 
@@ -36,16 +38,20 @@ export const requestStatus = createAsyncThunk(
   },
 );
 
-export const getPatientRecords = createAsyncThunk('records/patient', async (id: string) => {
-  try {
-    const {
-      data: { data },
-    } = await axios.get<IResponse>(`${recordsPath}${id}`);
-    return data;
-  } catch (error) {
-    return axiosErrorHandler(error, true) as Toast;
-  }
-});
+export const getPatientRecords = createAsyncThunk(
+  'records/patient',
+  async (id: string, { dispatch }) => {
+    try {
+      const {
+        data: { data },
+      } = await axios.get<IResponse<IPatientWithRecord>>(`${recordsPath}${id}`);
+      dispatch(setPatientWithRecords(data));
+      return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
 
 export const acceptRecordRequest = createAsyncThunk(
   'records/accept-request',
