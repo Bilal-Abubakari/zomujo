@@ -54,6 +54,6 @@ export const textAreaSchema = z
   .max(500, 'Field should not exceed 500 characters')
   .regex(/^[A-Za-z0-9\s.,!?'"-]+$/, 'Field contains invalid characters');
 
-export const positiveNumberSchema = z.number().positive('Value must be greater than zero');
+export const positiveNumberSchema = z.coerce.number().positive('Value must be greater than zero');
 
 export const booleanSchema = z.boolean();
