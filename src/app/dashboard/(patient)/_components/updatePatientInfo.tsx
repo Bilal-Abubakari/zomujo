@@ -30,9 +30,9 @@ const UpdatePatientInfo = (): JSX.Element => {
     mode: MODE.ON_TOUCH,
   });
 
-  const onSubmit = async (data: IPatientMandatory): Promise<void> => {
+  const onSubmit = async (patientInfo: IPatientMandatory): Promise<void> => {
     setIsLoading(true);
-    const { payload } = await dispatch(updatePatient(data));
+    const { payload } = await dispatch(updatePatient(patientInfo));
     toast(payload as Toast);
     setIsLoading(false);
   };
