@@ -60,7 +60,7 @@ const authSlice = createSlice({
       state.loggedInAt = JSON.stringify(new Date());
     },
     updateExtra: (state, { payload }) => {
-      state.extra = payload;
+      state.extra = { ...state.extra, ...payload };
     },
     updateStatus: (state, { payload }) => {
       state.user!.status = payload;

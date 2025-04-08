@@ -49,9 +49,11 @@ export interface IPatientWithRecord extends IPatient {
 }
 
 export type IPatientBasic = Pick<IMedicalRecord, 'height' | 'bloodGroup'> &
-  Pick<IPatient, 'maritalStatus' | 'denomination' | 'dob' | 'gender'>;
+  Pick<IPatient, 'maritalStatus' | 'denomination'>;
 
 export interface IBloodPressure {
   systolic: number;
   diastolic: number;
 }
+
+export type IPatientMandatory = Pick<IPatient, 'gender' | 'dob'>;

@@ -5,14 +5,17 @@ import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { IPatient } from '@/types/patient.interface';
 import { IDoctorCountResponse } from '@/types/stats.interface';
-import { getValidQueryString } from '@/lib/utils';
+import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
+import { updateExtra } from '@/lib/features/auth/authSlice';
+
+const patientsPath = 'patients';
 
 export const getAllPatients = createAsyncThunk(
   'patients/allPatients',
   async (query: IQueryParams<AcceptDeclineStatus | ''>): Promise<IPagination<IPatient> | Toast> => {
     try {
       const { data } = await axios.get<IResponse<IPagination<IPatient>>>(
-        `patients?${getValidQueryString(query)}`,
+        `${patientsPath}?${getValidQueryString(query)}`,
       );
       return data.data;
     } catch (error) {
@@ -27,6 +30,21 @@ export const patientsStats = createAsyncThunk(
     try {
       const { data } = await axios.get<IResponse<IDoctorCountResponse>>(`dashboard/patient-count`);
       return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const updatePatient = createAsyncThunk(
+  'patients/update',
+  async (patientInfo: Partial<IPatient>, { dispatch }): Promise<Toast | IDoctorCountResponse> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.patch<IResponse<IDoctorCountResponse>>(`${patientsPath}/me`, patientInfo);
+      dispatch(updateExtra(patientInfo));
+      return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

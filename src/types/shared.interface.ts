@@ -59,7 +59,7 @@ export interface IExtraBase extends Pick<IUser, 'email'> {
   contact: string;
   profilePicture: string;
   gender: Gender;
-  dob: Date;
+  dob: string;
   orgId: string;
   createdAt: Date;
   updatedAt: Date;
