@@ -1,7 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useState } from 'react';
-import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/select';
 import { specialties } from '@/constants/constants';
@@ -23,7 +22,6 @@ const SearchDoctorsCard = (): JSX.Element => {
         </p>
       </div>
       <div className="flex h-12 w-full flex-row items-center justify-between gap-2 rounded-xl bg-white p-1.5">
-        <Search color={'#000'} className="ml-1.5" />
         <Combobox
           isLoading={false}
           onChange={(value) => setSearch(value)}

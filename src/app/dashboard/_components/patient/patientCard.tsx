@@ -17,22 +17,19 @@ import {
 import { SelectInput } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import {
-  selectGenderOptions,
   MODE,
   maritalOptions,
   denominationOptions,
   bloodGroupOptions,
 } from '@/constants/constants';
 import { z } from 'zod';
-import { BloodGroup, Denomination, Gender, MaritalStatus } from '@/types/shared.enum';
+import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { useAppSelector } from '@/lib/hooks';
 import { selectPatientWithRecord } from '@/lib/features/patients/patientsSelector';
 
 const patientBasicSchema = z.object({
-  gender: z.nativeEnum(Gender),
-  dob: z.date(),
   denomination: z.nativeEnum(Denomination).optional(),
   height: z.number().gte(0).optional(),
   bloodGroup: z.nativeEnum(BloodGroup).optional(),
@@ -143,22 +140,6 @@ const PatientCard = (): JSX.Element => {
                 error={errors.maritalStatus?.message}
                 name="maritalStatus"
                 placeholder="Select Marital Status"
-              />
-              <SelectInput
-                ref={register('gender').ref}
-                control={control}
-                options={selectGenderOptions}
-                label="Gender"
-                error={errors.gender?.message}
-                name="gender"
-                placeholder="Select Gender"
-              />
-              <Input
-                labelName="Date of Birth"
-                type="date"
-                error={errors.dob?.message || ''}
-                placeholder="Enter date of birth"
-                {...register('dob')}
               />
               <SelectInput
                 ref={register('denomination').ref}
