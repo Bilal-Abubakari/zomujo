@@ -57,7 +57,7 @@ const UpdatePatientInfo = (): JSX.Element => {
           labelName="Date of Birth"
           type="date"
           error={errors.dob?.message || ''}
-          placeholder="Enter date of birth"
+          placeholder="Enter your date of birth"
           {...register('dob')}
         />
         <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Save" type="submit" />
