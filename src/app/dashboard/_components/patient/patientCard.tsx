@@ -1,7 +1,7 @@
 import { IPatientBasic } from '@/types/patient.interface';
-import React, { JSX, useState } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
 import { AvatarWithName } from '@/components/ui/avatar';
-import { capitalize } from '@/lib/utils';
+import { capitalize, showErrorToast } from '@/lib/utils';
 import GenderBadge from '@/app/dashboard/_components/genderBadge';
 import { formatDateToDDMMYYYY } from '@/lib/date';
 import { Button } from '@/components/ui/button';
@@ -26,28 +26,63 @@ import { z } from 'zod';
 import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
-import { useAppSelector } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectPatientWithRecord } from '@/lib/features/patients/patientsSelector';
+import { toast, Toast } from '@/hooks/use-toast';
+import { positiveNumberSchema } from '@/schemas/zod.schemas';
+import { updateRecord } from '@/lib/features/records/recordsThunk';
+import { useParams } from 'next/navigation';
 
 const patientBasicSchema = z.object({
   denomination: z.nativeEnum(Denomination).optional(),
-  height: z.number().gte(0).optional(),
+  height: positiveNumberSchema.optional(),
   bloodGroup: z.nativeEnum(BloodGroup).optional(),
   maritalStatus: z.nativeEnum(MaritalStatus).optional(),
 });
 
 const PatientCard = (): JSX.Element => {
+  const params = useParams();
+  const patientId = params.id as string;
   const patientWithRecord = useAppSelector(selectPatientWithRecord);
   const {
     register,
     control,
-    formState: { errors },
+    formState: { errors, isValid },
+    setValue,
+    handleSubmit,
   } = useForm<IPatientBasic>({
     resolver: zodResolver(patientBasicSchema),
     mode: MODE.ON_TOUCH,
-    defaultValues: patientWithRecord,
+    defaultValues: {
+      maritalStatus: patientWithRecord?.record.maritalStatus,
+      bloodGroup: patientWithRecord?.record.bloodGroup,
+      denomination: patientWithRecord?.record.denomination,
+      height: patientWithRecord?.record.height,
+    },
   });
   const [edit, setEdit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (patientWithRecord) {
+      setValue('maritalStatus', patientWithRecord.record.maritalStatus);
+      setValue('bloodGroup', patientWithRecord.record.bloodGroup);
+      setValue('denomination', patientWithRecord.record.denomination);
+      setValue('height', patientWithRecord.record.height);
+    }
+  }, [patientWithRecord]);
+
+  const dispatch = useAppDispatch();
+
+  const onSubmit = async (data: IPatientBasic): Promise<void> => {
+    setIsLoading(true);
+    const { payload } = await dispatch(updateRecord({ id: patientId, ...data }));
+    toast(payload as Toast);
+    if (!showErrorToast(payload)) {
+      setEdit(false);
+    }
+    setIsLoading(false);
+  };
   return (
     <>
       <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-[0px_1px_2px_0px_#0F172A0F]">
@@ -75,8 +110,8 @@ const PatientCard = (): JSX.Element => {
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Marital Status</span>
             <span className="text-sm font-medium">
-              {patientWithRecord?.maritalStatus
-                ? capitalize(patientWithRecord.maritalStatus)
+              {patientWithRecord?.record.maritalStatus
+                ? capitalize(patientWithRecord.record.maritalStatus)
                 : '<Empty>'}
             </span>
           </div>
@@ -99,8 +134,8 @@ const PatientCard = (): JSX.Element => {
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Denomination</span>
             <span className="text-sm font-medium">
-              {patientWithRecord?.denomination
-                ? capitalize(patientWithRecord.denomination)
+              {patientWithRecord?.record.denomination
+                ? capitalize(patientWithRecord.record.denomination)
                 : '<Empty>'}
             </span>
           </div>
@@ -131,7 +166,7 @@ const PatientCard = (): JSX.Element => {
                 </DrawerDescription>
               </div>
             </DrawerHeader>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               <SelectInput
                 ref={register('maritalStatus').ref}
                 control={control}
@@ -151,11 +186,12 @@ const PatientCard = (): JSX.Element => {
                 placeholder="Select religion"
               />
               <Input
-                labelName="Height"
+                labelName="Height (cm)"
                 type="number"
-                error={errors.height?.message || ''}
-                placeholder="Enter height"
+                error={errors.height?.message}
+                placeholder="Enter height in centimeters"
                 {...register('height')}
+                rightIcon={'cm'}
               />
               <SelectInput
                 ref={register('bloodGroup').ref}
@@ -167,8 +203,14 @@ const PatientCard = (): JSX.Element => {
                 placeholder="Select Blood Group"
               />
               <div className="space-x-3">
-                <Button child="Save" type="submit" />
                 <Button
+                  isLoading={isLoading}
+                  disabled={!isValid || isLoading}
+                  child="Save"
+                  type="submit"
+                />
+                <Button
+                  disabled={isLoading}
                   onClick={() => setEdit(false)}
                   child="Close"
                   type="button"
