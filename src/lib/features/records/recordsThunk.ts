@@ -5,8 +5,11 @@ import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { ApproveDeclineStatus } from '@/types/shared.enum';
 import { IRecordRequest } from '@/types/appointment.interface';
-import { IPatientWithRecord } from '@/types/patient.interface';
-import { setPatientWithRecords } from '@/lib/features/patients/patientsSlice';
+import { IPatient, IPatientDataCombined, IPatientWithRecord } from '@/types/patient.interface';
+import {
+  updatePatientRecord,
+  updatePatientWithRecords,
+} from '@/lib/features/patients/patientsSlice';
 
 const recordsPath = 'records/';
 
@@ -45,7 +48,7 @@ export const getPatientRecords = createAsyncThunk(
       const {
         data: { data },
       } = await axios.get<IResponse<IPatientWithRecord>>(`${recordsPath}${id}`);
-      dispatch(setPatientWithRecords(data));
+      dispatch(updatePatientWithRecords(data));
       return data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -91,6 +94,21 @@ export const getRecordRequests = createAsyncThunk(
         `${recordsPath}requests?${getValidQueryString(query)}`,
       );
       return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const updateRecord = createAsyncThunk(
+  'record/update',
+  async (data: Partial<IPatientDataCombined>, { dispatch }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.patch<IResponse<IPatient>>(`records`, data);
+      dispatch(updatePatientRecord(data));
+      return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

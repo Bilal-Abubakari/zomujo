@@ -2,8 +2,6 @@ import { IExtraBase } from '@/types/shared.interface';
 import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
 
 export interface IPatient extends IExtraBase {
-  maritalStatus?: MaritalStatus;
-  denomination?: Denomination;
   lifestyle: unknown;
   city?: string;
   address?: string;
@@ -24,6 +22,8 @@ export interface IMedicalRecord {
   examination: string[];
   familyMembers: string[];
   futureVisits: string[];
+  maritalStatus?: MaritalStatus;
+  denomination?: Denomination;
   gynae: string[];
   height?: number;
   weight?: number;
@@ -35,7 +35,6 @@ export interface IMedicalRecord {
   prescriptionPreviewUrl?: string;
   reasonEnded?: string;
   review?: string;
-  status: 'active';
   surgeries: string[];
   temperature?: number;
   symptoms: string[];
@@ -48,8 +47,10 @@ export interface IPatientWithRecord extends IPatient {
   recordId: string;
 }
 
-export type IPatientBasic = Pick<IMedicalRecord, 'height' | 'bloodGroup'> &
-  Pick<IPatient, 'maritalStatus' | 'denomination'>;
+export type IPatientBasic = Pick<
+  IMedicalRecord,
+  'height' | 'bloodGroup' | 'maritalStatus' | 'denomination'
+>;
 
 export interface IBloodPressure {
   systolic: number;
@@ -57,3 +58,5 @@ export interface IBloodPressure {
 }
 
 export type IPatientMandatory = Pick<IPatient, 'gender' | 'dob'>;
+
+export type IPatientDataCombined = IPatient & IMedicalRecord;
