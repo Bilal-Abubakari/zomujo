@@ -8,3 +8,8 @@ export const selectPatientWithRecord = createSelector(
   selectPatients,
   ({ patientWithRecords }) => patientWithRecords,
 );
+
+export const selectRecord = createSelector(
+  selectPatientWithRecord,
+  (patientWithRecords) => patientWithRecords?.record,
+);

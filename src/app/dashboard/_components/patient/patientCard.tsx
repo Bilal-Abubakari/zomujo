@@ -27,7 +27,7 @@ import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectPatientWithRecord } from '@/lib/features/patients/patientsSelector';
+import { selectPatientWithRecord, selectRecord } from '@/lib/features/patients/patientsSelector';
 import { toast, Toast } from '@/hooks/use-toast';
 import { positiveNumberSchema } from '@/schemas/zod.schemas';
 import { updateRecord } from '@/lib/features/records/recordsThunk';
@@ -44,6 +44,7 @@ const PatientCard = (): JSX.Element => {
   const params = useParams();
   const patientId = params.id as string;
   const patientWithRecord = useAppSelector(selectPatientWithRecord);
+  const patientRecord = useAppSelector(selectRecord);
   const {
     register,
     control,
@@ -54,23 +55,23 @@ const PatientCard = (): JSX.Element => {
     resolver: zodResolver(patientBasicSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
-      maritalStatus: patientWithRecord?.record.maritalStatus,
-      bloodGroup: patientWithRecord?.record.bloodGroup,
-      denomination: patientWithRecord?.record.denomination,
-      height: patientWithRecord?.record.height,
+      maritalStatus: patientRecord?.maritalStatus,
+      bloodGroup: patientRecord?.bloodGroup,
+      denomination: patientRecord?.denomination,
+      height: patientRecord?.height,
     },
   });
   const [edit, setEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (patientWithRecord) {
-      setValue('maritalStatus', patientWithRecord.record.maritalStatus);
-      setValue('bloodGroup', patientWithRecord.record.bloodGroup);
-      setValue('denomination', patientWithRecord.record.denomination);
-      setValue('height', patientWithRecord.record.height);
+    if (patientRecord) {
+      setValue('maritalStatus', patientRecord.maritalStatus);
+      setValue('bloodGroup', patientRecord.bloodGroup);
+      setValue('denomination', patientRecord.denomination);
+      setValue('height', patientRecord.height);
     }
-  }, [patientWithRecord]);
+  }, [patientRecord]);
 
   const dispatch = useAppDispatch();
 
@@ -110,9 +111,7 @@ const PatientCard = (): JSX.Element => {
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Marital Status</span>
             <span className="text-sm font-medium">
-              {patientWithRecord?.record.maritalStatus
-                ? capitalize(patientWithRecord.record.maritalStatus)
-                : '<Empty>'}
+              {patientRecord?.maritalStatus ? capitalize(patientRecord?.maritalStatus) : '<Empty>'}
             </span>
           </div>
           <div className="flex justify-between">
@@ -134,22 +133,16 @@ const PatientCard = (): JSX.Element => {
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Denomination</span>
             <span className="text-sm font-medium">
-              {patientWithRecord?.record.denomination
-                ? capitalize(patientWithRecord.record.denomination)
-                : '<Empty>'}
+              {patientRecord?.denomination ? capitalize(patientRecord.denomination) : '<Empty>'}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Height</span>
-            <span className="text-sm font-medium">
-              {patientWithRecord?.record.height ?? '<Empty>'}
-            </span>
+            <span className="text-sm font-medium">{patientRecord?.height ?? '<Empty>'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Blood Group</span>
-            <span className="text-sm font-medium">
-              {patientWithRecord?.record.bloodGroup ?? '<Empty>'}
-            </span>
+            <span className="text-sm font-medium">{patientRecord?.bloodGroup ?? '<Empty>'}</span>
           </div>
         </div>
       </div>
