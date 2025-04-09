@@ -188,7 +188,7 @@ const PatientCard = (): JSX.Element => {
               <Input
                 labelName="Height (cm)"
                 type="number"
-                error={errors.height?.message || ''}
+                error={errors.height?.message}
                 placeholder="Enter height in centimeters"
                 {...register('height')}
                 rightIcon={'cm'}
