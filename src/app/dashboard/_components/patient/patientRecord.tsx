@@ -16,7 +16,7 @@ const PatientRecord = ({ patient }: PatientRecordProps): JSX.Element => (
       <PatientCard />
     </div>
     <div>
-      <PatientVitalsCard {...patient} />
+      <PatientVitalsCard />
     </div>
     <div>
       <PatientLifeFamilyCard />

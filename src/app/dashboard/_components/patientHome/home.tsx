@@ -11,7 +11,6 @@ import { IDoctor } from '@/types/doctor.interface';
 import { IHospital } from '@/types/hospital.interface';
 import HospitalCard from '@/app/dashboard/(patient)/_components/hospitalCard';
 import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
-import { IPatient } from '@/types/patient.interface';
 
 // TODO: We will replace this with real requests
 
@@ -121,7 +120,7 @@ const PatientHome = (): JSX.Element => {
     () => (
       <div className="space-y-6">
         <UpcomingAppointmentCard />
-        <PatientVitalsCard {...({ respiratoryRate: 32, oxygenSaturation: 15 } as IPatient)} />
+        <PatientVitalsCard />
       </div>
     ),
     [],

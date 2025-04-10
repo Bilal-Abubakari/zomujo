@@ -7,8 +7,6 @@ export interface IPatient extends IExtraBase {
   address?: string;
   NHISnumber?: string;
   insuranceInfo: string;
-  respiratoryRate?: number;
-  oxygenSaturation?: number;
 }
 
 export interface IMedicalRecord {
@@ -24,6 +22,8 @@ export interface IMedicalRecord {
   futureVisits: string[];
   maritalStatus?: MaritalStatus;
   denomination?: Denomination;
+  respiratoryRate?: number;
+  oxygenSaturation?: number;
   gynae: string[];
   height?: number;
   weight?: number;
