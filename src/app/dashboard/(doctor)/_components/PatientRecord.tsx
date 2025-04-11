@@ -3,6 +3,7 @@ import { JSX } from 'react';
 import { Button } from '@/components/ui/button';
 import PatientCard from '@/app/dashboard/_components/patient/patientCard';
 import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
+import PatientConditionsCard from '@/app/dashboard/_components/patient/patientConditionsCard';
 
 const PatientOverview = (): JSX.Element => (
   <div>
@@ -19,6 +20,9 @@ const PatientOverview = (): JSX.Element => (
       </div>
       <div>
         <PatientVitalsCard />
+      </div>
+      <div>
+        <PatientConditionsCard />
       </div>
     </div>
   </div>

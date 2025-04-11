@@ -42,6 +42,18 @@ export interface IMedicalRecord {
   updatedAt: string;
 }
 
+export interface IMedicine {
+  id: string;
+  name: string;
+  dose: string;
+}
+
+export interface ICondition {
+  id: string;
+  name: string;
+  medicines: IMedicine[];
+}
+
 export interface IPatientWithRecord extends IPatient {
   record: IMedicalRecord;
   recordId: string;
