@@ -42,7 +42,7 @@ export interface IMedicalRecord {
   updatedAt: string;
 }
 
-export interface IConditionMedicineBase {
+interface IConditionMedicineBase {
   id: string;
   name: string;
 }
