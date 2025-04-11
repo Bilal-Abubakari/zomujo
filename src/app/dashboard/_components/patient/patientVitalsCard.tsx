@@ -175,7 +175,7 @@ const PatientVitalsCard = (): JSX.Element => {
           <div className="flex flex-row items-center justify-between text-sm">
             <p className="text-gray-500">Temperature</p>
             <p className="font-medium">
-              {patientRecord?.temperature ? `${patientRecord.temperature} ˚°C` : '<Empty>'}
+              {patientRecord?.temperature ? `${patientRecord.temperature} °C` : '<Empty>'}
             </p>
           </div>
           <div className="flex flex-row items-center justify-between text-sm">
