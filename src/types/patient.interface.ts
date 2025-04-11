@@ -42,15 +42,16 @@ export interface IMedicalRecord {
   updatedAt: string;
 }
 
-export interface IMedicine {
+export interface IConditionMedicineBase {
   id: string;
   name: string;
+}
+
+export interface IMedicine extends IConditionMedicineBase {
   dose: string;
 }
 
-export interface ICondition {
-  id: string;
-  name: string;
+export interface ICondition extends IConditionMedicineBase {
   medicines: IMedicine[];
 }
 
