@@ -57,65 +57,63 @@ const PatientConditionsCard = (): JSX.Element => {
     </div>
   );
   return (
-    <>
-      <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
-        <div className="flex flex-row items-center justify-between">
-          <p className="font-bold">Conditions and Medicines</p>
-          <Button
-            variant="outline"
-            child={
-              <>
-                <FilePenLine />
-                Edit
-              </>
-            }
-          />
-        </div>
-        <hr className="my-4" />
-        {!mockConditions.length && (
-          <div className="flex h-40 items-center justify-center">No medical condition found</div>
-        )}
-        <div className="max-h-[360px] space-y-4 overflow-y-scroll">
-          {mockConditions.map(({ id, name, medicines }) => (
-            <div
-              key={id}
-              className="rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4"
-            >
-              <Collapsible
-                open={expandedId === id}
-                onOpenChange={() => {
-                  setExpandedId((prev) => (prev === id ? null : id));
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="rounded-full bg-white px-2 py-1.5">
-                    <h4 className="text-sm font-semibold">{name}</h4>
-                  </div>
-                  {medicines.length > 1 && (
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        child={
-                          <>
-                            <ChevronsUpDown className="h-4 w-4" />
-                            <span className="sr-only">Toggle</span>
-                          </>
-                        }
-                      />
-                    </CollapsibleTrigger>
-                  )}
-                </div>
-                {medicines[0] && drug(medicines[0])}
-                <CollapsibleContent>
-                  {medicines.slice(1).map((medicine) => drug(medicine))}
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          ))}
-        </div>
+    <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
+      <div className="flex flex-row items-center justify-between">
+        <p className="font-bold">Conditions and Medicines</p>
+        <Button
+          variant="outline"
+          child={
+            <>
+              <FilePenLine />
+              Edit
+            </>
+          }
+        />
       </div>
-    </>
+      <hr className="my-4" />
+      {!mockConditions.length && (
+        <div className="flex h-40 items-center justify-center">No medical condition found</div>
+      )}
+      <div className="max-h-[360px] space-y-4 overflow-y-scroll">
+        {mockConditions.map(({ id, name, medicines }) => (
+          <div
+            key={id}
+            className="rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4"
+          >
+            <Collapsible
+              open={expandedId === id}
+              onOpenChange={() => {
+                setExpandedId((prev) => (prev === id ? null : id));
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="rounded-full bg-white px-2 py-1.5">
+                  <h4 className="text-sm font-semibold">{name}</h4>
+                </div>
+                {medicines.length > 1 && (
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      child={
+                        <>
+                          <ChevronsUpDown className="h-4 w-4" />
+                          <span className="sr-only">Toggle</span>
+                        </>
+                      }
+                    />
+                  </CollapsibleTrigger>
+                )}
+              </div>
+              {medicines[0] && drug(medicines[0])}
+              <CollapsibleContent>
+                {medicines.slice(1).map((medicine) => drug(medicine))}
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
