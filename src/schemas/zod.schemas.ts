@@ -56,4 +56,9 @@ export const textAreaSchema = z
 
 export const positiveNumberSchema = z.coerce.number().positive('Value must be greater than zero');
 
+export const stringInputOptionalNumberSchema = z.preprocess(
+  (val): number | undefined => (val ? Number(val) : undefined),
+  z.coerce.number().positive().optional(),
+) as z.ZodEffects<z.ZodOptional<z.ZodNumber>, number | undefined, number | undefined>;
+
 export const booleanSchema = z.boolean();

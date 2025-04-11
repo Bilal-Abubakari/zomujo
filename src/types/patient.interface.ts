@@ -59,4 +59,15 @@ export interface IBloodPressure {
 
 export type IPatientMandatory = Pick<IPatient, 'gender' | 'dob'>;
 
+export type IPatientVitals = Pick<
+  IMedicalRecord,
+  | 'bloodPressure'
+  | 'weight'
+  | 'heartRate'
+  | 'respiratoryRate'
+  | 'bloodSugarLevel'
+  | 'temperature'
+  | 'oxygenSaturation'
+>;
+
 export type IPatientDataCombined = IPatient & IMedicalRecord;

@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import axios, { axiosErrorHandler } from '@/lib/axios';
-import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
+import { generateSuccessToast, getValidQueryString, removeNullishValues } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { ApproveDeclineStatus } from '@/types/shared.enum';
 import { IRecordRequest } from '@/types/appointment.interface';
@@ -104,10 +104,11 @@ export const updateRecord = createAsyncThunk(
   'record/update',
   async (data: Partial<IPatientDataCombined>, { dispatch }): Promise<Toast> => {
     try {
+      const validData = removeNullishValues<Partial<IPatientDataCombined>>(data);
       const {
         data: { message },
-      } = await axios.patch<IResponse<IPatient>>(`records`, data);
-      dispatch(updatePatientRecord(data));
+      } = await axios.patch<IResponse<IPatient>>(`records`, validData);
+      dispatch(updatePatientRecord(validData));
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
