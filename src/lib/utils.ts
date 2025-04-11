@@ -129,3 +129,17 @@ export const getDynamicParamFromUrl = (precedingString?: string): string => {
 
   return urlParts[urlParts.length - 1];
 };
+
+/**
+ * Removes properties from an object where the value is `null` or `undefined`.
+ *
+ * @template T - The type of the input object.
+ * @param {T} obj - The object to be filtered.
+ * @returns {Partial<T>} A new object containing only the properties with non-nullish values.
+ */
+export const removeNullishValues = <T extends Record<string, unknown> = Record<string, unknown>>(
+  obj: T,
+): Partial<T> =>
+  Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => value !== null && value !== undefined),
+  ) as Partial<T>;
