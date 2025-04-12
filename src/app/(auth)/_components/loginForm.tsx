@@ -62,7 +62,7 @@ const LoginForm = (): JSX.Element => {
           <Input
             labelName="Email"
             type="email"
-            error={errors.email?.message || ''}
+            error={errors.email?.message}
             placeholder="Enter your email"
             {...register('email')}
           />
@@ -71,7 +71,7 @@ const LoginForm = (): JSX.Element => {
             type="password"
             placeholder="Enter your password"
             enablePasswordToggle={true}
-            error={errors.password?.message || ''}
+            error={errors.password?.message}
             {...register('password')}
           />
           <Button

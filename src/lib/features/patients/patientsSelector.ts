@@ -13,3 +13,10 @@ export const selectRecord = createSelector(
   selectPatientWithRecord,
   (patientWithRecords) => patientWithRecords?.record,
 );
+
+export const selectRecordId = createSelector(
+  selectPatientWithRecord,
+  (patientWithRecords) => patientWithRecords?.recordId,
+);
+
+export const selectMedicalConditions = createSelector(selectRecord, (record) => record?.conditions);

@@ -1,119 +1,278 @@
-import React, { JSX, useState } from 'react';
+import React, { ChangeEvent, JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronsUpDown, FilePenLine } from 'lucide-react';
-import { ICondition, IMedicine } from '@/types/patient.interface';
+import { ChevronsUpDown, FilePenLine, Trash2 } from 'lucide-react';
+import { IConditionWithoutId, IMedicine } from '@/types/patient.interface';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import Image from 'next/image';
 import { Drugs } from '@/assets/images';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { selectMedicalConditions, selectRecordId } from '@/lib/features/patients/patientsSelector';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
+import { Input } from '@/components/ui/input';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { MODE } from '@/constants/constants';
+import { z } from 'zod';
+import { Combobox, SelectOption } from '@/components/ui/select';
+import { addMedicalCondition, getConditions } from '@/lib/features/records/recordsThunk';
+import { useDebounce } from 'use-debounce';
+import { Toast, toast } from '@/hooks/use-toast';
+import { showErrorToast } from '@/lib/utils';
 
-//TODO: Replace with actual data fetching logic
-const mockConditions: ICondition[] = [
-  {
-    id: 'cond-001',
-    name: 'Hypertension',
-    medicines: [
-      { id: 'med-001', name: 'Lisinopril', dose: '10mg daily' },
-      { id: 'med-002', name: 'Amlodipine', dose: '5mg daily' },
-    ],
-  },
-  {
-    id: 'cond-002',
-    name: 'Type 2 Diabetes',
-    medicines: [
-      { id: 'med-003', name: 'Metformin', dose: '500mg twice daily' },
-      { id: 'med-004', name: 'Glipizide', dose: '5mg daily before breakfast' },
-    ],
-  },
-  {
-    id: 'cond-003',
-    name: 'Asthma',
-    medicines: [
-      { id: 'med-005', name: 'Salbutamol', dose: '2 puffs as needed' },
-      { id: 'med-006', name: 'Fluticasone', dose: '1 puff twice daily' },
-    ],
-  },
-  {
-    id: 'cond-004',
-    name: 'Allergic Rhinitis',
-    medicines: [
-      { id: 'med-007', name: 'Loratadine', dose: '10mg once daily' },
-      { id: 'med-008', name: 'Fluticasone nasal spray', dose: '1 spray per nostril daily' },
-    ],
-  },
-];
+const conditionsSchema = z.object({
+  recordId: z.string().uuid(),
+  name: z.string(),
+  medicines: z
+    .array(
+      z.object({
+        id: z.string().nonempty(),
+        name: z.string().nonempty(),
+        doses: z.string().nonempty(),
+      }),
+    )
+    .min(1),
+});
 
 const PatientConditionsCard = (): JSX.Element => {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const {
+    setValue,
+    formState: { isValid },
+    handleSubmit,
+    watch,
+    control,
+  } = useForm<IConditionWithoutId>({
+    resolver: zodResolver(conditionsSchema),
+    mode: MODE.ON_TOUCH,
+  });
+  const { append, remove } = useFieldArray({
+    control,
+    name: 'medicines',
+  });
 
-  const drug = ({ name, dose }: IMedicine): JSX.Element => (
-    <div className="mt-4 flex items-center gap-1">
-      <Image src={Drugs} alt={name} width={20} height={20} />
-      <span
-        title={`${name}(${dose})`}
-        className="text-blue-midnight truncate text-sm font-semibold"
-      >
-        {name}({dose})
-      </span>
+  const [edit, setEdit] = useState(false);
+  const recordId = useAppSelector(selectRecordId);
+  const conditions = useAppSelector(selectMedicalConditions);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [value] = useDebounce(search, 1000);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
+  const [conditionOptions, setConditionOptions] = useState<SelectOption[]>([]);
+  const dispatch = useAppDispatch();
+  const [addMedicine, setAddMedicine] = useState({
+    name: '',
+    doses: '',
+  });
+
+  const onSubmit = async (condition: IConditionWithoutId): Promise<void> => {
+    setIsLoading(true);
+    const { payload } = await dispatch(addMedicalCondition(condition));
+    if (!showErrorToast(payload)) {
+      setEdit(false);
+    }
+    toast(payload as Toast);
+    setIsLoading(false);
+  };
+
+  const handleAddMedicineChange = ({ target }: ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = target;
+    setAddMedicine((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  useEffect(() => {
+    const handleSearch = async (): Promise<void> => {
+      setIsLoadingSearch(true);
+      const { payload } = await dispatch(getConditions(value));
+      setConditionOptions(payload as SelectOption[]);
+      setIsLoadingSearch(false);
+    };
+    void handleSearch();
+  }, [value]);
+
+  useEffect(() => {
+    if (recordId) {
+      setValue('recordId', recordId, { shouldValidate: true });
+    }
+  }, [recordId]);
+
+  const drug = ({ name, doses, id }: IMedicine, index?: number): JSX.Element => (
+    <div key={id} className="mt-4 flex justify-between">
+      <div className="flex w-full items-center gap-1">
+        <Image src={Drugs} alt={name} width={20} height={20} />
+        <span
+          title={`${name}(${doses})`}
+          className="text-blue-midnight truncate text-sm font-semibold"
+        >
+          {name}({doses})
+        </span>
+      </div>
+      {index !== undefined && (
+        <Trash2 className="cursor-pointer" color="red" onClick={() => remove(index)} />
+      )}
     </div>
   );
   return (
-    <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
-      <div className="flex flex-row items-center justify-between">
-        <p className="font-bold">Conditions and Medicines</p>
-        <Button
-          variant="outline"
-          child={
-            <>
-              <FilePenLine />
-              Edit
-            </>
-          }
-        />
-      </div>
-      <hr className="my-4" />
-      {!mockConditions.length && (
-        <div className="flex h-40 items-center justify-center">No medical condition found</div>
-      )}
-      <div className="max-h-[360px] space-y-4 overflow-y-scroll">
-        {mockConditions.map(({ id, name, medicines }) => (
-          <div
-            key={id}
-            className="rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4"
-          >
-            <Collapsible
-              open={expandedId === id}
-              onOpenChange={() => {
-                setExpandedId((prev) => (prev === id ? null : id));
-              }}
+    <>
+      <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
+        <div className="flex flex-row items-center justify-between">
+          <p className="font-bold">Conditions and Medicines</p>
+          <Button
+            variant="outline"
+            onClick={() => setEdit(true)}
+            child={
+              <>
+                <FilePenLine />
+                Edit
+              </>
+            }
+          />
+        </div>
+        <hr className="my-4" />
+        {!conditions?.length && (
+          <div className="flex h-40 items-center justify-center">No medical condition found</div>
+        )}
+        <div className="max-h-[360px] space-y-4 overflow-y-scroll">
+          {conditions?.map(({ id, name, medicines }) => (
+            <div
+              key={id}
+              className="rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4"
             >
-              <div className="flex items-center justify-between">
-                <div className="rounded-full bg-white px-2 py-1.5">
-                  <h4 className="text-sm font-semibold">{name}</h4>
+              <Collapsible
+                open={expandedId === id}
+                onOpenChange={() => {
+                  setExpandedId((prev) => (prev === id ? null : id));
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="rounded-full bg-white px-2 py-1.5">
+                    <h4 className="text-sm font-semibold">{name}</h4>
+                  </div>
+                  {medicines.length > 1 && (
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        child={
+                          <>
+                            <ChevronsUpDown className="h-4 w-4" />
+                            <span className="sr-only">Toggle</span>
+                          </>
+                        }
+                      />
+                    </CollapsibleTrigger>
+                  )}
                 </div>
-                {medicines.length > 1 && (
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      child={
-                        <>
-                          <ChevronsUpDown className="h-4 w-4" />
-                          <span className="sr-only">Toggle</span>
-                        </>
-                      }
-                    />
-                  </CollapsibleTrigger>
-                )}
-              </div>
-              {medicines[0] && drug(medicines[0])}
-              <CollapsibleContent>
-                {medicines.slice(1).map((medicine) => drug(medicine))}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        ))}
+                {medicines[0] && drug(medicines[0])}
+                <CollapsibleContent>
+                  {medicines.slice(1).map((medicine) => drug(medicine))}
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+      <Drawer direction="right" open={edit}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-sm p-4">
+            <DrawerHeader className="flex items-center justify-between">
+              <div>
+                <DrawerTitle className="text-lg">Edit Conditions and Medicine</DrawerTitle>
+                <DrawerDescription>Manage conditions and medicines</DrawerDescription>
+              </div>
+            </DrawerHeader>
+            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+              <Combobox
+                onChange={(value) => setValue('name', value, { shouldValidate: true })}
+                options={conditionOptions}
+                value={search}
+                placeholder="Search condition"
+                searchPlaceholder="Search for condition..."
+                defaultMaxWidth={false}
+                onSearchChange={(value) => setSearch(value)}
+                isLoadingResults={isLoadingSearch}
+                defaultSearchValue={search}
+              />
+              {watch('name') && (
+                <>
+                  <div className="mt-8 text-center text-sm text-gray-500">
+                    Add drugs you took for this condition
+                  </div>
+                  <div className="space-y-4">
+                    <Input
+                      labelName="Name of Drug"
+                      placeholder="Enter name of drug for condition"
+                      name="name"
+                      value={addMedicine.name}
+                      onChange={handleAddMedicineChange}
+                    />
+                    <Input
+                      labelName="Dose Taken"
+                      placeholder="eg: 10mg once daily"
+                      name="doses"
+                      value={addMedicine.doses}
+                      onChange={handleAddMedicineChange}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button
+                      disabled={!addMedicine.name || !addMedicine.doses}
+                      child="Add Drug"
+                      onClick={() => {
+                        append({ id: String(watch('medicines').length + 1), ...addMedicine });
+                        setAddMedicine({
+                          name: '',
+                          doses: '',
+                        });
+                      }}
+                      type="submit"
+                    />
+                  </div>
+                </>
+              )}
+              <div className="mt-8 text-center text-sm text-gray-500">
+                Preview of added condition and medicines
+              </div>
+              <div className="rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4">
+                <div className="flex items-center justify-between">
+                  <div className="rounded-full bg-white px-2 py-1.5">
+                    <h4 className="text-sm font-semibold">{watch('name')}</h4>
+                  </div>
+                </div>
+
+                {watch('medicines')?.map((medicine, index) => drug(medicine, index))}
+              </div>
+              <div className="space-x-3">
+                <Button
+                  isLoading={isLoading}
+                  disabled={!isValid || isLoading}
+                  child="Save"
+                  type="submit"
+                />
+                <Button
+                  disabled={isLoading}
+                  onClick={() => setEdit(false)}
+                  child="Close"
+                  type="button"
+                  variant="secondary"
+                />
+              </div>
+            </form>
+
+            <DrawerFooter className="flex justify-between"></DrawerFooter>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 };
 

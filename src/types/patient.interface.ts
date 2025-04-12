@@ -32,6 +32,7 @@ export interface IMedicalRecord {
   lab: string[];
   lifestyle?: string;
   prescription: string[];
+  conditions: ICondition[];
   prescriptionPreviewUrl?: string;
   reasonEnded?: string;
   review?: string;
@@ -48,12 +49,15 @@ interface IConditionMedicineBase {
 }
 
 export interface IMedicine extends IConditionMedicineBase {
-  dose: string;
+  doses: string;
 }
 
 export interface ICondition extends IConditionMedicineBase {
+  recordId: string;
   medicines: IMedicine[];
 }
+
+export type IConditionWithoutId = Omit<ICondition, 'id'>;
 
 export interface IPatientWithRecord extends IPatient {
   record: IMedicalRecord;

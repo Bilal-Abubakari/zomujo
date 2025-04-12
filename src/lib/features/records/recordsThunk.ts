@@ -1,12 +1,18 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
-import axios, { axiosErrorHandler } from '@/lib/axios';
+import axios, { axiosErrorHandler, axiosBase } from '@/lib/axios';
 import { generateSuccessToast, getValidQueryString, removeNullishValues } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { ApproveDeclineStatus } from '@/types/shared.enum';
 import { IRecordRequest } from '@/types/appointment.interface';
-import { IPatient, IPatientDataCombined, IPatientWithRecord } from '@/types/patient.interface';
 import {
+  IConditionWithoutId,
+  IPatient,
+  IPatientDataCombined,
+  IPatientWithRecord,
+} from '@/types/patient.interface';
+import {
+  updateConditions,
   updatePatientRecord,
   updatePatientWithRecords,
 } from '@/lib/features/patients/patientsSlice';
@@ -110,6 +116,35 @@ export const updateRecord = createAsyncThunk(
       } = await axios.patch<IResponse<IPatient>>(`records`, validData);
       dispatch(updatePatientRecord(validData));
       return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const addMedicalCondition = createAsyncThunk(
+  'record/add-condition',
+  async (data: IConditionWithoutId, { dispatch }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse<IPatient>>(`records/conditions`, data);
+      dispatch(updateConditions(data));
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getConditions = createAsyncThunk(
+  'record/get-conditions',
+  async (searchTerm: string) => {
+    try {
+      const { data } = await axiosBase.get<Array<Array<Array<string>>>>(
+        `https://clinicaltables.nlm.nih.gov/api/conditions/v3/search?terms=${searchTerm}`,
+      );
+      return data[3].map((item) => ({ label: item[0], value: item[0] }));
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

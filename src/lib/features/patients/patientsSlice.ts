@@ -29,9 +29,17 @@ const patientsSlice = createSlice({
         ...payload,
       };
     },
+    updateConditions: (state, { payload }) => {
+      const record = state.patientWithRecords?.record;
+      if (!record) {
+        return;
+      }
+      record.conditions = [...(record.conditions ?? []), payload];
+    },
   },
 });
 
-export const { updatePatientWithRecords, updatePatientRecord } = patientsSlice.actions;
+export const { updatePatientWithRecords, updatePatientRecord, updateConditions } =
+  patientsSlice.actions;
 
 export default patientsSlice.reducer;
