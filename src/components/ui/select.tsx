@@ -210,7 +210,6 @@ type ComboboxProps = {
   searchPlaceholder?: string;
   onSearchChange?: (value: string) => void;
   isLoadingResults?: boolean;
-  defaultSearchValue?: string;
 } & Pick<SelectInputProps, 'options' | 'label' | 'placeholder'>;
 const Combobox = ({
   options,

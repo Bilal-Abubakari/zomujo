@@ -142,7 +142,7 @@ export const getConditions = createAsyncThunk(
   async (searchTerm: string) => {
     try {
       const { data } = await axiosBase.get<Array<Array<Array<string>>>>(
-        `https://clinicaltables.nlm.nih.gov/api/conditions/v3/search?terms=${searchTerm}`,
+        `${process.env.NEXT_PUBLIC_CLINICAL_TABLES}/conditions/v3/search?terms=${searchTerm}`,
       );
       return data[3].map((item) => ({ label: item[0], value: item[0] }));
     } catch (error) {
