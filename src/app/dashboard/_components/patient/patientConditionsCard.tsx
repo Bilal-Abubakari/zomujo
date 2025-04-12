@@ -200,7 +200,6 @@ const PatientConditionsCard = (): JSX.Element => {
                 defaultMaxWidth={false}
                 onSearchChange={(value) => setSearch(value)}
                 isLoadingResults={isLoadingSearch}
-                defaultSearchValue={search}
               />
               {watch('name') && (
                 <>
