@@ -4,29 +4,38 @@ import React, { JSX, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { setPaymentRate } from '@/lib/features/payments/paymentsThunk';
+import {  setPaymentRate, updateOrganizationsDetails } from '@/lib/features/payments/paymentsThunk';
 import { toast } from '@/hooks/use-toast';
-import { selectExtra } from '@/lib/features/auth/authSelector';
+import { selectExtra, selectIsOrganizationAdmin } from '@/lib/features/auth/authSelector';
 import { IRate } from '@/types/payment.interface';
 import { IDoctor } from '@/types/doctor.interface';
 
 const Pricing = (): JSX.Element => {
   const MIN_AMOUNT = 20;
-  const MAX_AMOUNT = 300;
+  const MAX_AMOUNT = 10000;
 
   const MIN_SESSION = 30;
   const MAX_SESSION = 120;
 
   const [currentAmount, setCurrentAmount] = useState(MIN_AMOUNT);
-  const [currentSessionLength, setCurrentSessionLength] = useState(MIN_SESSION);
+  const [currentSessionLength, setCurrentSessionLength] = useState(45);
   const dispatch = useAppDispatch();
+  const isAdmin = useAppSelector(selectIsOrganizationAdmin);
   const [isLoading, setIsLoading] = useState(false);
   const { fee } = useAppSelector(selectExtra)! as IDoctor;
   async function updateRate(rate: IRate): Promise<void> {
     setIsLoading(true);
-    const { payload } = await dispatch(setPaymentRate(rate));
-    if (payload) {
-      toast(payload);
+
+    if (isAdmin) {
+      const { payload } = await dispatch(updateOrganizationsDetails(rate.amount));
+      if (payload) {
+        toast(payload);
+      }
+    } else {
+      const { payload } = await dispatch(setPaymentRate(rate));
+      if (payload) {
+        toast(payload);
+      }
     }
 
     setIsLoading(false);
@@ -61,11 +70,11 @@ const Pricing = (): JSX.Element => {
           onValueChange={(value) => setCurrentAmount(value[0])}
           min={MIN_AMOUNT}
           max={MAX_AMOUNT}
-          step={5}
+          step={10}
         />
         <motion.div
           style={{
-            x: `${sliderPosition(window.innerWidth < 430 ? 20 : currentAmount, 'amount')}px`,
+            x: `${sliderPosition(window.innerWidth < 430 ? 20 : currentAmount / 35, 'amount')}px`,
           }}
           className="bg-primary absolute top-[calc(100%+8px)] flex h-8 w-16 items-center justify-center rounded-full"
         >
@@ -73,19 +82,22 @@ const Pricing = (): JSX.Element => {
         </motion.div>
       </div>
       <div className="relative flex w-full flex-1 flex-col gap-4">
-        <p className="text-sm">Length of session</p>
+        <div className="flex justify-between">
+          <p className="text-sm">Length of session</p>
+          <p className="text-xs text-red-600">*Not adjustable</p>
+        </div>
         <Slider
           value={[currentSessionLength]}
-          onValueChange={(value) => setCurrentSessionLength(value[0])}
           min={MIN_SESSION}
           max={MAX_SESSION}
           step={5}
+          disabled={true}
         />
         <motion.div
           style={{
             x: `${sliderPosition(window.innerWidth < 430 ? 20 : currentSessionLength, 'sessionLength')}px`,
           }}
-          className="bg-primary absolute top-[calc(100%+8px)] flex h-8 items-center justify-center rounded-full px-2.5"
+          className="absolute top-[calc(100%+8px)] flex h-8 items-center justify-center rounded-full bg-gray-500 px-2.5"
         >
           <p className="text-sm text-white">{currentSessionLength} mins</p>
         </motion.div>
