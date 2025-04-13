@@ -64,7 +64,7 @@ export interface ISurgery extends IIdName {
   notes: string;
 }
 
-export type ISurgeryWithoutId = Omit<ISurgery, 'id'>
+export type ISurgeryWithoutId = Omit<ISurgery, 'id'>;
 
 export interface IPatientWithRecord extends IPatient {
   record: IMedicalRecord;
