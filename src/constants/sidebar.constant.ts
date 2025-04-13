@@ -21,7 +21,9 @@ import {
   EarthLock,
   CalendarCheck2,
   BetweenHorizontalStart,
+  Smile,
 } from 'lucide-react';
+import { getDynamicParamFromUrl } from '@/lib/utils';
 
 export const DASHBOARD_ROUTE = '/dashboard';
 export const SETTINGS_ROUTE = 'settings';
@@ -50,7 +52,7 @@ export const PATIENT_SIDE_BAR: ISidebar = {
         },
         {
           title: 'Records',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/records`,
           Icon: Archive,
         },
         {
@@ -270,6 +272,21 @@ export const ADMIN_SETTINGS_SIDEBAR: ISidebar = {
           title: 'Availability',
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/availability`,
           Icon: BetweenHorizontalStart,
+        },
+      ],
+    },
+  ],
+};
+
+export const PATIENT_RECORD_SIDEBAR: ISidebar = {
+  sidebarGroup: [
+    {
+      groupTitle: "Patient's File",
+      menu: [
+        {
+          title: 'Overview',
+          url: `${DASHBOARD_ROUTE}/patients/${getDynamicParamFromUrl('patients')}`,
+          Icon: Smile,
         },
       ],
     },

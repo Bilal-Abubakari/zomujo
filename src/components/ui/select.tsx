@@ -16,6 +16,7 @@ import {
   CommandItem,
   CommandList,
 } from './command';
+import LoadingOverlay from '../loadingOverlay/loadingOverlay';
 
 export interface SelectOption {
   label: string;
@@ -207,6 +208,8 @@ type ComboboxProps = {
   value: string;
   onChange: (value: string) => void;
   searchPlaceholder?: string;
+  onSearchChange?: (value: string) => void;
+  isLoadingResults?: boolean;
 } & Pick<SelectInputProps, 'options' | 'label' | 'placeholder'>;
 const Combobox = ({
   options,
@@ -218,6 +221,8 @@ const Combobox = ({
   onChange,
   isLoading,
   searchPlaceholder,
+  onSearchChange,
+  isLoadingResults,
 }: ComboboxProps): JSX.Element => {
   const [open, setOpen] = useState(false);
   const [currentOption, setCurrentOption] = useState<string | null>(null);
@@ -247,8 +252,9 @@ const Combobox = ({
           />
         </PopoverTrigger>
         <PopoverContent className="w-[85vw] max-w-sm p-0">
+          {isLoadingResults && <LoadingOverlay />}
           <Command>
-            <CommandInput placeholder={searchPlaceholder} />
+            <CommandInput placeholder={searchPlaceholder} onValueChange={onSearchChange} />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>

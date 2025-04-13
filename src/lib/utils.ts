@@ -107,3 +107,39 @@ export const getValidQueryString = (queryParams: IQueryParams<unknown>): string 
   );
   return new URLSearchParams(filteredQueryParams).toString();
 };
+
+/**
+ * Extracts a dynamic parameter from the current URL.
+ * If a preceding string is provided, it returns the parameter following that string.
+ * Otherwise, it returns the last segment of the URL.
+ *
+ * @param precedingString - The string preceding the desired parameter in the URL.
+ * @returns The dynamic parameter from the URL.
+ */
+export const getDynamicParamFromUrl = (precedingString?: string): string => {
+  const currentUrl = window.location.href;
+  const urlParts = currentUrl.split('/');
+
+  if (precedingString) {
+    const precedingIndex = urlParts.indexOf(precedingString);
+    if (precedingIndex !== -1 && precedingIndex + 1 < urlParts.length) {
+      return urlParts[precedingIndex + 1];
+    }
+  }
+
+  return urlParts[urlParts.length - 1];
+};
+
+/**
+ * Removes properties from an object where the value is `null` or `undefined`.
+ *
+ * @template T - The type of the input object.
+ * @param {T} obj - The object to be filtered.
+ * @returns {Partial<T>} A new object containing only the properties with non-nullish values.
+ */
+export const removeNullishValues = <T extends Record<string, unknown> = Record<string, unknown>>(
+  obj: T,
+): Partial<T> =>
+  Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => value !== null && value !== undefined),
+  ) as Partial<T>;

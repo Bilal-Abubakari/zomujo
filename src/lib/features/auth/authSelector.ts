@@ -7,6 +7,8 @@ const selectAuthentication = ({ authentication }: RootState) => authentication;
 
 export const selectUserRole = createSelector(selectAuthentication, ({ user }) => user?.role);
 
+export const selectIsPatient = createSelector(selectUserRole, (role) => role === Role.Patient);
+
 export const selectIsAnAdmin = createSelector(
   selectUserRole,
   (role) => role === Role.Admin || role === Role.SuperAdmin,
@@ -52,6 +54,12 @@ export const selectThunkState = createSelector(
   (isLoading, errorMessage) => ({ isLoading, errorMessage }),
 );
 
-export const selectExtra = createSelector(selectAuthentication, ({ extra }) => extra!);
+export const selectExtra = createSelector(selectAuthentication, ({ extra }) => extra);
 
 export const selectUserId = createSelector(selectAuthentication, ({ user }) => user?.id);
+
+export const selectPatientMustUpdateMandatoryInfo = createSelector(
+  selectIsPatient,
+  selectExtra,
+  (isPatient, extra) => isPatient && (!extra?.dob || !extra?.gender),
+);

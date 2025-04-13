@@ -1,0 +1,33 @@
+'use client';
+import { JSX } from 'react';
+import { Button } from '@/components/ui/button';
+import PatientCard from '@/app/dashboard/_components/patient/patientCard';
+import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
+import PatientConditionsCard from '@/app/dashboard/_components/patient/patientConditionsCard';
+import PatientSurgeriesCard from '@/app/dashboard/_components/patient/patientSurgeriesCard';
+
+const PatientOverview = (): JSX.Element => (
+  <div>
+    <div className="mb-6 flex justify-between">
+      <span className="self-center text-xl font-bold">Patient Overview</span>
+      <div className="space-x-3">
+        <Button child="Refer to Specialist" variant="secondary" />
+        <Button child="Start Consultation" />
+      </div>
+    </div>
+    <div className="grid grid-cols-3 gap-4">
+      <div className="space-y-4">
+        <PatientCard />
+        <PatientSurgeriesCard />
+      </div>
+      <div className="space-y-4">
+        <PatientVitalsCard />
+      </div>
+      <div>
+        <PatientConditionsCard />
+      </div>
+    </div>
+  </div>
+);
+
+export default PatientOverview;

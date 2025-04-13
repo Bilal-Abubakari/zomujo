@@ -2,15 +2,6 @@ import { IExtraBase } from '@/types/shared.interface';
 import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
 
 export interface IPatient extends IExtraBase {
-  maritalStatus?: MaritalStatus;
-  denomination?: Denomination;
-  height?: number;
-  bloodGroup?: BloodGroup;
-  weight?: number;
-  heartRate?: number;
-  bloodSugarLevel?: number;
-  bloodPressure?: IBloodPressure;
-  temperature?: number;
   lifestyle: unknown;
   city?: string;
   address?: string;
@@ -18,7 +9,89 @@ export interface IPatient extends IExtraBase {
   insuranceInfo: string;
 }
 
+export interface IMedicalRecord {
+  id: string;
+  allergies: string[];
+  bloodGroup?: BloodGroup;
+  bloodPressure?: IBloodPressure;
+  bloodSugarLevel?: number;
+  complaints: string;
+  diagnosis: string[];
+  examination: string[];
+  familyMembers: string[];
+  futureVisits: string[];
+  maritalStatus?: MaritalStatus;
+  denomination?: Denomination;
+  respiratoryRate?: number;
+  oxygenSaturation?: number;
+  gynae: string[];
+  height?: number;
+  weight?: number;
+  heartRate?: number;
+  invoice?: string;
+  lab: string[];
+  lifestyle?: string;
+  prescription: string[];
+  conditions: ICondition[];
+  prescriptionPreviewUrl?: string;
+  reasonEnded?: string;
+  review?: string;
+  surgeries: ISurgery[];
+  temperature?: number;
+  symptoms: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface IIdName {
+  id: string;
+  name: string;
+}
+
+export interface IMedicine extends IIdName {
+  doses: string;
+}
+
+export interface ICondition extends IIdName {
+  recordId: string;
+  medicines: IMedicine[];
+}
+
+export type IConditionWithoutId = Omit<ICondition, 'id'>;
+
+export interface ISurgery extends IIdName {
+  recordId: string;
+  notes: string;
+}
+
+export type ISurgeryWithoutId = Omit<ISurgery, 'id'>;
+
+export interface IPatientWithRecord extends IPatient {
+  record: IMedicalRecord;
+  recordId: string;
+}
+
+export type IPatientBasic = Pick<
+  IMedicalRecord,
+  'height' | 'bloodGroup' | 'maritalStatus' | 'denomination'
+>;
+
 export interface IBloodPressure {
   systolic: number;
   diastolic: number;
 }
+
+export type IPatientMandatory = Pick<IPatient, 'gender' | 'dob'>;
+
+export type IPatientVitals = Pick<
+  IMedicalRecord,
+  | 'bloodPressure'
+  | 'weight'
+  | 'heartRate'
+  | 'respiratoryRate'
+  | 'bloodSugarLevel'
+  | 'temperature'
+  | 'oxygenSaturation'
+>;
+
+export type IPatientDataCombined = IPatient & IMedicalRecord;

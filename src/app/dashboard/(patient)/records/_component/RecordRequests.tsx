@@ -7,33 +7,21 @@ import { Input } from '@/components/ui/input';
 import { TableData } from '@/components/ui/table';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { useSearch } from '@/hooks/useSearch';
-import {
-  acceptAppointment,
-  declineAppointment,
-  getAppointments,
-} from '@/lib/features/appointments/appointmentsThunk';
-import { selectUser } from '@/lib/features/auth/authSelector';
-import { useAppSelector } from '@/lib/hooks';
-import { AppointmentType, IAppointment } from '@/types/appointment.interface';
-import { AppointmentStatus, OrderDirection, Role } from '@/types/shared.enum';
+import { IRecordRequest } from '@/types/appointment.interface';
+import { ApproveDeclineStatus, OrderDirection } from '@/types/shared.enum';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  Ban,
-  House,
-  ListFilter,
-  Presentation,
-  RotateCcw,
-  Search,
-  SendHorizontal,
-  Signature,
-} from 'lucide-react';
+import { Ban, ListFilter, Search, SendHorizontal, Signature } from 'lucide-react';
 import moment from 'moment';
 import React, { FormEvent, JSX, useState } from 'react';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
+import {
+  acceptRecordRequest,
+  declineRecordRequest,
+  getRecordRequests,
+} from '@/lib/features/records/recordsThunk';
 
-const AppointmentRequests = (): JSX.Element => {
-  const user = useAppSelector(selectUser);
+const RecordRequests = (): JSX.Element => {
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -41,15 +29,14 @@ const AppointmentRequests = (): JSX.Element => {
     open: false,
   });
   const { isLoading, setQueryParameters, paginationData, queryParameters, tableData, updatePage } =
-    useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
+    useFetchPaginatedData<IRecordRequest, ApproveDeclineStatus | ''>(getRecordRequests, {
       orderBy: 'createdAt',
       orderDirection: OrderDirection.Descending,
-      doctorId: user?.role === Role.Doctor ? user?.id : undefined,
-      patientId: user?.role === Role.Patient ? user?.id : undefined,
       page: 1,
       search: '',
       status: '',
     });
+  const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
   const statusFilterOptions: ISelected[] = [
     {
@@ -57,77 +44,54 @@ const AppointmentRequests = (): JSX.Element => {
       label: 'All',
     },
     {
-      value: AppointmentStatus.Accepted,
-      label: 'Accepted',
+      value: ApproveDeclineStatus.Approved,
+      label: 'Approved',
     },
     {
-      value: AppointmentStatus.Pending,
+      value: ApproveDeclineStatus.Pending,
       label: 'Pending',
     },
-  ];
-  const columns: ColumnDef<IAppointment>[] = [
     {
-      accessorKey: 'patient',
-      header: () => <div className="flex cursor-pointer whitespace-nowrap">Patient Name</div>,
+      value: ApproveDeclineStatus.Declined,
+      label: 'Disapproved',
+    },
+  ];
+  const columns: ColumnDef<IRecordRequest>[] = [
+    {
+      accessorKey: 'doctor',
+      header: () => <div className="flex cursor-pointer whitespace-nowrap">Doctor&#39;s Name</div>,
       cell: ({ row: { original } }): JSX.Element => {
-        const { doctor, patient } = original;
-        const isDoctor = user?.role === Role.Doctor;
+        const { doctor } = original;
         return (
           <AvatarWithName
-            imageSrc={isDoctor ? patient.profilePicture : doctor.profilePicture}
-            firstName={isDoctor ? patient.firstName : doctor.firstName}
-            lastName={isDoctor ? patient.lastName : doctor.lastName}
+            imageSrc={doctor.profilePicture}
+            firstName={doctor.firstName}
+            lastName={doctor.lastName}
           />
         );
       },
     },
     {
-      accessorKey: 'type',
-      header: 'Type',
-      cell: ({ row: { original } }): JSX.Element => {
-        const { type } = original;
-        const virtual = type === AppointmentType.Virtual;
-        return virtual ? (
-          <div className="flex items-center gap-2">
-            <Presentation size={16} /> Virtual
-          </div>
-        ) : (
-          <div>
-            <House size={16} /> Visit
-          </div>
-        );
-      },
-    },
-    {
       accessorKey: 'date',
-      header: 'Date',
-      cell: ({ row: { original } }): string => moment(original.slot.date).format('LL'),
-    },
-    {
-      accessorKey: 'time',
-      header: 'Time',
-      cell: ({ row: { original } }): string => moment(original.slot.startTime).format('hh:mm A'),
+      header: 'Date Requested',
+      cell: ({ row: { original } }): string => moment(original.createdAt).format('LL'),
     },
     {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row: { original } }): JSX.Element => (
-        <StatusBadge status={original.status} approvedTitle="Accepted" />
+        <StatusBadge status={original.status} declinedTitle="Disapproved" />
       ),
     },
     {
       id: 'actions',
       header: 'Action',
       cell: ({ row: { original } }): JSX.Element => {
-        const { status, patient, doctor, id } = original;
-        const isPending = status === AppointmentStatus.Pending;
-        const isDone = status === AppointmentStatus.Completed;
-        const getName = (): string => {
-          if (user?.role === Role.Patient) {
-            return `${doctor.firstName} ${doctor.lastName}`;
-          }
-          return `${patient.firstName} ${patient.lastName}`;
-        };
+        const { status, doctor, id } = original;
+        const isPending = status === ApproveDeclineStatus.Pending;
+        const isApproved = status === ApproveDeclineStatus.Approved;
+        const isDeclined = status === ApproveDeclineStatus.Declined;
+        const doctorName = `${doctor.firstName} ${doctor.lastName}`;
         return (
           <ActionsDropdownMenus
             menuContent={[
@@ -140,51 +104,35 @@ const AppointmentRequests = (): JSX.Element => {
                 clickCommand: () =>
                   handleConfirmationOpen(
                     'Accept',
-                    `accept ${getName()}'s appointment request`,
+                    `grant ${doctorName}'s access to your records`,
                     id,
-                    acceptAppointment,
+                    acceptRecordRequest,
                     'Yes, accept',
                     'Cancel',
                   ),
-                visible: user?.role === Role.Doctor && isPending,
+                visible: isPending || isDeclined,
               },
               {
                 title: (
                   <>
-                    <Ban /> Cancel
+                    <Ban /> Disapprove
                   </>
                 ),
                 clickCommand: () =>
                   handleConfirmationOpen(
                     'Decline',
-                    `decline ${getName()}'s appointment request`,
+                    `disapprove ${doctorName}'s access`,
                     id,
-                    declineAppointment,
-                    'Yes, decline',
+                    declineRecordRequest,
+                    'Yes, disapprove',
                     'Cancel',
                   ),
-                visible: !isDone,
-              },
-              // TODO: Is a refund functionality feasible???
-              {
-                title: (
-                  <>
-                    <RotateCcw /> Reschedule
-                  </>
-                ),
-                clickCommand: () =>
-                  handleConfirmationOpen(
-                    'Reschedule',
-                    `reschedule ${getName()}'s request`,
-                    id,
-                    acceptAppointment,
-                  ),
+                visible: isPending || isApproved,
               },
             ]}
           />
         );
       },
-      enableHiding: false,
     },
   ];
 
@@ -193,7 +141,6 @@ const AppointmentRequests = (): JSX.Element => {
       setConfirmation,
       setQueryParameters,
     });
-  const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
     event.preventDefault();
@@ -206,17 +153,23 @@ const AppointmentRequests = (): JSX.Element => {
 
   return (
     <div>
+      <Confirmation
+        {...confirmation}
+        showClose={true}
+        setState={() => handleConfirmationClose()}
+        isLoading={isConfirmationLoading}
+      />
       <div className="flex justify-between">
         <form className="flex" onSubmit={handleSubmit}>
           <Input
             error=""
-            placeholder="Search by patient"
+            placeholder="Search by doctor's name"
             className="max-w-[333px] sm:w-[333px]"
             type="search"
             leftIcon={<Search className="cursor-pointer text-gray-500" size={20} />}
             onChange={handleSearch}
           />
-          {searchTerm && <Button child={<SendHorizontal />} className="-ml-8" />}
+          {searchTerm && <Button child={<SendHorizontal />} className="ml-2" />}
         </form>
         <OptionsMenu
           options={statusFilterOptions}
@@ -227,7 +180,7 @@ const AppointmentRequests = (): JSX.Element => {
             setQueryParameters((prev) => ({
               ...prev,
               page: 1,
-              status: value as AppointmentStatus,
+              status: value as ApproveDeclineStatus,
             }))
           }
           className="h-10 cursor-pointer bg-gray-50 sm:flex"
@@ -243,14 +196,8 @@ const AppointmentRequests = (): JSX.Element => {
           isLoading={isLoading}
         />
       </div>
-      <Confirmation
-        {...confirmation}
-        showClose={true}
-        setState={() => handleConfirmationClose()}
-        isLoading={isConfirmationLoading}
-      />
     </div>
   );
 };
 
-export default AppointmentRequests;
+export default RecordRequests;

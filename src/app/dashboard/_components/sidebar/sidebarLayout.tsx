@@ -39,6 +39,7 @@ import {
   ADMIN_SIDE_BAR,
   DOCTOR_SETTINGS_SIDEBAR,
   DOCTOR_SIDE_BAR,
+  PATIENT_RECORD_SIDEBAR,
   PATIENT_SETTINGS_SIDEBAR,
   PATIENT_SIDE_BAR,
 } from '@/constants/sidebar.constant';
@@ -284,6 +285,8 @@ const getSidebarByRole = (role?: Role, type?: SidebarType): ISidebar => {
       default:
         return PATIENT_SETTINGS_SIDEBAR;
     }
+  } else if (type === SidebarType.PatientRecord) {
+    return PATIENT_RECORD_SIDEBAR;
   } else {
     switch (role) {
       case Role.Admin:

@@ -12,6 +12,8 @@ const axios = axiosClient.create({
   withCredentials: true,
 });
 
+export const axiosBase = axiosClient.create();
+
 axios.interceptors.response.use(
   (response) => response,
   (error) => {

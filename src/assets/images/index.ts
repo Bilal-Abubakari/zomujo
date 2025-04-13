@@ -10,3 +10,4 @@ export { default as EmailIllustration } from './email.svg';
 export { default as CardPayment } from './card.png';
 export { default as MobileMoney } from './mobile-money.png';
 export { default as NotFound } from './empty.svg';
+export { default as Drugs } from './drugs.svg';

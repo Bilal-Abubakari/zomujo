@@ -1,5 +1,5 @@
 import { Role } from '@/types/shared.enum';
-import { IAppointment } from '@/types/appointment.interface';
+import { IAppointment, IRecordRequest } from '@/types/appointment.interface';
 
 export interface INotification {
   id: number;
@@ -18,9 +18,11 @@ interface IPayload {
   scope: Role;
   message: string;
   appointment: IAppointment;
+  request: IRecordRequest;
 }
 
 export enum NotificationEvent {
   NewNotification = 'newNotification',
   NewRequest = 'newRequest',
+  RecordRequest = 'recordRequest',
 }

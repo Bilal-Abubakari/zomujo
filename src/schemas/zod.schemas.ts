@@ -54,9 +54,11 @@ export const textAreaSchema = z
   .max(500, 'Field should not exceed 500 characters')
   .regex(/^[A-Za-z0-9\s.,!?'"-]+$/, 'Field contains invalid characters');
 
-export const positiveNumberSchema = z.preprocess(
-  (val) => Number(val),
-  z.number().positive('Value must be greater than zero'),
-);
+export const positiveNumberSchema = z.coerce.number().positive('Value must be greater than zero');
+
+export const stringInputOptionalNumberSchema = z.preprocess(
+  (val): number | undefined => (val ? Number(val) : undefined),
+  z.coerce.number().positive().optional(),
+) as z.ZodEffects<z.ZodOptional<z.ZodNumber>, number | undefined, number | undefined>;
 
 export const booleanSchema = z.boolean();

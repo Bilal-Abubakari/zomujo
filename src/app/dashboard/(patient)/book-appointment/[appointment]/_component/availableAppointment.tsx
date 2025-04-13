@@ -38,7 +38,7 @@ const AvailableAppointment = (): JSX.Element => {
   const id = params.appointment as string;
   const dateToday = new Date();
 
-  const BookingSchema = z.object({
+  const bookingSchema = z.object({
     date: requiredStringSchema(),
     time: requiredStringSchema(),
     slotId: requiredStringSchema(),
@@ -66,7 +66,7 @@ const AvailableAppointment = (): JSX.Element => {
     watch,
     formState: { errors, isValid },
   } = useForm<IBookingForm>({
-    resolver: zodResolver(BookingSchema),
+    resolver: zodResolver(bookingSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
       amount: getAmount(),

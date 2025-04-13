@@ -92,9 +92,14 @@ const SignUpForm = (): JSX.Element => {
         return;
       }
 
-      setValue('lat', place.geometry.location.lat());
-      setValue('long', place.geometry.location.lng());
-      setValue('gpsLink', place.url || '');
+      const {
+        geometry: { location },
+        url,
+      } = place;
+
+      setValue('lat', location.lat());
+      setValue('long', location.lng());
+      setValue('gpsLink', url ?? '');
       setValue('location', value.description, {
         shouldValidate: true,
       });
@@ -171,7 +176,7 @@ const SignUpForm = (): JSX.Element => {
             />
             <Input
               labelName="Email"
-              error={errors.email?.message?.toString() || ''}
+              error={errors.email?.message}
               placeholder="johndoe@gmail.com"
               {...register('email')}
             />

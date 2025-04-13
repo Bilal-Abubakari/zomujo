@@ -1,5 +1,11 @@
 import { SelectOption } from '@/components/ui/select';
-import { AcceptDeclineStatus, Gender } from '@/types/shared.enum';
+import {
+  AcceptDeclineStatus,
+  BloodGroup,
+  Denomination,
+  Gender,
+  MaritalStatus,
+} from '@/types/shared.enum';
 import { ISelected } from '@/components/ui/dropdown-menu';
 
 export const MODE = {
@@ -26,10 +32,14 @@ export const DAYS_OF_WEEK = [
 ];
 export const unMatchingPasswords = 'Passwords do not match';
 
-export const genderOptions: SelectOption[] = [
+export const selectGenderOptions = [
   { label: 'Male', value: Gender.Male },
   { label: 'Female', value: Gender.Female },
   { label: 'Other', value: Gender.Other },
+];
+
+export const genderOptions: SelectOption[] = [
+  ...selectGenderOptions,
   {
     value: '',
     label: 'All',
@@ -111,3 +121,27 @@ export const healthInsurances = [
 ];
 
 export const shortDaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+export const maritalOptions = [
+  { value: MaritalStatus.Single, label: 'Single' },
+  { value: MaritalStatus.Married, label: 'Married' },
+  { value: MaritalStatus.Divorced, label: 'Divorced' },
+  { value: MaritalStatus.Widowed, label: 'Widowed' },
+];
+
+export const denominationOptions = [
+  { value: Denomination.Muslim, label: 'Muslim' },
+  { value: Denomination.Christian, label: 'Christian' },
+  { value: Denomination.Other, label: 'Other' },
+];
+
+export const bloodGroupOptions = [
+  { value: BloodGroup.APositive, label: 'APositive' },
+  { value: BloodGroup.ANegative, label: 'ANegative' },
+  { value: BloodGroup.BPositive, label: 'BPositive' },
+  { value: BloodGroup.BNegative, label: 'BNegative' },
+  { value: BloodGroup.ABPositive, label: 'ABPositive' },
+  { value: BloodGroup.ABNegative, label: 'ABNegative' },
+  { value: BloodGroup.OPositive, label: 'OPositive' },
+  { value: BloodGroup.ONegative, label: 'ONegative' },
+];
