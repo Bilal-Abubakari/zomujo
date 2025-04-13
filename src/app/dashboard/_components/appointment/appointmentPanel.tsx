@@ -86,7 +86,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   return (
     <div
       className={cn(
-        'w-[calc(100vw - 48px)] justify-baseline  relative flex flex-col overflow-clip rounded-2xl border border-gray-200 bg-white md:w-[calc(100vw-286px-60px)] lg:w-[calc(100vw-316px-264px-48px-16px-16px)]',
+        'w-[calc(100vw - 48px)] relative flex flex-col justify-baseline overflow-clip rounded-2xl border border-gray-200 bg-white md:w-[calc(100vw-286px-60px)] lg:w-[calc(100vw-316px-264px-48px-16px-16px)]',
         customClass,
       )}
     >

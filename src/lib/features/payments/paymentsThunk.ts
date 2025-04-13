@@ -98,7 +98,9 @@ export const updateOrganizationsDetails = createAsyncThunk(
   'organization/updateProfile',
   async (regularFee: number) => {
     try {
-      const { data: {message} } = await axios.patchForm<IResponse>(`orgs`, { regularFee });
+      const {
+        data: { message },
+      } = await axios.patchForm<IResponse>(`orgs`, { regularFee });
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
