@@ -36,28 +36,35 @@ export interface IMedicalRecord {
   prescriptionPreviewUrl?: string;
   reasonEnded?: string;
   review?: string;
-  surgeries: string[];
+  surgeries: ISurgery[];
   temperature?: number;
   symptoms: string[];
   createdAt: string;
   updatedAt: string;
 }
 
-interface IConditionMedicineBase {
+interface IIdName {
   id: string;
   name: string;
 }
 
-export interface IMedicine extends IConditionMedicineBase {
+export interface IMedicine extends IIdName {
   doses: string;
 }
 
-export interface ICondition extends IConditionMedicineBase {
+export interface ICondition extends IIdName {
   recordId: string;
   medicines: IMedicine[];
 }
 
 export type IConditionWithoutId = Omit<ICondition, 'id'>;
+
+export interface ISurgery extends IIdName {
+  recordId: string;
+  notes: string;
+}
+
+export type ISurgeryWithoutId = Omit<ISurgery, 'id'>
 
 export interface IPatientWithRecord extends IPatient {
   record: IMedicalRecord;

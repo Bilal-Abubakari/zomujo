@@ -20,3 +20,5 @@ export const selectRecordId = createSelector(
 );
 
 export const selectMedicalConditions = createSelector(selectRecord, (record) => record?.conditions);
+
+export const selectSurgeries = createSelector(selectRecord, (record) => record?.surgeries);
