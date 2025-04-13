@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import PatientCard from '@/app/dashboard/_components/patient/patientCard';
 import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
 import PatientConditionsCard from '@/app/dashboard/_components/patient/patientConditionsCard';
+import PatientSurgeriesCard from '@/app/dashboard/_components/patient/patientSurgeriesCard';
 
 const PatientOverview = (): JSX.Element => (
   <div>
@@ -15,10 +16,11 @@ const PatientOverview = (): JSX.Element => (
       </div>
     </div>
     <div className="grid grid-cols-3 gap-4">
-      <div>
+      <div className="space-y-4">
         <PatientCard />
+        <PatientSurgeriesCard />
       </div>
-      <div>
+      <div className="space-y-4">
         <PatientVitalsCard />
       </div>
       <div>
