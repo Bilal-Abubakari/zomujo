@@ -62,7 +62,7 @@ const PatientSurgeriesCard = ({ recordId }: PatientSurgeriesCardProps): JSX.Elem
       );
       if (!showErrorToast(payload)) {
         setEdit(false);
-        reset()
+        reset();
       }
       toast(payload as Toast);
       setIsLoading(false);
