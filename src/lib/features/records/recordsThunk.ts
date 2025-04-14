@@ -10,11 +10,13 @@ import {
   IPatient,
   IPatientDataCombined,
   IPatientWithRecord,
+  ISurgeryWithoutId,
 } from '@/types/patient.interface';
 import {
   updateConditions,
   updatePatientRecord,
   updatePatientWithRecords,
+  updateSurgeries,
 } from '@/lib/features/patients/patientsSlice';
 
 const recordsPath = 'records/';
@@ -145,6 +147,35 @@ export const getConditions = createAsyncThunk(
         `${process.env.NEXT_PUBLIC_CLINICAL_TABLES}/conditions/v3/search?terms=${searchTerm}`,
       );
       return data[3].map((item) => ({ label: item[0], value: item[0] }));
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getProcedures = createAsyncThunk(
+  'record/get-procedures',
+  async (searchTerm: string) => {
+    try {
+      const { data } = await axiosBase.get<Array<Array<Array<string>>>>(
+        `${process.env.NEXT_PUBLIC_CLINICAL_TABLES}/procedures/v3/search?terms=${searchTerm}`,
+      );
+      return data[3].map((item) => ({ label: item[0], value: item[0] }));
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const addSurgery = createAsyncThunk(
+  'record/add-surgery',
+  async (data: ISurgeryWithoutId, { dispatch }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse<IPatient>>(`records/surgery`, data);
+      dispatch(updateSurgeries(data));
+      return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
