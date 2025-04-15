@@ -18,7 +18,7 @@ export interface IMedicalRecord {
   complaints: string;
   diagnosis: string[];
   examination: string[];
-  familyMembers: string[];
+  familyMembers: IFamilyMember[];
   futureVisits: string[];
   maritalStatus?: MaritalStatus;
   denomination?: Denomination;
@@ -95,3 +95,12 @@ export type IPatientVitals = Pick<
 >;
 
 export type IPatientDataCombined = IPatient & IMedicalRecord;
+
+export interface IFamilyMember {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  image: string;
+  relation: string;
+}

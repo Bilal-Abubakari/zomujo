@@ -7,6 +7,7 @@ import PatientConditionsCard from '@/app/dashboard/_components/patient/patientCo
 import PatientSurgeriesCard from '@/app/dashboard/_components/patient/patientSurgeriesCard';
 import { useAppSelector } from '@/lib/hooks';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
+import PatientFamilyMembersCard from '@/app/dashboard/_components/patient/PatientFamilyMembersCard';
 
 const PatientOverview = (): JSX.Element => {
   const recordId = useAppSelector(selectRecordId);
@@ -26,6 +27,7 @@ const PatientOverview = (): JSX.Element => {
         </div>
         <div className="space-y-4">
           <PatientVitalsCard />
+          <PatientFamilyMembersCard />
         </div>
         <div>
           <PatientConditionsCard recordId={recordId} />
