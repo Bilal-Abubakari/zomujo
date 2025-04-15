@@ -49,7 +49,7 @@ interface IIdName {
 }
 
 export interface IMedicine extends IIdName {
-  doses: string;
+  dose: string;
 }
 
 export interface ICondition extends IIdName {
@@ -61,7 +61,7 @@ export type IConditionWithoutId = Omit<ICondition, 'id'>;
 
 export interface ISurgery extends IIdName {
   recordId: string;
-  notes: string;
+  additionalNotes: string;
 }
 
 export type ISurgeryWithoutId = Omit<ISurgery, 'id'>;

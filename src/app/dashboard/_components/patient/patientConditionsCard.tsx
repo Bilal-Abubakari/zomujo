@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import Image from 'next/image';
 import { Drugs } from '@/assets/images';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectMedicalConditions, selectRecordId } from '@/lib/features/patients/patientsSelector';
+import { selectMedicalConditions } from '@/lib/features/patients/patientsSelector';
 import {
   Drawer,
   DrawerContent,
@@ -27,20 +27,23 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 
 const conditionsSchema = z.object({
-  recordId: z.string().uuid(),
   name: z.string(),
   medicines: z
     .array(
       z.object({
         id: z.string().nonempty(),
         name: z.string().nonempty(),
-        doses: z.string().nonempty(),
+        dose: z.string().nonempty(),
       }),
     )
     .min(1),
 });
 
-const PatientConditionsCard = (): JSX.Element => {
+type PatientConditionsCardProps = {
+  recordId?: string;
+};
+
+const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const {
     setValue,
@@ -48,7 +51,8 @@ const PatientConditionsCard = (): JSX.Element => {
     handleSubmit,
     watch,
     control,
-  } = useForm<IConditionWithoutId>({
+    reset,
+  } = useForm<Omit<IConditionWithoutId, 'recordId'>>({
     resolver: zodResolver(conditionsSchema),
     mode: MODE.ON_TOUCH,
   });
@@ -58,7 +62,6 @@ const PatientConditionsCard = (): JSX.Element => {
   });
 
   const [edit, setEdit] = useState(false);
-  const recordId = useAppSelector(selectRecordId);
   const conditions = useAppSelector(selectMedicalConditions);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -68,17 +71,25 @@ const PatientConditionsCard = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [addMedicine, setAddMedicine] = useState({
     name: '',
-    doses: '',
+    dose: '',
   });
 
-  const onSubmit = async (condition: IConditionWithoutId): Promise<void> => {
-    setIsLoading(true);
-    const { payload } = await dispatch(addMedicalCondition(condition));
-    if (!showErrorToast(payload)) {
-      setEdit(false);
+  const onSubmit = async (condition: Omit<IConditionWithoutId, 'recordId'>): Promise<void> => {
+    if (recordId) {
+      setIsLoading(true);
+      const { payload } = await dispatch(
+        addMedicalCondition({
+          ...condition,
+          recordId,
+        }),
+      );
+      if (!showErrorToast(payload)) {
+        setEdit(false);
+        reset();
+      }
+      toast(payload as Toast);
+      setIsLoading(false);
     }
-    toast(payload as Toast);
-    setIsLoading(false);
   };
 
   const handleAddMedicineChange = ({ target }: ChangeEvent<HTMLInputElement>): void => {
@@ -99,21 +110,15 @@ const PatientConditionsCard = (): JSX.Element => {
     void handleSearch();
   }, [value]);
 
-  useEffect(() => {
-    if (recordId) {
-      setValue('recordId', recordId, { shouldValidate: true });
-    }
-  }, [recordId]);
-
-  const drug = ({ name, doses, id }: IMedicine, index?: number): JSX.Element => (
+  const drug = ({ name, dose, id }: IMedicine, index?: number): JSX.Element => (
     <div key={id} className="mt-4 flex justify-between">
       <div className="flex w-full items-center gap-1">
         <Image src={Drugs} alt={name} width={20} height={20} />
         <span
-          title={`${name}(${doses})`}
+          title={`${name}(${dose})`}
           className="text-blue-midnight truncate text-sm font-semibold"
         >
-          {name}({doses})
+          {name}({dose})
         </span>
       </div>
       {index !== undefined && (
@@ -157,7 +162,7 @@ const PatientConditionsCard = (): JSX.Element => {
                   <div className="rounded-full bg-white px-2 py-1.5">
                     <h4 className="text-sm font-semibold">{name}</h4>
                   </div>
-                  {medicines.length > 1 && (
+                  {medicines?.length > 1 && (
                     <CollapsibleTrigger asChild>
                       <Button
                         variant="ghost"
@@ -172,10 +177,14 @@ const PatientConditionsCard = (): JSX.Element => {
                     </CollapsibleTrigger>
                   )}
                 </div>
-                {medicines[0] && drug(medicines[0])}
-                <CollapsibleContent>
-                  {medicines.slice(1).map((medicine) => drug(medicine))}
-                </CollapsibleContent>
+                {medicines?.length && (
+                  <>
+                    {drug(medicines[0])}
+                    <CollapsibleContent>
+                      {medicines.slice(1).map((medicine) => drug(medicine))}
+                    </CollapsibleContent>
+                  </>
+                )}
               </Collapsible>
             </div>
           ))}
@@ -217,20 +226,20 @@ const PatientConditionsCard = (): JSX.Element => {
                     <Input
                       labelName="Dose Taken"
                       placeholder="eg: 10mg once daily"
-                      name="doses"
-                      value={addMedicine.doses}
+                      name="dose"
+                      value={addMedicine.dose}
                       onChange={handleAddMedicineChange}
                     />
                   </div>
                   <div className="flex justify-end">
                     <Button
-                      disabled={!addMedicine.name || !addMedicine.doses}
+                      disabled={!addMedicine.name || !addMedicine.dose}
                       child="Add Drug"
                       onClick={() => {
                         append({ id: String(watch('medicines').length + 1), ...addMedicine });
                         setAddMedicine({
                           name: '',
-                          doses: '',
+                          dose: '',
                         });
                       }}
                       type="submit"
