@@ -170,4 +170,4 @@ export const familyRelationOptions = familyRelations.map((relation) => ({
 }));
 
 export const phoneRegex =
-  /^(?:[+]?\d{0,3}[-\s]?)?\(?(?:\d{3}\)?[-\s]?|\d{2}\)?[-\s]?)\d{3}[-\s]?\d{4}$/;
+  /^(?:[+]1[-\s]?|[+]\d{1,3}[-\s]?)?\(?(?:\d{3}\)?[-\s]?|\d{2}\)?[-\s]?)\d{3}[-\s]?\d{4}$/;
