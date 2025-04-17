@@ -36,7 +36,7 @@ export const selectGenderOptions = [
   { label: 'Male', value: Gender.Male },
   { label: 'Female', value: Gender.Female },
   { label: 'Other', value: Gender.Other },
-] as const;
+];
 
 export const genderOptions: SelectOption[] = [
   ...selectGenderOptions,
@@ -44,7 +44,7 @@ export const genderOptions: SelectOption[] = [
     value: '',
     label: 'All',
   },
-] as const;
+];
 
 export const statusFilterOptions: ISelected[] = [
   {
@@ -59,7 +59,7 @@ export const statusFilterOptions: ISelected[] = [
     value: AcceptDeclineStatus.Deactivated,
     label: 'Deactivated',
   },
-] as const;
+];
 
 export const reassuringMessages = [
   'This is tough, but we’ll get there!',
@@ -100,7 +100,7 @@ export const specialties = [
   { value: 'emergency-medicine', label: 'Emergency Medicine' },
   { value: 'anesthesiology', label: 'Anesthesiology' },
   { value: 'infectious-disease', label: 'Infectious Disease' },
-] as const;
+];
 
 export const healthInsurances = [
   { value: 'nhis', label: 'National Health Insurance Scheme (NHIS)' },
@@ -118,7 +118,7 @@ export const healthInsurances = [
   { value: 'premier', label: 'Premier Health Insurance Company Limited' },
   { value: 'vitality', label: 'Vitality Health Insurance Limited' },
   { value: 'spectra', label: 'Spectra Health Mutual Insurance' },
-] as const;
+];
 
 export const shortDaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
@@ -127,13 +127,13 @@ export const maritalOptions = [
   { value: MaritalStatus.Married, label: 'Married' },
   { value: MaritalStatus.Divorced, label: 'Divorced' },
   { value: MaritalStatus.Widowed, label: 'Widowed' },
-] as const;
+];
 
 export const denominationOptions = [
   { value: Denomination.Muslim, label: 'Muslim' },
   { value: Denomination.Christian, label: 'Christian' },
   { value: Denomination.Other, label: 'Other' },
-] as const;
+];
 
 export const bloodGroupOptions = [
   { value: BloodGroup.APositive, label: 'APositive' },
@@ -144,7 +144,7 @@ export const bloodGroupOptions = [
   { value: BloodGroup.ABNegative, label: 'ABNegative' },
   { value: BloodGroup.OPositive, label: 'OPositive' },
   { value: BloodGroup.ONegative, label: 'ONegative' },
-] as const;
+];
 
 export const familyRelations = [
   'Father',
@@ -169,4 +169,5 @@ export const familyRelationOptions = familyRelations.map((relation) => ({
   label: relation,
 }));
 
-export const phoneRegex = new RegExp(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?(-?\s?[0-9])+$/);
+export const phoneRegex =
+  /^(?:[+]?\d{0,3}[-\s]?)?\(?(?:\d{3}\)?[-\s]?|\d{2}\)?[-\s]?)\d{3}[-\s]?\d{4}$/;
