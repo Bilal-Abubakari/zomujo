@@ -25,7 +25,7 @@ export interface SelectOption {
 
 type SelectInputProps = {
   name: string;
-  options: SelectOption[];
+  options: Readonly<SelectOption[]>;
   error?: string;
   ref: Ref<HTMLButtonElement>;
   label?: string;
