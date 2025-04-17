@@ -1,5 +1,6 @@
 import { IExtraBase } from '@/types/shared.interface';
 import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
+import { familyRelations } from '@/constants/constants';
 
 export interface IPatient extends IExtraBase {
   lifestyle: unknown;
@@ -52,12 +53,14 @@ export interface IMedicine extends IIdName {
   dose: string;
 }
 
-export interface ICondition extends IIdName {
+export type IMedicineWithoutId = Omit<IMedicine, 'id'>;
+
+export interface ICondition<T extends IMedicineWithoutId[] = IMedicine[]> extends IIdName {
   recordId: string;
-  medicines: IMedicine[];
+  medicines: T;
 }
 
-export type IConditionWithoutId = Omit<ICondition, 'id'>;
+export type IConditionWithoutId = Omit<ICondition<IMedicineWithoutId[]>, 'id'>;
 
 export interface ISurgery extends IIdName {
   recordId: string;
@@ -96,11 +99,17 @@ export type IPatientVitals = Pick<
 
 export type IPatientDataCombined = IPatient & IMedicalRecord;
 
-export interface IFamilyMember {
+export type relationType = (typeof familyRelations)[number];
+
+export interface IFamilyMember<T = string> {
   firstName: string;
   lastName: string;
-  email: string;
-  phoneNumber: string;
-  image: string;
-  relation: string;
+  email?: string;
+  phone?: string;
+  image?: T;
+  relation: relationType;
+}
+
+export interface IFamilyMemberRequest extends IFamilyMember<File> {
+  recordId: string;
 }

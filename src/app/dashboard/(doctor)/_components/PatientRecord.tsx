@@ -27,7 +27,7 @@ const PatientOverview = (): JSX.Element => {
         </div>
         <div className="space-y-4">
           <PatientVitalsCard />
-          <PatientFamilyMembersCard />
+          <PatientFamilyMembersCard recordId={recordId} />
         </div>
         <div>
           <PatientConditionsCard recordId={recordId} />
