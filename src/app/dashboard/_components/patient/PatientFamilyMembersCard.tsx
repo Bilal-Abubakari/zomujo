@@ -174,20 +174,20 @@ const PatientFamilyMembersCard = ({ recordId }: PatientFamilyMembersCardProps): 
                 <Input
                   labelName="First Name"
                   placeholder="Enter first name of family member"
-                  error={errors.firstName?.message || ''}
+                  error={errors.firstName?.message}
                   {...register('firstName')}
                 />
                 <Input
                   labelName="Last Name"
                   placeholder="Enter last name of family member"
-                  error={errors.lastName?.message || ''}
+                  error={errors.lastName?.message}
                   {...register('lastName')}
                 />
                 <Input
                   labelName="Email (optional)"
                   placeholder="Enter email of family member"
                   type="email"
-                  error={errors.email?.message || ''}
+                  error={errors.email?.message}
                   {...register('email')}
                 />
                 <SelectInput
@@ -202,7 +202,7 @@ const PatientFamilyMembersCard = ({ recordId }: PatientFamilyMembersCardProps): 
                 <Input
                   labelName="Phone Number (optional)"
                   placeholder="Enter phone number of family member"
-                  error={errors.phone?.message || ''}
+                  error={errors.phone?.message}
                   {...register('phone')}
                 />
               </div>
