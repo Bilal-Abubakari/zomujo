@@ -7,6 +7,7 @@ import {
   MaritalStatus,
 } from '@/types/shared.enum';
 import { ISelected } from '@/components/ui/dropdown-menu';
+import { capitalize } from '@/lib/utils';
 
 export const MODE = {
   ON_TOUCH: 'onTouched',
@@ -167,6 +168,18 @@ export const familyRelations = [
 export const familyRelationOptions = familyRelations.map((relation) => ({
   value: relation,
   label: relation,
+}));
+
+export const medicalLevels = ['none', 'light', 'moderate', 'heavy'] as const;
+
+export const medicalLevelOptions = medicalLevels.map((level) => ({
+  value: level,
+  label: capitalize(level),
+}));
+
+export const scale1to10Options = Array.from({ length: 10 }, (_, i) => i + 1).map((value) => ({
+  value: String(value),
+  label: String(value),
 }));
 
 export const phoneRegex = /^([+]?\d{1,3}[-\s]?)?(\d{2,3})[-\s]?(\d{3})[-\s]?(\d{4})$/;

@@ -50,3 +50,4 @@ Checkout out docs of api https://emr-do80.onrender.com/docs#/
 - Let's add a decline to doctor's requests actions (Rescheduling possibility???)
 - Let's investigate the feasibility of rescheduling functionality for both patient and doctor
 - Fix all possible sonar qube code smell issues
+- Let's redirect user back to where left off after session expiry force them to login again
