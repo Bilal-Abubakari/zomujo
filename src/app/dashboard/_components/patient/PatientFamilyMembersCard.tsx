@@ -16,7 +16,7 @@ import { IFamilyMember } from '@/types/patient.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { familyRelationOptions, familyRelations, MODE, phoneRegex } from '@/constants/constants';
 import { z } from 'zod';
-import { fileSchema } from '@/schemas/zod.schemas';
+import { fileSchema, requiredStringSchema } from '@/schemas/zod.schemas';
 import { Input } from '@/components/ui/input';
 import { SelectInput } from '@/components/ui/select';
 import Image from 'next/image';
@@ -26,8 +26,8 @@ import { showErrorToast } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
 
 const familyMembersSchema = z.object({
-  firstName: z.string().nonempty(),
-  lastName: z.string().nonempty(),
+  firstName: requiredStringSchema(),
+  lastName: requiredStringSchema(),
   email: z.string().email().optional().or(z.literal('')),
   phone: z
     .string()
