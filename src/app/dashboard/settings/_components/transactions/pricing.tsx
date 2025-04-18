@@ -5,10 +5,11 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setPaymentRate, updateOrganizationsDetails } from '@/lib/features/payments/paymentsThunk';
-import { toast } from '@/hooks/use-toast';
+import { Toast, toast } from '@/hooks/use-toast';
 import { selectExtra, selectIsOrganizationAdmin } from '@/lib/features/auth/authSelector';
 import { IRate } from '@/types/payment.interface';
 import { IDoctor } from '@/types/doctor.interface';
+import { AsyncThunkAction } from '@reduxjs/toolkit';
 
 const Pricing = (): JSX.Element => {
   const MIN_AMOUNT = 20;
@@ -25,17 +26,14 @@ const Pricing = (): JSX.Element => {
   const { fee } = useAppSelector(selectExtra)! as IDoctor;
   async function updateRate(rate: IRate): Promise<void> {
     setIsLoading(true);
+    const action = isAdmin
+      ? updateOrganizationsDetails(rate.amount)
+      : (setPaymentRate(rate) as AsyncThunkAction<Toast, unknown, Object>);
 
-    if (isAdmin) {
-      const { payload } = await dispatch(updateOrganizationsDetails(rate.amount));
-      if (payload) {
-        toast(payload);
-      }
-    } else {
-      const { payload } = await dispatch(setPaymentRate(rate));
-      if (payload) {
-        toast(payload);
-      }
+    const { payload } = await dispatch(action);
+
+    if (payload) {
+      toast(payload);
     }
 
     setIsLoading(false);

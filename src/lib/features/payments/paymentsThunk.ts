@@ -96,7 +96,7 @@ export const verifyPayment = createAsyncThunk('payment/verification', async (ref
 
 export const updateOrganizationsDetails = createAsyncThunk(
   'organization/updateProfile',
-  async (regularFee: number) => {
+  async (regularFee: number): Promise<Toast> => {
     try {
       const {
         data: { message },
