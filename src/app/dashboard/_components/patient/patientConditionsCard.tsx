@@ -1,6 +1,6 @@
 import React, { ChangeEvent, JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronsUpDown, FilePenLine, Trash2 } from 'lucide-react';
+import { ChevronsUpDown, Trash2 } from 'lucide-react';
 import { IConditionWithoutId, IMedicineWithoutId } from '@/types/patient.interface';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import Image from 'next/image';
@@ -25,6 +25,7 @@ import { addMedicalCondition, getConditions } from '@/lib/features/records/recor
 import { useDebounce } from 'use-debounce';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
+import CardFrame from '@/app/dashboard/_components/cardFrame';
 
 const conditionsSchema = z.object({
   name: z.string(),
@@ -127,24 +128,11 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
   );
   return (
     <>
-      <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
-        <div className="flex flex-row items-center justify-between">
-          <p className="font-bold">Conditions and Medicines</p>
-          <Button
-            variant="outline"
-            onClick={() => setEdit(true)}
-            child={
-              <>
-                <FilePenLine />
-                Edit
-              </>
-            }
-          />
-        </div>
-        <hr className="my-4" />
-        {!conditions?.length && (
-          <div className="flex h-40 items-center justify-center">No medical condition found</div>
-        )}
+      <CardFrame
+        showEmptyResults={!conditions?.length}
+        setEdit={setEdit}
+        title="Conditions and Medicines"
+      >
         <div className="max-h-[360px] space-y-4 overflow-y-scroll">
           {conditions?.map(({ id, name, medicines }) => (
             <div
@@ -188,7 +176,7 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
             </div>
           ))}
         </div>
-      </div>
+      </CardFrame>
       <Drawer direction="right" open={edit}>
         <DrawerContent>
           <div className="mx-auto w-full max-w-sm p-4">

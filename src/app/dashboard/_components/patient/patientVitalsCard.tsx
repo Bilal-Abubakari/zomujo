@@ -5,7 +5,6 @@ import { interpolateRange, showErrorToast } from '@/lib/utils';
 import HalfCircleProgress from '@/components/ui/halfCircleProgress';
 import { Badge } from '@/components/ui/badge';
 import { IBloodPressure, IPatientVitals } from '@/types/patient.interface';
-import { FilePenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectRecord } from '@/lib/features/patients/patientsSelector';
@@ -26,6 +25,7 @@ import { MODE } from '@/constants/constants';
 import { z } from 'zod';
 import { useParams } from 'next/navigation';
 import { positiveNumberSchema, stringInputOptionalNumberSchema } from '@/schemas/zod.schemas';
+import CardFrame from '@/app/dashboard/_components/cardFrame';
 
 const patientVitalsSchema = z.object({
   bloodPressure: z
@@ -100,21 +100,7 @@ const PatientVitalsCard = (): JSX.Element => {
   }, [patientRecord]);
   return (
     <>
-      <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
-        <div className="flex flex-row items-center justify-between">
-          <p className="font-bold">Vitals</p>
-          <Button
-            variant="outline"
-            onClick={() => setEdit(true)}
-            child={
-              <>
-                <FilePenLine />
-                Edit
-              </>
-            }
-          />
-        </div>
-        <hr className="my-4" />
+      <CardFrame showEmptyResults={false} setEdit={setEdit} title="Vitals">
         <div className="flex h-28 items-center justify-center">
           <HalfCircleProgress
             progress={vitalsRange(bloodPressure)}
@@ -185,7 +171,7 @@ const PatientVitalsCard = (): JSX.Element => {
             </p>
           </div>
         </div>
-      </div>
+      </CardFrame>
       <Drawer direction="right" open={edit}>
         <DrawerContent>
           <div className="mx-auto w-full max-w-sm p-4">

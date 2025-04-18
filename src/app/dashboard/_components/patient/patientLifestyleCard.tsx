@@ -1,30 +1,13 @@
 import React, { JSX } from 'react';
-import { Button } from '@/components/ui/button';
-import { FilePenLine } from 'lucide-react';
 import { capitalize } from '@/lib/utils';
 import { useAppSelector } from '@/lib/hooks';
 import { selectLifestyle } from '@/lib/features/patients/patientsSelector';
+import CardFrame from '@/app/dashboard/_components/cardFrame';
 
 const PatientLifestyleCard = (): JSX.Element => {
   const lifestyle = useAppSelector(selectLifestyle);
   return (
-    <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
-      <div className="flex flex-row items-center justify-between">
-        <p className="font-bold">Lifestyle</p>
-        <Button
-          variant="outline"
-          child={
-            <>
-              <FilePenLine />
-              Edit
-            </>
-          }
-        />
-      </div>
-      <hr className="my-4" />
-      {!lifestyle && (
-        <div className="flex h-40 items-center justify-center">No lifestyle information</div>
-      )}
+    <CardFrame showEmptyResults={!lifestyle} title="Lifestyle">
       <div className="flex flex-col gap-6">
         {Object.entries(lifestyle ?? {}).map(([key, value]) => (
           <div key={key} className="flex flex-row items-center justify-between text-sm">
@@ -33,7 +16,7 @@ const PatientLifestyleCard = (): JSX.Element => {
           </div>
         ))}
       </div>
-    </div>
+    </CardFrame>
   );
 };
 

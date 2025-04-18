@@ -5,7 +5,6 @@ import { capitalize, showErrorToast } from '@/lib/utils';
 import GenderBadge from '@/app/dashboard/_components/genderBadge';
 import { formatDateToDDMMYYYY } from '@/lib/date';
 import { Button } from '@/components/ui/button';
-import { FilePenLine } from 'lucide-react';
 import {
   Drawer,
   DrawerContent,
@@ -32,6 +31,7 @@ import { toast, Toast } from '@/hooks/use-toast';
 import { positiveNumberSchema } from '@/schemas/zod.schemas';
 import { updateRecord } from '@/lib/features/records/recordsThunk';
 import { useParams } from 'next/navigation';
+import CardFrame from '@/app/dashboard/_components/cardFrame';
 
 const patientBasicSchema = z.object({
   denomination: z.nativeEnum(Denomination).optional(),
@@ -86,27 +86,17 @@ const PatientCard = (): JSX.Element => {
   };
   return (
     <>
-      <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-[0px_1px_2px_0px_#0F172A0F]">
-        <div className="flex flex-row items-center justify-between">
-          <div className="flex w-full justify-between">
-            <AvatarWithName
-              firstName={patientWithRecord?.firstName ?? ''}
-              lastName={patientWithRecord?.lastName ?? ''}
-              imageSrc={patientWithRecord?.profilePicture ?? ''}
-            />
-            <Button
-              variant="outline"
-              onClick={() => setEdit(true)}
-              child={
-                <>
-                  <FilePenLine />
-                  Edit
-                </>
-              }
-            />
-          </div>
-        </div>
-        <hr className="my-4 border-gray-300" />
+      <CardFrame
+        setEdit={setEdit}
+        customTitle={
+          <AvatarWithName
+            firstName={patientWithRecord?.firstName ?? ''}
+            lastName={patientWithRecord?.lastName ?? ''}
+            imageSrc={patientWithRecord?.profilePicture ?? ''}
+          />
+        }
+        showEmptyResults={false}
+      >
         <div className="flex flex-col gap-7">
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Marital Status</span>
@@ -145,7 +135,7 @@ const PatientCard = (): JSX.Element => {
             <span className="text-sm font-medium">{patientRecord?.bloodGroup ?? '<Empty>'}</span>
           </div>
         </div>
-      </div>
+      </CardFrame>
       <Drawer direction="right" open={edit}>
         <DrawerContent>
           <div className="mx-auto w-full max-w-sm p-4">

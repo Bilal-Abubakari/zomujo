@@ -1,6 +1,5 @@
 import React, { JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FilePenLine } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectSurgeries } from '@/lib/features/patients/patientsSelector';
 import {
@@ -21,6 +20,7 @@ import { addSurgery, getProcedures } from '@/lib/features/records/recordsThunk';
 import { useDebounce } from 'use-debounce';
 import { showErrorToast } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
+import CardFrame from '@/app/dashboard/_components/cardFrame';
 
 const surgerySchema = z.object({
   name: z.string().nonempty(),
@@ -81,24 +81,7 @@ const PatientSurgeriesCard = ({ recordId }: PatientSurgeriesCardProps): JSX.Elem
 
   return (
     <>
-      <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
-        <div className="flex flex-row items-center justify-between">
-          <p className="font-bold">Surgeries</p>
-          <Button
-            variant="outline"
-            onClick={() => setEdit(true)}
-            child={
-              <>
-                <FilePenLine />
-                Add
-              </>
-            }
-          />
-        </div>
-        <hr className="my-4" />
-        {!surgeries?.length && (
-          <div className="flex h-40 items-center justify-center">No surgeries found</div>
-        )}
+      <CardFrame setEdit={setEdit} showEmptyResults={!surgeries?.length} title="Surgeries">
         <div className="text-burnt-brown max-h-[360px] space-y-4 overflow-y-scroll">
           {surgeries?.map(({ name, id, additionalNotes }) => (
             <div
@@ -113,7 +96,7 @@ const PatientSurgeriesCard = ({ recordId }: PatientSurgeriesCardProps): JSX.Elem
             </div>
           ))}
         </div>
-      </div>
+      </CardFrame>
       <Drawer direction="right" open={edit}>
         <DrawerContent>
           <div className="mx-auto w-full max-w-sm p-4">
