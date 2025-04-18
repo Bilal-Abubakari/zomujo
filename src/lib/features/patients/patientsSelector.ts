@@ -24,3 +24,7 @@ export const selectMedicalConditions = createSelector(selectRecord, (record) => 
 export const selectSurgeries = createSelector(selectRecord, (record) => record?.surgeries);
 
 export const selectFamilyMembers = createSelector(selectRecord, (record) => record?.familyMembers);
+
+export const selectLifestyle = createSelector(selectRecord, (record) => record?.lifestyle);
+
+export const selectAllergies = createSelector(selectRecord, (record) => record?.allergies);
