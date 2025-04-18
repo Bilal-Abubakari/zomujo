@@ -28,7 +28,7 @@ const Pricing = (): JSX.Element => {
     setIsLoading(true);
     const action = isAdmin
       ? updateOrganizationsDetails(rate.amount)
-      : (setPaymentRate(rate) as AsyncThunkAction<Toast, unknown, Object>);
+      : (setPaymentRate(rate) as AsyncThunkAction<Toast, unknown, object>);
 
     const { payload } = await dispatch(action);
 
