@@ -20,7 +20,7 @@ const CardFrame = ({
 }: CardFrameProps): JSX.Element => (
   <div className="flex w-full max-w-sm flex-col rounded-xl border border-gray-200 bg-white p-4">
     <div className="flex flex-row items-center justify-between">
-      {customTitle ? customTitle : <p className="font-bold">{title}</p>}
+      {customTitle ?? <p className="font-bold">{title}</p>}
       <Button
         variant="outline"
         onClick={() => setEdit && setEdit(true)}
