@@ -31,7 +31,7 @@ export interface IMedicalRecord {
   heartRate?: number;
   invoice?: string;
   lab: string[];
-  lifestyle?: string;
+  lifestyle?: ILifestyle;
   prescription: string[];
   conditions: ICondition[];
   prescriptionPreviewUrl?: string;
@@ -112,4 +112,12 @@ export interface IFamilyMember<T = string> {
 
 export interface IFamilyMemberRequest extends IFamilyMember<File> {
   recordId: string;
+}
+
+export type MedicalLevel = 'none' | 'light' | 'moderate' | 'heavy';
+
+export interface ILifestyle {
+  alcohol: MedicalLevel;
+  smoking: MedicalLevel;
+  stress: number;
 }
