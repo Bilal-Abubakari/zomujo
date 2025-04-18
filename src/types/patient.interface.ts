@@ -1,6 +1,6 @@
 import { IExtraBase } from '@/types/shared.interface';
 import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
-import { familyRelations } from '@/constants/constants';
+import { familyRelations, medicalLevels } from '@/constants/constants';
 
 export interface IPatient extends IExtraBase {
   lifestyle: unknown;
@@ -99,7 +99,7 @@ export type IPatientVitals = Pick<
 
 export type IPatientDataCombined = IPatient & IMedicalRecord;
 
-export type relationType = (typeof familyRelations)[number];
+export type RelationType = (typeof familyRelations)[number];
 
 export interface IFamilyMember<T = string> {
   firstName: string;
@@ -107,17 +107,22 @@ export interface IFamilyMember<T = string> {
   email?: string;
   phone?: string;
   image?: T;
-  relation: relationType;
+  relation: RelationType;
 }
 
 export interface IFamilyMemberRequest extends IFamilyMember<File> {
   recordId: string;
 }
 
-export type MedicalLevel = 'none' | 'light' | 'moderate' | 'heavy';
+export type MedicalLevelType = (typeof medicalLevels)[number];
+
+export interface ILevelDescription<T = MedicalLevelType> {
+  level: T;
+  description?: string;
+}
 
 export interface ILifestyle {
-  alcohol: MedicalLevel;
-  smoking: MedicalLevel;
-  stress: number;
+  alcohol: ILevelDescription;
+  smoking: ILevelDescription;
+  stress: ILevelDescription<string>;
 }
