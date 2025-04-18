@@ -152,7 +152,7 @@ export const ADMIN_SIDE_BAR: ISidebar = {
         },
         {
           title: 'Appointments',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/appointment`,
           Icon: CalendarDays,
         },
         {
@@ -262,6 +262,11 @@ export const ADMIN_SETTINGS_SIDEBAR: ISidebar = {
           title: 'Hospital',
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}`,
           Icon: User,
+        },
+        {
+          title: 'Payment',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/payment`,
+          Icon: Banknote,
         },
         {
           title: 'Availability',
