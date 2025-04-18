@@ -98,8 +98,8 @@ const PatientLifestyleCard = (): JSX.Element => {
           <div className="mx-auto w-full max-w-sm p-4">
             <DrawerHeader className="flex items-center justify-between">
               <div>
-                <DrawerTitle className="text-lg">Edit Conditions and Medicine</DrawerTitle>
-                <DrawerDescription>Manage conditions and medicines</DrawerDescription>
+                <DrawerTitle className="text-lg">Edit Lifestyle</DrawerTitle>
+                <DrawerDescription>Manage lifestyle information</DrawerDescription>
               </div>
             </DrawerHeader>
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
