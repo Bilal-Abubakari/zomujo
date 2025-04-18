@@ -1,7 +1,7 @@
 import React, { ChangeEvent, JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronsUpDown, FilePenLine, Trash2 } from 'lucide-react';
-import { IConditionWithoutId, IMedicine } from '@/types/patient.interface';
+import { IConditionWithoutId, IMedicineWithoutId } from '@/types/patient.interface';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import Image from 'next/image';
 import { Drugs } from '@/assets/images';
@@ -31,7 +31,6 @@ const conditionsSchema = z.object({
   medicines: z
     .array(
       z.object({
-        id: z.string().nonempty(),
         name: z.string().nonempty(),
         dose: z.string().nonempty(),
       }),
@@ -110,8 +109,8 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
     void handleSearch();
   }, [value]);
 
-  const drug = ({ name, dose, id }: IMedicine, index?: number): JSX.Element => (
-    <div key={id} className="mt-4 flex justify-between">
+  const drug = ({ name, dose }: IMedicineWithoutId, index?: number): JSX.Element => (
+    <div key={`${name}-${index}`} className="mt-4 flex justify-between">
       <div className="flex w-full items-center gap-1">
         <Image src={Drugs} alt={name} width={20} height={20} />
         <span
@@ -236,7 +235,7 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
                       disabled={!addMedicine.name || !addMedicine.dose}
                       child="Add Drug"
                       onClick={() => {
-                        append({ id: String(watch('medicines').length + 1), ...addMedicine });
+                        append(addMedicine);
                         setAddMedicine({
                           name: '',
                           dose: '',

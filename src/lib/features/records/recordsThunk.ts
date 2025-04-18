@@ -7,6 +7,7 @@ import { ApproveDeclineStatus } from '@/types/shared.enum';
 import { IRecordRequest } from '@/types/appointment.interface';
 import {
   IConditionWithoutId,
+  IFamilyMemberRequest,
   IPatient,
   IPatientDataCombined,
   IPatientWithRecord,
@@ -14,6 +15,7 @@ import {
 } from '@/types/patient.interface';
 import {
   updateConditions,
+  updateFamilyMembers,
   updatePatientRecord,
   updatePatientWithRecords,
   updateSurgeries,
@@ -175,6 +177,21 @@ export const addSurgery = createAsyncThunk(
         data: { message },
       } = await axios.post<IResponse<IPatient>>(`records/surgery`, data);
       dispatch(updateSurgeries(data));
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const addFamilyMember = createAsyncThunk(
+  'record/add-surgery',
+  async (data: IFamilyMemberRequest, { dispatch }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.putForm<IResponse>(`records/family-member`, data);
+      dispatch(updateFamilyMembers(data));
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

@@ -29,7 +29,7 @@ export const DAYS_OF_WEEK = [
   'Friday',
   'Saturday',
   'Sunday',
-];
+] as const;
 export const unMatchingPasswords = 'Passwords do not match';
 
 export const selectGenderOptions = [
@@ -77,7 +77,7 @@ export const reassuringMessages = [
   'We’re learning as we go—let’s keep at it!',
   'Almost there, let’s keep searching!',
   'The perfect result might be just around the corner!',
-];
+] as const;
 
 export const specialties = [
   { value: 'cardiology', label: 'Cardiology' },
@@ -120,7 +120,7 @@ export const healthInsurances = [
   { value: 'spectra', label: 'Spectra Health Mutual Insurance' },
 ];
 
-export const shortDaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export const shortDaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
 export const maritalOptions = [
   { value: MaritalStatus.Single, label: 'Single' },
@@ -145,3 +145,28 @@ export const bloodGroupOptions = [
   { value: BloodGroup.OPositive, label: 'OPositive' },
   { value: BloodGroup.ONegative, label: 'ONegative' },
 ];
+
+export const familyRelations = [
+  'Father',
+  'Mother',
+  'Brother',
+  'Sister',
+  'Uncle',
+  'Aunt',
+  'Cousin',
+  'Grandfather',
+  'Grandmother',
+  'Son',
+  'Daughter',
+  'Nephew',
+  'Niece',
+  'Spouse',
+  'Partner',
+] as const;
+
+export const familyRelationOptions = familyRelations.map((relation) => ({
+  value: relation,
+  label: relation,
+}));
+
+export const phoneRegex = /^([+]?\d{1,3}[-\s]?)?(\d{2,3})[-\s]?(\d{3})[-\s]?(\d{4})$/;
