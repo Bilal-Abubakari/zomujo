@@ -1,6 +1,11 @@
 import { IExtraBase } from '@/types/shared.interface';
 import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
-import { familyRelations, medicalLevels } from '@/constants/constants';
+import {
+  allergyTypes,
+  familyRelations,
+  medicalLevels,
+  severityOptions,
+} from '@/constants/constants';
 
 export interface IPatient extends IExtraBase {
   lifestyle: unknown;
@@ -12,7 +17,7 @@ export interface IPatient extends IExtraBase {
 
 export interface IMedicalRecord {
   id: string;
-  allergies: string[];
+  allergies: IAllergy[];
   bloodGroup?: BloodGroup;
   bloodPressure?: IBloodPressure;
   bloodSugarLevel?: number;
@@ -125,4 +130,21 @@ export interface ILifestyle {
   alcohol: ILevelDescription;
   smoking: ILevelDescription;
   stress: ILevelDescription<string>;
+}
+
+export type AllergyTypesType = (typeof allergyTypes)[number];
+
+export type SeverityType = (typeof severityOptions)[number];
+
+export interface IAllergy {
+  id: string;
+  allergy: string;
+  type: AllergyTypesType;
+  severity: SeverityType;
+}
+
+export type IAllergyWithoutId = Omit<IAllergy, 'id'>;
+
+export interface IAllergyRequest extends IAllergy {
+  recordId: string;
 }

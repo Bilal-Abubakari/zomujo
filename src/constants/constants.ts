@@ -183,3 +183,17 @@ export const scale1to10Options = Array.from({ length: 10 }, (_, i) => i + 1).map
 }));
 
 export const phoneRegex = /^([+]?\d{1,3}[-\s]?)?(\d{2,3})[-\s]?(\d{3})[-\s]?(\d{4})$/;
+
+export const allergyTypes = ['medication', 'food', 'environmental', 'other'] as const;
+
+export const allergyTypeOptions = allergyTypes.map((type) => ({
+  value: type,
+  label: capitalize(type),
+}));
+
+export const severityOptions = ['mild', 'moderate', 'severe'] as const;
+
+export const severityOptionsList = severityOptions.map((severity) => ({
+  value: severity,
+  label: capitalize(severity),
+}));
