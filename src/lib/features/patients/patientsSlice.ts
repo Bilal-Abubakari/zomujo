@@ -50,6 +50,13 @@ const patientsSlice = createSlice({
       }
       record.familyMembers = [...(record.familyMembers ?? []), payload];
     },
+    updateAllergies: (state, { payload }) => {
+      const record = state.patientWithRecords?.record;
+      if (!record) {
+        return;
+      }
+      record.allergies = [...(record.allergies ?? []), payload];
+    },
   },
 });
 
@@ -59,6 +66,7 @@ export const {
   updateConditions,
   updateSurgeries,
   updateFamilyMembers,
+  updateAllergies,
 } = patientsSlice.actions;
 
 export default patientsSlice.reducer;

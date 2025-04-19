@@ -6,6 +6,7 @@ import { Toast } from '@/hooks/use-toast';
 import { ApproveDeclineStatus } from '@/types/shared.enum';
 import { IRecordRequest } from '@/types/appointment.interface';
 import {
+  IAllergyRequest,
   IConditionWithoutId,
   IFamilyMemberRequest,
   IPatient,
@@ -14,6 +15,7 @@ import {
   ISurgeryWithoutId,
 } from '@/types/patient.interface';
 import {
+  updateAllergies,
   updateConditions,
   updateFamilyMembers,
   updatePatientRecord,
@@ -185,13 +187,28 @@ export const addSurgery = createAsyncThunk(
 );
 
 export const addFamilyMember = createAsyncThunk(
-  'record/add-surgery',
+  'record/add-family-member',
   async (data: IFamilyMemberRequest, { dispatch }): Promise<Toast> => {
     try {
       const {
         data: { message },
       } = await axios.putForm<IResponse>(`records/family-member`, data);
       dispatch(updateFamilyMembers(data));
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const addAllergy = createAsyncThunk(
+  'record/add-allergy',
+  async (data: IAllergyRequest, { dispatch }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>(`doctors/add-allergy`, data);
+      dispatch(updateAllergies(data));
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

@@ -143,3 +143,16 @@ export const removeNullishValues = <T extends Record<string, unknown> = Record<s
   Object.fromEntries(
     Object.entries(obj).filter(([, value]) => value !== null && value !== undefined),
   ) as Partial<T>;
+
+/**
+ * Generates a UUID (Universally Unique Identifier) in the format `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`.
+ * This function uses random values to generate a unique identifier.
+ *
+ * @returns {string} A randomly generated UUID.
+ */
+export const generateUUID = (): string =>
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (char) {
+    const random = (Math.random() * 16) | 0;
+    const value = char === 'x' ? random : (random & 0x3) | 0x8;
+    return value.toString(16);
+  });
