@@ -80,7 +80,11 @@ const Hospitals = ({ title = 'Hospitals', showViewAll = false }: HospitalProps):
   return (
     <>
       <div className="mb-6 flex w-full flex-wrap gap-4"></div>
-      <Suggested title={title} showViewAll={showViewAll} link="/dashboard/find-doctor?tab=hospitals">
+      <Suggested
+        title={title}
+        showViewAll={showViewAll}
+        link="/dashboard/find-doctor?tab=hospitals"
+      >
         {hospitals.map((hospital) => (
           <HospitalCard key={hospital.id} {...hospital} />
         ))}

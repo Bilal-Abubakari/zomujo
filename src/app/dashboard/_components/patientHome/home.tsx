@@ -157,5 +157,4 @@ const PatientHome = (): JSX.Element => {
   );
 };
 
-
 export default PatientHome;

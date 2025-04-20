@@ -1,6 +1,6 @@
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
-import { JSX, ReactNode } from "react";
+import { ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { JSX, ReactNode } from 'react';
 
 type SuggestedProps = {
   title: string;
