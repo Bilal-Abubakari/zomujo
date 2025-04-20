@@ -1,41 +1,22 @@
 import SearchDoctorsCard from '@/app/dashboard/_components/patientHome/_component/searchDoctorCard';
 import UpcomingAppointmentCard from '@/app/dashboard/_components/patientHome/_component/upcomingAppointments';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
 import { AvatarGreetings } from '@/app/dashboard/_components/avatarGreetings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { JSX, ReactNode, useMemo } from 'react';
+import { JSX, ReactNode, useEffect, useMemo, useState } from 'react';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { IDoctor } from '@/types/doctor.interface';
 import { IHospital } from '@/types/hospital.interface';
 import HospitalCard from '@/app/dashboard/(patient)/_components/hospitalCard';
 import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
-
-// TODO: We will replace this with real requests
-
-const mockDoctors = [
-  {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    specializations: ['Cardiology', 'Pediatrics'],
-    ratings: 4.5,
-    experience: 8,
-    noOfConsultations: 120,
-    rate: 2,
-  },
-  {
-    id: '2',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    specializations: ['Dermatology', 'Cosmetology'],
-    ratings: 4.8,
-    experience: 10,
-    noOfConsultations: 200,
-    rate: 1,
-  },
-] as IDoctor[];
+import { useAppDispatch } from '@/lib/hooks';
+import { suggestedDoctors } from '@/lib/features/doctors/doctorsThunk';
+import { getCoordinates } from '@/lib/location';
+import { showErrorToast } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
+import { ToastStatus } from '@/types/shared.enum';
 
 // TODO: We will replace this with live requests
 const mockHospitals = [
@@ -68,6 +49,9 @@ const mockHospitals = [
 ] as unknown as IHospital[];
 
 const PatientHome = (): JSX.Element => {
+  const dispatch = useAppDispatch();
+  const [isLoading, setIsLoading] = useState(false);
+  const [doctors, setDoctors] = useState<IDoctor[]>([]);
   const suggest = useMemo(
     () => (
       <>
@@ -76,11 +60,32 @@ const PatientHome = (): JSX.Element => {
             <HospitalCard key={hospital.id} {...hospital} />
           ))}
         </Suggested>
-        <Suggested title={'Suggested Doctors'}>
-          {mockDoctors.map((doctor) => (
-            <DoctorCard key={doctor.id} {...doctor} />
-          ))}
-        </Suggested>
+        <div className="mt-4">
+          <Suggested title={'Suggested Doctors'}>
+            {doctors.map((doctor) => (
+              <DoctorCard key={doctor.id} {...doctor} />
+            ))}
+          </Suggested>
+          {!isLoading && !(doctors.length > 1) && (
+            <div>
+              <p className="text-sm">
+                Doctor suggestions based on your location are currently not available.{' '}
+                <a href="dashboard/find-doctor" className="text-primary underline">
+                  Find available doctors
+                </a>{' '}
+                manually.
+              </p>
+            </div>
+          )}{' '}
+          {isLoading && (
+            <div className="flex h-32 w-full items-center justify-center">
+              <p className="flex gap-2 text-sm">
+                <Loader2 className="animate-spin" size={16} />
+                Please wait, getting suggestions of some doctors close to you.
+              </p>
+            </div>
+          )}
+        </div>
       </>
     ),
     [],
@@ -103,7 +108,7 @@ const PatientHome = (): JSX.Element => {
         <Suggested title={'Suggested Doctors'}>
           <Carousel className="w-full">
             <CarouselContent>
-              {mockDoctors.map((doctor) => (
+              {doctors.map((doctor) => (
                 <CarouselItem key={doctor.id}>
                   <DoctorCard key={doctor.id} {...doctor} />
                 </CarouselItem>
@@ -126,6 +131,35 @@ const PatientHome = (): JSX.Element => {
     [],
   );
 
+  useEffect(() => {
+    async function getSuggestedDoctors():Promise<void> {
+      try {
+        setIsLoading(true);
+        const { longitude: long, latitude: lat } = await getCoordinates();
+        const { payload } = await dispatch(suggestedDoctors({ long, lat }));
+        if (payload && showErrorToast(payload)) {
+          toast(payload);
+          setIsLoading(false);
+          return;
+        }
+
+        setIsLoading(false);
+        setDoctors(payload as IDoctor[]);
+      } catch (error) {
+        let message = 'We unable to suggest a doctor at this time. Try again later';
+        if (error instanceof GeolocationPositionError) {
+          message = error.message;
+        }
+        toast({
+          title: ToastStatus.Error,
+          description: message,
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+      }
+    }
+    void getSuggestedDoctors();
+  }, []);
   return (
     <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-[80px] max-me:pt-4 w-full border px-4 md:px-6">
       <AvatarGreetings />
