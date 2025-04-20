@@ -132,7 +132,7 @@ const PatientHome = (): JSX.Element => {
   );
 
   useEffect(() => {
-    async function getSuggestedDoctors():Promise<void> {
+    async function getSuggestedDoctors(): Promise<void> {
       try {
         setIsLoading(true);
         const { longitude: long, latitude: lat } = await getCoordinates();
