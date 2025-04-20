@@ -70,9 +70,9 @@ const PatientHome = (): JSX.Element => {
             <div>
               <p className="text-sm">
                 Doctor suggestions based on your location are currently not available.{' '}
-                <a href="dashboard/find-doctor" className="text-primary underline">
+                <Link href="dashboard/find-doctor" className="text-primary underline">
                   Find available doctors
-                </a>{' '}
+                </Link>{' '}
                 manually.
               </p>
             </div>
