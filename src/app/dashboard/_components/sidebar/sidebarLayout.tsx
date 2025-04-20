@@ -170,7 +170,7 @@ export const SidebarLayout = ({
   );
 };
 
-export const PhoneNavbar = ({ type }: SideBarProps): JSX.Element => {
+export const PhoneNavbar = ({ type }: Pick<SideBarProps, 'type'>): JSX.Element => {
   const role = useAppSelector(selectUserRole);
   const userName = useAppSelector(selectUserName);
   const pathName = usePathname();
@@ -213,12 +213,12 @@ export const PhoneNavbar = ({ type }: SideBarProps): JSX.Element => {
   );
 };
 
-export const SettingsNavbar = (): JSX.Element => {
+export const Navbar = ({
+  type = SidebarType.Settings,
+}: Pick<SideBarProps, 'type'>): JSX.Element => {
   const pathName = usePathname();
   const role = useAppSelector(selectUserRole);
-  const flattenedMenu = getSidebarByRole(role, SidebarType.Settings).sidebarGroup.flatMap(
-    (group) => group.menu,
-  );
+  const flattenedMenu = getSidebarByRole(role, type).sidebarGroup.flatMap((group) => group.menu);
 
   return (
     <>

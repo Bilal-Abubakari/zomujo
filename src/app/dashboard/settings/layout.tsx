@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { SettingsNavbar, SidebarLayout } from '../_components/sidebar/sidebarLayout';
+import { Navbar, SidebarLayout } from '../_components/sidebar/sidebarLayout';
 import { SidebarType } from '@/types/shared.enum';
 
 export default function Layout({
@@ -12,7 +12,7 @@ export default function Layout({
       <div className="flex items-center justify-between bg-white px-6 sm:h-[97px]">
         <h2 className="py-2 text-xl font-bold sm:py-0 sm:text-[32px]">Settings</h2>
       </div>
-      <SettingsNavbar />
+      <Navbar />
       <div className="relative flex h-[calc(100vh-99px)] overflow-hidden">
         <SidebarLayout
           type={SidebarType.Settings}
