@@ -213,12 +213,10 @@ export const PhoneNavbar = ({ type }: SideBarProps): JSX.Element => {
   );
 };
 
-export const SettingsNavbar = (): JSX.Element => {
+export const Navbar = ({ type = SidebarType.Settings }: SideBarProps): JSX.Element => {
   const pathName = usePathname();
   const role = useAppSelector(selectUserRole);
-  const flattenedMenu = getSidebarByRole(role, SidebarType.Settings).sidebarGroup.flatMap(
-    (group) => group.menu,
-  );
+  const flattenedMenu = getSidebarByRole(role, type).sidebarGroup.flatMap((group) => group.menu);
 
   return (
     <>

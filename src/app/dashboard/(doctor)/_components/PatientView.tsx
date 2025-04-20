@@ -7,7 +7,10 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { ApproveDeclineStatus, SidebarType } from '@/types/shared.enum';
-import { SettingsNavbar, SidebarLayout } from '@/app/dashboard/_components/sidebar/sidebarLayout';
+import {
+  Navbar,
+  SidebarLayout,
+} from '@/app/dashboard/_components/sidebar/sidebarLayout';
 import { showErrorToast } from '@/lib/utils';
 import { INotification, NotificationEvent } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
@@ -118,7 +121,7 @@ const PatientView = ({
           </div>
         </div>
       )}
-      <SettingsNavbar />
+      <Navbar type={SidebarType.PatientRecord} />
       <div className="flex overflow-hidden">
         <SidebarLayout
           type={SidebarType.PatientRecord}
