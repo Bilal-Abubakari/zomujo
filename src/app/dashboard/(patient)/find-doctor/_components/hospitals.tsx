@@ -1,4 +1,3 @@
-import { Suggested } from '@/app/dashboard/_components/patientHome/home';
 import { NotFound } from '@/assets/images';
 import { toast } from '@/hooks/use-toast';
 import { useAppDispatch } from '@/lib/hooks';
@@ -12,8 +11,13 @@ import { getCoordinates } from '@/lib/location';
 import { MAX_RADIUS_IN_KM, METERS_TO_KM_FACTOR, reassuringMessages } from '@/constants/constants';
 import { ToastStatus } from '@/types/shared.enum';
 import HospitalCard from '@/app/dashboard/(patient)/_components/hospitalCard';
+import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
+type HospitalProps = {
+  title?: string;
+  showViewAll?: boolean;
+};
 
-const Hospitals = (): JSX.Element => {
+const Hospitals = ({ title = 'Hospitals', showViewAll = false }: HospitalProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(true);
   const [hospitals, setHospitals] = useState<IHospital[]>([]);
@@ -76,7 +80,7 @@ const Hospitals = (): JSX.Element => {
   return (
     <>
       <div className="mb-6 flex w-full flex-wrap gap-4"></div>
-      <Suggested title={'Hospitals'} showViewAll={false}>
+      <Suggested title={title} showViewAll={showViewAll} link="/dashboard/find-doctor?tab=hospitals">
         {hospitals.map((hospital) => (
           <HospitalCard key={hospital.id} {...hospital} />
         ))}

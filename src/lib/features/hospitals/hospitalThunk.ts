@@ -39,7 +39,7 @@ export const getNearByHospitals = createAsyncThunk(
   async ({ long, lat, radius }: INearByQueryParams) => {
     try {
       const { data } = await axios.get<IResponse<IHospital>>(
-        `orgs/nearby-orgs?lat=${lat}&long=${long}&radius=${radius}`,
+        `orgs/nearby?lat=${lat}&long=${long}&radius=${radius}`,
       );
       return data.data;
     } catch (error) {
