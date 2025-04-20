@@ -13,6 +13,7 @@ import { Toast } from '@/hooks/use-toast';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { IDoctorIdentification } from '@/types/auth.interface';
 import { updateExtra } from '../auth/authSlice';
+import { INearByQueryParams } from '@/types/hospital.interface';
 
 export const getAllDoctors = createAsyncThunk(
   'doctors/allDoctors',
@@ -125,6 +126,20 @@ export const doctorInfo = createAsyncThunk(
   async (id: string): Promise<IDoctor | Toast> => {
     try {
       const { data } = await axios.get<IResponse<IDoctor>>(`doctors/${id}`);
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const suggestedDoctors = createAsyncThunk(
+  'doctor/suggestedDoctors',
+  async ({ long, lat }: Omit<INearByQueryParams, 'radius'>): Promise<IDoctor | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IDoctor>>(
+        `doctors/suggested?lat=${lat}&long=${long}`,
+      );
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
