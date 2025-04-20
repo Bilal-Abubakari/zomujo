@@ -52,6 +52,34 @@ const PatientHome = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [doctors, setDoctors] = useState<IDoctor[]>([]);
+
+  const doctorSuggestions = useMemo(
+    () => (
+      <>
+        {' '}
+        {!isLoading && doctors.length <= 1 && (
+          <div>
+            <p className="text-sm">
+              Doctor suggestions based on your location are currently not available.{' '}
+              <Link href="dashboard/find-doctor" className="text-primary underline">
+                Find available doctors
+              </Link>{' '}
+              manually.
+            </p>
+          </div>
+        )}{' '}
+        {isLoading && (
+          <div className="flex h-32 w-full items-center justify-center">
+            <p className="flex gap-2 text-sm">
+              <Loader2 className="animate-spin" size={16} />
+              Please wait, getting suggestions of some doctors close to you.
+            </p>
+          </div>
+        )}
+      </>
+    ),
+    [],
+  );
   const suggest = useMemo(
     () => (
       <>
@@ -66,25 +94,7 @@ const PatientHome = (): JSX.Element => {
               <DoctorCard key={doctor.id} {...doctor} />
             ))}
           </Suggested>
-          {!isLoading && !(doctors.length > 1) && (
-            <div>
-              <p className="text-sm">
-                Doctor suggestions based on your location are currently not available.{' '}
-                <Link href="dashboard/find-doctor" className="text-primary underline">
-                  Find available doctors
-                </Link>{' '}
-                manually.
-              </p>
-            </div>
-          )}{' '}
-          {isLoading && (
-            <div className="flex h-32 w-full items-center justify-center">
-              <p className="flex gap-2 text-sm">
-                <Loader2 className="animate-spin" size={16} />
-                Please wait, getting suggestions of some doctors close to you.
-              </p>
-            </div>
-          )}
+          {doctorSuggestions}
         </div>
       </>
     ),
@@ -115,6 +125,7 @@ const PatientHome = (): JSX.Element => {
               ))}
             </CarouselContent>
           </Carousel>
+          {doctorSuggestions}
         </Suggested>
       </>
     ),
