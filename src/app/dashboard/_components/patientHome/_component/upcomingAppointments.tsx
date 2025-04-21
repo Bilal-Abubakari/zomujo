@@ -217,7 +217,6 @@ const WeekPicker = ({ dateChange, weekChange }: WeekPickerProps): JSX.Element =>
           return (
             <button
               type="button"
-              role="gridcell"
               aria-selected={!!isSelected}
               aria-label={fullDate.toISOString()}
               key={fullDate.toISOString()}
