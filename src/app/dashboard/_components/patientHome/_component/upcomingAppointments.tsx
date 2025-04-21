@@ -222,6 +222,7 @@ const WeekPicker = ({ dateChange, weekChange }: WeekPickerProps): JSX.Element =>
               key={fullDate.toISOString()}
               className="flex cursor-pointer flex-col items-center gap-2.5"
               onClick={() => handleDaySelect(fullDate)}
+              onKeyDown={() => handleDaySelect(fullDate)}
             >
               <div
                 className={cn(
