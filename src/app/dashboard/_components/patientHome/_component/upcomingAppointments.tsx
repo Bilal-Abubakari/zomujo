@@ -217,7 +217,6 @@ const WeekPicker = ({ dateChange, weekChange }: WeekPickerProps): JSX.Element =>
           return (
             <button
               type="button"
-              aria-selected={!!isSelected}
               aria-label={fullDate.toISOString()}
               key={fullDate.toISOString()}
               className="flex cursor-pointer flex-col items-center gap-2.5"
