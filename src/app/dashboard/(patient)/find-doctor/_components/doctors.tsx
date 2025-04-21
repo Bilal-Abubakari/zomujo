@@ -1,4 +1,3 @@
-import { Suggested } from '@/app/dashboard/_components/patientHome/home';
 import { NotFound } from '@/assets/images';
 import SkeletonDoctorPatientCard from '@/components/skeleton/skeletonDoctorPatientCard';
 import { Button } from '@/components/ui/button';
@@ -29,6 +28,7 @@ import { genderOptions } from '@/constants/constants';
 import DoctorDetails from '@/app/dashboard/_components/doctorDetails';
 import { Modal } from '@/components/ui/dialog';
 import { useQueryParam } from '@/hooks/useQueryParam';
+import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
 
 const Doctors = (): JSX.Element => {
   const dispatch = useAppDispatch();
