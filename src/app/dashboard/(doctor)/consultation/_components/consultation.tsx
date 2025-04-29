@@ -36,11 +36,11 @@ const Consultation = (): JSX.Element => {
         </Badge>
       </div>
       <div
-        className="sticky top-0 z-10 mb-8 border-t border-b border-gray-200 bg-gray-100 py-6 font-bold text-gray-500"
+        className="mb-8 top-0 sticky bg-gray-100 z-100 border-t border-b border-gray-300 py-6 font-bold text-gray-500"
         id="clip"
       >
         {stages.map((stage, index) => (
-          <span
+          <button
             onClick={() => setCurrentStage(stage)}
             key={stage}
             className={cn(
@@ -53,7 +53,7 @@ const Consultation = (): JSX.Element => {
             )}
           >
             {capitalize(stage)}
-          </span>
+          </button>
         ))}
       </div>
       {getStage()}

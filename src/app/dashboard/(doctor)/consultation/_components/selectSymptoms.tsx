@@ -82,21 +82,27 @@ const SymptomsContainer = ({
       accept: id,
       drop: (item: ISymptom): void => {
         if (patientSymptoms) {
-          if (selectedSymptoms.find(({ name }) => name === item.name)) {
+          const alreadySelected = selectedSymptoms.find(({ name }) => name === item.name);
+          if (alreadySelected) {
             return;
           }
+
           setSystemSymptoms((prev) => prev.filter(({ id }) => id !== item.id));
           append(item);
-        } else {
-          if (symptoms.find(({ id }) => id === item.id)) {
-            return;
-          }
-          const index = selectedSymptoms?.findIndex(({ name }) => name !== item.name);
-          if (index !== -1) {
-            remove(index);
-          }
-          setSystemSymptoms((prev) => [item, ...prev]);
+          return;
         }
+        const alreadyInSymptoms = symptoms.find(({ id }) => id === item.id);
+        if (alreadyInSymptoms) {
+          return;
+        }
+
+        const differentSymptomIndex =
+          selectedSymptoms?.findIndex(({ name }) => name !== item.name) ?? -1;
+        if (differentSymptomIndex !== -1) {
+          remove(differentSymptomIndex);
+        }
+
+        setSystemSymptoms((prev) => [item, ...prev]);
       },
       collect(monitor): { isOver: boolean } {
         return {

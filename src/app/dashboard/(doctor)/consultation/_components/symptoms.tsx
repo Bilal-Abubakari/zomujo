@@ -70,6 +70,12 @@ const symptomsSchema = z.object({
         notes: z.string().optional(),
       }),
     ),
+    [SymptomsType.Endocrine]: z.array(
+      z.object({
+        name: z.string().nonempty(),
+        notes: z.string().optional(),
+      }),
+    ),
   }),
 });
 
@@ -156,7 +162,7 @@ const Symptoms = (): JSX.Element => {
         <h1 className="text-xl font-bold">Complaint</h1>
         <form className="mt-8 flex flex-wrap gap-5">
           {complaintSuggestions.map((suggestion) => (
-            <span
+            <button
               key={suggestion}
               onClick={() => handleSelectedComplaint(suggestion)}
               className={cn(
@@ -165,7 +171,7 @@ const Symptoms = (): JSX.Element => {
               )}
             >
               {suggestion}
-            </span>
+            </button>
           ))}
         </form>
         <div className="mt-8 flex gap-2">

@@ -1,0 +1,242 @@
+[
+  {
+    "id": "endo1",
+    "name": "Fatigue"
+  },
+  {
+    "id": "endo2",
+    "name": "Unintentional weight gain"
+  },
+  {
+    "id": "endo3",
+    "name": "Unintentional weight loss"
+  },
+  {
+    "id": "endo4",
+    "name": "Increased appetite"
+  },
+  {
+    "id": "endo5",
+    "name": "Decreased appetite"
+  },
+  {
+    "id": "endo6",
+    "name": "Excessive thirst (polydipsia)"
+  },
+  {
+    "id": "endo7",
+    "name": "Frequent urination (polyuria)"
+  },
+  {
+    "id": "endo8",
+    "name": "Heat intolerance"
+  },
+  {
+    "id": "endo9",
+    "name": "Cold intolerance"
+  },
+  {
+    "id": "endo10",
+    "name": "Excessive sweating"
+  },
+  {
+    "id": "endo11",
+    "name": "Dry skin"
+  },
+  {
+    "id": "endo12",
+    "name": "Hair thinning"
+  },
+  {
+    "id": "endo13",
+    "name": "Hirsutism (excessive hair growth)"
+  },
+  {
+    "id": "endo14",
+    "name": "Moon face (facial rounding)"
+  },
+  {
+    "id": "endo15",
+    "name": "Buffalo hump (neck fat deposition)"
+  },
+  {
+    "id": "endo16",
+    "name": "Central obesity"
+  },
+  {
+    "id": "endo17",
+    "name": "Extremity thinning"
+  },
+  {
+    "id": "endo18",
+    "name": "Hand tremors"
+  },
+  {
+    "id": "endo19",
+    "name": "Palpitations"
+  },
+  {
+    "id": "endo20",
+    "name": "Anxiety"
+  },
+  {
+    "id": "endo21",
+    "name": "Irritability"
+  },
+  {
+    "id": "endo22",
+    "name": "Mood swings"
+  },
+  {
+    "id": "endo23",
+    "name": "Depression"
+  },
+  {
+    "id": "endo24",
+    "name": "Cognitive difficulties"
+  },
+  {
+    "id": "endo25",
+    "name": "Memory problems"
+  },
+  {
+    "id": "endo26",
+    "name": "Muscle weakness"
+  },
+  {
+    "id": "endo27",
+    "name": "Muscle cramps"
+  },
+  {
+    "id": "endo28",
+    "name": "Bone pain"
+  },
+  {
+    "id": "endo29",
+    "name": "Frequent fractures"
+  },
+  {
+    "id": "endo30",
+    "name": "Growth abnormalities"
+  },
+  {
+    "id": "endo31",
+    "name": "Delayed puberty"
+  },
+  {
+    "id": "endo32",
+    "name": "Early puberty"
+  },
+  {
+    "id": "endo33",
+    "name": "Irregular menstrual cycles"
+  },
+  {
+    "id": "endo34",
+    "name": "Amenorrhea (absent periods)"
+  },
+  {
+    "id": "endo35",
+    "name": "Heavy menstrual bleeding"
+  },
+  {
+    "id": "endo36",
+    "name": "Infertility"
+  },
+  {
+    "id": "endo37",
+    "name": "Decreased libido"
+  },
+  {
+    "id": "endo38",
+    "name": "Erectile dysfunction"
+  },
+  {
+    "id": "endo39",
+    "name": "Gynecomastia (male breast enlargement)"
+  },
+  {
+    "id": "endo40",
+    "name": "Galactorrhea (nipple discharge)"
+  },
+  {
+    "id": "endo41",
+    "name": "Neck swelling (goiter)"
+  },
+  {
+    "id": "endo42",
+    "name": "Eye protrusion (exophthalmos)"
+  },
+  {
+    "id": "endo43",
+    "name": "Vision changes"
+  },
+  {
+    "id": "endo44",
+    "name": "Double vision"
+  },
+  {
+    "id": "endo45",
+    "name": "Light sensitivity"
+  },
+  {
+    "id": "endo46",
+    "name": "Hyperpigmentation"
+  },
+  {
+    "id": "endo47",
+    "name": "Hypopigmentation"
+  },
+  {
+    "id": "endo48",
+    "name": "Darkened skin folds"
+  },
+  {
+    "id": "endo49",
+    "name": "Slow wound healing"
+  },
+  {
+    "id": "endo50",
+    "name": "Recurrent infections"
+  },
+  {
+    "id": "endo51",
+    "name": "Hypoglycemia symptoms"
+  },
+  {
+    "id": "endo52",
+    "name": "Dizziness"
+  },
+  {
+    "id": "endo53",
+    "name": "Shakiness"
+  },
+  {
+    "id": "endo54",
+    "name": "Confusion"
+  },
+  {
+    "id": "endo55",
+    "name": "Fainting"
+  },
+  {
+    "id": "endo56",
+    "name": "Headaches"
+  },
+  {
+    "id": "endo57",
+    "name": "High blood pressure"
+  },
+  {
+    "id": "endo58",
+    "name": "Low blood pressure"
+  },
+  {
+    "id": "endo59",
+    "name": "Salt cravings"
+  },
+  {
+    "id": "endo60",
+    "name": "Nausea/vomiting"
+  }
+]

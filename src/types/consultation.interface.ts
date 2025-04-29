@@ -19,7 +19,7 @@ export enum SymptomsType {
   Musculoskeletal = 'musculoskeletal',
   Genitourinary = 'genitourinary',
   Integumentary = 'integumentary',
-  // Endocrine = 'endocrine' TODO: We will add this system as soon as data is ready,
+  Endocrine = 'endocrine',
 }
 
 export type ISymptomMap = {

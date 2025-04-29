@@ -7,7 +7,7 @@ const urls: Record<SymptomsType, string> = {
   [SymptomsType.Musculoskeletal]: '/json/musculoskeletalSymptoms.json',
   [SymptomsType.Genitourinary]: '/json/genitourinarySymptoms.json',
   [SymptomsType.Integumentary]: '/json/integumentarySymptoms.json',
-  // [SymptomsType.Endocrine]: '/json/endocrineSymptoms.json', //TODO: Add as soon as it is ready
+  [SymptomsType.Endocrine]: '/json/endocrineSymptoms.json',
 };
 
 export const fetchSystemSymptoms = async (): Promise<ISymptomMap> => {
