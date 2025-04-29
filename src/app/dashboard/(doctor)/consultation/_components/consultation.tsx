@@ -1,5 +1,5 @@
 'use client';
-import React, { JSX } from 'react';
+import React, { JSX, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ClockFading } from 'lucide-react';
 import { capitalize, cn } from '@/lib/utils';
@@ -10,7 +10,7 @@ const stages = ['symptoms', 'labs', 'examination', 'diagnose & prescribe', 'revi
 type StageType = (typeof stages)[number];
 
 const Consultation = (): JSX.Element => {
-  const [currentStage, setCurrentStage] = React.useState<StageType>('symptoms');
+  const [currentStage, setCurrentStage] = useState<StageType>('symptoms');
 
   const getStage = (): JSX.Element => {
     switch (currentStage) {
