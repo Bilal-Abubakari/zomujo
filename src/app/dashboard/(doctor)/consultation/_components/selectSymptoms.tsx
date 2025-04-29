@@ -82,16 +82,16 @@ const SymptomsContainer = ({
       accept: id,
       drop: (item: ISymptom): void => {
         if (patientSymptoms) {
-          const alreadySelected = selectedSymptoms.find(({ name }) => name === item.name);
+          const alreadySelected = findSymptom(selectedSymptoms, item.name, 'name');
           if (alreadySelected) {
             return;
           }
 
-          setSystemSymptoms((prev) => prev.filter(({ id }) => id !== item.id));
+          setSystemSymptoms((prev) => filterSymptoms(prev, item.id));
           append(item);
           return;
         }
-        const alreadyInSymptoms = symptoms.find(({ id }) => id === item.id);
+        const alreadyInSymptoms = findSymptom(symptoms, item.id);
         if (alreadyInSymptoms) {
           return;
         }
@@ -112,6 +112,16 @@ const SymptomsContainer = ({
     }),
     [selectedSymptoms, symptoms],
   );
+
+  const filterSymptoms = (symptoms: ISymptom[], symptomId: string): ISymptom[] =>
+    symptoms.filter(({ id }) => id !== symptomId);
+
+  const findSymptom = <T extends { id?: string; name?: string }>(
+    symptoms: T[],
+    value: string,
+    key: 'id' | 'name' = 'id',
+  ): T | undefined => symptoms.find((symptom) => symptom[key] === value);
+
   return drop(
     <div
       className={cn(

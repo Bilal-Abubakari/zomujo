@@ -36,7 +36,7 @@ const Consultation = (): JSX.Element => {
         </Badge>
       </div>
       <div
-        className="mb-8 top-0 sticky bg-gray-100 z-100 border-t border-b border-gray-300 py-6 font-bold text-gray-500"
+        className="sticky top-0 z-100 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500"
         id="clip"
       >
         {stages.map((stage, index) => (
