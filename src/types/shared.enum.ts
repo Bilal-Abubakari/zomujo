@@ -84,3 +84,9 @@ export enum OrderDirection {
   Ascending = 'asc',
   Descending = 'desc',
 }
+
+export enum DurationType {
+  Days = 'days',
+  Weeks = 'weeks',
+  Months = 'months',
+}

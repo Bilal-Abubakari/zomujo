@@ -1,0 +1,242 @@
+[
+  {
+    "id": "gu1",
+    "name": "Dysuria (painful urination)"
+  },
+  {
+    "id": "gu2",
+    "name": "Urinary frequency"
+  },
+  {
+    "id": "gu3",
+    "name": "Urinary urgency"
+  },
+  {
+    "id": "gu4",
+    "name": "Nocturia (frequent nighttime urination)"
+  },
+  {
+    "id": "gu5",
+    "name": "Hesitancy (difficulty starting urination)"
+  },
+  {
+    "id": "gu6",
+    "name": "Weak urine stream"
+  },
+  {
+    "id": "gu7",
+    "name": "Intermittent urine stream"
+  },
+  {
+    "id": "gu8",
+    "name": "Urinary retention"
+  },
+  {
+    "id": "gu9",
+    "name": "Incomplete bladder emptying"
+  },
+  {
+    "id": "gu10",
+    "name": "Urinary incontinence"
+  },
+  {
+    "id": "gu11",
+    "name": "Stress incontinence"
+  },
+  {
+    "id": "gu12",
+    "name": "Urge incontinence"
+  },
+  {
+    "id": "gu13",
+    "name": "Hematuria (blood in urine)"
+  },
+  {
+    "id": "gu14",
+    "name": "Gross hematuria"
+  },
+  {
+    "id": "gu15",
+    "name": "Microscopic hematuria"
+  },
+  {
+    "id": "gu16",
+    "name": "Cloudy urine"
+  },
+  {
+    "id": "gu17",
+    "name": "Foul-smelling urine"
+  },
+  {
+    "id": "gu18",
+    "name": "Foamy urine"
+  },
+  {
+    "id": "gu19",
+    "name": "Dark urine"
+  },
+  {
+    "id": "gu20",
+    "name": "Oliguria (low urine output)"
+  },
+  {
+    "id": "gu21",
+    "name": "Anuria (no urine output)"
+  },
+  {
+    "id": "gu22",
+    "name": "Polyuria (excessive urination)"
+  },
+  {
+    "id": "gu23",
+    "name": "Pelvic pain"
+  },
+  {
+    "id": "gu24",
+    "name": "Suprapubic pain"
+  },
+  {
+    "id": "gu25",
+    "name": "Flank pain"
+  },
+  {
+    "id": "gu26",
+    "name": "Kidney pain"
+  },
+  {
+    "id": "gu27",
+    "name": "Testicular pain"
+  },
+  {
+    "id": "gu28",
+    "name": "Scrotal pain"
+  },
+  {
+    "id": "gu29",
+    "name": "Scrotal swelling"
+  },
+  {
+    "id": "gu30",
+    "name": "Penile pain"
+  },
+  {
+    "id": "gu31",
+    "name": "Vaginal pain"
+  },
+  {
+    "id": "gu32",
+    "name": "Vulvar pain"
+  },
+  {
+    "id": "gu33",
+    "name": "Dyspareunia (painful intercourse)"
+  },
+  {
+    "id": "gu34",
+    "name": "Genital itching"
+  },
+  {
+    "id": "gu35",
+    "name": "Genital rash"
+  },
+  {
+    "id": "gu36",
+    "name": "Genital sores"
+  },
+  {
+    "id": "gu37",
+    "name": "Genital ulcers"
+  },
+  {
+    "id": "gu38",
+    "name": "Genital discharge"
+  },
+  {
+    "id": "gu39",
+    "name": "Urethral discharge"
+  },
+  {
+    "id": "gu40",
+    "name": "Vaginal discharge"
+  },
+  {
+    "id": "gu41",
+    "name": "Postmenopausal bleeding"
+  },
+  {
+    "id": "gu42",
+    "name": "Intermenstrual bleeding"
+  },
+  {
+    "id": "gu43",
+    "name": "Menorrhagia (heavy menstrual bleeding)"
+  },
+  {
+    "id": "gu44",
+    "name": "Dysmenorrhea (painful periods)"
+  },
+  {
+    "id": "gu45",
+    "name": "Amenorrhea (absent periods)"
+  },
+  {
+    "id": "gu46",
+    "name": "Erectile dysfunction"
+  },
+  {
+    "id": "gu47",
+    "name": "Priapism (prolonged erection)"
+  },
+  {
+    "id": "gu48",
+    "name": "Ejaculatory pain"
+  },
+  {
+    "id": "gu49",
+    "name": "Hemospermia (blood in semen)"
+  },
+  {
+    "id": "gu50",
+    "name": "Decreased libido"
+  },
+  {
+    "id": "gu51",
+    "name": "Infertility"
+  },
+  {
+    "id": "gu52",
+    "name": "Prostate pain"
+  },
+  {
+    "id": "gu53",
+    "name": "Perineal pain"
+  },
+  {
+    "id": "gu54",
+    "name": "Groin pain"
+  },
+  {
+    "id": "gu55",
+    "name": "Urinary tract infection symptoms"
+  },
+  {
+    "id": "gu56",
+    "name": "Kidney stone symptoms"
+  },
+  {
+    "id": "gu57",
+    "name": "Bladder spasm"
+  },
+  {
+    "id": "gu58",
+    "name": "Nocturnal enuresis (bedwetting)"
+  },
+  {
+    "id": "gu59",
+    "name": "Difficulty inserting tampon"
+  },
+  {
+    "id": "gu60",
+    "name": "Vaginal dryness"
+  }
+]

@@ -1,0 +1,242 @@
+[
+  {
+    "id": "gi1",
+    "name": "Abdominal pain"
+  },
+  {
+    "id": "gi2",
+    "name": "Stomach cramps"
+  },
+  {
+    "id": "gi3",
+    "name": "Bloating"
+  },
+  {
+    "id": "gi4",
+    "name": "Gas"
+  },
+  {
+    "id": "gi5",
+    "name": "Flatulence"
+  },
+  {
+    "id": "gi6",
+    "name": "Belching"
+  },
+  {
+    "id": "gi7",
+    "name": "Heartburn"
+  },
+  {
+    "id": "gi8",
+    "name": "Acid reflux"
+  },
+  {
+    "id": "gi9",
+    "name": "Indigestion"
+  },
+  {
+    "id": "gi10",
+    "name": "Nausea"
+  },
+  {
+    "id": "gi11",
+    "name": "Vomiting"
+  },
+  {
+    "id": "gi12",
+    "name": "Hematemesis (vomiting blood)"
+  },
+  {
+    "id": "gi13",
+    "name": "Diarrhea"
+  },
+  {
+    "id": "gi14",
+    "name": "Watery diarrhea"
+  },
+  {
+    "id": "gi15",
+    "name": "Bloody diarrhea"
+  },
+  {
+    "id": "gi16",
+    "name": "Constipation"
+  },
+  {
+    "id": "gi17",
+    "name": "Rectal bleeding"
+  },
+  {
+    "id": "gi18",
+    "name": "Black/tarry stools"
+  },
+  {
+    "id": "gi19",
+    "name": "Pale stools"
+  },
+  {
+    "id": "gi20",
+    "name": "Greasy stools"
+  },
+  {
+    "id": "gi21",
+    "name": "Foul-smelling stools"
+  },
+  {
+    "id": "gi22",
+    "name": "Urgent need to defecate"
+  },
+  {
+    "id": "gi23",
+    "name": "Incomplete evacuation"
+  },
+  {
+    "id": "gi24",
+    "name": "Straining during bowel movements"
+  },
+  {
+    "id": "gi25",
+    "name": "Loss of appetite"
+  },
+  {
+    "id": "gi26",
+    "name": "Early satiety"
+  },
+  {
+    "id": "gi27",
+    "name": "Difficulty swallowing"
+  },
+  {
+    "id": "gi28",
+    "name": "Painful swallowing"
+  },
+  {
+    "id": "gi29",
+    "name": "Food sticking in throat"
+  },
+  {
+    "id": "gi30",
+    "name": "Regurgitation"
+  },
+  {
+    "id": "gi31",
+    "name": "Bitter taste in mouth"
+  },
+  {
+    "id": "gi32",
+    "name": "Excessive saliva"
+  },
+  {
+    "id": "gi33",
+    "name": "Dry mouth"
+  },
+  {
+    "id": "gi34",
+    "name": "Bad breath"
+  },
+  {
+    "id": "gi35",
+    "name": "Mouth ulcers"
+  },
+  {
+    "id": "gi36",
+    "name": "Jaundice"
+  },
+  {
+    "id": "gi37",
+    "name": "Yellow skin/eyes"
+  },
+  {
+    "id": "gi38",
+    "name": "Itchy skin"
+  },
+  {
+    "id": "gi39",
+    "name": "Abdominal distension"
+  },
+  {
+    "id": "gi40",
+    "name": "Visible peristalsis"
+  },
+  {
+    "id": "gi41",
+    "name": "Abdominal tenderness"
+  },
+  {
+    "id": "gi42",
+    "name": "Abdominal rigidity"
+  },
+  {
+    "id": "gi43",
+    "name": "Abdominal mass"
+  },
+  {
+    "id": "gi44",
+    "name": "Weight loss"
+  },
+  {
+    "id": "gi45",
+    "name": "Unintentional weight gain"
+  },
+  {
+    "id": "gi46",
+    "name": "Food intolerance"
+  },
+  {
+    "id": "gi47",
+    "name": "Lactose intolerance"
+  },
+  {
+    "id": "gi48",
+    "name": "Gluten sensitivity"
+  },
+  {
+    "id": "gi49",
+    "name": "Frequent burping"
+  },
+  {
+    "id": "gi50",
+    "name": "Hiccups"
+  },
+  {
+    "id": "gi51",
+    "name": "Gurgling stomach"
+  },
+  {
+    "id": "gi52",
+    "name": "Loud bowel sounds"
+  },
+  {
+    "id": "gi53",
+    "name": "Anal pain"
+  },
+  {
+    "id": "gi54",
+    "name": "Anal itching"
+  },
+  {
+    "id": "gi55",
+    "name": "Fecal incontinence"
+  },
+  {
+    "id": "gi56",
+    "name": "Mucus in stool"
+  },
+  {
+    "id": "gi57",
+    "name": "Undigested food in stool"
+  },
+  {
+    "id": "gi58",
+    "name": "Pencil-thin stools"
+  },
+  {
+    "id": "gi59",
+    "name": "Fever"
+  },
+  {
+    "id": "gi60",
+    "name": "Chills"
+  }
+]

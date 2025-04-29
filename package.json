@@ -47,6 +47,8 @@
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-day-picker": "9.6.7",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.0.0",
     "react-dropzone": "14.3.8",
     "react-google-places-autocomplete": "^4.1.0",

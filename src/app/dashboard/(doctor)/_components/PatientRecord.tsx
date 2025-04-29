@@ -10,16 +10,22 @@ import { selectRecordId } from '@/lib/features/patients/patientsSelector';
 import PatientFamilyMembersCard from '@/app/dashboard/_components/patient/PatientFamilyMembersCard';
 import PatientLifestyleCard from '@/app/dashboard/_components/patient/patientLifestyleCard';
 import PatientAllergiesCard from '@/app/dashboard/_components/patient/patientAllergiesCard';
+import { useParams, useRouter } from 'next/navigation';
 
 const PatientOverview = (): JSX.Element => {
   const recordId = useAppSelector(selectRecordId);
+  const router = useRouter();
+  const params = useParams();
+  const patientId = params.id as string;
+
+  const redirectToConsultation = (): void => router.push(`/dashboard/consultation/${patientId}`);
   return (
     <div>
       <div className="mb-6 flex flex-wrap gap-8 sm:justify-between">
         <span className="self-center text-xl font-bold">Patient Overview</span>
         <div className="space-x-3">
           <Button child="Refer to Specialist" variant="secondary" />
-          <Button child="Start Consultation" />
+          <Button onClick={redirectToConsultation} child="Start Consultation" />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-4 justify-self-center md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">

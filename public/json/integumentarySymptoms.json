@@ -1,0 +1,242 @@
+[
+  {
+    "id": "skin1",
+    "name": "Rash"
+  },
+  {
+    "id": "skin2",
+    "name": "Itching (pruritus)"
+  },
+  {
+    "id": "skin3",
+    "name": "Redness (erythema)"
+  },
+  {
+    "id": "skin4",
+    "name": "Hives (urticaria)"
+  },
+  {
+    "id": "skin5",
+    "name": "Dry skin (xerosis)"
+  },
+  {
+    "id": "skin6",
+    "name": "Oily skin"
+  },
+  {
+    "id": "skin7",
+    "name": "Flaking skin"
+  },
+  {
+    "id": "skin8",
+    "name": "Scaling skin"
+  },
+  {
+    "id": "skin9",
+    "name": "Peeling skin"
+  },
+  {
+    "id": "skin10",
+    "name": "Blisters"
+  },
+  {
+    "id": "skin11",
+    "name": "Vesicles (small blisters)"
+  },
+  {
+    "id": "skin12",
+    "name": "Pustules"
+  },
+  {
+    "id": "skin13",
+    "name": "Boils (furuncles)"
+  },
+  {
+    "id": "skin14",
+    "name": "Cysts"
+  },
+  {
+    "id": "skin15",
+    "name": "Nodules"
+  },
+  {
+    "id": "skin16",
+    "name": "Plaques"
+  },
+  {
+    "id": "skin17",
+    "name": "Lesions"
+  },
+  {
+    "id": "skin18",
+    "name": "Ulcers"
+  },
+  {
+    "id": "skin19",
+    "name": "Open sores"
+  },
+  {
+    "id": "skin20",
+    "name": "Cracked skin"
+  },
+  {
+    "id": "skin21",
+    "name": "Fissures"
+  },
+  {
+    "id": "skin22",
+    "name": "Swelling (edema)"
+  },
+  {
+    "id": "skin23",
+    "name": "Localized swelling"
+  },
+  {
+    "id": "skin24",
+    "name": "Skin thickening"
+  },
+  {
+    "id": "skin25",
+    "name": "Skin thinning"
+  },
+  {
+    "id": "skin26",
+    "name": "Bruising (ecchymosis)"
+  },
+  {
+    "id": "skin27",
+    "name": "Petechiae (small red spots)"
+  },
+  {
+    "id": "skin28",
+    "name": "Purpura"
+  },
+  {
+    "id": "skin29",
+    "name": "Discoloration"
+  },
+  {
+    "id": "skin30",
+    "name": "Hyperpigmentation"
+  },
+  {
+    "id": "skin31",
+    "name": "Hypopigmentation"
+  },
+  {
+    "id": "skin32",
+    "name": "Jaundice (yellow skin)"
+  },
+  {
+    "id": "skin33",
+    "name": "Cyanosis (blue tint)"
+  },
+  {
+    "id": "skin34",
+    "name": "Pallor (paleness)"
+  },
+  {
+    "id": "skin35",
+    "name": "Flushing"
+  },
+  {
+    "id": "skin36",
+    "name": "Hot skin"
+  },
+  {
+    "id": "skin37",
+    "name": "Cold skin"
+  },
+  {
+    "id": "skin38",
+    "name": "Clammy skin"
+  },
+  {
+    "id": "skin39",
+    "name": "Excessive sweating (hyperhidrosis)"
+  },
+  {
+    "id": "skin40",
+    "name": "Reduced sweating"
+  },
+  {
+    "id": "skin41",
+    "name": "Hair loss (alopecia)"
+  },
+  {
+    "id": "skin42",
+    "name": "Patchy hair loss"
+  },
+  {
+    "id": "skin43",
+    "name": "Excessive hair growth (hirsutism)"
+  },
+  {
+    "id": "skin44",
+    "name": "Brittle hair"
+  },
+  {
+    "id": "skin45",
+    "name": "Dry hair"
+  },
+  {
+    "id": "skin46",
+    "name": "Oily hair"
+  },
+  {
+    "id": "skin47",
+    "name": "Scalp itching"
+  },
+  {
+    "id": "skin48",
+    "name": "Scalp flaking"
+  },
+  {
+    "id": "skin49",
+    "name": "Nail pitting"
+  },
+  {
+    "id": "skin50",
+    "name": "Brittle nails"
+  },
+  {
+    "id": "skin51",
+    "name": "Discolored nails"
+  },
+  {
+    "id": "skin52",
+    "name": "Yellow nails"
+  },
+  {
+    "id": "skin53",
+    "name": "White spots on nails"
+  },
+  {
+    "id": "skin54",
+    "name": "Nail ridges"
+  },
+  {
+    "id": "skin55",
+    "name": "Nail separation"
+  },
+  {
+    "id": "skin56",
+    "name": "Thickened nails"
+  },
+  {
+    "id": "skin57",
+    "name": "Ingrown nails"
+  },
+  {
+    "id": "skin58",
+    "name": "Skin tags"
+  },
+  {
+    "id": "skin59",
+    "name": "Moles (changing appearance)"
+  },
+  {
+    "id": "skin60",
+    "name": "New skin growths"
+  }
+]
