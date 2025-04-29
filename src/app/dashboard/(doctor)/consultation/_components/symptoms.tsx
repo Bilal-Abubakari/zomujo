@@ -22,57 +22,58 @@ import SelectSymptoms from '@/app/dashboard/(doctor)/consultation/_components/se
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DurationType } from '@/types/shared.enum';
+import { requiredStringSchema } from '@/schemas/zod.schemas';
 
 const symptomsSchema = z.object({
   complaints: z.array(
     z.object({
-      name: z.string().nonempty(),
+      name: requiredStringSchema(),
     }),
   ),
   duration: z.object({
-    value: z.string().nonempty(),
+    value: requiredStringSchema(),
     type: z.nativeEnum(DurationType),
   }),
   symptoms: z.object({
     [SymptomsType.Neurological]: z.array(
       z.object({
-        name: z.string().nonempty(),
+        name: requiredStringSchema(),
         notes: z.string().optional(),
       }),
     ),
     [SymptomsType.Cardiovascular]: z.array(
       z.object({
-        name: z.string().nonempty(),
+        name: requiredStringSchema(),
         notes: z.string().optional(),
       }),
     ),
     [SymptomsType.Gastrointestinal]: z.array(
       z.object({
-        name: z.string().nonempty(),
+        name: requiredStringSchema(),
         notes: z.string().optional(),
       }),
     ),
     [SymptomsType.Genitourinary]: z.array(
       z.object({
-        name: z.string().nonempty(),
+        name: requiredStringSchema(),
         notes: z.string().optional(),
       }),
     ),
     [SymptomsType.Musculoskeletal]: z.array(
       z.object({
-        name: z.string().nonempty(),
+        name: requiredStringSchema(),
         notes: z.string().optional(),
       }),
     ),
     [SymptomsType.Integumentary]: z.array(
       z.object({
-        name: z.string().nonempty(),
+        name: requiredStringSchema(),
         notes: z.string().optional(),
       }),
     ),
     [SymptomsType.Endocrine]: z.array(
       z.object({
-        name: z.string().nonempty(),
+        name: requiredStringSchema(),
         notes: z.string().optional(),
       }),
     ),
