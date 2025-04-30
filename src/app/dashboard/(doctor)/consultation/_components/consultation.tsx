@@ -45,8 +45,8 @@ const Consultation = (): JSX.Element => {
             key={stage}
             className={cn(
               index === 0 || index === stages.length - 1 ? '' : 'in-between',
-              index === stages.length - 1 && 'lastCrumb rounded-r-4xl',
-              index === 0 && 'firstCrumb rounded-l-4xl',
+              index === stages.length - 1 && 'last-crumb rounded-r-4xl',
+              index === 0 && 'first-crumb rounded-l-4xl',
               'cursor-pointer',
               currentStage === stage ? 'bg-primary-light text-primary' : 'bg-gray-200',
               'inline-block px-8 py-[18px]',
