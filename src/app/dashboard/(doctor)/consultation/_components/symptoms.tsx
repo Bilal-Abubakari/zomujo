@@ -23,6 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DurationType } from '@/types/shared.enum';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
+import Loading from '@/components/loadingOverlay/loading';
 
 const symptomsSchema = z.object({
   complaints: z.array(
@@ -97,6 +98,8 @@ const Symptoms = (): JSX.Element => {
     name: 'complaints',
   });
   const dispatch = useAppDispatch();
+  const [isLoadingSymptoms, setIsLoadingSymptoms] = useState(false);
+  const [isLoadingComplaintSuggestions, setIsLoadingComplaintSuggestions] = useState(false);
   const [complaintSuggestions, setComplaintSuggestions] = useState<string[]>([]);
   const [otherComplaint, setOtherComplaint] = useState<string>('');
   const [systemSymptoms, setSystemSymptoms] = useState<ISymptomMap>();
@@ -133,8 +136,10 @@ const Symptoms = (): JSX.Element => {
   };
 
   const fetchSymptoms = async (): Promise<void> => {
+    setIsLoadingSymptoms(true);
     const { payload } = await dispatch(getSystemSymptoms());
     setSystemSymptoms(payload as ISymptomMap);
+    setIsLoadingSymptoms(false);
   };
 
   const handleSubmitAndGoToLabs = async (
@@ -147,12 +152,15 @@ const Symptoms = (): JSX.Element => {
   useEffect(() => {
     void fetchSymptoms();
     const handleComplaintSuggestions = async (): Promise<void> => {
+      setIsLoadingComplaintSuggestions(true);
       const { payload } = await dispatch(getComplaintSuggestions());
       if (!showErrorToast(payload)) {
         setComplaintSuggestions(payload as string[]);
+        setIsLoadingComplaintSuggestions(false);
         return;
       }
       toast(payload as Toast);
+      setIsLoadingComplaintSuggestions(false);
     };
     void handleComplaintSuggestions();
   }, []);
@@ -161,20 +169,24 @@ const Symptoms = (): JSX.Element => {
     <DndProvider backend={HTML5Backend}>
       <form onSubmit={handleSubmit(handleSubmitAndGoToLabs)}>
         <h1 className="text-xl font-bold">Complaint</h1>
-        <form className="mt-8 flex flex-wrap gap-5">
-          {complaintSuggestions.map((suggestion) => (
-            <button
-              key={suggestion}
-              onClick={() => handleSelectedComplaint(suggestion)}
-              className={cn(
-                'cursor-pointer rounded-[100px] p-2.5',
-                complaints.includes(suggestion) ? 'bg-primary text-white' : 'bg-gray-200',
-              )}
-            >
-              {suggestion}
-            </button>
-          ))}
-        </form>
+        <div className="mt-8 flex flex-wrap gap-5">
+          {isLoadingComplaintSuggestions ? (
+            <Loading message="Please wait. Loading complaint suggestions" />
+          ) : (
+            complaintSuggestions.map((suggestion) => (
+              <button
+                key={suggestion}
+                onClick={() => handleSelectedComplaint(suggestion)}
+                className={cn(
+                  'cursor-pointer rounded-[100px] p-2.5',
+                  complaints.includes(suggestion) ? 'bg-primary text-white' : 'bg-gray-200',
+                )}
+              >
+                {suggestion}
+              </button>
+            ))
+          )}
+        </div>
         <div className="mt-8 flex gap-2">
           <Input
             value={otherComplaint}
@@ -207,16 +219,20 @@ const Symptoms = (): JSX.Element => {
           />
         </div>
         <h1 className="mt-12 text-xl font-bold">Symptoms</h1>
-        {Object.entries(systemSymptoms ?? {}).map(([id, symptoms]) => (
-          <SelectSymptoms
-            key={id}
-            symptoms={symptoms}
-            id={id}
-            control={control}
-            setValue={setValue}
-            selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
-          />
-        ))}
+        {isLoadingSymptoms ? (
+          <Loading message="Please wait. Loading System Symptoms.." />
+        ) : (
+          Object.entries(systemSymptoms ?? {}).map(([id, symptoms]) => (
+            <SelectSymptoms
+              key={id}
+              symptoms={symptoms}
+              id={id}
+              control={control}
+              setValue={setValue}
+              selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
+            />
+          ))
+        )}
         <div className="mt-20"></div>
         <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
           <Button
