@@ -219,7 +219,7 @@ const SymptomItem = ({
 
   return drag(
     <div>
-      <div
+      <button
         onClick={() => setShowNotes((prev) => !prev)}
         className={cn(
           'flex w-full flex-row items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-2.5 duration-100',
@@ -231,7 +231,7 @@ const SymptomItem = ({
           className={cn('text-gray-400 duration-100', isDragging && 'text-primaryLightBase')}
         />
         <p className="text-sm leading-[14px]">{item.name}</p>
-      </div>
+      </button>
       {patientSymptoms && showNotes && 'notes' in item && (
         <div
           className={cn(
