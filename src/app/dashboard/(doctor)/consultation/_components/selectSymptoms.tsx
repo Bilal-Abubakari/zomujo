@@ -1,14 +1,16 @@
-import React, { JSX, useState, ReactElement } from 'react';
+import React, { JSX, useState, ReactElement, useMemo } from 'react';
 import {
   IConsultationSymptomsHFC,
   IPatientSymptom,
   ISymptom,
   SymptomsType,
 } from '@/types/consultation.interface';
-import { ChevronsRight, GripVertical, Loader2 } from 'lucide-react';
+import { ChevronsRight, GripVertical, Loader2, Search } from 'lucide-react';
 import { useDrag, useDrop } from 'react-dnd';
 import { capitalize, cn } from '@/lib/utils';
 import { Control, useFieldArray, UseFormSetValue } from 'react-hook-form';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from 'use-debounce';
 
 type SelectSymptomsProps = {
   symptoms: ISymptom[];
@@ -73,6 +75,12 @@ const SymptomsContainer = ({
   control,
   id,
 }: SymptomsContainerProps): ReactElement | null => {
+  const [search, setSearch] = useState('');
+  const [searchTerm] = useDebounce(search, 500);
+  const searchedSymptoms = useMemo(
+    () => symptoms.filter(({ name }) => name.toLowerCase().includes(searchTerm.toLowerCase())),
+    [searchTerm, symptoms],
+  );
   const { append, remove } = useFieldArray({
     control,
     name: `symptoms.${id as SymptomsType}`,
@@ -122,10 +130,24 @@ const SymptomsContainer = ({
     key: 'id' | 'name' = 'id',
   ): T | undefined => symptoms.find((symptom) => symptom[key] === value);
 
+  const emptyResults = (
+    <div className="flex h-[250px] items-center justify-center text-sm text-gray-400">
+      {patientSymptoms ? 'No symptoms selected so far' : 'No symptoms founds'}
+    </div>
+  );
+
+  const systemSymptoms = searchedSymptoms.length
+    ? searchedSymptoms.map((symptom) => <SymptomItem key={symptom.id} item={symptom} id={id} />)
+    : emptyResults;
+
+  const patientSelectedSymptoms = selectedSymptoms.length
+    ? selectedSymptoms.map((symptom) => <SymptomItem key={symptom.name} item={symptom} id={id} />)
+    : emptyResults;
+
   return drop(
     <div
       className={cn(
-        'flex h-[300px] w-[370px] flex-col gap-4 rounded-lg border border-gray-300 p-4',
+        'flex h-[350px] w-[370px] flex-col gap-4 rounded-lg border border-gray-300 p-4',
         isOver && 'outline-primary outline',
       )}
     >
@@ -137,14 +159,18 @@ const SymptomsContainer = ({
             {patientSymptoms ? 'Patient Symptoms' : `${capitalize(id)} Symptoms`}
           </p>
           <div className={cn('flex flex-col gap-2.5', patientSymptoms && 'h-full justify-between')}>
-            <div className="flex h-[230px] flex-col gap-1 overflow-y-auto">
-              {patientSymptoms
-                ? selectedSymptoms.map((symptom) => (
-                    <SymptomItem key={symptom.name} item={symptom} id={id} />
-                  ))
-                : symptoms.map((symptom) => (
-                    <SymptomItem key={symptom.id} item={symptom} id={id} />
-                  ))}
+            <div className="relative flex h-[280px] flex-col gap-1 overflow-y-auto">
+              {!patientSymptoms && (
+                <div className="sticky top-0">
+                  <Input
+                    value={search}
+                    onChange={({ target }) => setSearch(target.value)}
+                    placeholder="Find symptoms"
+                    leftIcon={<Search color="#8C96A5" size="18" />}
+                  />
+                </div>
+              )}
+              {patientSymptoms ? patientSelectedSymptoms : systemSymptoms}
             </div>
           </div>
         </>
