@@ -24,7 +24,6 @@ import { z } from 'zod';
 import { DurationType } from '@/types/shared.enum';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
 import Loading from '@/components/loadingOverlay/loading';
-import MedicationTaken from '@/app/dashboard/(doctor)/consultation/_components/medicationTaken';
 
 const symptomsSchema = z.object({
   complaints: z.array(
@@ -234,8 +233,6 @@ const Symptoms = (): JSX.Element => {
             />
           ))
         )}
-        <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
-        <MedicationTaken />
         <div className="mt-20"></div>
         <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
           <Button
