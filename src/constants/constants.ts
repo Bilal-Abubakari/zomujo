@@ -3,6 +3,7 @@ import {
   AcceptDeclineStatus,
   BloodGroup,
   Denomination,
+  DurationType,
   Gender,
   MaritalStatus,
 } from '@/types/shared.enum';
@@ -197,3 +198,9 @@ export const severityOptionsList = severityOptions.map((severity) => ({
   value: severity,
   label: capitalize(severity),
 }));
+
+export const durationTypes = [
+  { value: DurationType.Days, label: 'Days' },
+  { value: DurationType.Weeks, label: 'Weeks' },
+  { value: DurationType.Months, label: 'Months' },
+];

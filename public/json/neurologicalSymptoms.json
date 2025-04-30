@@ -1,0 +1,242 @@
+[
+  {
+    "id": "1",
+    "name": "Headache"
+  },
+  {
+    "id": "2",
+    "name": "Migraine"
+  },
+  {
+    "id": "3",
+    "name": "Dizziness"
+  },
+  {
+    "id": "4",
+    "name": "Vertigo"
+  },
+  {
+    "id": "5",
+    "name": "Seizures"
+  },
+  {
+    "id": "6",
+    "name": "Tremors"
+  },
+  {
+    "id": "7",
+    "name": "Muscle weakness"
+  },
+  {
+    "id": "8",
+    "name": "Numbness"
+  },
+  {
+    "id": "9",
+    "name": "Tingling sensation"
+  },
+  {
+    "id": "10",
+    "name": "Loss of coordination"
+  },
+  {
+    "id": "11",
+    "name": "Balance problems"
+  },
+  {
+    "id": "12",
+    "name": "Memory loss"
+  },
+  {
+    "id": "13",
+    "name": "Confusion"
+  },
+  {
+    "id": "14",
+    "name": "Difficulty concentrating"
+  },
+  {
+    "id": "15",
+    "name": "Speech difficulties"
+  },
+  {
+    "id": "16",
+    "name": "Slurred speech"
+  },
+  {
+    "id": "17",
+    "name": "Vision problems"
+  },
+  {
+    "id": "18",
+    "name": "Double vision"
+  },
+  {
+    "id": "19",
+    "name": "Blurred vision"
+  },
+  {
+    "id": "20",
+    "name": "Loss of vision"
+  },
+  {
+    "id": "21",
+    "name": "Hearing loss"
+  },
+  {
+    "id": "22",
+    "name": "Tinnitus"
+  },
+  {
+    "id": "23",
+    "name": "Loss of smell"
+  },
+  {
+    "id": "24",
+    "name": "Loss of taste"
+  },
+  {
+    "id": "25",
+    "name": "Facial weakness"
+  },
+  {
+    "id": "26",
+    "name": "Facial pain"
+  },
+  {
+    "id": "27",
+    "name": "Neck stiffness"
+  },
+  {
+    "id": "28",
+    "name": "Back pain"
+  },
+  {
+    "id": "29",
+    "name": "Muscle spasms"
+  },
+  {
+    "id": "30",
+    "name": "Muscle rigidity"
+  },
+  {
+    "id": "31",
+    "name": "Twitching"
+  },
+  {
+    "id": "32",
+    "name": "Fatigue"
+  },
+  {
+    "id": "33",
+    "name": "Insomnia"
+  },
+  {
+    "id": "34",
+    "name": "Excessive sleepiness"
+  },
+  {
+    "id": "35",
+    "name": "Sleep disturbances"
+  },
+  {
+    "id": "36",
+    "name": "Mood swings"
+  },
+  {
+    "id": "37",
+    "name": "Depression"
+  },
+  {
+    "id": "38",
+    "name": "Anxiety"
+  },
+  {
+    "id": "39",
+    "name": "Hallucinations"
+  },
+  {
+    "id": "40",
+    "name": "Delusions"
+  },
+  {
+    "id": "41",
+    "name": "Personality changes"
+  },
+  {
+    "id": "42",
+    "name": "Agitation"
+  },
+  {
+    "id": "43",
+    "name": "Apathy"
+  },
+  {
+    "id": "44",
+    "name": "Difficulty swallowing"
+  },
+  {
+    "id": "45",
+    "name": "Drooling"
+  },
+  {
+    "id": "46",
+    "name": "Loss of bladder control"
+  },
+  {
+    "id": "47",
+    "name": "Loss of bowel control"
+  },
+  {
+    "id": "48",
+    "name": "Fainting"
+  },
+  {
+    "id": "49",
+    "name": "Loss of consciousness"
+  },
+  {
+    "id": "50",
+    "name": "Sensitivity to light"
+  },
+  {
+    "id": "51",
+    "name": "Sensitivity to sound"
+  },
+  {
+    "id": "52",
+    "name": "Sensitivity to touch"
+  },
+  {
+    "id": "53",
+    "name": "Chronic pain"
+  },
+  {
+    "id": "54",
+    "name": "Neuralgia"
+  },
+  {
+    "id": "55",
+    "name": "Paralysis"
+  },
+  {
+    "id": "56",
+    "name": "Partial paralysis"
+  },
+  {
+    "id": "57",
+    "name": "Gait abnormalities"
+  },
+  {
+    "id": "58",
+    "name": "Clumsiness"
+  },
+  {
+    "id": "59",
+    "name": "Difficulty walking"
+  },
+  {
+    "id": "60",
+    "name": "Restless legs"
+  }
+]

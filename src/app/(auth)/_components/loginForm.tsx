@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 import { ILogin } from '@/types/auth.interface';
 import { authenticationProvider } from './authenticationProvider';
 
-const LoginSchema = z.object({
+const loginSchema = z.object({
   email: emailSchema(),
   password: requiredStringSchema(),
 });
@@ -30,7 +30,7 @@ const LoginForm = (): JSX.Element => {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<ILogin>({ resolver: zodResolver(LoginSchema), mode: MODE.ON_TOUCH });
+  } = useForm<ILogin>({ resolver: zodResolver(loginSchema), mode: MODE.ON_TOUCH });
   const dispatch = useAppDispatch();
   const router = useRouter();
 

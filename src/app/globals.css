@@ -90,7 +90,7 @@
   --color-blue-light-powder: #e8eff6;
 
   --color-primary-dark: #067458;
-  --color-primary-light: #f0f9f7;
+  --color-primary-light: #f0f9f6;
   --color-primary-light-base: #08af85;
   --color-primary-light-light: #f4fbf9;
   --color-light-orange: #ffe4cc;
@@ -260,4 +260,16 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+#clip .in-between {
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%, 15px 50%);
+}
+
+#clip .firstCrumb {
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
+}
+
+#clip .lastCrumb {
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 0, 100% 100%, 15px 100%, 0 100%, 15px 50%);
 }

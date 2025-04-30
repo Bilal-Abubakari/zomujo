@@ -29,6 +29,9 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-expressions': 'error',
+    // TODO: Introduce this rules later
+    // 'import/order': 'error',
+    // '@typescript-eslint/consistent-type-imports': 'error',
   },
   overrides: [
     { files: ['*Slice.ts', '*Thunk.ts', 'store.ts'], rules: { 'import/no-cycle': 'off' } },

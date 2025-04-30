@@ -1,0 +1,242 @@
+[
+  {
+    "id": "msk1",
+    "name": "Joint pain"
+  },
+  {
+    "id": "msk2",
+    "name": "Arthralgia (joint pain)"
+  },
+  {
+    "id": "msk3",
+    "name": "Joint stiffness"
+  },
+  {
+    "id": "msk4",
+    "name": "Morning stiffness"
+  },
+  {
+    "id": "msk5",
+    "name": "Joint swelling"
+  },
+  {
+    "id": "msk6",
+    "name": "Joint redness"
+  },
+  {
+    "id": "msk7",
+    "name": "Joint warmth"
+  },
+  {
+    "id": "msk8",
+    "name": "Limited range of motion"
+  },
+  {
+    "id": "msk9",
+    "name": "Muscle pain"
+  },
+  {
+    "id": "msk10",
+    "name": "Myalgia (muscle pain)"
+  },
+  {
+    "id": "msk11",
+    "name": "Muscle weakness"
+  },
+  {
+    "id": "msk12",
+    "name": "Muscle cramps"
+  },
+  {
+    "id": "msk13",
+    "name": "Muscle spasms"
+  },
+  {
+    "id": "msk14",
+    "name": "Muscle twitching"
+  },
+  {
+    "id": "msk15",
+    "name": "Back pain"
+  },
+  {
+    "id": "msk16",
+    "name": "Neck pain"
+  },
+  {
+    "id": "msk17",
+    "name": "Shoulder pain"
+  },
+  {
+    "id": "msk18",
+    "name": "Hip pain"
+  },
+  {
+    "id": "msk19",
+    "name": "Knee pain"
+  },
+  {
+    "id": "msk20",
+    "name": "Ankle pain"
+  },
+  {
+    "id": "msk21",
+    "name": "Wrist pain"
+  },
+  {
+    "id": "msk22",
+    "name": "Elbow pain"
+  },
+  {
+    "id": "msk23",
+    "name": "Hand pain"
+  },
+  {
+    "id": "msk24",
+    "name": "Foot pain"
+  },
+  {
+    "id": "msk25",
+    "name": "Bone pain"
+  },
+  {
+    "id": "msk26",
+    "name": "Tenderness"
+  },
+  {
+    "id": "msk27",
+    "name": "Tendon pain"
+  },
+  {
+    "id": "msk28",
+    "name": "Tendon swelling"
+  },
+  {
+    "id": "msk29",
+    "name": "Ligament pain"
+  },
+  {
+    "id": "msk30",
+    "name": "Clicking joints"
+  },
+  {
+    "id": "msk31",
+    "name": "Popping joints"
+  },
+  {
+    "id": "msk32",
+    "name": "Grinding sensation (crepitus)"
+  },
+  {
+    "id": "msk33",
+    "name": "Joint instability"
+  },
+  {
+    "id": "msk34",
+    "name": "Joint deformity"
+  },
+  {
+    "id": "msk35",
+    "name": "Difficulty walking"
+  },
+  {
+    "id": "msk36",
+    "name": "Limping"
+  },
+  {
+    "id": "msk37",
+    "name": "Difficulty standing"
+  },
+  {
+    "id": "msk38",
+    "name": "Difficulty climbing stairs"
+  },
+  {
+    "id": "msk39",
+    "name": "Difficulty gripping objects"
+  },
+  {
+    "id": "msk40",
+    "name": "Muscle atrophy"
+  },
+  {
+    "id": "msk41",
+    "name": "Muscle hypertrophy"
+  },
+  {
+    "id": "msk42",
+    "name": "Bruising"
+  },
+  {
+    "id": "msk43",
+    "name": "Swelling (edema)"
+  },
+  {
+    "id": "msk44",
+    "name": "Localized swelling"
+  },
+  {
+    "id": "msk45",
+    "name": "Generalized swelling"
+  },
+  {
+    "id": "msk46",
+    "name": "Numbness in limbs"
+  },
+  {
+    "id": "msk47",
+    "name": "Tingling in limbs"
+  },
+  {
+    "id": "msk48",
+    "name": "Radicular pain (shooting pain)"
+  },
+  {
+    "id": "msk49",
+    "name": "Sciatica"
+  },
+  {
+    "id": "msk50",
+    "name": "Muscle fatigue"
+  },
+  {
+    "id": "msk51",
+    "name": "Stiffness after inactivity"
+  },
+  {
+    "id": "msk52",
+    "name": "Difficulty bending"
+  },
+  {
+    "id": "msk53",
+    "name": "Difficulty lifting"
+  },
+  {
+    "id": "msk54",
+    "name": "Reduced grip strength"
+  },
+  {
+    "id": "msk55",
+    "name": "Poor posture"
+  },
+  {
+    "id": "msk56",
+    "name": "Scoliosis (spinal curvature)"
+  },
+  {
+    "id": "msk57",
+    "name": "Kyphosis (hunched back)"
+  },
+  {
+    "id": "msk58",
+    "name": "Lordosis (swayback)"
+  },
+  {
+    "id": "msk59",
+    "name": "Bone tenderness"
+  },
+  {
+    "id": "msk60",
+    "name": "Fracture pain"
+  }
+]

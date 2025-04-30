@@ -1,0 +1,242 @@
+[
+  {
+    "id": "cv1",
+    "name": "Chest pain"
+  },
+  {
+    "id": "cv2",
+    "name": "Chest tightness"
+  },
+  {
+    "id": "cv3",
+    "name": "Chest pressure"
+  },
+  {
+    "id": "cv4",
+    "name": "Palpitations"
+  },
+  {
+    "id": "cv5",
+    "name": "Rapid heartbeat"
+  },
+  {
+    "id": "cv6",
+    "name": "Irregular heartbeat"
+  },
+  {
+    "id": "cv7",
+    "name": "Slow heartbeat"
+  },
+  {
+    "id": "cv8",
+    "name": "Shortness of breath"
+  },
+  {
+    "id": "cv9",
+    "name": "Difficulty breathing"
+  },
+  {
+    "id": "cv10",
+    "name": "Breathlessness during exertion"
+  },
+  {
+    "id": "cv11",
+    "name": "Fatigue"
+  },
+  {
+    "id": "cv12",
+    "name": "Weakness"
+  },
+  {
+    "id": "cv13",
+    "name": "Dizziness"
+  },
+  {
+    "id": "cv14",
+    "name": "Lightheadedness"
+  },
+  {
+    "id": "cv15",
+    "name": "Fainting"
+  },
+  {
+    "id": "cv16",
+    "name": "Near-fainting"
+  },
+  {
+    "id": "cv17",
+    "name": "Swelling in legs"
+  },
+  {
+    "id": "cv18",
+    "name": "Swelling in ankles"
+  },
+  {
+    "id": "cv19",
+    "name": "Swelling in feet"
+  },
+  {
+    "id": "cv20",
+    "name": "Abdominal swelling"
+  },
+  {
+    "id": "cv21",
+    "name": "Cold sweats"
+  },
+  {
+    "id": "cv22",
+    "name": "Excessive sweating"
+  },
+  {
+    "id": "cv23",
+    "name": "Nausea"
+  },
+  {
+    "id": "cv24",
+    "name": "Indigestion"
+  },
+  {
+    "id": "cv25",
+    "name": "Heartburn"
+  },
+  {
+    "id": "cv26",
+    "name": "Pain radiating to left arm"
+  },
+  {
+    "id": "cv27",
+    "name": "Pain radiating to jaw"
+  },
+  {
+    "id": "cv28",
+    "name": "Pain radiating to back"
+  },
+  {
+    "id": "cv29",
+    "name": "Pain radiating to shoulder"
+  },
+  {
+    "id": "cv30",
+    "name": "Cough"
+  },
+  {
+    "id": "cv31",
+    "name": "Persistent cough"
+  },
+  {
+    "id": "cv32",
+    "name": "Coughing up blood"
+  },
+  {
+    "id": "cv33",
+    "name": "Wheezing"
+  },
+  {
+    "id": "cv34",
+    "name": "Blue-tinged lips"
+  },
+  {
+    "id": "cv35",
+    "name": "Blue-tinged fingers"
+  },
+  {
+    "id": "cv36",
+    "name": "Pale skin"
+  },
+  {
+    "id": "cv37",
+    "name": "Cold extremities"
+  },
+  {
+    "id": "cv38",
+    "name": "Reduced exercise tolerance"
+  },
+  {
+    "id": "cv39",
+    "name": "Difficulty lying flat"
+  },
+  {
+    "id": "cv40",
+    "name": "Need to sleep propped up"
+  },
+  {
+    "id": "cv41",
+    "name": "Nocturia (frequent nighttime urination)"
+  },
+  {
+    "id": "cv42",
+    "name": "Reduced urine output"
+  },
+  {
+    "id": "cv43",
+    "name": "Sudden weight gain"
+  },
+  {
+    "id": "cv44",
+    "name": "Loss of appetite"
+  },
+  {
+    "id": "cv45",
+    "name": "Fluttering in chest"
+  },
+  {
+    "id": "cv46",
+    "name": "Skipped heartbeats"
+  },
+  {
+    "id": "cv47",
+    "name": "Heart pounding"
+  },
+  {
+    "id": "cv48",
+    "name": "Throbbing sensation in neck"
+  },
+  {
+    "id": "cv49",
+    "name": "Pulsatile tinnitus"
+  },
+  {
+    "id": "cv50",
+    "name": "Orthopnea (shortness of breath when lying down)"
+  },
+  {
+    "id": "cv51",
+    "name": "Paroxysmal nocturnal dyspnea (waking up breathless)"
+  },
+  {
+    "id": "cv52",
+    "name": "Syncope (fainting)"
+  },
+  {
+    "id": "cv53",
+    "name": "Pre-syncope"
+  },
+  {
+    "id": "cv54",
+    "name": "Clammy skin"
+  },
+  {
+    "id": "cv55",
+    "name": "Anxiety"
+  },
+  {
+    "id": "cv56",
+    "name": "Sense of impending doom"
+  },
+  {
+    "id": "cv57",
+    "name": "Confusion"
+  },
+  {
+    "id": "cv58",
+    "name": "Reduced alertness"
+  },
+  {
+    "id": "cv59",
+    "name": "Unexplained fever"
+  },
+  {
+    "id": "cv60",
+    "name": "Migraine with aura"
+  }
+]
