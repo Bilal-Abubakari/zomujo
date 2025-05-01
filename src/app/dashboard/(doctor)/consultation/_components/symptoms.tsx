@@ -24,6 +24,7 @@ import { z } from 'zod';
 import { DurationType } from '@/types/shared.enum';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
 import Loading from '@/components/loadingOverlay/loading';
+import MedicationTaken from '@/app/dashboard/(doctor)/consultation/_components/medicationTaken';
 
 const symptomsSchema = z.object({
   complaints: z.array(
@@ -79,6 +80,12 @@ const symptomsSchema = z.object({
       }),
     ),
   }),
+  medicationTaken: z.array(
+    z.object({
+      name: requiredStringSchema(),
+      dose: z.string(),
+    }),
+  ),
 });
 
 const Symptoms = (): JSX.Element => {
@@ -233,13 +240,11 @@ const Symptoms = (): JSX.Element => {
             />
           ))
         )}
+        <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
+        <MedicationTaken medicationsTaken={watch('medicationTaken')} control={control} />
         <div className="mt-20"></div>
         <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
-          <Button
-            disabled={!isValid}
-            onClick={() => console.log('Go to Labs')}
-            child="Go to Labs"
-          />
+          <Button disabled={!isValid} child="Go to Labs" />
         </div>
       </form>
     </DndProvider>
