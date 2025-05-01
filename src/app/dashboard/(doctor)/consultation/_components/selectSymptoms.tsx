@@ -5,12 +5,13 @@ import {
   ISymptom,
   SymptomsType,
 } from '@/types/consultation.interface';
-import { ChevronsRight, GripVertical, Loader2, Search } from 'lucide-react';
+import { ChevronsRight, CornerDownRight, GripVertical, Loader2, Search } from 'lucide-react';
 import { useDrag, useDrop } from 'react-dnd';
 import { capitalize, cn } from '@/lib/utils';
 import { Control, useFieldArray, UseFormSetValue } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
+import { Textarea } from '@/components/ui/textarea';
 
 type SelectSymptomsProps = {
   symptoms: ISymptom[];
@@ -73,6 +74,7 @@ const SymptomsContainer = ({
   setSystemSymptoms,
   selectedSymptoms = [],
   control,
+  setValue,
   id,
 }: SymptomsContainerProps): ReactElement | null => {
   const [search, setSearch] = useState('');
@@ -96,7 +98,10 @@ const SymptomsContainer = ({
           }
 
           setSystemSymptoms((prev) => filterSymptoms(prev, item.id));
-          append(item);
+          append({
+            ...item,
+            notes: '',
+          });
           return;
         }
         const alreadyInSymptoms = findSymptom(symptoms, item.id);
@@ -104,13 +109,11 @@ const SymptomsContainer = ({
           return;
         }
 
-        const differentSymptomIndex =
-          selectedSymptoms?.findIndex(({ name }) => name !== item.name) ?? -1;
+        const differentSymptomIndex = selectedSymptoms?.findIndex(({ name }) => name === item.name);
         if (differentSymptomIndex !== -1) {
           remove(differentSymptomIndex);
+          setSystemSymptoms((prev) => [item, ...prev]);
         }
-
-        setSystemSymptoms((prev) => [item, ...prev]);
       },
       collect(monitor): { isOver: boolean } {
         return {
@@ -137,11 +140,22 @@ const SymptomsContainer = ({
   );
 
   const systemSymptoms = searchedSymptoms.length
-    ? searchedSymptoms.map((symptom) => <SymptomItem key={symptom.id} item={symptom} id={id} />)
+    ? searchedSymptoms.map((symptom, index) => (
+        <SymptomItem key={symptom.id} item={symptom} id={id} setValue={setValue} index={index} />
+      ))
     : emptyResults;
 
   const patientSelectedSymptoms = selectedSymptoms.length
-    ? selectedSymptoms.map((symptom) => <SymptomItem key={symptom.name} item={symptom} id={id} />)
+    ? selectedSymptoms.map((symptom, index) => (
+        <SymptomItem
+          patientSymptoms={patientSymptoms}
+          key={symptom.name}
+          item={symptom}
+          id={id}
+          setValue={setValue}
+          index={index}
+        />
+      ))
     : emptyResults;
 
   return drop(
@@ -182,9 +196,18 @@ const SymptomsContainer = ({
 type SymptomItemProps = {
   item: ISymptom | IPatientSymptom;
   id: string;
+  patientSymptoms?: boolean;
+  setValue: UseFormSetValue<IConsultationSymptomsHFC>;
+  index: number;
 };
 
-const SymptomItem = ({ item, id }: SymptomItemProps): ReactElement | null => {
+const SymptomItem = ({
+  item,
+  id,
+  patientSymptoms = false,
+  setValue,
+  index,
+}: SymptomItemProps): ReactElement | null => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: id,
     item: item,
@@ -192,19 +215,41 @@ const SymptomItem = ({ item, id }: SymptomItemProps): ReactElement | null => {
       isDragging: monitor.isDragging(),
     }),
   }));
+  const [showNotes, setShowNotes] = useState(false);
 
   return drag(
-    <div
-      className={cn(
-        'flex w-full flex-row items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-2.5 duration-100',
-        isDragging && 'border-primaryLightBase',
+    <div>
+      <button
+        onClick={() => setShowNotes((prev) => !prev)}
+        className={cn(
+          'flex w-full flex-row items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-2.5 duration-100',
+          isDragging && 'border-primaryLightBase',
+        )}
+      >
+        <GripVertical
+          size={20}
+          className={cn('text-gray-400 duration-100', isDragging && 'text-primaryLightBase')}
+        />
+        <p className="text-sm leading-[14px]">{item.name}</p>
+      </button>
+      {patientSymptoms && showNotes && 'notes' in item && (
+        <div
+          className={cn(
+            'flex overflow-hidden transition-all duration-300',
+            showNotes ? 'max-h-44 opacity-100' : 'max-h-0 opacity-0',
+          )}
+        >
+          <CornerDownRight className="h-9 w-8 text-gray-400" />
+          <Textarea
+            value={item.notes}
+            placeholder={`Add notes on ${item.name.toLowerCase()}`}
+            className="mt-2"
+            onChange={({ target }) =>
+              setValue(`symptoms.${id as SymptomsType}.${index}.notes`, target.value as never)
+            }
+          />
+        </div>
       )}
-    >
-      <GripVertical
-        size={20}
-        className={cn('text-gray-400 duration-100', isDragging && 'text-primaryLightBase')}
-      />
-      <p className="text-sm leading-[14px]">{item.name}</p>
     </div>,
   );
 };

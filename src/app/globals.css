@@ -266,10 +266,10 @@
   clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%, 15px 50%);
 }
 
-#clip .firstCrumb {
+#clip .first-crumb {
   clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
 }
 
-#clip .lastCrumb {
+#clip .last-crumb {
   clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 0, 100% 100%, 15px 100%, 0 100%, 15px 50%);
 }
