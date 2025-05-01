@@ -1,4 +1,5 @@
 import { DurationType } from '@/types/shared.enum';
+import { IMedicineWithoutId } from '@/types/patient.interface';
 
 interface IName {
   name: string;
@@ -34,6 +35,7 @@ export interface IConsultationSymptoms {
   complaints: string[];
   duration: IDuration;
   symptoms: IPatientSymptomMap;
+  medicationTaken: IMedicineWithoutId[];
 }
 
 export interface IDuration {

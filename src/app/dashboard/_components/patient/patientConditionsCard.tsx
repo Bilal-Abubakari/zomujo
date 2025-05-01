@@ -1,10 +1,8 @@
 import React, { ChangeEvent, JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronsUpDown, Trash2 } from 'lucide-react';
-import { IConditionWithoutId, IMedicineWithoutId } from '@/types/patient.interface';
+import { ChevronsUpDown } from 'lucide-react';
+import { IConditionWithoutId } from '@/types/patient.interface';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import Image from 'next/image';
-import { Drugs } from '@/assets/images';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectMedicalConditions } from '@/lib/features/patients/patientsSelector';
 import {
@@ -26,6 +24,7 @@ import { useDebounce } from 'use-debounce';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import CardFrame from '@/app/dashboard/_components/cardFrame';
+import Drug from '@/app/dashboard/(doctor)/_components/Drug';
 
 const conditionsSchema = z.object({
   name: z.string(),
@@ -110,22 +109,6 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
     void handleSearch();
   }, [value]);
 
-  const drug = ({ name, dose }: IMedicineWithoutId, index?: number): JSX.Element => (
-    <div key={`${name}-${index}`} className="mt-4 flex justify-between">
-      <div className="flex w-full items-center gap-1">
-        <Image src={Drugs} alt={name} width={20} height={20} />
-        <span
-          title={`${name}(${dose})`}
-          className="text-blue-midnight truncate text-sm font-semibold"
-        >
-          {name}({dose})
-        </span>
-      </div>
-      {index !== undefined && (
-        <Trash2 className="cursor-pointer" color="red" onClick={() => remove(index)} />
-      )}
-    </div>
-  );
   return (
     <>
       <CardFrame
@@ -166,9 +149,17 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
                 </div>
                 {medicines?.length && (
                   <>
-                    {drug(medicines[0])}
+                    {
+                      <Drug
+                        key={`${medicines[0].name}-${medicines[0].dose}`}
+                        name={medicines[0].name}
+                        dose={medicines[0].dose}
+                      />
+                    }
                     <CollapsibleContent>
-                      {medicines.slice(1).map((medicine) => drug(medicine))}
+                      {medicines.slice(1).map(({ name, dose }) => (
+                        <Drug key={`${name}-${dose}`} name={name} dose={dose} />
+                      ))}
                     </CollapsibleContent>
                   </>
                 )}
@@ -244,7 +235,15 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
                   </div>
                 </div>
 
-                {watch('medicines')?.map((medicine, index) => drug(medicine, index))}
+                {watch('medicines')?.map(({ name, dose }, index) => (
+                  <Drug
+                    key={`${name}-${dose}`}
+                    name={name}
+                    dose={dose}
+                    index={index}
+                    remove={remove}
+                  />
+                ))}
               </div>
               <div className="space-x-3">
                 <Button
