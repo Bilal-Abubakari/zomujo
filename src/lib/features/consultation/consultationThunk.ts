@@ -8,37 +8,10 @@ export const getComplaintSuggestions = createAsyncThunk(
   'consultation/complaint-suggestions',
   async (): Promise<Toast | string[]> => {
     try {
-      await axios.get<IResponse<string[]>>(`consultation/complaint-suggestions`);
-      // TODO: Remove as as soon backend seed is added
-      return [
-        'Headache',
-        'Stomach pain',
-        'Cold/Flu',
-        'Rash',
-        'Depression',
-        'Sore throat',
-        'Heartburn',
-        'Diarrhea',
-        'Insomnia',
-        'Fatigue',
-        'Cough',
-        'Fever',
-        'Back pain',
-        'Chest pain',
-        'Shortness of breath',
-        'Nausea',
-        'Vomiting',
-        'Dizziness',
-        'Joint pain',
-        'Constipation',
-        'Runny nose',
-        'Muscle aches',
-        'Loss of appetite',
-        'Swelling',
-        'Urinary issues',
-        'Menstrual irregularities',
-        'Itching',
-      ];
+      const {
+        data: { data },
+      } = await axios.get<IResponse<{ name: string }[]>>(`consultation/complaint-suggestions`);
+      return data.map(({ name }) => name);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
