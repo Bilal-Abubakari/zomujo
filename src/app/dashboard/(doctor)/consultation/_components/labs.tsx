@@ -109,7 +109,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToExamination }: LabsProps): JSX.El
       value: key,
     }));
   }, [category, labs]);
-  //
+
   const testNameOptions = useMemo(() => {
     resetField('testName', {
       defaultValue: '',
@@ -255,7 +255,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToExamination }: LabsProps): JSX.El
                 labelName="Notes"
                 placeholder="Add short notes about laboratory test request"
                 {...register('notes')}
-                error={errors?.notes?.message || ''}
+                error={errors?.notes?.message}
               />
               <Input
                 labelName="Specimen"
