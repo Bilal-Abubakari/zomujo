@@ -88,7 +88,11 @@ const symptomsSchema = z.object({
   ),
 });
 
-const Symptoms = (): JSX.Element => {
+type SymptomsProps = {
+  goToLabs: () => void;
+};
+
+const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const {
     control,
     formState: { isValid },
@@ -154,6 +158,7 @@ const Symptoms = (): JSX.Element => {
   ): Promise<void> => {
     //TODO: Make request as soon as backend endpoint is ready
     console.log('consultationSymptoms', consultationSymptoms);
+    goToLabs();
   };
 
   useEffect(() => {

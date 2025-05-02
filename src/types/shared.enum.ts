@@ -4,6 +4,10 @@ export enum Gender {
   Other = 'other',
 }
 
+export enum RequestStatus {
+  Completed = 'completed',
+}
+
 export enum Status {
   Verified = 'verified',
   Unverified = 'unverified',
