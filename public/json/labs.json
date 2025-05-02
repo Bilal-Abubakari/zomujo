@@ -1,0 +1,211 @@
+{
+  "Chemical Pathology": {
+    "Anaemia Studies": [
+      "Ferritin",
+      "Iron",
+      "TIBC",
+      "Transferrin Saturation"
+    ],
+    "Blood Glucose": [
+      "FBS",
+      "2HR OGTT",
+      "RBS",
+      "HbA1C"
+    ],
+    "Cardiac": [
+      "CK-MB",
+      "Troponin I",
+      "Troponin T",
+      "AST (SGOT)"
+    ],
+    "Gen. Chemistry": [
+      "Urea",
+      "Creatinine",
+      "Electrolytes",
+      "Calcium",
+      "Phosphate",
+      "Magnesium"
+    ],
+    "Lipid Profile": [
+      "Cholesterol",
+      "HDL Chol",
+      "LDL Chol",
+      "Triglycerides",
+      "Lipid Card"
+    ],
+    "Liver Function Tests": [
+      "ALT (SGPT)",
+      "AST (SGOT)",
+      "ALP",
+      "GGT",
+      "Total Bilirubin",
+      "Direct Bilirubin",
+      "Total Protein",
+      "Serum Albumin",
+      "Serum Globulin"
+    ],
+    "Hormones": [
+      "TSH",
+      "Free T4",
+      "Free T3",
+      "Total T4",
+      "Total T3",
+      "β HCG",
+      "LH",
+      "FSH",
+      "Prolactin",
+      "Testosterone",
+      "Progesterone",
+      "Estradiol",
+      "Cortisol"
+    ],
+    "Miscellaneous": [
+      "Ascitic Fluid Biochem",
+      "Ascitic Fluid Protein",
+      "Synovial Fluid Biochem",
+      "Synovial Fluid Protein",
+      "CSF Biochem",
+      "CSF Protein",
+      "Serum Protein Electrophoresis"
+    ],
+    "Renal": [
+      "Uric Acid",
+      "Bicarbonate",
+      "Calcium: Creatinine",
+      "Phosphate: Creatinine",
+      "Urine Urea",
+      "Urine Creatinine",
+      "Creatinine Clearance",
+      "Carbam dioxide"
+    ],
+    "Tumor Markers": [
+      "PSA",
+      "CEA",
+      "CA-125",
+      "AFP",
+      "β-HCG (Quantitative)"
+    ],
+    "Urine Chemistry": [
+      "24hr Protein",
+      "24hr Creatinine",
+      "24hr Electrolytes",
+      "Urine Proteins",
+      "Urine Glucose"
+    ],
+    "Others": [
+      "Specify"
+    ]
+  },
+  "Haematology": {
+    "General Haematology": [
+      "Full Blood Count (FBC)",
+      "Red Cell Indices",
+      "Blood Film Comment",
+      "ESR",
+      "Reticulocyte Count",
+      "Malaria Parasites",
+      "Sickling",
+      "Hb Electrophoresis"
+    ],
+    "Special Haematology": [
+      "Hb A2/F",
+      "G6PD",
+      "Bone Marrow Aspirate",
+      "Bone Marrow Trephine",
+      "Iron Studies",
+      "Vit B12/Folate",
+      "LE Cell Test",
+      "Clot Retraction (ARD Ros)",
+      "Platelet Function Tests",
+      "OTHERS (SPECIFY)"
+    ],
+    "Coagulation": [
+      "Clotting Profile",
+      "Bleeding Time (BT)",
+      "Clotting Time (CT)",
+      "Prothrombin Time (INR)",
+      "APTT",
+      "Partial Thromboplastin Time (PTT)",
+      "Fibrinogen",
+      "Factors VIII Assay"
+    ]
+  },
+  "Immunology": {
+    "Tests": [
+      "ASO (latex, blood)",
+      "RA (latex, blood)",
+      "CRP",
+      "Typhoid Antibodies",
+      "H. pylori Antibodies",
+      "Pregnancy Test (Urine)",
+      "Pregnancy Test (Serum)",
+      "Toxoplasma Antibodies",
+      "Rubella Antibodies",
+      "T. pallidum Hemagglutination (TPHA)",
+      "TPHA/TP Antibodies/VDRL",
+      "HIV Antibody",
+      "HIV Viral Load",
+      "HBsAg",
+      "Hepatitis B Profile",
+      "Anti-HCV"
+    ]
+  },
+  "Microbiology": {
+    "Aspirates": [
+      "AFB/Z N",
+      "C/S"
+    ],
+    "Blood": [
+      "C/S",
+      "AFB",
+      "Malaria Parasites",
+      "Trypanosomes"
+    ],
+    "Cerebrospinal Fluid (CSF)": [
+      "AFB/Z N",
+      "C/S",
+      "India Ink",
+      "Gram",
+      "Ziehl Neelsen"
+    ],
+    "Corneal Scraping": [
+      "C/S",
+      "Gram"
+    ],
+    "Intravenous Catheter Tip": [
+      "C/S"
+    ],
+    "Seminal Fluid": [
+      "Analysis",
+      "C/S"
+    ],
+    "Skin": [
+      "KOH",
+      "Fungal Test"
+    ],
+    "Sputum": [
+      "Gram",
+      "C/S",
+      "AFB"
+    ],
+    "Stool": [
+      "Routine Exam",
+      "Occult Blood",
+      "C/S",
+      "Reducing Substance",
+      "Porphyrobilinogen"
+    ],
+    "Swabs": [
+      "High Vaginal Swab (HVS)",
+      "Ear Swab",
+      "Eye Swab",
+      "Throat Swab",
+      "Wound Swab",
+      "Urethral Swab",
+      "Cervical Swab",
+      "AFB/Z N",
+      "Gram",
+      "C/S"
+    ]
+  }
+}

@@ -4,18 +4,26 @@ import { Badge } from '@/components/ui/badge';
 import { ClockFading } from 'lucide-react';
 import { capitalize, cn } from '@/lib/utils';
 import Symptoms from '@/app/dashboard/(doctor)/consultation/_components/symptoms';
+import Labs from '@/app/dashboard/(doctor)/consultation/_components/labs';
 
 const stages = ['symptoms', 'labs', 'examination', 'diagnose & prescribe', 'review'];
 
 type StageType = (typeof stages)[number];
 
 const Consultation = (): JSX.Element => {
-  const [currentStage, setCurrentStage] = useState<StageType>('symptoms');
+  const [currentStage, setCurrentStage] = useState<StageType>(stages[0]);
+  const [updateLabs, setUpdateLabs] = useState(false);
 
   const getStage = (): JSX.Element => {
     switch (currentStage) {
       case 'labs':
-        return <div>Labs</div>;
+        return (
+          <Labs
+            goToExamination={() => setCurrentStage(stages[2])}
+            updateLabs={updateLabs}
+            setUpdateLabs={setUpdateLabs}
+          />
+        );
       case 'examination':
         return <div>Examination</div>;
       case 'diagnose & prescribe':
@@ -23,7 +31,7 @@ const Consultation = (): JSX.Element => {
       case 'review':
         return <div>Review</div>;
       default:
-        return <Symptoms />;
+        return <Symptoms goToLabs={() => setCurrentStage(stages[1])} />;
     }
   };
   return (
@@ -36,7 +44,11 @@ const Consultation = (): JSX.Element => {
         </Badge>
       </div>
       <div
-        className="sticky top-0 z-100 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500"
+        className={cn(
+          updateLabs
+            ? 'mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500'
+            : 'sticky top-0 z-100 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500',
+        )}
         id="clip"
       >
         {stages.map((stage, index) => (
