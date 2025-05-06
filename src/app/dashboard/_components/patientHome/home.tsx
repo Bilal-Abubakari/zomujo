@@ -24,7 +24,7 @@ const PatientHome = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [doctors, setDoctors] = useState<IDoctor[]>([]);
-    const extra = useAppSelector(selectExtra);
+  const extra = useAppSelector(selectExtra);
   const findDoctorsLink = '/dashboard/find-doctor?tab=doctors';
   const doctorSuggestions = useMemo(
     () => (
@@ -134,18 +134,18 @@ const PatientHome = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-      async function getUserRecords(): Promise<void> {
-        if (!extra) {
-          return;
-        }
-        const { payload } = await dispatch(getPatientRecords(extra.id));
-        if (payload && showErrorToast(payload)) {
-          toast(payload);
-        }
+    async function getUserRecords(): Promise<void> {
+      if (!extra) {
+        return;
       }
-  
-      void getUserRecords();
-    }, []);
+      const { payload } = await dispatch(getPatientRecords(extra.id));
+      if (payload && showErrorToast(payload)) {
+        toast(payload);
+      }
+    }
+
+    void getUserRecords();
+  }, []);
   return (
     <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-[80px] max-me:pt-4 w-full border px-4 md:px-6">
       <AvatarGreetings />

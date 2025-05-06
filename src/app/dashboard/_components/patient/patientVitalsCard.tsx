@@ -17,7 +17,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
-import {  updateRecord } from '@/lib/features/records/recordsThunk';
+import { updateRecord } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -99,7 +99,6 @@ const PatientVitalsCard = (): JSX.Element => {
     }
   }, [patientRecord]);
 
- 
   return (
     <>
       <CardFrame showEmptyResults={false} setEdit={setEdit} title="Vitals">

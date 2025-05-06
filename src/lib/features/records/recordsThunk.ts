@@ -215,4 +215,3 @@ export const addAllergy = createAsyncThunk(
     }
   },
 );
-
