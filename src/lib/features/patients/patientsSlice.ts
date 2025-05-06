@@ -2,11 +2,11 @@ import { IPatientWithRecord } from '@/types/patient.interface';
 import { createSlice } from '@reduxjs/toolkit';
 
 interface PatientsState {
-  patientWithRecords: IPatientWithRecord | undefined;
+  patientWithRecords: IPatientWithRecord ;
 }
 
 const initialState: PatientsState = {
-  patientWithRecords: undefined,
+  patientWithRecords: {} as IPatientWithRecord,
 };
 
 const patientsSlice = createSlice({
@@ -20,10 +20,6 @@ const patientsSlice = createSlice({
       };
     },
     updatePatientRecord: (state, { payload }) => {
-      if (!state.patientWithRecords) {
-        return;
-      }
-
       state.patientWithRecords.record = {
         ...state.patientWithRecords.record,
         ...payload,

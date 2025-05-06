@@ -215,3 +215,18 @@ export const addAllergy = createAsyncThunk(
     }
   },
 );
+
+export const getPatientsMedicalRecords = createAsyncThunk(
+  'record/patient',
+  async (recordId: string, { dispatch }) => {
+    try {
+      const {
+        data: { data },
+      } = await axios.get<IResponse<IPatientWithRecord>>(`records/${recordId}`);
+      dispatch(updatePatientRecord(data.record));
+      return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
