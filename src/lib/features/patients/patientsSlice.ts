@@ -2,7 +2,7 @@ import { IPatientWithRecord } from '@/types/patient.interface';
 import { createSlice } from '@reduxjs/toolkit';
 
 interface PatientsState {
-  patientWithRecords: IPatientWithRecord ;
+  patientWithRecords: IPatientWithRecord;
 }
 
 const initialState: PatientsState = {

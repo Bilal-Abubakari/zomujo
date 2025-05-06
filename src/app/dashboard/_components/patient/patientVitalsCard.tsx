@@ -102,14 +102,13 @@ const PatientVitalsCard = (): JSX.Element => {
   }, [patientRecord]);
 
   useEffect(() => {
-    async function getUserRecords() {
+    async function getUserRecords(): Promise<void> {
       if (!extra) {
         return;
       }
       const { payload } = await dispatch(getPatientsMedicalRecords(extra.id));
       if (payload && showErrorToast(payload)) {
         toast(payload);
-        return;
       }
     }
 
@@ -190,7 +189,7 @@ const PatientVitalsCard = (): JSX.Element => {
         </div>
       </CardFrame>
       <Drawer direction="right" open={edit}>
-        <DrawerContent className='overflow-y-auto'>
+        <DrawerContent className="overflow-y-auto">
           <div className="mx-auto w-full max-w-sm p-4">
             <DrawerHeader className="flex items-center justify-between">
               <div>
@@ -200,87 +199,87 @@ const PatientVitalsCard = (): JSX.Element => {
                 </DrawerDescription>
               </div>
             </DrawerHeader>
-              <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                <Input
-                  labelName="Systolic (mmHg)"
-                  type="number"
-                  error={errors.bloodPressure?.systolic?.message}
-                  placeholder="Enter systolic pressure"
-                  {...register('bloodPressure.systolic')}
-                  rightIcon="mmHg"
+            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+              <Input
+                labelName="Systolic (mmHg)"
+                type="number"
+                error={errors.bloodPressure?.systolic?.message}
+                placeholder="Enter systolic pressure"
+                {...register('bloodPressure.systolic')}
+                rightIcon="mmHg"
+              />
+              <Input
+                labelName="Diastolic (mmHg)"
+                type="number"
+                error={errors.bloodPressure?.diastolic?.message}
+                placeholder="Enter diastolic pressure"
+                {...register('bloodPressure.diastolic')}
+                rightIcon="mmHg"
+              />
+              <Input
+                labelName="Weight (kg)"
+                type="number"
+                error={errors.weight?.message}
+                placeholder="Enter weight"
+                {...register('weight')}
+                rightIcon="kg"
+              />
+              <Input
+                labelName="Heart Rate (bpm)"
+                type="number"
+                error={errors.heartRate?.message}
+                placeholder="Enter heart rate"
+                {...register('heartRate')}
+                rightIcon="bpm"
+              />
+              <Input
+                labelName="Respiratory Rate (cpm)"
+                type="number"
+                error={errors.respiratoryRate?.message}
+                placeholder="Enter respiratory rate"
+                {...register('respiratoryRate')}
+                rightIcon="cpm"
+              />
+              <Input
+                labelName="Blood Sugar Level (mg/dL)"
+                type="number"
+                error={errors.bloodSugarLevel?.message}
+                placeholder="Enter blood sugar level"
+                {...register('bloodSugarLevel')}
+                rightIcon="mg/dL"
+              />
+              <Input
+                labelName="Temperature (°C)"
+                type="number"
+                error={errors.temperature?.message}
+                placeholder="Enter temperature"
+                {...register('temperature')}
+                rightIcon="°C"
+              />
+              <Input
+                labelName="Oxygen Saturation (%)"
+                type="number"
+                error={errors.oxygenSaturation?.message}
+                placeholder="Enter oxygen saturation"
+                {...register('oxygenSaturation')}
+                rightIcon="%"
+              />
+              <div className="space-x-3">
+                <Button
+                  isLoading={isLoading}
+                  disabled={!isValid || isLoading}
+                  child="Save"
+                  type="submit"
                 />
-                <Input
-                  labelName="Diastolic (mmHg)"
-                  type="number"
-                  error={errors.bloodPressure?.diastolic?.message}
-                  placeholder="Enter diastolic pressure"
-                  {...register('bloodPressure.diastolic')}
-                  rightIcon="mmHg"
+                <Button
+                  disabled={isLoading}
+                  onClick={() => setEdit(false)}
+                  child="Close"
+                  type="button"
+                  variant="secondary"
                 />
-                <Input
-                  labelName="Weight (kg)"
-                  type="number"
-                  error={errors.weight?.message}
-                  placeholder="Enter weight"
-                  {...register('weight')}
-                  rightIcon="kg"
-                />
-                <Input
-                  labelName="Heart Rate (bpm)"
-                  type="number"
-                  error={errors.heartRate?.message}
-                  placeholder="Enter heart rate"
-                  {...register('heartRate')}
-                  rightIcon="bpm"
-                />
-                <Input
-                  labelName="Respiratory Rate (cpm)"
-                  type="number"
-                  error={errors.respiratoryRate?.message}
-                  placeholder="Enter respiratory rate"
-                  {...register('respiratoryRate')}
-                  rightIcon="cpm"
-                />
-                <Input
-                  labelName="Blood Sugar Level (mg/dL)"
-                  type="number"
-                  error={errors.bloodSugarLevel?.message}
-                  placeholder="Enter blood sugar level"
-                  {...register('bloodSugarLevel')}
-                  rightIcon="mg/dL"
-                />
-                <Input
-                  labelName="Temperature (°C)"
-                  type="number"
-                  error={errors.temperature?.message}
-                  placeholder="Enter temperature"
-                  {...register('temperature')}
-                  rightIcon="°C"
-                />
-                <Input
-                  labelName="Oxygen Saturation (%)"
-                  type="number"
-                  error={errors.oxygenSaturation?.message}
-                  placeholder="Enter oxygen saturation"
-                  {...register('oxygenSaturation')}
-                  rightIcon="%"
-                />
-                <div className="space-x-3">
-                  <Button
-                    isLoading={isLoading}
-                    disabled={!isValid || isLoading}
-                    child="Save"
-                    type="submit"
-                  />
-                  <Button
-                    disabled={isLoading}
-                    onClick={() => setEdit(false)}
-                    child="Close"
-                    type="button"
-                    variant="secondary"
-                  />
-                </div>
-              </form>
+              </div>
+            </form>
             <DrawerFooter className="flex justify-between"></DrawerFooter>
           </div>
         </DrawerContent>
