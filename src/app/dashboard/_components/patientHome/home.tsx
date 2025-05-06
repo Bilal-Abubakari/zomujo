@@ -9,7 +9,7 @@ import { JSX, useEffect, useMemo, useState } from 'react';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { IDoctor } from '@/types/doctor.interface';
 import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
-import { useAppDispatch } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { suggestedDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { getCoordinates } from '@/lib/location';
 import { showErrorToast } from '@/lib/utils';
@@ -17,11 +17,14 @@ import { toast } from '@/hooks/use-toast';
 import { ToastStatus } from '@/types/shared.enum';
 import Hospitals from '../../(patient)/find-doctor/_components/hospitals';
 import { Suggested } from './_component/suggested';
+import { selectExtra } from '@/lib/features/auth/authSelector';
+import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 
 const PatientHome = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [doctors, setDoctors] = useState<IDoctor[]>([]);
+    const extra = useAppSelector(selectExtra);
   const findDoctorsLink = '/dashboard/find-doctor?tab=doctors';
   const doctorSuggestions = useMemo(
     () => (
@@ -129,6 +132,20 @@ const PatientHome = (): JSX.Element => {
     }
     void getSuggestedDoctors();
   }, []);
+
+  useEffect(() => {
+      async function getUserRecords(): Promise<void> {
+        if (!extra) {
+          return;
+        }
+        const { payload } = await dispatch(getPatientRecords(extra.id));
+        if (payload && showErrorToast(payload)) {
+          toast(payload);
+        }
+      }
+  
+      void getUserRecords();
+    }, []);
   return (
     <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-[80px] max-me:pt-4 w-full border px-4 md:px-6">
       <AvatarGreetings />

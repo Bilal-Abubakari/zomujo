@@ -17,7 +17,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
-import { getPatientsMedicalRecords, updateRecord } from '@/lib/features/records/recordsThunk';
+import {  updateRecord } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,7 +26,6 @@ import { z } from 'zod';
 import { useParams } from 'next/navigation';
 import { positiveNumberSchema, stringInputOptionalNumberSchema } from '@/schemas/zod.schemas';
 import CardFrame from '@/app/dashboard/_components/cardFrame';
-import { selectExtra } from '@/lib/features/auth/authSelector';
 
 const patientVitalsSchema = z.object({
   bloodPressure: z
@@ -46,7 +45,6 @@ const patientVitalsSchema = z.object({
 const PatientVitalsCard = (): JSX.Element => {
   const [edit, setEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const extra = useAppSelector(selectExtra);
   const patientRecord = useAppSelector(selectRecord);
   const dispatch = useAppDispatch();
   const bloodPressure: IBloodPressure = useMemo(
@@ -101,19 +99,7 @@ const PatientVitalsCard = (): JSX.Element => {
     }
   }, [patientRecord]);
 
-  useEffect(() => {
-    async function getUserRecords(): Promise<void> {
-      if (!extra) {
-        return;
-      }
-      const { payload } = await dispatch(getPatientsMedicalRecords(extra.id));
-      if (payload && showErrorToast(payload)) {
-        toast(payload);
-      }
-    }
-
-    void getUserRecords();
-  }, []);
+ 
   return (
     <>
       <CardFrame showEmptyResults={false} setEdit={setEdit} title="Vitals">
