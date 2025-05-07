@@ -12,7 +12,7 @@ import { AppointmentStatus, Role } from '@/types/shared.enum';
 import { AppointmentType, IAppointment } from '@/types/appointment.interface';
 import { mergeDateAndTime } from '@/lib/date';
 import { useAppSelector } from '@/lib/hooks';
-import { selectUser } from '@/lib/features/auth/authSelector';
+import { selectIsPatient, selectUser } from '@/lib/features/auth/authSelector';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
@@ -120,6 +120,7 @@ const AppointmentDetails = ({
     [AppointmentStatus.Completed]: 'border-green-300 bg-green-100',
   };
 
+  const isPatient = useAppSelector(selectIsPatient);
   const router = useRouter();
   const redirectToPatient = (patientId: string): void => {
     router.push(`/dashboard/patients/${patientId}`);
@@ -168,11 +169,13 @@ const AppointmentDetails = ({
       )}
 
       <div className="mt-4 flex justify-center">
-        <Button
-          child={'Start Consultation'}
-          className="rounded-full border-2 border-black bg-black px-6 py-2 text-white transition duration-300 hover:bg-green-700"
-          onClick={() => redirectToPatient(id)}
-        />
+        {!isPatient && (
+          <Button
+            child={'Start Consultation'}
+            className="rounded-full border-2 border-black bg-black px-6 py-2 text-white transition duration-300 hover:bg-green-700"
+            onClick={() => redirectToPatient(id)}
+          />
+        )}
       </div>
     </div>
   );

@@ -45,6 +45,13 @@ export interface IQueryParams<T = undefined> {
   booking?: boolean;
   doctorId?: string;
   patientId?: string;
+  id?: string;
+  temperature?: string;
+  bloodPressure?: string;
+  bloodSugarLevel?: string;
+  oxygenSaturation?: string;
+  respiratoryRate?: string;
+  heartRate?: string;
 }
 
 export interface IAction<T = undefined> {

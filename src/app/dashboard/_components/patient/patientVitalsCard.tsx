@@ -98,6 +98,7 @@ const PatientVitalsCard = (): JSX.Element => {
       setValue('oxygenSaturation', oxygenSaturation);
     }
   }, [patientRecord]);
+
   return (
     <>
       <CardFrame showEmptyResults={false} setEdit={setEdit} title="Vitals">
@@ -112,7 +113,7 @@ const PatientVitalsCard = (): JSX.Element => {
                 <p className="text-xs text-gray-500">Blood Pressure</p>
 
                 <p className="font-medium">
-                  {bloodPressure.diastolic}/{bloodPressure.systolic} mmHg
+                  {bloodPressure.systolic}/{bloodPressure.diastolic} mmHg
                 </p>
               </div>
             }
@@ -173,7 +174,7 @@ const PatientVitalsCard = (): JSX.Element => {
         </div>
       </CardFrame>
       <Drawer direction="right" open={edit}>
-        <DrawerContent>
+        <DrawerContent className="overflow-y-auto">
           <div className="mx-auto w-full max-w-sm p-4">
             <DrawerHeader className="flex items-center justify-between">
               <div>
@@ -264,7 +265,6 @@ const PatientVitalsCard = (): JSX.Element => {
                 />
               </div>
             </form>
-
             <DrawerFooter className="flex justify-between"></DrawerFooter>
           </div>
         </DrawerContent>
