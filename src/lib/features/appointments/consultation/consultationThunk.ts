@@ -32,7 +32,7 @@ export const addConsultationSymptom = createAsyncThunk(
     try {
       const {
         data: { message },
-      } = await axios.post<IResponse>(`consultation/add-symptoms`, consultationSymptoms);
+      } = await axios.put<IResponse>(`consultation/save-symptoms`, consultationSymptoms);
       dispatch(updateSymptoms(consultationSymptoms));
       return generateSuccessToast(message);
     } catch (error) {
