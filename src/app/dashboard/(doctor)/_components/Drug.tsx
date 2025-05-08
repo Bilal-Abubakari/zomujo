@@ -9,7 +9,7 @@ type DrugProps = {
   remove?: (index: number) => void;
 } & IMedicineWithoutId;
 const Drug = ({ name, dose, index, remove }: DrugProps): JSX.Element => (
-  <div key={`${name}-${index}`} className="mt-4 flex justify-between">
+  <div key={`${name}-${index}`} className="flex justify-between">
     <div className="flex w-full items-center gap-1">
       <Image src={Drugs} alt={name} width={20} height={20} />
       <span

@@ -37,6 +37,7 @@ interface IQuery {
   appointmentView: AppointmentView;
   specialty: string;
   recordsTab: RecordsTab;
+  appointmentId: string;
 }
 
 type QueryParamKey = keyof IQuery;

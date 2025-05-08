@@ -32,7 +32,7 @@ const MedicationTaken = ({ medicationsTaken, control }: MedicationTakenProps): J
   });
   const { append, remove } = useFieldArray({
     control,
-    name: 'medicationTaken',
+    name: 'medicinesTaken',
   });
   const addMedicationTaken = (): void => {
     append(getValues());
@@ -52,10 +52,17 @@ const MedicationTaken = ({ medicationsTaken, control }: MedicationTakenProps): J
         </div>
       </div>
       <div className="flex">
-        <Button disabled={!isValid} child="Add Drug" onClick={() => addMedicationTaken()} />
+        <Button
+          type="button"
+          disabled={!isValid}
+          child="Add Drug"
+          onClick={() => addMedicationTaken()}
+        />
       </div>
       {medicationsTaken?.map(({ dose, name }, index) => (
-        <Drug key={`${name}-${dose}`} name={name} dose={dose} index={index} remove={remove} />
+        <div key={`${name}-${dose}`} className="mt-4">
+          <Drug key={`${name}-${dose}`} name={name} dose={dose} index={index} remove={remove} />
+        </div>
       ))}
     </>
   );
