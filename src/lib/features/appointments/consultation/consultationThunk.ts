@@ -6,7 +6,7 @@ import { fetchSystemSymptoms } from './fetchSystemSymptoms';
 import { generateSuccessToast } from '@/lib/utils';
 import { IConsultationSymptoms } from '@/types/consultation.interface';
 import { IAppointment } from '@/types/appointment.interface';
-import { setAppointment } from '@/lib/features/appointments/appointmentsSlice';
+import { setAppointment, updateSymptoms } from '@/lib/features/appointments/appointmentsSlice';
 
 export const getComplaintSuggestions = createAsyncThunk(
   'consultation/complaint-suggestions',
@@ -28,11 +28,12 @@ export const getSystemSymptoms = createAsyncThunk('consultation/system-symptoms'
 
 export const addConsultationSymptom = createAsyncThunk(
   'consultation/add-consultation-symptom',
-  async (consultationSymptoms: IConsultationSymptoms): Promise<Toast> => {
+  async (consultationSymptoms: IConsultationSymptoms, { dispatch }): Promise<Toast> => {
     try {
       const {
         data: { message },
       } = await axios.post<IResponse>(`consultation/add-symptoms`, consultationSymptoms);
+      dispatch(updateSymptoms(consultationSymptoms));
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

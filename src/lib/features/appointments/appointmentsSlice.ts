@@ -1,6 +1,7 @@
 import { IAppointment } from '@/types/appointment.interface';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getConsultationAppointment } from '@/lib/features/appointments/consultation/consultationThunk';
+import { IConsultationSymptoms } from '@/types/consultation.interface';
 
 interface AppointmentsState {
   appointment: IAppointment | undefined;
@@ -18,6 +19,14 @@ const appointmentsSlice = createSlice({
     setAppointment: (state, action: PayloadAction<IAppointment>) => {
       state.appointment = action.payload;
     },
+    updateSymptoms: (state, action: PayloadAction<IConsultationSymptoms>) => {
+      if (state.appointment) {
+        state.appointment.symptoms = {
+          ...state.appointment.symptoms,
+          ...action.payload,
+        };
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -33,6 +42,6 @@ const appointmentsSlice = createSlice({
   },
 });
 
-export const { setAppointment } = appointmentsSlice.actions;
+export const { setAppointment, updateSymptoms } = appointmentsSlice.actions;
 
 export default appointmentsSlice.reducer;
