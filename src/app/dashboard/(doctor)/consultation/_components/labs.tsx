@@ -1,5 +1,5 @@
 import React, { JSX, useEffect, useMemo, useState } from 'react';
-import { Info, Plus, Trash2 } from 'lucide-react';
+import { Info, TestTubeDiagonal, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { PdfFile } from '@/assets/images';
 import { StatusBadge } from '@/components/ui/statusBadge';
@@ -27,13 +27,23 @@ import {
   LabTestSection,
   MicrobiologyCategory,
 } from '@/types/labs.enum';
-import { fetchLabs } from '@/lib/features/consultation/fetchLabs';
+import { fetchLabs } from '@/lib/features/appointments/consultation/fetchLabs';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
-import { capitalize } from '@/lib/utils';
+import { capitalize, showErrorToast } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import AddCardButton from '@/components/ui/addCardButton';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { addLabRequests } from '@/lib/features/appointments/consultation/consultationThunk';
+import { Toast, toast } from '@/hooks/use-toast';
+import { selectPreviousLabs, selectRecordId } from '@/lib/features/patients/patientsSelector';
+import { useParams } from 'next/navigation';
+import {
+  selectConductedLabs,
+  selectRequestedLabs,
+} from '@/lib/features/appointments/appointmentSelector';
 
 const labsSchema = z.object({
   category: z.nativeEnum(LabTestSection),
@@ -52,10 +62,10 @@ const labsSchema = z.object({
 type LabsProps = {
   updateLabs: boolean;
   setUpdateLabs: (value: boolean) => void;
-  goToExamination: () => void;
+  goToDiagnoseAndPrescribe: () => void;
 };
 
-const Labs = ({ updateLabs, setUpdateLabs, goToExamination }: LabsProps): JSX.Element => {
+const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [requestedLabs, setRequestedLabs] = useState<ILaboratoryRequest[]>([]);
   const [labs, setLabs] = useState<LaboratoryTest | null>(null);
@@ -75,6 +85,13 @@ const Labs = ({ updateLabs, setUpdateLabs, goToExamination }: LabsProps): JSX.El
       fasting: false,
     },
   });
+  const dispatch = useAppDispatch();
+  const recordId = useAppSelector(selectRecordId);
+  const conductedLabs = useAppSelector(selectConductedLabs);
+  const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
+  const previousLabs = useAppSelector(selectPreviousLabs);
+  const [showPreviousLabs, setShowPreviousLabs] = useState(false);
+  const params = useParams();
   const category = watch('category');
   const categoryType = watch('categoryType');
 
@@ -143,15 +160,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToExamination }: LabsProps): JSX.El
     }
   }, [updateLabs, labs]);
 
-  const addLabCard = (
-    <button
-      onClick={() => setUpdateLabs(true)}
-      className="hover:border-primary hover:text-primary cursor-pointer rounded-[8px] border border-dashed border-gray-300 p-20"
-    >
-      <Plus />
-    </button>
-  );
-
   const requestedLab = ({
     testName,
     notes,
@@ -160,7 +168,9 @@ const Labs = ({ updateLabs, setUpdateLabs, goToExamination }: LabsProps): JSX.El
   }: ILaboratoryRequest): JSX.Element => (
     <div className="w-xs rounded-[8px] bg-[linear-gradient(180deg,rgba(197,216,255,0.306)_0%,rgba(197,216,255,0.6)_61.43%)] p-4">
       <div className="mb-3 flex justify-between">
-        <span>{testName}</span>
+        <span className="text-grayscale-600 flex items-center gap-2">
+          <TestTubeDiagonal /> {testName}
+        </span>
         <Trash2
           onClick={() => removeLabRequest(testName, specimen)}
           className="cursor-pointer text-red-500"
@@ -182,9 +192,23 @@ const Labs = ({ updateLabs, setUpdateLabs, goToExamination }: LabsProps): JSX.El
 
   const handleSubmitAndGoToExamination = async (): Promise<void> => {
     setIsLoading(true);
-    console.log('data', requestedLabs); // TODO: Make request as soon as backend endpoint is ready
+    if (requestedLabs.length) {
+      const { payload } = await dispatch(
+        addLabRequests({
+          labs: requestedLabs,
+          appointmentId: String(params.appointmentId),
+          recordId,
+        }),
+      );
+      toast(payload as Toast);
+      if (!showErrorToast(payload)) {
+        goToDiagnoseAndPrescribe();
+      }
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(false);
-    goToExamination();
+    goToDiagnoseAndPrescribe();
   };
 
   return (
@@ -193,18 +217,34 @@ const Labs = ({ updateLabs, setUpdateLabs, goToExamination }: LabsProps): JSX.El
         <h1 className="text-xl font-bold">Patient&#39;s Labs</h1>
         <h2 className="mt-10 flex items-center font-bold">
           Conducted Labs <Info className="ml-2" size={20} />
+          {!!previousLabs?.length && (
+            <button
+              onClick={() => setShowPreviousLabs(true)}
+              className="hover:text-primary ml-5 cursor-pointer text-gray-500"
+            >
+              Click to Show previous labs
+            </button>
+          )}
         </h2>
-        <div className="mt-5 flex flex-wrap gap-5">{labCard}</div>
+        {conductedLabs?.length ? (
+          <div className="mt-5 flex flex-wrap gap-5">{conductedLabs.map(() => labCard)}</div>
+        ) : (
+          <div className="mt-5 text-gray-500">No labs conducted yet</div>
+        )}
+        {showPreviousLabs && previousLabs?.length && (
+          <div className="mt-5 flex flex-wrap gap-5">{previousLabs.map(() => labCard)}</div>
+        )}
         <h2 className="mt-10 flex items-center font-bold">Request Lab</h2>
         <div className="mt-5 mb-20 flex flex-wrap gap-5">
-          {addLabCard}
-          {requestedLabs.map((lab) => requestedLab(lab))}
+          <AddCardButton onClick={() => setUpdateLabs(true)} />
+          {[...(requestedAppointmentLabs ?? []), ...requestedLabs].map((lab) => requestedLab(lab))}
         </div>
         <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
           <Button
             onClick={() => handleSubmitAndGoToExamination()}
             disabled={false}
-            child="Go to Examination"
+            isLoading={isLoading}
+            child="Go to Diagnose and Prescribe"
           />
         </div>
       </div>

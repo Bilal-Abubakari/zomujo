@@ -6,6 +6,7 @@ export enum Gender {
 
 export enum RequestStatus {
   Completed = 'completed',
+  Pending = 'pending',
 }
 
 export enum Status {
