@@ -15,6 +15,13 @@ export enum Status {
   Incomplete = 'incomplete',
 }
 
+export enum ConditionStatus {
+  Active = 'active',
+  Inactive = 'inactive',
+  Chronic = 'chronic',
+  Controlled = 'controlled',
+}
+
 export enum ApproveDeclineStatus {
   Approved = 'approved',
   Declined = 'declined',
