@@ -13,6 +13,7 @@ const alertVariants = cva(
         default: 'bg-background text-foreground',
         destructive:
           'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
+        info: 'bg-warning-50 [&>svg]:text-warning-600 border-warning-50 text-warning-600 dark:bg-warning-50 dark:text-warning-600',
       },
     },
     defaultVariants: {
@@ -53,7 +54,7 @@ type AlertMessageProps = {
   message: string;
   className?: string;
   titleClassName?: string;
-  variant?: 'default' | 'destructive';
+  variant?: 'default' | 'destructive' | 'info';
 };
 export const AlertMessage = ({
   message,
