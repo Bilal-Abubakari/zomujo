@@ -35,7 +35,11 @@ export interface IConsultationSymptoms {
   complaints: string[];
   duration: IDuration;
   symptoms: IPatientSymptomMap;
-  medicationTaken: IMedicineWithoutId[];
+  medicinesTaken: IMedicineWithoutId[];
+}
+
+export interface IConsultationSymptomsRequest extends IConsultationSymptoms {
+  appointmentId: string;
 }
 
 export interface IDuration {

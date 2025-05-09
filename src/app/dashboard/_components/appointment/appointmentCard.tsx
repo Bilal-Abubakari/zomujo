@@ -109,7 +109,8 @@ const AppointmentDetails = ({
   reason,
   meetingLink,
   additionalInfo,
-  patient: { firstName, id },
+  patient: { firstName, id: patientId },
+  id,
   slot: { date },
 }: AppointmentDetails): JSX.Element => {
   const position = day > 4 ? -300 : 350;
@@ -122,8 +123,8 @@ const AppointmentDetails = ({
 
   const isPatient = useAppSelector(selectIsPatient);
   const router = useRouter();
-  const redirectToPatient = (patientId: string): void => {
-    router.push(`/dashboard/patients/${patientId}`);
+  const redirectToPatient = (): void => {
+    router.push(`/dashboard/patients/${patientId}?appointmentId=${id}`);
   };
 
   return (
@@ -173,7 +174,7 @@ const AppointmentDetails = ({
           <Button
             child={'Start Consultation'}
             className="rounded-full border-2 border-black bg-black px-6 py-2 text-white transition duration-300 hover:bg-green-700"
-            onClick={() => redirectToPatient(id)}
+            onClick={() => redirectToPatient()}
           />
         )}
       </div>
