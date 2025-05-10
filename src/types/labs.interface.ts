@@ -5,6 +5,7 @@ import {
   LabTestSection,
   MicrobiologyCategory,
 } from '@/types/labs.enum';
+import { RequestStatus } from '@/types/shared.enum';
 
 export type CategoryType =
   | ChemicalPathologyCategory
@@ -19,6 +20,20 @@ export interface ILaboratoryRequest {
   notes: string;
   fasting: boolean;
   specimen: string;
+}
+
+export interface ILaboratoryRequestWithRecordId {
+  recordId: string;
+  appointmentId: string;
+  labs: ILaboratoryRequest[];
+}
+
+export interface ILab extends ILaboratoryRequest {
+  id: string;
+  fileUrl: string | null;
+  status: RequestStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LaboratoryTest {

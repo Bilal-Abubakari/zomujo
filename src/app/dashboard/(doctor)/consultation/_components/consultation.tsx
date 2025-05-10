@@ -2,7 +2,7 @@
 import React, { JSX, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ClockFading } from 'lucide-react';
-import { capitalize, cn } from '@/lib/utils';
+import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import Symptoms from '@/app/dashboard/(doctor)/consultation/_components/symptoms';
 import Labs from '@/app/dashboard/(doctor)/consultation/_components/labs';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -10,12 +10,15 @@ import { getConsultationAppointment } from '@/lib/features/appointments/consulta
 import { useParams } from 'next/navigation';
 import { selectIsLoading } from '@/lib/features/appointments/appointmentSelector';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
+import { getPatientRecords } from '@/lib/features/records/recordsThunk';
+import { Toast, toast } from '@/hooks/use-toast';
 
 const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'];
 
 type StageType = (typeof stages)[number];
 
 const Consultation = (): JSX.Element => {
+  const [isLoadingRecords, setIsLoadingRecords] = useState(false);
   const [currentStage, setCurrentStage] = useState<StageType>(stages[0]);
   const [update, setUpdate] = useState(false);
   const dispatch = useAppDispatch();
@@ -27,13 +30,11 @@ const Consultation = (): JSX.Element => {
       case 'labs':
         return (
           <Labs
-            goToExamination={() => setCurrentStage(stages[2])}
+            goToDiagnoseAndPrescribe={() => setCurrentStage(stages[2])}
             updateLabs={update}
             setUpdateLabs={setUpdate}
           />
         );
-      case 'examination':
-        return <div>Examination</div>;
       case 'diagnose & prescribe':
         return <div>Diagnose & Prescribe</div>;
       case 'review':
@@ -43,13 +44,23 @@ const Consultation = (): JSX.Element => {
     }
   };
 
+  const fetchPatientRecords = async (): Promise<void> => {
+    setIsLoadingRecords(true);
+    const { payload } = await dispatch(getPatientRecords(String(params.patientId)));
+    if (showErrorToast(payload)) {
+      toast(payload as Toast);
+    }
+    setIsLoadingRecords(false);
+  };
+
   useEffect(() => {
+    void fetchPatientRecords();
     dispatch(getConsultationAppointment(String(params.appointmentId)));
   }, []);
 
   return (
     <div className="rounded-2xl border border-gray-300 px-6 py-8">
-      {isLoadingAppointment && <LoadingOverlay />}
+      {(isLoadingAppointment || isLoadingRecords) && <LoadingOverlay />}
       <div className="flex items-center gap-3">
         <span>Consultation</span>
         <Badge className="px-3 py-1.5" variant="brown">
@@ -61,7 +72,7 @@ const Consultation = (): JSX.Element => {
         className={cn(
           update || isLoadingAppointment
             ? 'mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500'
-            : 'sticky top-0 z-100 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500',
+            : 'sticky top-0 z-50 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500',
         )}
         id="clip"
       >

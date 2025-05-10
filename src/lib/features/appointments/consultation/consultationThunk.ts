@@ -7,6 +7,7 @@ import { generateSuccessToast } from '@/lib/utils';
 import { IConsultationSymptoms } from '@/types/consultation.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import { setAppointment, updateSymptoms } from '@/lib/features/appointments/appointmentsSlice';
+import { ILaboratoryRequestWithRecordId } from '@/types/labs.interface';
 
 export const getComplaintSuggestions = createAsyncThunk(
   'consultation/complaint-suggestions',
@@ -49,6 +50,20 @@ export const getConsultationAppointment = createAsyncThunk(
         data: { message, data },
       } = await axios.get<IResponse<IAppointment>>(`appointments/${id}`);
       dispatch(setAppointment(data));
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const addLabRequests = createAsyncThunk(
+  'consultation/lab-request',
+  async (labRequests: ILaboratoryRequestWithRecordId): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>(`consultation/request-labs`, labRequests);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
