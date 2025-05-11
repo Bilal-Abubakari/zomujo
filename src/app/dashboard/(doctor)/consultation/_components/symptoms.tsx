@@ -125,15 +125,15 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const params = useParams();
   const complaintsHFC = watch('complaints');
 
-  const complaints = useMemo(() => complaintsHFC?.map(({ name }) => name), [complaintsHFC]);
+  const selectedComplaints = useMemo(() => complaintsHFC?.map(({ name }) => name), [complaintsHFC]);
 
-  const handleSelectedComplaint = (suggestion: string): void => {
-    if (!complaints.includes(suggestion)) {
+  const handleSelectedComplaint = (suggestion: string, shouldRemove = true): void => {
+    if (!selectedComplaints.includes(suggestion)) {
       append({
         name: suggestion,
       });
-    } else {
-      const index = watch('complaints').findIndex((complaint) => complaint.name === suggestion);
+    } else if (shouldRemove) {
+      const index = complaintsHFC.findIndex(({ name }) => name === suggestion);
       if (index !== -1) {
         remove(index);
       }
@@ -145,7 +145,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       return;
     }
     const complaintExists =
-      complaintSuggestions.includes(otherComplaint) || complaints.includes(otherComplaint);
+      complaintSuggestions.includes(otherComplaint) || selectedComplaints.includes(otherComplaint);
     if (!complaintExists) {
       setComplaintSuggestions((prev) => [...prev, otherComplaint]);
       append({
@@ -211,15 +211,19 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setValue('duration', duration, {
         shouldValidate: true,
       });
-      complaints.forEach((complaint) => {
-        if (complaintSuggestions.includes(complaint)) {
-          handleSelectedComplaint(complaint);
-        } else {
-          setOtherComplaint(complaint);
-          addComplaint();
-          setOtherComplaint('');
-        }
-      });
+
+      if (!isLoadingComplaintSuggestions) {
+        complaints.forEach((complaint) => {
+          if (complaintSuggestions.includes(complaint)) {
+            handleSelectedComplaint(complaint, false);
+          } else {
+            setOtherComplaint(complaint);
+            addComplaint();
+            setOtherComplaint('');
+          }
+        });
+      }
+
       setValue('medicinesTaken', medicinesTaken);
       if (systemSymptoms) {
         setValue('symptoms', patientSymptoms);
@@ -241,7 +245,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         }
       }
     }
-  }, [symptoms, systemSymptoms, complaintSuggestions]);
+  }, [symptoms, systemSymptoms, isLoadingComplaintSuggestions]);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -257,7 +261,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                 onClick={() => handleSelectedComplaint(suggestion)}
                 className={cn(
                   'cursor-pointer rounded-[100px] p-2.5',
-                  complaints.includes(suggestion) ? 'bg-primary text-white' : 'bg-gray-200',
+                  selectedComplaints.includes(suggestion) ? 'bg-primary text-white' : 'bg-gray-200',
                 )}
               >
                 {suggestion}
