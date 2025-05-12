@@ -1,8 +1,6 @@
 import React, { ChangeEvent, JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronsUpDown } from 'lucide-react';
 import { IConditionWithoutId } from '@/types/patient.interface';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectMedicalConditions } from '@/lib/features/patients/patientsSelector';
 import {
@@ -25,6 +23,7 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import CardFrame from '@/app/dashboard/_components/cardFrame';
 import Drug from '@/app/dashboard/(doctor)/_components/Drug';
+import { ConditionCard } from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
 
 const conditionsSchema = z.object({
   name: z.string(),
@@ -62,7 +61,6 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
 
   const [edit, setEdit] = useState(false);
   const conditions = useAppSelector(selectMedicalConditions);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [value] = useDebounce(search, 1000);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
@@ -118,57 +116,7 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
       >
         <div className="max-h-[360px] space-y-4 overflow-y-scroll">
           {conditions?.map(({ id, name, medicines }) => (
-            <div
-              key={id}
-              className="rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4"
-            >
-              <Collapsible
-                open={expandedId === id}
-                onOpenChange={() => {
-                  setExpandedId((prev) => (prev === id ? null : id));
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="rounded-full bg-white px-2 py-1.5">
-                    <h4 className="text-sm font-semibold">{name}</h4>
-                  </div>
-                  {medicines?.length > 1 && (
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        child={
-                          <>
-                            <ChevronsUpDown className="h-4 w-4" />
-                            <span className="sr-only">Toggle</span>
-                          </>
-                        }
-                      />
-                    </CollapsibleTrigger>
-                  )}
-                </div>
-                {medicines?.length && (
-                  <>
-                    {
-                      <div className="mt-4">
-                        <Drug
-                          key={`${medicines[0].name}-${medicines[0].dose}`}
-                          name={medicines[0].name}
-                          dose={medicines[0].dose}
-                        />
-                      </div>
-                    }
-                    <CollapsibleContent>
-                      {medicines.slice(1).map(({ name, dose }) => (
-                        <div key={`${name}-${dose}`} className="mt-4">
-                          <Drug name={name} dose={dose} />
-                        </div>
-                      ))}
-                    </CollapsibleContent>
-                  </>
-                )}
-              </Collapsible>
-            </div>
+            <ConditionCard key={id} medicines={medicines} name={name} />
           ))}
         </div>
       </CardFrame>

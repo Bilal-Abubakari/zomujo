@@ -52,6 +52,13 @@ const conditionsSchema = z.object({
   diagnosedAt: z.string(),
 });
 
+const defaultMedicine: IPrescription = {
+  name: '',
+  doses: '',
+  instructions: '',
+  frequency: '',
+};
+
 type DiagnosePrescribeProps = {
   updateDiagnosis: boolean;
   setUpdateDiagnosis: (value: boolean) => void;
@@ -94,12 +101,7 @@ const DiagnosePrescribe = ({
   const [search, setSearch] = useState('');
   const [value] = useDebounce(search, 1000);
   const dispatch = useAppDispatch();
-  const [addMedicine, setAddMedicine] = useState<IPrescription>({
-    name: '',
-    doses: '',
-    instructions: '',
-    frequency: '',
-  });
+  const [addMedicine, setAddMedicine] = useState<IPrescription>(defaultMedicine);
 
   const onAddDiagnosis = (diagnosis: IDiagnosis): void => {
     setDiagnoses([
@@ -228,12 +230,7 @@ const DiagnosePrescribe = ({
                     child="Add Drug"
                     onClick={() => {
                       append(addMedicine);
-                      setAddMedicine({
-                        name: '',
-                        frequency: '',
-                        doses: '',
-                        instructions: '',
-                      });
+                      setAddMedicine(defaultMedicine);
                     }}
                     type="submit"
                   />
