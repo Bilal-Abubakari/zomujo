@@ -36,3 +36,8 @@ export const selectIsLoading = createSelector(
   selectAppointments,
   (appointments) => appointments.isLoading,
 );
+
+export const selectDiagnoses = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.diagnosis ?? [],
+);

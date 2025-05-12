@@ -4,7 +4,7 @@ import axios, { axiosErrorHandler } from '@/lib/axios';
 import { IResponse } from '@/types/shared.interface';
 import { fetchSystemSymptoms } from './fetchSystemSymptoms';
 import { generateSuccessToast } from '@/lib/utils';
-import { IConsultationSymptoms } from '@/types/consultation.interface';
+import { IConsultationSymptoms, IDiagnosisRequest } from '@/types/consultation.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import { setAppointment, updateSymptoms } from '@/lib/features/appointments/appointmentsSlice';
 import { ILaboratoryRequestWithRecordId } from '@/types/labs.interface';
@@ -64,6 +64,20 @@ export const addLabRequests = createAsyncThunk(
       const {
         data: { message },
       } = await axios.post<IResponse>(`consultation/request-labs`, labRequests);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const addDiagnosisAndPrescription = createAsyncThunk(
+  'consultation/add-diagnosis-prescription',
+  async (diagnosisRequest: IDiagnosisRequest): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>(`consultation/add-diagnosis`, diagnosisRequest);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

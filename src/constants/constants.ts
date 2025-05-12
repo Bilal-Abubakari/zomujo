@@ -2,6 +2,7 @@ import { SelectOption } from '@/components/ui/select';
 import {
   AcceptDeclineStatus,
   BloodGroup,
+  ConditionStatus,
   Denomination,
   DurationType,
   Gender,
@@ -203,4 +204,11 @@ export const durationTypes = [
   { value: DurationType.Days, label: 'Days' },
   { value: DurationType.Weeks, label: 'Weeks' },
   { value: DurationType.Months, label: 'Months' },
+];
+
+export const conditionStatusOptions = [
+  { value: ConditionStatus.Active, label: 'Active' },
+  { value: ConditionStatus.Inactive, label: 'Inactive' },
+  { value: ConditionStatus.Controlled, label: 'Controlled' },
+  { value: ConditionStatus.Chronic, label: 'Chronic' },
 ];

@@ -150,15 +150,19 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
                 {medicines?.length && (
                   <>
                     {
-                      <Drug
-                        key={`${medicines[0].name}-${medicines[0].dose}`}
-                        name={medicines[0].name}
-                        dose={medicines[0].dose}
-                      />
+                      <div className="mt-4">
+                        <Drug
+                          key={`${medicines[0].name}-${medicines[0].dose}`}
+                          name={medicines[0].name}
+                          dose={medicines[0].dose}
+                        />
+                      </div>
                     }
                     <CollapsibleContent>
                       {medicines.slice(1).map(({ name, dose }) => (
-                        <Drug key={`${name}-${dose}`} name={name} dose={dose} />
+                        <div key={`${name}-${dose}`} className="mt-4">
+                          <Drug name={name} dose={dose} />
+                        </div>
                       ))}
                     </CollapsibleContent>
                   </>
@@ -236,13 +240,9 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
                 </div>
 
                 {watch('medicines')?.map(({ name, dose }, index) => (
-                  <Drug
-                    key={`${name}-${dose}`}
-                    name={name}
-                    dose={dose}
-                    index={index}
-                    remove={remove}
-                  />
+                  <div key={`${name}-${dose}`} className="mt-4">
+                    <Drug name={name} dose={dose} index={index} remove={remove} />
+                  </div>
                 ))}
               </div>
               <div className="space-x-3">
