@@ -1,4 +1,4 @@
-import { DurationType } from '@/types/shared.enum';
+import { ConditionStatus, DurationType } from '@/types/shared.enum';
 import { IMedicineWithoutId } from '@/types/patient.interface';
 
 interface IName {
@@ -54,4 +54,24 @@ export interface IDuration {
  */
 export interface IConsultationSymptomsHFC extends Omit<IConsultationSymptoms, 'complaints'> {
   complaints: IName[];
+}
+
+export interface IPrescription {
+  name: string;
+  doses: string;
+  instructions?: string;
+  frequency: string;
+}
+
+export interface IDiagnosis {
+  name: string;
+  diagnosedAt: string;
+  notes?: string;
+  status: ConditionStatus;
+  prescriptions: IPrescription[];
+}
+
+export interface IDiagnosisRequest {
+  diagnoses: IDiagnosis[];
+  appointmentId: string;
 }

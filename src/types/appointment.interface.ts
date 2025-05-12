@@ -2,7 +2,7 @@ import { AppointmentStatus, ApproveDeclineStatus } from './shared.enum';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
 import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
-import { IConsultationSymptomsRequest } from '@/types/consultation.interface';
+import { IConsultationSymptomsRequest, IDiagnosis } from '@/types/consultation.interface';
 import { ILab } from '@/types/labs.interface';
 
 interface IBaseAppointment {
@@ -23,6 +23,7 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   meetingLink: string | null;
   symptoms: IAppointmentSymptoms;
   lab: ILab[];
+  diagnosis: IDiagnosis[];
 }
 
 export interface IRecordRequest extends IBaseAppointment {

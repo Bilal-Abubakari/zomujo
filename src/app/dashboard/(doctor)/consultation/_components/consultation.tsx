@@ -5,6 +5,7 @@ import { ClockFading } from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import Symptoms from '@/app/dashboard/(doctor)/consultation/_components/symptoms';
 import Labs from '@/app/dashboard/(doctor)/consultation/_components/labs';
+import DiagnosePrescribe from '@/app/dashboard/(doctor)/consultation/_components/diagnosePrescribe';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { getConsultationAppointment } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams } from 'next/navigation';
@@ -36,7 +37,13 @@ const Consultation = (): JSX.Element => {
           />
         );
       case 'diagnose & prescribe':
-        return <div>Diagnose & Prescribe</div>;
+        return (
+          <DiagnosePrescribe
+            goToReview={() => setCurrentStage(stages[3])}
+            updateDiagnosis={update}
+            setUpdateDiagnosis={setUpdate}
+          />
+        );
       case 'review':
         return <div>Review</div>;
       default:

@@ -35,3 +35,5 @@ export const selectLabs = createSelector(selectRecord, (record) => record?.lab);
 export const selectPreviousLabs = createSelector(selectLabs, selectLabIds, (labs, labIds) =>
   labs?.filter(({ id }) => !labIds?.includes(id)),
 );
+
+export const selectConditions = createSelector(selectRecord, (record) => record?.conditions);
