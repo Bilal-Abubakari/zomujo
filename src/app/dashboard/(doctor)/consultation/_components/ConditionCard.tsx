@@ -86,7 +86,6 @@ export const DiagnosisCard = ({
       {diagnosedAt && (
         <span className="text-grayscale-600 text-xs">{getFormattedDate(diagnosedAt)}</span>
       )}
-      <span></span>
     </div>
   </div>
 );
