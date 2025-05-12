@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/drawer';
 import { Combobox, SelectInput, SelectOption } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import React, { ChangeEvent, JSX, ReactNode, useEffect, useState } from 'react';
+import React, { ChangeEvent, JSX, useEffect, useState } from 'react';
 import { AlertMessage } from '@/components/ui/alert';
 import AddCardButton from '@/components/ui/addCardButton';
 import { ConditionStatus } from '@/types/shared.enum';
@@ -23,14 +23,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import {
   DiagnosisCard,
-  ConditionCard,
+  DiagnosesList,
+  ConditionsList,
 } from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
 import { IDiagnosis, IPrescription } from '@/types/consultation.interface';
 import { selectUserName } from '@/lib/features/auth/authSelector';
 import { addDiagnosisAndPrescription } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams } from 'next/navigation';
 import { selectConditions } from '@/lib/features/patients/patientsSelector';
-import { ICondition } from '@/types/patient.interface';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { selectDiagnoses } from '@/lib/features/appointments/appointmentSelector';
@@ -273,43 +273,6 @@ const DiagnosePrescribe = ({
     </Drawer>
   );
 
-  const DiagnosesList = ({
-    conditions,
-    children,
-  }: {
-    conditions: IDiagnosis[];
-    children?: ReactNode;
-  }): JSX.Element => (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {children}
-      {conditions.map(({ name, diagnosedAt, prescriptions, status, notes }, index) => (
-        <DiagnosisCard
-          key={index}
-          diagnosedAt={diagnosedAt}
-          name={name}
-          prescription={prescriptions}
-          doctor={doctorName}
-          status={status}
-          notes={notes}
-          removeMedicine={remove}
-        />
-      ))}
-    </div>
-  );
-
-  const ConditionsList = ({
-    conditions,
-  }: {
-    conditions: ICondition[];
-    children?: ReactNode;
-  }): JSX.Element => (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {conditions.map(({ name, medicines, id }) => (
-        <ConditionCard key={id} name={name} medicines={medicines} />
-      ))}
-    </div>
-  );
-
   return (
     <div>
       <span className="font-bold">Existing Conditions</span>
@@ -324,7 +287,11 @@ const DiagnosePrescribe = ({
         )}
         <span className="font-bold">Add New Diagnosis</span>
         <div className="mt-5 mb-16 flex gap-4">
-          <DiagnosesList conditions={[...savedDiagnoses, ...diagnoses]}>
+          <DiagnosesList
+            remove={remove}
+            doctorName={doctorName}
+            conditions={[...savedDiagnoses, ...diagnoses]}
+          >
             <AddCardButton onClick={() => setUpdateDiagnosis(true)} />
           </DiagnosesList>
         </div>

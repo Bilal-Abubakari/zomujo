@@ -3,12 +3,12 @@ import { TooltipComp } from '@/components/ui/tooltip';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import Drug from '@/app/dashboard/(doctor)/_components/Drug';
 import { getFormattedDate } from '@/lib/date';
-import React, { JSX, useState } from 'react';
+import React, { JSX, ReactNode, useState } from 'react';
 import { ConditionStatus } from '@/types/shared.enum';
-import { IPrescription } from '@/types/consultation.interface';
+import { IDiagnosis, IPrescription } from '@/types/consultation.interface';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
-import { IMedicine } from '@/types/patient.interface';
+import { ICondition, IMedicine } from '@/types/patient.interface';
 
 type DiagnosisConditionCommonProps = {
   name: string;
@@ -122,7 +122,7 @@ export const ConditionCard = ({ name, medicines }: ConditionCardProps): JSX.Elem
             </CollapsibleTrigger>
           )}
         </div>
-        {medicines?.length && (
+        {medicines?.length > 1 && (
           <>
             {
               <div className="mt-4">
@@ -146,3 +146,39 @@ export const ConditionCard = ({ name, medicines }: ConditionCardProps): JSX.Elem
     </div>
   );
 };
+
+export const DiagnosesList = ({
+  doctorName,
+  conditions,
+  children,
+  remove,
+}: {
+  doctorName: string;
+  conditions: IDiagnosis[];
+  children?: ReactNode;
+  remove?: (index: number) => void;
+}): JSX.Element => (
+  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {children}
+    {conditions.map(({ name, diagnosedAt, prescriptions, status, notes }) => (
+      <DiagnosisCard
+        key={`${name}-${diagnosedAt}`}
+        diagnosedAt={diagnosedAt}
+        name={name}
+        prescription={prescriptions}
+        doctor={doctorName}
+        status={status}
+        notes={notes}
+        removeMedicine={remove}
+      />
+    ))}
+  </div>
+);
+
+export const ConditionsList = ({ conditions }: { conditions: ICondition[] }): JSX.Element => (
+  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {conditions.map(({ name, medicines, id }) => (
+      <ConditionCard key={id} name={name} medicines={medicines} />
+    ))}
+  </div>
+);
