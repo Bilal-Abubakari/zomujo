@@ -34,14 +34,15 @@ import { selectConditions } from '@/lib/features/patients/patientsSelector';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { selectDiagnoses } from '@/lib/features/appointments/appointmentSelector';
+import { requiredStringSchema } from '@/schemas/zod.schemas';
 
 const conditionsSchema = z.object({
   name: z.string(),
   prescriptions: z
     .array(
       z.object({
-        name: z.string().nonempty(),
-        doses: z.string().nonempty(),
+        name: requiredStringSchema(),
+        doses: requiredStringSchema(),
         instructions: z.string().optional(),
         frequency: z.string(),
       }),
