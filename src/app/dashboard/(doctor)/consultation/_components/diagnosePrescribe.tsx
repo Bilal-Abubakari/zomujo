@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/drawer';
 import { Combobox, SelectInput, SelectOption } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import React, { ChangeEvent, JSX, useEffect, useState } from 'react';
+import React, { ChangeEvent, JSX, useEffect, useMemo, useState } from 'react';
 import { AlertMessage } from '@/components/ui/alert';
 import AddCardButton from '@/components/ui/addCardButton';
 import { ConditionStatus } from '@/types/shared.enum';
@@ -103,6 +103,10 @@ const DiagnosePrescribe = ({
   const [value] = useDebounce(search, 1000);
   const dispatch = useAppDispatch();
   const [addMedicine, setAddMedicine] = useState<IPrescription>(defaultMedicine);
+  const combinedDiagnoses = useMemo(
+    () => [...savedDiagnoses, ...diagnoses],
+    [savedDiagnoses, diagnoses],
+  );
 
   const onAddDiagnosis = (diagnosis: IDiagnosis): void => {
     setDiagnoses([
@@ -117,6 +121,10 @@ const DiagnosePrescribe = ({
   };
 
   const onSubmit = async (): Promise<void> => {
+    if (diagnoses.length <= 0) {
+      goToReview();
+      return;
+    }
     setIsLoading(true);
     const { payload } = await dispatch(
       addDiagnosisAndPrescription({
@@ -279,7 +287,7 @@ const DiagnosePrescribe = ({
       <span className="font-bold">Existing Conditions</span>
       <div className="mt-5 flex gap-4">{<ConditionsList conditions={existingConditions} />}</div>
       <div className="mt-10">
-        {diagnoses.length <= 0 && (
+        {combinedDiagnoses.length <= 0 && (
           <AlertMessage
             message='No specific diagnosis has been recorded for this appointment. Click on the "+" icon to include a diagnosis for this encounter.'
             className="mb-4 max-w-4xl"
@@ -288,11 +296,7 @@ const DiagnosePrescribe = ({
         )}
         <span className="font-bold">Add New Diagnosis</span>
         <div className="mt-5 mb-16 flex gap-4">
-          <DiagnosesList
-            remove={remove}
-            doctorName={doctorName}
-            conditions={[...savedDiagnoses, ...diagnoses]}
-          >
+          <DiagnosesList remove={remove} doctorName={doctorName} conditions={combinedDiagnoses}>
             <AddCardButton onClick={() => setUpdateDiagnosis(true)} />
           </DiagnosesList>
         </div>

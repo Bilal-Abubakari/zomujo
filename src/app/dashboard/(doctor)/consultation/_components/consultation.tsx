@@ -92,7 +92,9 @@ const Consultation = (): JSX.Element => {
               index === stages.length - 1 && 'last-crumb rounded-r-4xl',
               index === 0 && 'first-crumb rounded-l-4xl',
               'cursor-pointer',
-              currentStage === stage ? 'bg-primary-light text-primary' : 'bg-gray-200',
+              currentStage === stage || stages.indexOf(currentStage) > stages.indexOf(stage)
+                ? 'bg-primary-light text-primary'
+                : 'bg-gray-200',
               'inline-block px-8 py-[18px]',
             )}
           >
