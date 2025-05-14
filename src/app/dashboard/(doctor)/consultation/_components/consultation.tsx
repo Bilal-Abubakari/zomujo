@@ -13,6 +13,7 @@ import { selectIsLoading } from '@/lib/features/appointments/appointmentSelector
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
+import ReviewConsultation from '@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation';
 
 const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'];
 
@@ -45,7 +46,7 @@ const Consultation = (): JSX.Element => {
           />
         );
       case 'review':
-        return <div>Review</div>;
+        return <ReviewConsultation />;
       default:
         return <Symptoms goToLabs={() => setCurrentStage(stages[1])} />;
     }
