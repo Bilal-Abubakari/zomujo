@@ -77,7 +77,7 @@ const ReviewConsultation = (): JSX.Element => {
             {complaints?.map((complaint) => (
               <div
                 key={complaint}
-                className="flex items-center space-x-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                className="flex items-center space-x-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all hover:shadow-md"
               >
                 {complaint}
               </div>
