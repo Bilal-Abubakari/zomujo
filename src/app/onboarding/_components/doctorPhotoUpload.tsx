@@ -87,7 +87,7 @@ const DoctorPhotoUpload = (): JSX.Element => {
           className="w-full"
           child="Finish"
           isLoading={isLoading}
-          disabled={!isValid || !confirm}
+          disabled={!isValid || !confirm || isLoading}
           type="submit"
         />
       </div>

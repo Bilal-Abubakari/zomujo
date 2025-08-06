@@ -12,7 +12,7 @@ import { IPersonalDetails } from '@/types/auth.interface';
 import { genderOptions, MODE } from '@/constants/constants';
 import { maxDate } from '@/lib/date';
 import { JSX } from 'react';
-import { Gender } from '../../../types/shared.enum';
+import { Gender } from '@/types/shared.enum';
 
 const PersonalDetailsSchema = z.object({
   MDCRegistration: mdcNumberSchema,
@@ -90,7 +90,7 @@ const PersonalDetails = (): JSX.Element => {
             label="Gender"
             ref={register('gender').ref}
             error={errors.gender?.message}
-            options={genderOptions}
+            options={genderOptions.slice(0, -1)}
             name="gender"
             placeholder="Select your Gender"
           />
