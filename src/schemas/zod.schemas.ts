@@ -1,4 +1,4 @@
-import { z, ZodString } from 'zod';
+import { z, ZodCoercedNumber, ZodNumber, ZodOptional, ZodPipe, ZodString, ZodTransform } from 'zod';
 
 export const passwordSchema = z
   .string()
@@ -10,8 +10,10 @@ export const passwordSchema = z
   .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character')
   .max(20, 'Password is too long');
 
-export const emailSchema = (isRequired = true): ZodString =>
-  requiredStringSchema(isRequired).email('Invalid email format').min(5, 'Email is too short');
+export const emailSchema = z
+  .email('Invalid email format')
+  .min(5, 'Email is too short')
+  .nonempty('Field is required');
 
 export const requiredStringSchema = (isRequired = true): ZodString => {
   const schema = z.string();
@@ -54,11 +56,17 @@ export const textAreaSchema = z
   .max(500, 'Field should not exceed 500 characters')
   .regex(/^[A-Za-z0-9\s.,!?'"-]+$/, 'Field contains invalid characters');
 
-export const positiveNumberSchema = z.coerce.number().positive('Value must be greater than zero');
+export const positiveNumberSchema = z.coerce
+  .number()
+  .positive('Value must be greater than zero') as ZodCoercedNumber<number>;
 
-export const stringInputOptionalNumberSchema = z.preprocess(
-  (val): number | undefined => (val ? Number(val) : undefined),
-  z.coerce.number().positive().optional(),
-) as z.ZodEffects<z.ZodOptional<z.ZodNumber>, number | undefined, number | undefined>;
+export const stringInputOptionalNumberSchema = z
+  .preprocess(
+    (val) => (val === null || String(val) === '' ? undefined : Number(val)),
+    z.number().positive().optional(),
+  )
+  .optional() as ZodOptional<
+  ZodPipe<ZodTransform<undefined | number, number>, ZodOptional<ZodNumber>>
+>;
 
 export const booleanSchema = z.boolean();
