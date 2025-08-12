@@ -19,7 +19,7 @@ interface IForgotPassword {
 }
 const ForgetPasswordForm = (): JSX.Element => {
   const ForgotPasswordSchema = z.object({
-    email: emailSchema(),
+    email: emailSchema,
   });
 
   const {

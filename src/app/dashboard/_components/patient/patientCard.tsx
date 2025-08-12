@@ -34,10 +34,10 @@ import { useParams } from 'next/navigation';
 import CardFrame from '@/app/dashboard/_components/cardFrame';
 
 const patientBasicSchema = z.object({
-  denomination: z.nativeEnum(Denomination).optional(),
+  denomination: z.enum(Denomination).optional(),
   height: positiveNumberSchema.optional(),
-  bloodGroup: z.nativeEnum(BloodGroup).optional(),
-  maritalStatus: z.nativeEnum(MaritalStatus).optional(),
+  bloodGroup: z.enum(BloodGroup).optional(),
+  maritalStatus: z.enum(MaritalStatus).optional(),
 });
 
 const PatientCard = (): JSX.Element => {

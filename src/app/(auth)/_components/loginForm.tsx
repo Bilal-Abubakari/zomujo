@@ -21,7 +21,7 @@ import { ILogin } from '@/types/auth.interface';
 import { authenticationProvider } from './authenticationProvider';
 
 const loginSchema = z.object({
-  email: emailSchema(),
+  email: emailSchema,
   password: requiredStringSchema(),
 });
 
