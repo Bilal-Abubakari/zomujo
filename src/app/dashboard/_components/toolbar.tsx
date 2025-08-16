@@ -30,7 +30,7 @@ const Toolbar = (): JSX.Element => {
               )}
             </div>
           </PopoverTrigger>
-          <PopoverContent className="w-full">
+          <PopoverContent className="z-1000 w-full">
             <Notifications
               page={notificationPage}
               loadMore={() => setNotificationPage((prev) => prev + 1)}
