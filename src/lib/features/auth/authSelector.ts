@@ -63,3 +63,8 @@ export const selectPatientMustUpdateMandatoryInfo = createSelector(
   selectExtra,
   (isPatient, extra) => isPatient && (!extra?.dob || !extra?.gender),
 );
+
+export const selectUserProfilePicture = createSelector(
+  selectExtra,
+  (extra) => extra?.profilePicture ?? '',
+);
