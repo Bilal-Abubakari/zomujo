@@ -40,7 +40,7 @@ const symptomsSchema = z.object({
   ),
   duration: z.object({
     value: requiredStringSchema(),
-    type: z.nativeEnum(DurationType),
+    type: z.enum(DurationType),
   }),
   symptoms: z.object({
     [SymptomsType.Neurological]: z.array(
