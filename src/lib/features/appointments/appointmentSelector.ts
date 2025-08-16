@@ -15,6 +15,11 @@ export const selectSymptoms = createSelector(
   (appointment) => appointment?.symptoms,
 );
 
+export const selectPatientSymptoms = createSelector(
+  selectSymptoms,
+  (symptoms) => symptoms?.symptoms,
+);
+
 export const selectComplaints = createSelector(selectSymptoms, (symptoms) => symptoms?.complaints);
 
 export const selectAppointmentLabs = createSelector(
