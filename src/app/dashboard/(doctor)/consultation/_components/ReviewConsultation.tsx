@@ -5,6 +5,7 @@ import {
   selectComplaints,
   selectDiagnoses,
   selectPatientSymptoms,
+  selectRequestedLabs,
 } from '@/lib/features/appointments/appointmentSelector';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -17,13 +18,101 @@ import { SymptomsType } from '@/types/consultation.interface';
 import { capitalize } from '@/lib/utils';
 import { TooltipComp } from '@/components/ui/tooltip';
 
+type ID = 'complaints' | 'symptoms' | 'lab';
+interface IReviewData {
+  id: ID;
+  title: string;
+  content: JSX.Element;
+}
 const ReviewConsultation = (): JSX.Element => {
   const diagnoses = useAppSelector(selectDiagnoses);
   const complaints = useAppSelector(selectComplaints);
   const doctorName = useAppSelector(selectUserName);
   const symptoms = useAppSelector(selectPatientSymptoms);
-  const [isComplaintsOpen, setIsComplaintsOpen] = useState(false);
-  const [isSymptomsOpen, setIsSymptomsOpen] = useState(false);
+  const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
+  const [expanded, setExpanded] = useState<ID | null>(null);
+
+  const reviewData: IReviewData[] = [
+    {
+      id: 'complaints',
+      title: 'Complaints',
+      content: (
+        <>
+          {complaints?.map((complaint) => (
+            <div
+              key={complaint}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all hover:shadow-md"
+            >
+              {complaint}
+            </div>
+          ))}
+        </>
+      ),
+    },
+    {
+      id: 'symptoms',
+      title: 'Symptoms',
+      content: (
+        <>
+          {symptoms &&
+            Object.keys(symptoms)?.map((key) => {
+              const symptomType = key as SymptomsType;
+              const symptomList = symptoms[symptomType];
+              if (!symptomList || symptomList.length === 0) {
+                return null;
+              }
+              return (
+                <div key={key} className="mt-4">
+                  <div className="text-sm font-semibold">{capitalize(symptomType)} System</div>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {symptomList.map(({ name, notes }) => (
+                      <div key={name} className="flex items-center gap-x-2 text-sm text-gray-500">
+                        <span>{name}</span>
+                        {notes && (
+                          <span>
+                            {' '}
+                            <TooltipComp tip={notes}>
+                              <Info size={16} />
+                            </TooltipComp>
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+        </>
+      ),
+    },
+    {
+      id: 'lab',
+      title: 'Labs',
+      content: (
+        <>
+          {requestedAppointmentLabs &&
+            requestedAppointmentLabs.map(({ id, testName, specimen, notes }) => (
+              <div key={id} className="mt-4">
+                <div className="text-sm font-semibold">{testName}</div>
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="flex items-center gap-x-2 text-sm text-gray-500">
+                    <span>{specimen}</span>
+                    {notes && (
+                      <span>
+                        {' '}
+                        <TooltipComp tip={notes}>
+                          <Info size={16} />
+                        </TooltipComp>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </>
+      ),
+    },
+  ];
 
   return (
     <div className="flex flex-row">
@@ -62,91 +151,32 @@ const ReviewConsultation = (): JSX.Element => {
       </div>
       <div className="basis-md border-l border-gray-300 p-5">
         <span className="font-bold">Consultation Notes</span>
-        <Collapsible
-          open={isComplaintsOpen}
-          onOpenChange={setIsComplaintsOpen}
-          className="mt-5 w-[250px] space-y-2"
-        >
-          <div className="flex items-center justify-between">
-            <h4 className="font-semibold">Complaints</h4>
-            <CollapsibleTrigger asChild>
-              <Button
-                child={
-                  <>
-                    <ChevronDown className="h-4 w-4" />
-                    <span className="sr-only">Toggle</span>
-                  </>
-                }
-                variant="ghost"
-                size="sm"
-                className="w-9 p-0"
-              ></Button>
-            </CollapsibleTrigger>
-          </div>
-          <CollapsibleContent className="space-y-2">
-            {complaints?.map((complaint) => (
-              <div
-                key={complaint}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all hover:shadow-md"
-              >
-                {complaint}
-              </div>
-            ))}
-          </CollapsibleContent>
-        </Collapsible>
-        <Collapsible
-          open={isSymptomsOpen}
-          onOpenChange={setIsSymptomsOpen}
-          className="mt-5 w-[250px] space-y-2"
-        >
-          <div className="flex items-center justify-between">
-            <h4 className="font-semibold">Symptoms</h4>
-            <CollapsibleTrigger asChild>
-              <Button
-                child={
-                  <>
-                    <ChevronDown className="h-4 w-4" />
-                    <span className="sr-only">Toggle</span>
-                  </>
-                }
-                variant="ghost"
-                size="sm"
-                className="w-9 p-0"
-              ></Button>
-            </CollapsibleTrigger>
-          </div>
-          {symptoms && (
-            <CollapsibleContent className="mt-4 space-y-2">
-              {Object.keys(symptoms)?.map((key) => {
-                const symptomType = key as SymptomsType;
-                const symptomList = symptoms[symptomType];
-                if (!symptomList || symptomList.length === 0) {
-                  return null;
-                }
-                return (
-                  <div key={key} className="mt-4">
-                    <div className="text-sm font-semibold">{capitalize(symptomType)} System</div>
-                    <div className="mt-2 flex flex-col gap-2">
-                      {symptomList.map(({ name, notes }) => (
-                        <div key={name} className="flex items-center gap-x-2 text-sm text-gray-500">
-                          <span>{name}</span>
-                          {notes && (
-                            <span>
-                              {' '}
-                              <TooltipComp tip={notes}>
-                                <Info size={16} />
-                              </TooltipComp>
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </CollapsibleContent>
-          )}
-        </Collapsible>
+        {reviewData.map(({ id, title, content }) => (
+          <Collapsible
+            key={id}
+            open={expanded === id}
+            onOpenChange={(open) => setExpanded(open ? id : null)}
+            className="mt-5 w-[250px] space-y-2"
+          >
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold">{title}</h4>
+              <CollapsibleTrigger asChild>
+                <Button
+                  child={
+                    <>
+                      <ChevronDown className="h-4 w-4" />
+                      <span className="sr-only">Toggle</span>
+                    </>
+                  }
+                  variant="ghost"
+                  size="sm"
+                  className="w-9 p-0"
+                ></Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent className="space-y-2">{content}</CollapsibleContent>
+          </Collapsible>
+        ))}
       </div>
     </div>
   );
