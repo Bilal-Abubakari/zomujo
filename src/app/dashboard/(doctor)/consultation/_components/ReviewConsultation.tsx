@@ -90,25 +90,24 @@ const ReviewConsultation = (): JSX.Element => {
       title: 'Labs',
       content: (
         <>
-          {requestedAppointmentLabs &&
-            requestedAppointmentLabs.map(({ id, testName, specimen, notes }) => (
-              <div key={id} className="mt-4">
-                <div className="text-sm font-semibold">{testName}</div>
-                <div className="mt-2 flex flex-col gap-2">
-                  <div className="flex items-center gap-x-2 text-sm text-gray-500">
-                    <span>{specimen}</span>
-                    {notes && (
-                      <span>
-                        {' '}
-                        <TooltipComp tip={notes}>
-                          <Info size={16} />
-                        </TooltipComp>
-                      </span>
-                    )}
-                  </div>
+          {requestedAppointmentLabs?.map(({ id, testName, specimen, notes }) => (
+            <div key={id} className="mt-4">
+              <div className="text-sm font-semibold">{testName}</div>
+              <div className="mt-2 flex flex-col gap-2">
+                <div className="flex items-center gap-x-2 text-sm text-gray-500">
+                  <span>{specimen}</span>
+                  {notes && (
+                    <span>
+                      {' '}
+                      <TooltipComp tip={notes}>
+                        <Info size={16} />
+                      </TooltipComp>
+                    </span>
+                  )}
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
         </>
       ),
     },
