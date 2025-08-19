@@ -25,6 +25,17 @@ export const getInitials = (name: string): string => {
   return nameSplit[0].substring(0, 1).toUpperCase();
 };
 
+/**
+ * Interpolates a value from one range to another.
+ * Throws an error if the value is outside the input range.
+ *
+ * @param value - The value to interpolate.
+ * @param inMin - Minimum of the input range.
+ * @param inMax - Maximum of the input range.
+ * @param outMin - Minimum of the output range.
+ * @param outMax - Maximum of the output range.
+ * @returns The interpolated value in the output range.
+ */
 export function interpolateRange(
   value: number,
   inMin: number,
@@ -156,3 +167,32 @@ export const generateUUID = (): string =>
     const value = char === 'x' ? random : (random & 0x3) | 0x8;
     return value.toString(16);
   });
+
+/**
+ * Converts a data URL to a Blob object.
+ *
+ * @param dataUrl - The data URL to convert.
+ * @returns The resulting Blob object.
+ */
+export const dataURLtoBlob = (dataUrl: string): Blob => {
+  const arr = dataUrl.split(',');
+  const mimeMatch = arr[0].match(/:(.*?);/);
+  const mime = mimeMatch ? mimeMatch[1] : '';
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+};
+
+/**
+ * Converts a Blob object to a File object.
+ *
+ * @param theBlob - The Blob to convert.
+ * @param fileName - The desired filename for the File.
+ * @returns The resulting File object.
+ */
+export const blobToFile = (theBlob: Blob, fileName: string): File =>
+  new File([theBlob], fileName, { lastModified: new Date().getTime(), type: theBlob.type });
