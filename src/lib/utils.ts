@@ -176,7 +176,7 @@ export const generateUUID = (): string =>
  */
 export const dataURLtoBlob = (dataUrl: string): Blob => {
   const arr = dataUrl.split(',');
-  const mimeMatch = arr[0].match(/:(.*?);/);
+  const mimeMatch = arr[0].match(/^data:([^;]+);/);
   const mime = mimeMatch ? mimeMatch[1] : '';
   const bstr = atob(arr[1]);
   let n = bstr.length;
