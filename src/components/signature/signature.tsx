@@ -42,7 +42,7 @@ const Signature = ({ signatureAdded }: SignatureProps): JSX.Element => {
     <div>
       <span className="font-bold">Add Signature</span>
       <p className="text-sm text-gray-500">
-        We did find any signature in your records, please add your signature by signing below.
+        We did not find any signature in your records, please add your signature by signing below.
       </p>
       <SignaturePad width={500} height={500} ref={signatureRef} />
       <div className="space-x-2">
