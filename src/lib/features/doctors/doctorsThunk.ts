@@ -12,7 +12,7 @@ import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { IDoctorIdentification } from '@/types/auth.interface';
-import { updateExtra } from '../auth/authSlice';
+import { updateDoctorSignature, updateExtra } from '../auth/authSlice';
 import { INearByQueryParams } from '@/types/hospital.interface';
 
 export const getAllDoctors = createAsyncThunk(
@@ -141,6 +141,29 @@ export const suggestedDoctors = createAsyncThunk(
         `doctors/suggested?lat=${lat}&long=${long}`,
       );
       return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const uploadSignature = createAsyncThunk(
+  'doctor/uploadSignature',
+  async (file: File, { dispatch }): Promise<string | Toast> => {
+    try {
+      const {
+        data: { data },
+      } = await axios.patch<IResponse<string>>(
+        `doctors/upload-signature`,
+        { file },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      dispatch(updateDoctorSignature(data));
+      return data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

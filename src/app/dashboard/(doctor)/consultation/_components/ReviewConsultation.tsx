@@ -1,4 +1,4 @@
-import React, { JSX, useState } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useAppSelector } from '@/lib/hooks';
 import {
@@ -10,27 +10,33 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Eye, Printer, MailCheck, ChevronDown, Info } from 'lucide-react';
+import { ChevronDown, Info } from 'lucide-react';
 import { DiagnosesList } from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
 import { selectUserName } from '@/lib/features/auth/authSelector';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { SymptomsType } from '@/types/consultation.interface';
 import { capitalize } from '@/lib/utils';
 import { TooltipComp } from '@/components/ui/tooltip';
+import { Modal } from '@/components/ui/dialog';
+import Signature from '@/components/signature/signature';
+import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
 
-type ID = 'complaints' | 'symptoms' | 'lab';
+type ID = 'complaints' | 'symptoms' | 'lab' | 'diagnosePrescribe';
 interface IReviewData {
   id: ID;
   title: string;
   content: JSX.Element;
 }
 const ReviewConsultation = (): JSX.Element => {
+  const doctorSignature = useAppSelector(selectDoctorSignature);
   const diagnoses = useAppSelector(selectDiagnoses);
   const complaints = useAppSelector(selectComplaints);
   const doctorName = useAppSelector(selectUserName);
   const symptoms = useAppSelector(selectPatientSymptoms);
   const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
   const [expanded, setExpanded] = useState<ID | null>(null);
+  const [openAddSignature, setOpenAddSignature] = useState(false);
+  const [addSignature, setAddSignature] = useState(false);
 
   const reviewData: IReviewData[] = [
     {
@@ -113,71 +119,84 @@ const ReviewConsultation = (): JSX.Element => {
     },
   ];
 
+  useEffect(() => {
+    if (addSignature && !doctorSignature) {
+      setOpenAddSignature(true);
+    }
+  }, [addSignature, doctorSignature]);
+
+  useEffect(() => {
+    if (!openAddSignature && !doctorSignature) {
+      setAddSignature(false);
+    }
+  }, [openAddSignature]);
+
   return (
-    <div className="flex flex-row">
-      <div className="px-5">
-        <span className="font-bold">Medicine Summary</span>
-        <div className="mt-5 rounded-xl border border-gray-300 p-4">
-          <div className="flex justify-between">
-            <span className="font-bold">
-              Prescription{' '}
-              <Badge className="px-2 py-1.5" variant="brown">
-                {diagnoses.length}
-              </Badge>
-            </span>
-            <div className="flex gap-2.5">
-              <div className="mr-3.5 flex items-center space-x-2">
-                <Label htmlFor="airplane-mode">Add digital Signature</Label>
-                <Switch id="airplane-mode" />
+    <>
+      <Modal
+        setState={setOpenAddSignature}
+        open={openAddSignature}
+        content={<Signature signatureAdded={() => setOpenAddSignature(false)} />}
+        showClose={true}
+      />
+      <div className="flex flex-row">
+        <div className="px-5">
+          <span className="font-bold">Medicine Summary</span>
+          <div className="mt-5 rounded-xl border border-gray-300 p-4">
+            <div className="flex justify-between">
+              <span className="font-bold">
+                Prescription{' '}
+                <Badge className="px-2 py-1.5" variant="brown">
+                  {diagnoses.length}
+                </Badge>
+              </span>
+              <div className="flex gap-2.5">
+                <div className="mr-3.5 flex items-center space-x-2">
+                  <Label htmlFor="airplane-mode">Add digital Signature</Label>
+                  <Switch
+                    checked={addSignature}
+                    id="signature"
+                    onCheckedChange={() => setAddSignature((prev) => !prev)}
+                  />
+                </div>
               </div>
-              <Button variant="outline" child={<Eye />} />
-              <Button variant="outline" child={<Printer />} />
-              <Button
-                variant="outline"
-                child={
-                  <>
-                    <span>Send</span>
-                    <MailCheck />
-                  </>
-                }
-              />
             </div>
-          </div>
-          <div className="mt-4">
-            <DiagnosesList doctorName={doctorName} conditions={diagnoses} />
+            <div className="mt-4">
+              <DiagnosesList doctorName={doctorName} conditions={diagnoses} />
+            </div>
           </div>
         </div>
+        <div className="basis-md border-l border-gray-300 p-5">
+          <span className="font-bold">Consultation Notes</span>
+          {reviewData.map(({ id, title, content }) => (
+            <Collapsible
+              key={id}
+              open={expanded === id}
+              onOpenChange={(open) => setExpanded(open ? id : null)}
+              className="mt-5 w-[250px] space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold">{title}</h4>
+                <CollapsibleTrigger asChild>
+                  <Button
+                    child={
+                      <>
+                        <ChevronDown className="h-4 w-4" />
+                        <span className="sr-only">Toggle</span>
+                      </>
+                    }
+                    variant="ghost"
+                    size="sm"
+                    className="w-9 p-0"
+                  ></Button>
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent className="space-y-2">{content}</CollapsibleContent>
+            </Collapsible>
+          ))}
+        </div>
       </div>
-      <div className="basis-md border-l border-gray-300 p-5">
-        <span className="font-bold">Consultation Notes</span>
-        {reviewData.map(({ id, title, content }) => (
-          <Collapsible
-            key={id}
-            open={expanded === id}
-            onOpenChange={(open) => setExpanded(open ? id : null)}
-            className="mt-5 w-[250px] space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold">{title}</h4>
-              <CollapsibleTrigger asChild>
-                <Button
-                  child={
-                    <>
-                      <ChevronDown className="h-4 w-4" />
-                      <span className="sr-only">Toggle</span>
-                    </>
-                  }
-                  variant="ghost"
-                  size="sm"
-                  className="w-9 p-0"
-                ></Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent className="space-y-2">{content}</CollapsibleContent>
-          </Collapsible>
-        ))}
-      </div>
-    </div>
+    </>
   );
 };
 

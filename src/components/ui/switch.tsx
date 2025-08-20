@@ -13,7 +13,7 @@ export interface SwitchProps extends React.ComponentProps<typeof SwitchPrimitive
   label?: string;
 }
 
-const Switch = React.forwardRef<React.ElementRef<typeof SwitchPrimitives.Root>, SwitchProps>(
+const Switch = React.forwardRef<React.ComponentRef<typeof SwitchPrimitives.Root>, SwitchProps>(
   ({ className, name, labelClassName, label, ...props }, ref) => (
     <>
       <SwitchPrimitives.Root
