@@ -20,6 +20,8 @@ import { TooltipComp } from '@/components/ui/tooltip';
 import { Modal } from '@/components/ui/dialog';
 import Signature from '@/components/signature/signature';
 import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 
 type ID = 'complaints' | 'symptoms' | 'lab' | 'diagnosePrescribe';
 interface IReviewData {
@@ -141,28 +143,46 @@ const ReviewConsultation = (): JSX.Element => {
       />
       <div className="flex flex-row">
         <div className="px-5">
-          <span className="font-bold">Medicine Summary</span>
-          <div className="mt-5 rounded-xl border border-gray-300 p-4">
-            <div className="flex justify-between">
-              <span className="font-bold">
-                Prescription{' '}
-                <Badge className="px-2 py-1.5" variant="brown">
-                  {diagnoses.length}
-                </Badge>
-              </span>
-              <div className="flex gap-2.5">
-                <div className="mr-3.5 flex items-center space-x-2">
-                  <Label htmlFor="airplane-mode">Add digital Signature</Label>
-                  <Switch
-                    checked={addSignature}
-                    id="signature"
-                    onCheckedChange={() => setAddSignature((prev) => !prev)}
-                  />
+          <div>
+            <span className="font-bold">Medicine Summary</span>
+            <div className="mt-5 rounded-xl border border-gray-300 p-4">
+              <div className="flex justify-between">
+                <span className="font-bold">
+                  Prescription{' '}
+                  <Badge className="px-2 py-1.5" variant="brown">
+                    {diagnoses.length}
+                  </Badge>
+                </span>
+                <div className="flex gap-2.5">
+                  <div className="mr-3.5 flex items-center space-x-2">
+                    <Label htmlFor="airplane-mode">Add digital Signature</Label>
+                    <Switch
+                      checked={addSignature}
+                      id="signature"
+                      onCheckedChange={() => setAddSignature((prev) => !prev)}
+                    />
+                  </div>
                 </div>
               </div>
+              <div className="mt-4">
+                <DiagnosesList doctorName={doctorName} conditions={diagnoses} />
+              </div>
             </div>
-            <div className="mt-4">
-              <DiagnosesList doctorName={doctorName} conditions={diagnoses} />
+          </div>
+          <div className="mt-8">
+            <Separator className="my-8" />
+            <Textarea
+              className="bg-grey-200"
+              labelName="Compose Message for prescription"
+              placeholder="Type something"
+            />
+            <div className="mt-8">
+              <Switch
+                labelPosition="left"
+                label="Future Visits"
+                name="on"
+                labelClassName="text-base font-bold"
+              />
             </div>
           </div>
         </div>

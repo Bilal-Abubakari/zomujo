@@ -14,6 +14,7 @@ import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import ReviewConsultation from '@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation';
+import { Button } from '@/components/ui/button';
 
 const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'];
 
@@ -81,27 +82,31 @@ const Consultation = (): JSX.Element => {
           update || isLoadingAppointment
             ? 'mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500'
             : 'sticky top-0 z-50 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500',
+          'flex justify-between',
         )}
         id="clip"
       >
-        {stages.map((stage, index) => (
-          <button
-            onClick={() => setCurrentStage(stage)}
-            key={stage}
-            className={cn(
-              index === 0 || index === stages.length - 1 ? '' : 'in-between',
-              index === stages.length - 1 && 'last-crumb rounded-r-4xl',
-              index === 0 && 'first-crumb rounded-l-4xl',
-              'cursor-pointer',
-              currentStage === stage || stages.indexOf(currentStage) > stages.indexOf(stage)
-                ? 'bg-primary-light text-primary'
-                : 'bg-gray-200',
-              'inline-block px-8 py-[18px]',
-            )}
-          >
-            {capitalize(stage)}
-          </button>
-        ))}
+        <div>
+          {stages.map((stage, index) => (
+            <button
+              onClick={() => setCurrentStage(stage)}
+              key={stage}
+              className={cn(
+                index === 0 || index === stages.length - 1 ? '' : 'in-between',
+                index === stages.length - 1 && 'last-crumb rounded-r-4xl',
+                index === 0 && 'first-crumb rounded-l-4xl',
+                'cursor-pointer',
+                currentStage === stage || stages.indexOf(currentStage) > stages.indexOf(stage)
+                  ? 'bg-primary-light text-primary'
+                  : 'bg-gray-200',
+                'inline-block px-8 py-[18px]',
+              )}
+            >
+              {capitalize(stage)}
+            </button>
+          ))}
+        </div>
+        <Button child="End Consultation" variant="destructive" />
       </div>
       {getStage()}
     </div>
