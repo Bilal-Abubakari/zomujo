@@ -4,7 +4,11 @@ import axios, { axiosErrorHandler } from '@/lib/axios';
 import { IResponse } from '@/types/shared.interface';
 import { fetchSystemSymptoms } from './fetchSystemSymptoms';
 import { generateSuccessToast } from '@/lib/utils';
-import { IConsultationSymptoms, IDiagnosisRequest } from '@/types/consultation.interface';
+import {
+  ConsultationStatusRequest,
+  IConsultationSymptoms,
+  IDiagnosisRequest,
+} from '@/types/consultation.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import { setAppointment, updateSymptoms } from '@/lib/features/appointments/appointmentsSlice';
 import { ILaboratoryRequestWithRecordId } from '@/types/labs.interface';
@@ -92,6 +96,20 @@ export const generatePrescription = createAsyncThunk(
       const {
         data: { message },
       } = await axios.post<IResponse>(`consultation/generate-prescription/${appointmentId}`);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const setConsultationStatus = createAsyncThunk(
+  'consultation/set-status',
+  async (consultationStatusRequest: ConsultationStatusRequest): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>(`consultation/set-status`, consultationStatusRequest);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

@@ -75,3 +75,13 @@ export interface IDiagnosisRequest {
   diagnoses: IDiagnosis[];
   appointmentId: string;
 }
+
+export enum ConsultationStatus {
+  Progress = 'progress',
+  Completed = 'completed',
+}
+
+export interface ConsultationStatusRequest {
+  status: ConsultationStatus;
+  appointmentId: string;
+}
