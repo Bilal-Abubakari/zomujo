@@ -22,6 +22,7 @@ import Signature from '@/components/signature/signature';
 import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 
 type ID = 'complaints' | 'symptoms' | 'lab' | 'diagnosePrescribe';
 interface IReviewData {
@@ -183,6 +184,13 @@ const ReviewConsultation = (): JSX.Element => {
                 name="on"
                 labelClassName="text-base font-bold"
               />
+            </div>
+            <div className="mt-4">
+              <span>Send Reminder on</span>
+              <div className="mt-4 flex flex-wrap gap-4">
+                <Input className="bg-grey-200" type="date" />
+                <Input className="bg-grey-200" type="time" />
+              </div>
             </div>
           </div>
         </div>
