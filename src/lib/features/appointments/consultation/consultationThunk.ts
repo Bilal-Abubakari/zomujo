@@ -84,3 +84,17 @@ export const addDiagnosisAndPrescription = createAsyncThunk(
     }
   },
 );
+
+export const generatePrescription = createAsyncThunk(
+  'consultation/generate-prescription',
+  async (appointmentId: string): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>(`consultation/generate-prescription/${appointmentId}`);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
