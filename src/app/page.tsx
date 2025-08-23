@@ -6,6 +6,5 @@ export default function Home(): JSX.Element {
     <div>
       <Header />
     </div>
-
   );
 }
