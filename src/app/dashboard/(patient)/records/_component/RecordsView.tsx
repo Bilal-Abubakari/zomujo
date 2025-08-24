@@ -18,7 +18,7 @@ const RecordsView = (): JSX.Element => {
   return (
     <div>
       <div>
-        <Tabs value={String(getQueryParam('recordsTab'))} className="mt-2">
+        <Tabs value={getQueryParam('recordsTab')} className="mt-2">
           <div className="flex items-center">
             <p className="text-xl font-bold">Records</p>
             <div className="m-auto">

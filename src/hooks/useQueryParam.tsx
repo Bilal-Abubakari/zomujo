@@ -56,9 +56,7 @@ export function useQueryParam(): {
 
   const updateQuery = (key: QueryParamKey, value: QueryParamValue): void => {
     const currentSearchParams = new URLSearchParams(searchParams.toString());
-    if (value) {
-      currentSearchParams.set(key, String(value));
-    }
+    currentSearchParams.set(key, value);
     router.push(`${pathname}?${currentSearchParams.toString()}`);
   };
 
