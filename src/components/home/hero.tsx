@@ -31,7 +31,7 @@ const Hero = (): JSX.Element => {
   };
 
   const handleSearch = (): void => {
-    updateQuery('booking', 'true');
+    updateQuery('q', 'true');
     Object.entries(queryParameters ?? {}).forEach(([key, value]) => {
       updateQuery(key as QueryParamKey, value);
     });
