@@ -21,7 +21,7 @@ const FindDoctorHospital = (): JSX.Element => {
       </section>
 
       <section className="mt-4">
-        <Tabs value={getQueryParam('tab')}>
+        <Tabs value={String(getQueryParam('tab'))}>
           <TabsList>
             <TabsTrigger
               value={Tab.Doctors}

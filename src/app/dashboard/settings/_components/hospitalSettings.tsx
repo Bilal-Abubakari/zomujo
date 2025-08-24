@@ -19,7 +19,7 @@ import { IAdmin } from '@/types/admin.interface';
 import useImageUpload from '@/hooks/useImageUpload';
 
 const hospitalSettingsSchema = z.object({
-  image: z.union([z.instanceof(File), z.string().url(), z.null()]),
+  image: z.union([z.instanceof(File), z.url(), z.null()]),
   name: nameSchema,
   specialties: nameArraySchema,
   regularFee: positiveNumberSchema,
