@@ -33,6 +33,7 @@ const DoctorCard = ({
 
   return (
     <div
+      role="button"
       onClick={handleCardClick}
       className="hover:border-primary-100 flex w-full max-w-[400px] shrink-0 cursor-pointer flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
     >

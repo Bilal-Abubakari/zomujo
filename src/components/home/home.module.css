@@ -238,3 +238,42 @@
     box-shadow: 0 0 16px 8px rgba(8, 175, 133, 0.18);
   }
 }
+
+/* Footer decorative elements */
+.footerPolygon {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #08af85 60%, #e4e7ec 100%);
+  opacity: 0.5;
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+  filter: blur(2px);
+  animation: floatFooterPolygon 6s ease-in-out infinite alternate;
+}
+
+.footerArc {
+  width: 180px;
+  height: 80px;
+  background: linear-gradient(90deg, #e4e7ec 60%, #08af85 100%);
+  opacity: 0.4;
+  border-radius: 0 0 80px 80px;
+  filter: blur(2px);
+  animation: floatFooterArc 7s ease-in-out infinite alternate;
+}
+
+@keyframes floatFooterPolygon {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(24px) scale(1.07);
+  }
+}
+
+@keyframes floatFooterArc {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-18px) scale(1.04);
+  }
+}
