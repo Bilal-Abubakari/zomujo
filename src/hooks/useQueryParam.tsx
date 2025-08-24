@@ -1,5 +1,6 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
+import { IQueryParams } from '@/types/shared.interface';
 
 export enum Tab {
   Doctors = 'doctors',
@@ -29,24 +30,24 @@ export enum RecordsTab {
   MyRecord = 'myRecord',
 }
 
-interface IQuery {
+interface IQuery extends Pick<IQueryParams, 'specialty' | 'booking'> {
   tab: Tab;
   appointmentType: MedicalAppointmentType;
   [PaymentVerification.reference]: string;
   [AppointmentDate.selectedDate]: string;
   appointmentView: AppointmentView;
-  specialty: string;
   recordsTab: RecordsTab;
   appointmentId: string;
 }
 
-type QueryParamKey = keyof IQuery;
+export type QueryParamKey = keyof IQuery;
 
 type QueryParamValue = IQuery[QueryParamKey];
 
 export function useQueryParam(): {
   updateQuery: (key: QueryParamKey, value: QueryParamValue) => void;
   getQueryParam: (key: QueryParamKey) => QueryParamValue;
+  hasSearchParams: boolean;
 } {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,7 +55,9 @@ export function useQueryParam(): {
 
   const updateQuery = (key: QueryParamKey, value: QueryParamValue): void => {
     const currentSearchParams = new URLSearchParams(searchParams.toString());
-    currentSearchParams.set(key, value);
+    if (value) {
+      currentSearchParams.set(key, String(value));
+    }
     router.push(`${pathname}?${currentSearchParams.toString()}`);
   };
 
@@ -63,5 +66,5 @@ export function useQueryParam(): {
     [searchParams],
   );
 
-  return { updateQuery, getQueryParam };
+  return { updateQuery, getQueryParam, hasSearchParams: !![...searchParams.values()].length };
 }
