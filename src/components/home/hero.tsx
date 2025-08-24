@@ -1,6 +1,6 @@
 'use client';
 import { Search } from 'lucide-react';
-import React, { useEffect, useState, useRef, JSX, ChangeEvent } from 'react';
+import React, { useEffect, useState, useRef, JSX } from 'react';
 import styles from './home.module.css';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { specialties } from '@/constants/constants';
 import { IQueryParams } from '@/types/shared.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { QueryParamKey, useQueryParam } from '@/hooks/useQueryParam';
+import { Combobox } from '@/components/ui/select';
 
 const Hero = (): JSX.Element => {
   const [current, setCurrent] = useState(0);
@@ -21,14 +22,6 @@ const Hero = (): JSX.Element => {
     }, 1800);
     return (): void => clearInterval(interval);
   }, []);
-
-  const handleValueChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = event.target;
-    setQueryParameters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const handleSearch = (): void => {
     updateQuery('q', 'true');
@@ -63,15 +56,18 @@ const Hero = (): JSX.Element => {
           Connect with the best healthcare professionals.
         </p>
         <div className="mt-8 flex w-full max-w-3xl flex-col items-center space-y-4 rounded-lg bg-white/80 p-6 shadow-2xl backdrop-blur-md md:flex-row md:space-y-0 md:space-x-4">
-          <div className="w-full flex-grow">
-            <Input
-              placeholder="Search by specialty..."
-              className="w-full rounded-md border border-gray-300 bg-white/80 px-4 py-6 text-gray-700 backdrop-blur-md"
-              defaultMaxWidth={false}
-              type="search"
-              name="specialty"
+          <div className="w-full flex-grow bg-white">
+            <Combobox
+              onChange={(value) =>
+                setQueryParameters({
+                  specialty: value,
+                })
+              }
+              options={specialties}
               value={queryParameters?.specialty ?? ''}
-              onChange={handleValueChange}
+              placeholder="Search by specialty..."
+              searchPlaceholder="Search for specialty..."
+              defaultMaxWidth={false}
             />
           </div>
           <div className="w-full flex-grow">

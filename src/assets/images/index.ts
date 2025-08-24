@@ -12,3 +12,5 @@ export { default as MobileMoney } from './mobile-money.png';
 export { default as NotFound } from './empty.svg';
 export { default as Drugs } from './drugs.svg';
 export { default as PdfFile } from './pdf-file.png';
+export { default as UnderConstruction } from './under-construction.svg';
+export { default as Facebook } from './facebook.svg';

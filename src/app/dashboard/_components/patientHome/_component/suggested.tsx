@@ -24,6 +24,8 @@ export const Suggested = ({
         </Link>
       )}
     </div>
-    <div className="flex-row flex-wrap gap-6 md:flex">{children}</div>
+    <div className="flex flex-row flex-wrap items-center justify-items-center gap-6">
+      {children}
+    </div>
   </div>
 );

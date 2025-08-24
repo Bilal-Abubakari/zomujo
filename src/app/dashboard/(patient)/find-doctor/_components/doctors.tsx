@@ -156,13 +156,13 @@ const Doctors = (): JSX.Element => {
   }
   return (
     <>
-      <div className="bg-grayscale-100 z-20 mb-6 flex w-full flex-col flex-wrap gap-2 py-2 lg:sticky lg:top-0">
+      <div className="bg-grayscale-100 z-20 mb-6 flex w-full flex-col flex-wrap gap-2 rounded-md p-5 lg:sticky lg:top-0">
         <div className="flex">
-          <form className="flex gap-2" onSubmit={handleSubmit}>
+          <form className="flex w-full max-w-2xl gap-2" onSubmit={handleSubmit}>
             <Input
               error=""
               placeholder={'Search for a Doctor'}
-              className="w-[80vw] max-w-[670px]"
+              className="w-full"
               type="search"
               leftIcon={<Search className="text-gray-500" size={20} />}
               onChange={handleSearch}
