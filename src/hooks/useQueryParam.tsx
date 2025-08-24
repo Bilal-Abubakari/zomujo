@@ -30,7 +30,7 @@ export enum RecordsTab {
   MyRecord = 'myRecord',
 }
 
-interface IQuery extends Pick<IQueryParams, 'specialty' | 'booking'> {
+interface IQuery extends Pick<Required<IQueryParams>, 'specialty'> {
   tab: Tab;
   appointmentType: MedicalAppointmentType;
   [PaymentVerification.reference]: string;
@@ -38,6 +38,7 @@ interface IQuery extends Pick<IQueryParams, 'specialty' | 'booking'> {
   appointmentView: AppointmentView;
   recordsTab: RecordsTab;
   appointmentId: string;
+  q: string;
 }
 
 export type QueryParamKey = keyof IQuery;
