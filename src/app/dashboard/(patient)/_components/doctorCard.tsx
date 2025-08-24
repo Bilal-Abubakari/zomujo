@@ -31,10 +31,18 @@ const DoctorCard = ({
     router.push(`/dashboard/doctor/${id}`);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      handleCardClick();
+    }
+  };
+
   return (
     <div
       role="button"
+      tabIndex={0}
       onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
       className="hover:border-primary-100 flex w-full max-w-[400px] shrink-0 cursor-pointer flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
     >
       <div className="flex flex-col">
