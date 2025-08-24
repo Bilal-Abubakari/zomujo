@@ -19,7 +19,7 @@ const Appointment = (): JSX.Element => {
   return (
     <div>
       <div>
-        <Tabs value={String(getQueryParam('appointmentView'))} className="mt-2">
+        <Tabs value={getQueryParam('appointmentView')} className="mt-2">
           <div className="flex items-center">
             <p className="text-xl font-bold">Appointment</p>
             <div className="m-auto">
