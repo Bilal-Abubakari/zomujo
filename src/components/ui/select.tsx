@@ -242,7 +242,7 @@ const Combobox = ({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="hover:bg-background! justify-between"
+            className="hover:bg-background! text-accent-foreground justify-between"
             child={
               <>
                 {isLoading ? 'Loading... Please wait' : currentOption || placeholder}
@@ -251,7 +251,7 @@ const Combobox = ({
             }
           />
         </PopoverTrigger>
-        <PopoverContent className="w-[85vw] max-w-sm p-0">
+        <PopoverContent className="z-100 w-[85vw] max-w-sm p-0">
           {isLoadingResults && <LoadingOverlay />}
           <Command>
             <CommandInput placeholder={searchPlaceholder} onValueChange={onSearchChange} />

@@ -1,10 +1,6 @@
-import Header from '@/components/home/header';
 import { JSX } from 'react';
+import Home from '@/components/home/home';
 
-export default function Home(): JSX.Element {
-  return (
-    <div>
-      <Header />
-    </div>
-  );
+export default function HomePage(): JSX.Element {
+  return <Home />;
 }

@@ -171,3 +171,109 @@
     50% { opacity: 1; transform: translateY(-2px);}
     100% { opacity: 1; transform: translateY(0);}
 }
+
+/* Organizations Coming Soon Component Styles */
+.polygonShape {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #08af85 60%, #e4e7ec 100%);
+  opacity: 0.5;
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+  filter: blur(1px);
+  animation: floatPolygon 6s ease-in-out infinite alternate;
+}
+
+.arcShape {
+  width: 100px;
+  height: 40px;
+  background: linear-gradient(90deg, #e4e7ec 60%, #08af85 100%);
+  opacity: 0.4;
+  border-radius: 0 0 40px 40px;
+  filter: blur(1px);
+  animation: floatArc 7s ease-in-out infinite alternate;
+}
+
+.animateBounceSlow {
+  animation: bounceSlow 2.2s infinite;
+}
+
+.animatePulseSlow {
+  animation: pulseSlow 2.5s infinite;
+}
+
+@keyframes floatPolygon {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(18px) scale(1.07);
+  }
+}
+
+@keyframes floatArc {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-12px) scale(1.04);
+  }
+}
+
+@keyframes bounceSlow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes pulseSlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(8, 175, 133, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 16px 8px rgba(8, 175, 133, 0.18);
+  }
+}
+
+/* Footer decorative elements */
+.footerPolygon {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #08af85 60%, #e4e7ec 100%);
+  opacity: 0.5;
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+  filter: blur(2px);
+  animation: floatFooterPolygon 6s ease-in-out infinite alternate;
+}
+
+.footerArc {
+  width: 180px;
+  height: 80px;
+  background: linear-gradient(90deg, #e4e7ec 60%, #08af85 100%);
+  opacity: 0.4;
+  border-radius: 0 0 80px 80px;
+  filter: blur(2px);
+  animation: floatFooterArc 7s ease-in-out infinite alternate;
+}
+
+@keyframes floatFooterPolygon {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(24px) scale(1.07);
+  }
+}
+
+@keyframes floatFooterArc {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-18px) scale(1.04);
+  }
+}
