@@ -28,7 +28,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const { getQueryParam } = useQueryParam();
-  const selectedDateParam = getQueryParam(AppointmentDate.selectedDate) as string;
+  const selectedDateParam = getQueryParam(AppointmentDate.selectedDate);
 
   const newToday = moment();
   const startOfWeek = newToday.clone().startOf('isoWeek');

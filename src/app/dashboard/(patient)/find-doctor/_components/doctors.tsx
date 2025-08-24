@@ -51,7 +51,7 @@ const Doctors = (): JSX.Element => {
     experienceMin: '',
     experienceMax: '',
     gender: '',
-    specialty: getQueryParam('specialty') as string,
+    specialty: getQueryParam('specialty'),
     rateMin: '',
     rateMax: '',
     booking: true,
