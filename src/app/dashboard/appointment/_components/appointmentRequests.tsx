@@ -34,7 +34,7 @@ import React, { FormEvent, JSX, useState } from 'react';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 import { IDoctor } from '@/types/doctor.interface';
- import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -137,7 +137,7 @@ const AppointmentRequests = (): JSX.Element => {
       id: 'actions',
       header: 'Action',
       cell: ({ row: { original } }): JSX.Element => {
-        const { status, patient, doctor, id, createdAt} = original;
+        const { status, patient, doctor, id, createdAt } = original;
         const isPending = status === AppointmentStatus.Pending;
         const isDone = status === AppointmentStatus.Completed;
         const getName = (): string => {
@@ -204,7 +204,7 @@ const AppointmentRequests = (): JSX.Element => {
                     <Waypoints /> Assign to a Doctor
                   </>
                 ),
-                clickCommand: ():void => {
+                clickCommand: (): void => {
                   setOpenModal(true);
                   setSelectedAppointment({
                     date: new Date(createdAt),
@@ -304,7 +304,7 @@ type AvailableDoctorsProps = {
   closeModal: () => void;
   appointment: SelectedAppointment;
 };
-const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps) : JSX.Element=> {
+const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const { date, appointmentId } = appointment;
   const [doctorId, setDoctorId] = useState('');
@@ -323,7 +323,7 @@ const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps) : 
     initialQueryParameters,
   );
 
-  async function assignDoctor() :Promise<void>{
+  async function assignDoctor(): Promise<void> {
     setIsAssignRequestLoading(true);
     const { payload } = await dispatch(assignAppointment({ appointmentId, doctorId }));
     toast(payload as Toast);
@@ -359,9 +359,7 @@ const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps) : 
           ))}
         </div>
       )}
-      {!isLoading && !tableData.length  && <div>
-            Sorry, no doctors available at the moment.
-      </div>}
+      {!isLoading && !tableData.length && <div>Sorry, no doctors available at the moment.</div>}
       <div className="mt-6 flex justify-end gap-2">
         <Button child={'Cancel'} variant={'ghost'} onClick={closeModal} />
         <Button

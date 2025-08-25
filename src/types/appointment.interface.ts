@@ -84,7 +84,6 @@ export type IPatternException = Pick<ISlot, 'patternId' | 'date' | 'startTime' |
   type: 'modification' | 'cancellation';
 };
 
-
 export interface IAppointmentDoctorId {
   appointmentId: string;
   doctorId: string;

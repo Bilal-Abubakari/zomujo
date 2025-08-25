@@ -12,7 +12,7 @@ import { AppointmentStatus, Role } from '@/types/shared.enum';
 import { AppointmentType, IAppointment } from '@/types/appointment.interface';
 import { mergeDateAndTime } from '@/lib/date';
 import { useAppSelector } from '@/lib/hooks';
-import {  selectUser } from '@/lib/features/auth/authSelector';
+import { selectUser } from '@/lib/features/auth/authSelector';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
