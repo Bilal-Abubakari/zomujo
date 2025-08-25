@@ -2,11 +2,14 @@ import { AppointmentStatus, ApproveDeclineStatus } from './shared.enum';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
 import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
+import { IHospital } from './hospital.interface';
 
 interface IBaseAppointment {
   id: string;
   patient: IPatient;
   doctor: IDoctor;
+  org: IHospital;
+  createdAt: string;
 }
 
 export interface IAppointment extends IBaseAppointment, ISlotBase {
@@ -19,7 +22,6 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
 
 export interface IRecordRequest extends IBaseAppointment {
   status: ApproveDeclineStatus;
-  createdAt: string;
 }
 
 export enum AppointmentType {
@@ -81,3 +83,9 @@ export type IPatternException = Pick<ISlot, 'patternId' | 'date' | 'startTime' |
   reason: string;
   type: 'modification' | 'cancellation';
 };
+
+
+export interface IAppointmentDoctorId {
+  appointmentId: string;
+  doctorId: string;
+}

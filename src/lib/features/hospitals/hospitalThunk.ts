@@ -26,7 +26,7 @@ export const getHospital = createAsyncThunk(
   'hospitals/getHospital',
   async (id: string): Promise<Toast | IHospital> => {
     try {
-      const { data } = await axios.get<IResponse<IHospital>>(`orgs/orgs/${id}`);
+      const { data } = await axios.get<IResponse<IHospital>>(`orgs/${id}`);
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

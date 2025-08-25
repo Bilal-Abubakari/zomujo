@@ -62,7 +62,7 @@ const PersonalInfo = (): JSX.Element => {
     resetImage,
   } = useImageUpload<DoctorPersonalInfo>({
     setValue,
-    defaultImageUrl: personalDetails.profilePicture,
+    defaultImageUrl: personalDetails?.profilePicture,
   });
 
   const dispatch = useAppDispatch();

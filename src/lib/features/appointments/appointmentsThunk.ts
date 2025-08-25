@@ -4,6 +4,7 @@ import axios, { axiosErrorHandler } from '@/lib/axios';
 import { Toast } from '@/hooks/use-toast';
 import {
   IAppointment,
+  IAppointmentDoctorId,
   IPatternException,
   ISlot,
   ISlotPattern,
@@ -119,6 +120,18 @@ export const declineAppointment = createAsyncThunk(
   async (id: string): Promise<Toast> => {
     try {
       const { data } = await axios.delete<IResponse>(`appointments/decline/${id}`);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const assignAppointment = createAsyncThunk(
+  'appointment/assignRequest',
+  async (appointment: IAppointmentDoctorId): Promise<Toast> => {
+    try {
+      const { data } = await axios.patch<IResponse>(`appointments/assign`, appointment);
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
