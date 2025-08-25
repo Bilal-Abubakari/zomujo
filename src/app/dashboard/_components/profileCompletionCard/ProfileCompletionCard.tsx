@@ -51,7 +51,7 @@ const ProfileCompletionCard = (): JSX.Element => {
       </div>
       <button
         onClick={() => {
-          router.push('/settings');
+          router.push('/dashboard/settings');
         }}
         className="z-20 flex h-9 flex-col items-center justify-center self-stretch rounded-md border border-white/20 bg-white/20 backdrop-blur-lg"
       >
