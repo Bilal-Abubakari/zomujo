@@ -1,0 +1,279 @@
+.heroBackground {
+    background: url('../../assets/images/hero-background.jpg');
+    background-size: cover;
+    background-position: center;
+    will-change: scroll-position;
+}
+
+.parallax {
+    position: relative;
+    z-index: 1;
+}
+
+.gradientOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+        120deg,
+        rgba(8, 175, 133, 0.60) 0%,
+        rgba(30, 41, 59, 0.35) 100%
+    );
+    animation: gradientMove 8s ease-in-out infinite alternate;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+.fadeIn {
+    animation: fadeInUp 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.circle1 {
+    position: absolute;
+    top: 10%;
+    left: 5%;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(8, 175, 133, 0.25) 0%, rgba(8, 175, 133, 0.10) 80%);
+    opacity: 0.4;
+    filter: blur(32px);
+    z-index: 2;
+    pointer-events: none;
+    animation: float1 7s ease-in-out infinite alternate;
+}
+
+.circle2 {
+    position: absolute;
+    bottom: 8%;
+    right: 10%;
+    width: 90px;
+    height: 90px;
+    background: radial-gradient(circle, rgba(228, 231, 236, 0.18) 0%, rgba(228, 231, 236, 0.08) 80%);
+    opacity: 0.3;
+    filter: blur(24px);
+    z-index: 2;
+    pointer-events: none;
+    animation: float2 6s ease-in-out infinite alternate;
+}
+
+@keyframes float1 {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(30px) scale(1.1); }
+}
+
+@keyframes float2 {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-25px) scale(1.05); }
+}
+
+/* Triangle and arc decorations */
+.triangle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 180px;
+    height: 180px;
+    background-image: url('../../assets/images/triangle.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    z-index: 2;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.arc1 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 220px;
+    height: 120px;
+    background-image: url('../../assets/images/arc-1.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    z-index: 2;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.arc2 {
+    position: absolute;
+    top: 10%;
+    right: 0;
+    width: 160px;
+    height: 100px;
+    background-image: url('../../assets/images/arc-2.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    z-index: 2;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.waveWrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    z-index: 4;
+    pointer-events: none;
+    overflow: hidden;
+}
+.waveSvg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.changingTextWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    min-height: 2.2rem;
+}
+
+.changingTextLabel {
+    color: #08af85;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+}
+
+.changingText {
+    color: #08af85;
+    font-weight: 900;
+    font-size: 1.35rem;
+    letter-spacing: 0.03em;
+    display: inline-block;
+    animation: fadeSpeciality 0.7s;
+}
+
+@keyframes fadeSpeciality {
+    0% { opacity: 0; transform: translateY(10px);}
+    50% { opacity: 1; transform: translateY(-2px);}
+    100% { opacity: 1; transform: translateY(0);}
+}
+
+/* Organizations Coming Soon Component Styles */
+.polygonShape {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #08af85 60%, #e4e7ec 100%);
+  opacity: 0.5;
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+  filter: blur(1px);
+  animation: floatPolygon 6s ease-in-out infinite alternate;
+}
+
+.arcShape {
+  width: 100px;
+  height: 40px;
+  background: linear-gradient(90deg, #e4e7ec 60%, #08af85 100%);
+  opacity: 0.4;
+  border-radius: 0 0 40px 40px;
+  filter: blur(1px);
+  animation: floatArc 7s ease-in-out infinite alternate;
+}
+
+.animateBounceSlow {
+  animation: bounceSlow 2.2s infinite;
+}
+
+.animatePulseSlow {
+  animation: pulseSlow 2.5s infinite;
+}
+
+@keyframes floatPolygon {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(18px) scale(1.07);
+  }
+}
+
+@keyframes floatArc {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-12px) scale(1.04);
+  }
+}
+
+@keyframes bounceSlow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes pulseSlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(8, 175, 133, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 16px 8px rgba(8, 175, 133, 0.18);
+  }
+}
+
+/* Footer decorative elements */
+.footerPolygon {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #08af85 60%, #e4e7ec 100%);
+  opacity: 0.5;
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+  filter: blur(2px);
+  animation: floatFooterPolygon 6s ease-in-out infinite alternate;
+}
+
+.footerArc {
+  width: 180px;
+  height: 80px;
+  background: linear-gradient(90deg, #e4e7ec 60%, #08af85 100%);
+  opacity: 0.4;
+  border-radius: 0 0 80px 80px;
+  filter: blur(2px);
+  animation: floatFooterArc 7s ease-in-out infinite alternate;
+}
+
+@keyframes floatFooterPolygon {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(24px) scale(1.07);
+  }
+}
+
+@keyframes floatFooterArc {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-18px) scale(1.04);
+  }
+}

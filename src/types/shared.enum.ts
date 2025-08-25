@@ -6,6 +6,7 @@ export enum Gender {
 
 export enum RequestStatus {
   Completed = 'completed',
+  Pending = 'pending',
 }
 
 export enum Status {
@@ -13,6 +14,13 @@ export enum Status {
   Unverified = 'unverified',
   Pending = 'pending',
   Incomplete = 'incomplete',
+}
+
+export enum ConditionStatus {
+  Active = 'active',
+  Inactive = 'inactive',
+  Chronic = 'chronic',
+  Controlled = 'controlled',
 }
 
 export enum ApproveDeclineStatus {

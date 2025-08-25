@@ -1,15 +1,6 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/login',
-        permanent: true,
-      },
-    ];
-  },
   //TODO: Remove once mock data is removed and the modify the domains once the data is consistent and ready
   images: {
     remotePatterns: [

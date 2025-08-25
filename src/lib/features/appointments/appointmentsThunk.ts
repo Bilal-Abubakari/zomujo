@@ -115,6 +115,7 @@ export const acceptAppointment = createAsyncThunk(
     }
   },
 );
+
 export const declineAppointment = createAsyncThunk(
   'appointment/declineRequest',
   async (id: string): Promise<Toast> => {

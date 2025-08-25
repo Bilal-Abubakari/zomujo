@@ -1,9 +1,10 @@
 import React, { JSX, useEffect, useMemo, useState } from 'react';
-import { useAppDispatch } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
+  addConsultationSymptom,
   getComplaintSuggestions,
   getSystemSymptoms,
-} from '@/lib/features/consultation/consultationThunk';
+} from '@/lib/features/appointments/consultation/consultationThunk';
 import { cn, showErrorToast } from '@/lib/utils';
 import { toast, Toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ import { durationTypes, MODE } from '@/constants/constants';
 import { useFieldArray, useForm } from 'react-hook-form';
 import {
   IConsultationSymptomsHFC,
+  IConsultationSymptomsRequest,
   ISymptomMap,
   SymptomsType,
 } from '@/types/consultation.interface';
@@ -25,6 +27,10 @@ import { DurationType } from '@/types/shared.enum';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
 import Loading from '@/components/loadingOverlay/loading';
 import MedicationTaken from '@/app/dashboard/(doctor)/consultation/_components/medicationTaken';
+import { useParams } from 'next/navigation';
+import { selectSymptoms } from '@/lib/features/appointments/appointmentSelector';
+import _ from 'lodash';
+import { IAppointmentSymptoms } from '@/types/appointment.interface';
 
 const symptomsSchema = z.object({
   complaints: z.array(
@@ -34,7 +40,7 @@ const symptomsSchema = z.object({
   ),
   duration: z.object({
     value: requiredStringSchema(),
-    type: z.nativeEnum(DurationType),
+    type: z.enum(DurationType),
   }),
   symptoms: z.object({
     [SymptomsType.Neurological]: z.array(
@@ -80,7 +86,7 @@ const symptomsSchema = z.object({
       }),
     ),
   }),
-  medicationTaken: z.array(
+  medicinesTaken: z.array(
     z.object({
       name: requiredStringSchema(),
       dose: z.string(),
@@ -93,6 +99,8 @@ type SymptomsProps = {
 };
 
 const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
+  const symptoms = useAppSelector(selectSymptoms);
+  const [isLoading, setIsLoading] = useState(false);
   const {
     control,
     formState: { isValid },
@@ -114,17 +122,18 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const [complaintSuggestions, setComplaintSuggestions] = useState<string[]>([]);
   const [otherComplaint, setOtherComplaint] = useState<string>('');
   const [systemSymptoms, setSystemSymptoms] = useState<ISymptomMap>();
+  const params = useParams();
   const complaintsHFC = watch('complaints');
 
-  const complaints = useMemo(() => complaintsHFC?.map(({ name }) => name), [complaintsHFC]);
+  const selectedComplaints = useMemo(() => complaintsHFC?.map(({ name }) => name), [complaintsHFC]);
 
-  const handleSelectedComplaint = (suggestion: string): void => {
-    if (!complaints.includes(suggestion)) {
+  const handleSelectedComplaint = (suggestion: string, shouldRemove = true): void => {
+    if (!selectedComplaints.includes(suggestion)) {
       append({
         name: suggestion,
       });
-    } else {
-      const index = watch('complaints').findIndex((complaint) => complaint.name === suggestion);
+    } else if (shouldRemove) {
+      const index = complaintsHFC.findIndex(({ name }) => name === suggestion);
       if (index !== -1) {
         remove(index);
       }
@@ -136,7 +145,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       return;
     }
     const complaintExists =
-      complaintSuggestions.includes(otherComplaint) || complaints.includes(otherComplaint);
+      complaintSuggestions.includes(otherComplaint) || selectedComplaints.includes(otherComplaint);
     if (!complaintExists) {
       setComplaintSuggestions((prev) => [...prev, otherComplaint]);
       append({
@@ -153,12 +162,31 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     setIsLoadingSymptoms(false);
   };
 
-  const handleSubmitAndGoToLabs = async (
-    consultationSymptoms: IConsultationSymptomsHFC,
-  ): Promise<void> => {
-    //TODO: Make request as soon as backend endpoint is ready
-    console.log('consultationSymptoms', consultationSymptoms);
-    goToLabs();
+  const handleSubmitAndGoToLabs = async (data: IConsultationSymptomsHFC): Promise<void> => {
+    const existingSymptoms: Partial<IAppointmentSymptoms> | undefined = _.cloneDeep(symptoms);
+    if (existingSymptoms) {
+      delete existingSymptoms.id;
+      delete existingSymptoms.createdAt;
+    }
+    setIsLoading(true);
+    const complaints = data.complaints.map(({ name }) => name);
+    const consultationSymptomsRequest: IConsultationSymptomsRequest = {
+      ...data,
+      complaints,
+      appointmentId: String(params.appointmentId),
+    };
+    if (_.isEqual(existingSymptoms, consultationSymptomsRequest)) {
+      goToLabs();
+      setIsLoading(false);
+      return;
+    }
+
+    const { payload } = await dispatch(addConsultationSymptom(consultationSymptomsRequest));
+    toast(payload as Toast);
+    setIsLoading(false);
+    if (!showErrorToast(payload)) {
+      goToLabs();
+    }
   };
 
   useEffect(() => {
@@ -177,6 +205,48 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     void handleComplaintSuggestions();
   }, []);
 
+  useEffect(() => {
+    if (symptoms) {
+      const { medicinesTaken, duration, complaints, symptoms: patientSymptoms } = symptoms;
+      setValue('duration', duration, {
+        shouldValidate: true,
+      });
+
+      if (!isLoadingComplaintSuggestions) {
+        complaints.forEach((complaint) => {
+          if (complaintSuggestions.includes(complaint)) {
+            handleSelectedComplaint(complaint, false);
+          } else {
+            setOtherComplaint(complaint);
+            addComplaint();
+            setOtherComplaint('');
+          }
+        });
+      }
+
+      setValue('medicinesTaken', medicinesTaken);
+      if (systemSymptoms) {
+        setValue('symptoms', patientSymptoms);
+        let symptomsMap = _.cloneDeep(systemSymptoms);
+        Object.entries(systemSymptoms).forEach(([id, symptoms]) => {
+          const formattedPatientSymptoms = (patientSymptoms[id as SymptomsType] ?? []).map(
+            ({ name }) => name,
+          );
+          const updatedSystemSymptoms = symptoms.filter(
+            ({ name }) => !formattedPatientSymptoms.includes(name),
+          );
+          symptomsMap = {
+            ...symptomsMap,
+            [id]: updatedSystemSymptoms,
+          };
+        });
+        if (!_.isEqual(systemSymptoms, symptomsMap)) {
+          setSystemSymptoms(symptomsMap);
+        }
+      }
+    }
+  }, [symptoms, systemSymptoms, isLoadingComplaintSuggestions]);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <form onSubmit={handleSubmit(handleSubmitAndGoToLabs)}>
@@ -191,7 +261,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                 onClick={() => handleSelectedComplaint(suggestion)}
                 className={cn(
                   'cursor-pointer rounded-[100px] p-2.5',
-                  complaints.includes(suggestion) ? 'bg-primary text-white' : 'bg-gray-200',
+                  selectedComplaints.includes(suggestion) ? 'bg-primary text-white' : 'bg-gray-200',
                 )}
               >
                 {suggestion}
@@ -209,6 +279,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           <Button
             disabled={!otherComplaint}
             onClick={() => addComplaint()}
+            type="button"
             className="self-end"
             child="Add"
           />
@@ -236,7 +307,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         ) : (
           Object.entries(systemSymptoms ?? {}).map(([id, symptoms]) => (
             <SelectSymptoms
-              key={id}
+              key={`${id}-${JSON.stringify(symptoms)}`}
               symptoms={symptoms}
               id={id}
               control={control}
@@ -246,10 +317,10 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           ))
         )}
         <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
-        <MedicationTaken medicationsTaken={watch('medicationTaken')} control={control} />
+        <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
         <div className="mt-20"></div>
         <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
-          <Button disabled={!isValid} child="Go to Labs" />
+          <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Go to Labs" />
         </div>
       </form>
     </DndProvider>

@@ -3,6 +3,8 @@ import { frequencies, weekDays } from '@/constants/appointments.constant';
 import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
 import { IHospital } from './hospital.interface';
+import { IConsultationSymptomsRequest, IDiagnosis } from '@/types/consultation.interface';
+import { ILab } from '@/types/labs.interface';
 
 interface IBaseAppointment {
   id: string;
@@ -12,12 +14,19 @@ interface IBaseAppointment {
   createdAt: string;
 }
 
+export interface IAppointmentSymptoms extends IConsultationSymptomsRequest {
+  id: string;
+  createdAt: string;
+}
 export interface IAppointment extends IBaseAppointment, ISlotBase {
   slot: ISlot;
   status: AppointmentStatus;
   reason: string;
   additionalInfo: string;
   meetingLink: string | null;
+  symptoms: IAppointmentSymptoms;
+  lab: ILab[];
+  diagnosis: IDiagnosis[];
 }
 
 export interface IRecordRequest extends IBaseAppointment {

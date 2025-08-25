@@ -24,7 +24,7 @@ const UserSignUp = forwardRef<UserSignUpMethods, UserSignUpProps>(
       .object({
         firstName: nameSchema,
         lastName: nameSchema,
-        email: emailSchema(),
+        email: emailSchema,
         password: passwordSchema,
         confirmPassword: passwordSchema,
       })

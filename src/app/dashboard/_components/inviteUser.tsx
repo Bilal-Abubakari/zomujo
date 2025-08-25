@@ -20,7 +20,7 @@ const InviteUser = ({ isLoading, submit, title, buttonTitle }: InviteUserProps):
   const inviteDoctorSchema = z.object({
     firstName: requiredStringSchema(),
     lastName: requiredStringSchema(),
-    email: emailSchema(),
+    email: emailSchema,
   });
   const {
     handleSubmit,

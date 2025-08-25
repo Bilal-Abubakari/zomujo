@@ -6,6 +6,7 @@ import {
   medicalLevels,
   severityOptions,
 } from '@/constants/constants';
+import { ILab } from '@/types/labs.interface';
 
 export interface IPatient extends IExtraBase {
   lifestyle: unknown;
@@ -35,7 +36,7 @@ export interface IMedicalRecord {
   weight?: number;
   heartRate?: number;
   invoice?: string;
-  lab: string[];
+  lab: ILab[];
   lifestyle?: ILifestyle;
   prescription: string[];
   conditions: ICondition[];

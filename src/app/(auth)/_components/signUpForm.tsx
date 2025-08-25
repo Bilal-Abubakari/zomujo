@@ -33,7 +33,7 @@ const SignUpForm = (): JSX.Element => {
   const userSignUpRef = useRef<UserSignUpMethods>(null);
   const organizationsSchema = z.object({
     name: nameSchema,
-    email: emailSchema(),
+    email: emailSchema,
     location: requiredStringSchema(),
     long: z.number(),
     lat: z.number(),
