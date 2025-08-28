@@ -36,6 +36,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     profilePicture,
     fee,
   } = doctor;
+  const fullName = `${firstName} ${lastName}`;
   const { register, setValue, getValues, watch } = useForm<IBookingForm>({
     resolver: zodResolver(bookingSchema),
     mode: MODE.ON_TOUCH,
@@ -65,9 +66,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
 
   const bookAppointment = (): void => {
     const { slotId } = getValues();
-    router.push(
-      `/sign-up?doctorId=${id}&slotId=${slotId}&doctor=${encodeURIComponent(`${firstName} ${lastName}`)}`,
-    );
+    router.push(`/sign-up?doctorId=${id}&slotId=${slotId}&doctor=${encodeURIComponent(fullName)}`);
   };
 
   return (
@@ -96,15 +95,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
           <div className="mt-5">
             <div className="flex gap-4">
               {' '}
-              <AvatarComp
-                imageSrc={profilePicture}
-                name={`${firstName} ${lastName}`}
-                className="h-20 w-20"
-              />
+              <AvatarComp imageSrc={profilePicture} name={fullName} className="h-20 w-20" />
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Dr. {`${firstName} ${lastName}`}
-                </h2>
+                <h2 className="text-2xl font-bold text-gray-900">Dr. {fullName}</h2>
                 <p className="text-primary-600 text-md font-medium">
                   {specializations ? specializations[0] : 'General Practitioner'}
                 </p>
@@ -139,18 +132,12 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         <div className="flex flex-col">
           <div className="mb-4 flex w-full flex-row gap-4">
             <div className="relative">
-              <AvatarComp
-                imageSrc={profilePicture}
-                name={`${firstName} ${lastName}`}
-                className="h-14 w-14"
-              />
+              <AvatarComp imageSrc={profilePicture} name={fullName} className="h-14 w-14" />
               <div className="absolute -right-1 bottom-1 h-4 w-4 rounded-full border-2 border-white bg-green-400"></div>
             </div>
             <div className="flex w-full flex-col justify-center">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-gray-900">
-                  Dr. {`${firstName} ${lastName}`}
-                </h2>
+                <h2 className="text-lg font-bold text-gray-900">Dr. {fullName}</h2>
                 <div className="bg-primary-50 flex h-fit items-center gap-1 rounded-full px-2 py-0.5">
                   <Star size={14} className="fill-warning-300 text-warning-300" />
                   <p className="text-primary-dark text-sm font-semibold">{rate}</p>

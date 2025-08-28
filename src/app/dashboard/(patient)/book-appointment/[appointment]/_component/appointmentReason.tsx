@@ -68,16 +68,8 @@ const AppointmentReason = ({
       />
 
       <div className="mt-4 flex justify-between">
-        <Button
-          child={'Back'}
-          variant={'outline'}
-          onClick={() => setCurrentStep && setCurrentStep(1)}
-        />
-        <Button
-          child={'Confirm booking'}
-          onClick={() => setCurrentStep && setCurrentStep(3)}
-          disabled={!isValid}
-        />
+        <Button child={'Back'} variant={'outline'} onClick={() => setCurrentStep?.(1)} />
+        <Button child={'Confirm booking'} onClick={() => setCurrentStep?.(3)} disabled={!isValid} />
       </div>
     </div>
   );

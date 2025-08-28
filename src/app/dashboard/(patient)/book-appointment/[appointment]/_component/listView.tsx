@@ -14,6 +14,8 @@ import { DateAppointmentSlots, SlotStatus } from '@/types/slots.interface';
 
 type ListViewProps = Pick<AvailabilityProps, 'setValue' | 'watch' | 'doctorId'>;
 
+type AppointmentDate = Pick<DateAppointmentSlots, 'date'>;
+
 const formatDate = (date: Date): string =>
   date.toLocaleDateString('en-US', {
     weekday: 'short',
@@ -54,6 +56,11 @@ const ListView = ({ setValue, watch, doctorId }: ListViewProps): JSX.Element => 
     [isLoading, hasMore],
   );
 
+  const updateDates = (appointmentDates: AppointmentDate[]): void => {
+    const dates = appointmentDates.map((r) => r.date);
+    setDates((prev) => [...prev, ...dates]);
+  };
+
   useEffect(() => {
     const fetchDates = async (): Promise<void> => {
       setIsLoading(true);
@@ -65,8 +72,6 @@ const ListView = ({ setValue, watch, doctorId }: ListViewProps): JSX.Element => 
         getAppointmentSlots({
           startDate,
           endDate,
-          startTime: '00:00',
-          endTime: '23:59',
           doctorId: appointmentType === MedicalAppointmentType.Doctor ? id : doctorId || '',
           orgId: appointmentType === MedicalAppointmentType.Hospital ? id : '',
           pageSize: 10,
@@ -81,8 +86,8 @@ const ListView = ({ setValue, watch, doctorId }: ListViewProps): JSX.Element => 
         return;
       }
 
-      const { rows, totalPages } = payload as IPagination<Pick<DateAppointmentSlots, 'date'>>;
-      setDates((prev) => [...prev, ...rows.map((r) => r.date)]);
+      const { rows, totalPages } = payload as IPagination<AppointmentDate>;
+      updateDates(rows);
       if (page >= totalPages) {
         setHasMore(false);
       }

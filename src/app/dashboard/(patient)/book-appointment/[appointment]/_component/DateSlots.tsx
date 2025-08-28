@@ -44,11 +44,7 @@ const DateSlots = ({ date, setValue, watch, doctorId }: DateSlotsProps): JSX.Ele
         const { payload } = await dispatch(
           getAppointmentSlotsByDate({
             date: new Date(date).toISOString(),
-            doctorId: doctorId
-              ? doctorId
-              : appointmentType === MedicalAppointmentType.Doctor
-                ? id
-                : '',
+            doctorId: doctorId || (appointmentType === MedicalAppointmentType.Doctor ? id : ''),
             orgId: appointmentType === MedicalAppointmentType.Hospital ? id : '',
           }),
         );
@@ -101,19 +97,16 @@ const DateSlots = ({ date, setValue, watch, doctorId }: DateSlotsProps): JSX.Ele
           selectedTime === startTime &&
           new Date(selectedDate).toDateString() === new Date(date).toDateString();
         return (
-          <div
+          <button
             key={slotId}
             className={cn(
               'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
               isSelected && 'border-primary text-primary',
             )}
-            onClick={(event) => {
-              event.stopPropagation();
-              handleSlotSelection(startTime, slotId);
-            }}
+            onClick={() => handleSlotSelection(startTime, slotId)}
           >
             {startTime}
-          </div>
+          </button>
         );
       })}
     </div>

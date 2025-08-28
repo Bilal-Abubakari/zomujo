@@ -76,12 +76,8 @@ const AvailableDates = ({
       setIsAvailableSlotLoading(true);
       const { payload } = await dispatch(
         getAppointmentSlotsByDate({
-          date: date ? new Date(date).toISOString() : new Date().toISOString(),
-          doctorId: doctorId
-            ? doctorId
-            : appointmentType === MedicalAppointmentType.Doctor
-              ? id
-              : '',
+          date: new Date(date || new Date()).toISOString(),
+          doctorId: doctorId || (appointmentType === MedicalAppointmentType.Doctor ? id : ''),
           orgId: appointmentType === MedicalAppointmentType.Hospital ? id : '',
         }),
       );
@@ -119,7 +115,7 @@ const AvailableDates = ({
   };
 
   return (
-    <div className="z-100 rounded-md border p-8">
+    <div className="rounded-md border p-8">
       <div>
         <p className="pb-8 text-left text-xl font-bold"> Choose available Date & Time</p>
       </div>
@@ -142,7 +138,7 @@ const AvailableDates = ({
                 canBook: 'bg-gray-200 rounded-md font-semibold',
               }}
               mode="single"
-              selected={date ? new Date(date) : new Date()}
+              selected={new Date(date || new Date())}
               onSelect={(date) => {
                 if (date) {
                   setValue('date', date.toISOString(), {
@@ -211,7 +207,7 @@ const AvailableDates = ({
           <Button
             child="Continue"
             disabled={!(date && selectedTime)}
-            onClick={() => setCurrentStep && setCurrentStep(2)}
+            onClick={() => setCurrentStep?.(2)}
           />
         </div>
       )}
