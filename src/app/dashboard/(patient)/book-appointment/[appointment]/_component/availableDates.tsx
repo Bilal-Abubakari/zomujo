@@ -88,7 +88,7 @@ const AvailableDates = ({
         return;
       }
       const data = payload as AppointmentSlots[];
-      if (data && data) {
+      if (data) {
         const availableSlots: AppointmentSlots[] = data.map(({ startTime, ...rest }) => ({
           ...rest,
           startTime: `${extractGMTTime(startTime)}`,
