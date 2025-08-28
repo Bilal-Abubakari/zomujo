@@ -1,4 +1,4 @@
-import { IFrequency, IRule, ISlotPatternBase, IWeekDays } from '@/types/appointment.interface';
+import { IFrequency, IRule, ISlotPatternBase, IWeekDays } from '@/types/slots.interface';
 
 /**
  * Generates a recurrence rule string based on the provided weekdays and frequency.

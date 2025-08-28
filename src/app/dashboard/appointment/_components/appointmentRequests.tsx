@@ -15,7 +15,8 @@ import {
 } from '@/lib/features/appointments/appointmentsThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { AppointmentType, IAppointment } from '@/types/appointment.interface';
+import { IAppointment } from '@/types/appointment.interface';
+import { AppointmentType } from '@/types/slots.interface';
 import { AcceptDeclineStatus, AppointmentStatus, OrderDirection, Role } from '@/types/shared.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import {

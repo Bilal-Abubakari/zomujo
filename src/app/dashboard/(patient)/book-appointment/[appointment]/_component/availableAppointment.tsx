@@ -4,8 +4,6 @@ import { Building2, ChevronLeft } from 'lucide-react';
 import React, { JSX, useCallback, useEffect, useState } from 'react';
 import AvailableDates from './availableDates';
 import AppointmentReason from './appointmentReason';
-import { requiredStringSchema } from '@/schemas/zod.schemas';
-import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
@@ -25,7 +23,8 @@ import { IHospital } from '@/types/hospital.interface';
 import { MedicalAppointmentType, useQueryParam } from '@/hooks/useQueryParam';
 import { getHospital } from '@/lib/features/hospitals/hospitalThunk';
 import Image from 'next/image';
-import { AppointmentType } from '@/types/appointment.interface';
+import { AppointmentType } from '@/types/slots.interface';
+import { bookingSchema } from '@/schemas/booking.schema';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -37,16 +36,6 @@ const AvailableAppointment = (): JSX.Element => {
   const { getQueryParam } = useQueryParam();
   const id = params.appointment as string;
   const dateToday = new Date();
-
-  const bookingSchema = z.object({
-    date: requiredStringSchema(),
-    time: requiredStringSchema(),
-    slotId: requiredStringSchema(),
-    reason: requiredStringSchema(),
-    appointmentType: requiredStringSchema(),
-    additionalInfo: requiredStringSchema(false),
-    amount: z.number(),
-  });
 
   const getAmount = useCallback((): number => {
     if (!information) {

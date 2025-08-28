@@ -204,6 +204,7 @@ const SelectInput = ({
 type ComboboxProps = {
   isLoading?: boolean;
   wrapperClassName?: string;
+  className?: string;
   defaultMaxWidth?: boolean;
   value: string;
   onChange: (value: string) => void;
@@ -216,6 +217,7 @@ const Combobox = ({
   label,
   defaultMaxWidth = true,
   wrapperClassName,
+  className,
   placeholder,
   value: currentValue,
   onChange,
@@ -242,7 +244,7 @@ const Combobox = ({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="hover:bg-background! text-accent-foreground justify-between"
+            className={cn('hover:bg-background! text-accent-foreground justify-between', className)}
             child={
               <>
                 {isLoading ? 'Loading... Please wait' : currentOption || placeholder}
