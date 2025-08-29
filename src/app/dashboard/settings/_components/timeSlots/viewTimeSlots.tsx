@@ -20,11 +20,11 @@ import { toast } from '@/hooks/use-toast';
 import { cn, showErrorToast } from '@/lib/utils';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { deleteSlot, getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
-import { ISlot, SlotStatus } from '@/types/appointment.interface';
 import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
+import { ISlot, SlotStatus } from '@/types/slots.interface';
 
 const statusFilterOptions: ISelected[] = [
   {

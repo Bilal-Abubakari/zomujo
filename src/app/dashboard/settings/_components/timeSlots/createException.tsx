@@ -2,7 +2,6 @@ import React, { JSX, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IPatternException } from '@/types/appointment.interface';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
 import { useAppDispatch } from '@/lib/hooks';
 import { createPatternException } from '@/lib/features/appointments/appointmentsThunk';
@@ -18,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { SelectInput, SelectOption } from '@/components/ui/select';
 import { MODE } from '@/constants/constants';
 import { parseTime } from '@/lib/date';
+import { IPatternException } from '@/types/slots.interface';
 
 const exceptionTypes: SelectOption[] = [
   { label: 'Modification', value: 'modification' },

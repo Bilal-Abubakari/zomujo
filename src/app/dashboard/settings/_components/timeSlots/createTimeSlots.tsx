@@ -16,12 +16,6 @@ import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DateRange } from 'react-day-picker';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import {
-  AppointmentType,
-  IFrequency,
-  ISlotPatternBase,
-  IWeekDays,
-} from '@/types/appointment.interface';
 import { createAppointmentSlot } from '@/lib/features/appointments/appointmentsThunk';
 import { useAppDispatch } from '@/lib/hooks';
 import { generateRecurrenceRule, generateSlotDescription } from '@/lib/rule';
@@ -32,6 +26,7 @@ import { shortDaysOfTheWeek } from '@/constants/constants';
 import { TooltipComp } from '@/components/ui/tooltip';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
 import moment from 'moment/moment';
+import { IFrequency, ISlotPatternBase, IWeekDays, AppointmentType } from '@/types/slots.interface';
 
 const CreateTimeSlots = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);

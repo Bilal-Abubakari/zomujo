@@ -2,7 +2,6 @@
 import { Search } from 'lucide-react';
 import React, { useEffect, useState, useRef, JSX } from 'react';
 import styles from './home.module.css';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { specialties } from '@/constants/constants';
 import { IQueryParams } from '@/types/shared.interface';
@@ -56,7 +55,7 @@ const Hero = (): JSX.Element => {
           Connect with the best healthcare professionals.
         </p>
         <div className="mt-8 flex w-full max-w-3xl flex-col items-center space-y-4 rounded-lg bg-white/80 p-6 shadow-2xl backdrop-blur-md md:flex-row md:space-y-0 md:space-x-4">
-          <div className="w-full flex-grow bg-white">
+          <div className="w-full flex-grow">
             <Combobox
               onChange={(value) =>
                 setQueryParameters({
@@ -65,16 +64,10 @@ const Hero = (): JSX.Element => {
               }
               options={specialties}
               value={queryParameters?.specialty ?? ''}
+              className="px-4 py-6"
               placeholder="Search by specialty..."
               searchPlaceholder="Search for specialty..."
               defaultMaxWidth={false}
-            />
-          </div>
-          <div className="w-full flex-grow">
-            <Input
-              type="text"
-              placeholder="Location"
-              className="w-full rounded-[8px] border border-gray-300 bg-white/80 px-4 py-6 text-gray-700 backdrop-blur-md"
             />
           </div>
           <Button

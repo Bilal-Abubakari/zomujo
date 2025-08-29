@@ -3,37 +3,79 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { GraduationCap } from 'lucide-react';
 import { IDoctor } from '@/types/doctor.interface';
-import { JSX } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { MedicalAppointmentType } from '@/hooks/useQueryParam';
+import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
+import { showErrorToast } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { selectUser } from '@/lib/features/auth/authSelector';
 
-interface Bookmark extends IDoctor {
+type DoctorDetailsProps = {
   showBookmark?: boolean;
-}
+  doctorId: string;
+  bookAppointmentHandler?: () => void;
+};
 
 const DoctorDetails = ({
-  profilePicture,
-  firstName,
-  lastName,
-  MDCRegistration,
-  experience,
-  specializations,
-  bio,
-  education,
-  languages,
-  awards,
-  IDs: { back, front },
-  showBookmark = false,
-  fee,
-  id,
-}: Bookmark): JSX.Element => {
+  showBookmark,
+  doctorId,
+  bookAppointmentHandler,
+}: DoctorDetailsProps): JSX.Element | null => {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const [isLoading, setIsLoading] = useState(false);
+  const [doctor, setDoctor] = useState<IDoctor | null>(null);
+
+  useEffect(() => {
+    async function getDoctorDetails(): Promise<void> {
+      setIsLoading(true);
+      try {
+        const { payload } = await dispatch(doctorInfo(doctorId));
+        if (payload && showErrorToast(payload)) {
+          toast(payload);
+          return;
+        }
+        setDoctor(payload as IDoctor);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (doctorId) {
+      void getDoctorDetails();
+    } else {
+      setDoctor(null);
+    }
+  }, [dispatch, doctorId]);
   const router = useRouter();
+
+  if (isLoading) {
+    return <p>Loading doctor&apos;s details...</p>;
+  }
+
+  if (!doctor) {
+    return null;
+  }
+
+  const bookAppointment = (): void => {
+    if (user) {
+      router.push(
+        `/dashboard/book-appointment/${doctor.id}?appointmentType=${MedicalAppointmentType.Doctor}`,
+      );
+      return;
+    }
+    if (bookAppointmentHandler) {
+      bookAppointmentHandler();
+    }
+  };
+
   return (
     <div className="flex flex-col gap-[30px] md:flex-row">
       <section className="max-w-[284px]">
         <Image
-          src={profilePicture}
+          src={doctor.profilePicture}
           alt="DoctorImage"
           className="h-[258px] w-[284px] rounded-[32px] object-cover"
           width={400}
@@ -43,9 +85,9 @@ const DoctorDetails = ({
         <div className="mt-[38px] flex items-center justify-between">
           <p className="font-medium"> Consultation</p>
 
-          {!!fee && (
+          {!!doctor.fee && (
             <p className="text-primary text-xl font-bold">
-              GHs {fee?.amount} <span className="text-base text-gray-400">Fee</span>
+              GHs {doctor.fee?.amount} <span className="text-base text-gray-400">Fee</span>
             </p>
           )}
         </div>
@@ -53,30 +95,21 @@ const DoctorDetails = ({
       <section className="w-full">
         <div>
           <p className="text-2xl font-bold">
-            Dr. {firstName} {lastName}
+            Dr. {doctor.firstName} {doctor.lastName}
           </p>
           <div className="flex justify-between">
-            <p className="mt-4 font-medium text-gray-500"> {MDCRegistration}</p>
-            {showBookmark && (
-              <Button
-                child="Book Appointment"
-                onClick={() =>
-                  router.push(
-                    `/dashboard/book-appointment/${id}?appointmentType=${MedicalAppointmentType.Doctor}`,
-                  )
-                }
-              />
-            )}
+            <p className="mt-4 font-medium text-gray-500"> {doctor.MDCRegistration}</p>
+            {showBookmark && <Button child="Book Appointment" onClick={() => bookAppointment()} />}
           </div>
-          {experience > 0 && (
+          {doctor.experience > 0 && (
             <div className="mt-8 flex gap-6 font-semibold">
-              <p> 💼 {experience} years of experience</p>
+              <p> 💼 {doctor.experience} years of experience</p>
               <p>🤩 200+ Consultations</p>
             </div>
           )}
         </div>
         <div className="mt-6 flex-wrap">
-          {specializations.map((specialization) => (
+          {doctor.specializations.map((specialization) => (
             <Badge variant={'gray'} key={specialization} className="mr-2 mb-2">
               {specialization}
             </Badge>
@@ -85,24 +118,24 @@ const DoctorDetails = ({
 
         <div>
           <hr className="my-8" />
-          {bio && (
+          {doctor.bio && (
             <div>
               <h3 className="text-xl font-bold">Bio</h3>
-              <p className="mt-6 text-gray-500">{bio}</p>
+              <p className="mt-6 text-gray-500">{doctor.bio}</p>
             </div>
           )}
-          {education && (
+          {doctor.education && (
             <div>
               <h3 className="mt-12 text-xl font-bold">Education</h3>
-              <EducationCard {...education} />
+              <EducationCard {...doctor.education} />
             </div>
           )}
 
-          {languages.length > 0 && (
+          {doctor.languages.length > 0 && (
             <div>
               <h3 className="mt-12 text-xl font-bold">Language</h3>
               <div className="mt-5 flex gap-2">
-                {languages.map((language) => (
+                {doctor.languages.map((language) => (
                   <Badge variant={'blue'} key={language}>
                     {language}
                   </Badge>
@@ -111,10 +144,10 @@ const DoctorDetails = ({
             </div>
           )}
 
-          {awards.length > 0 && (
+          {doctor.awards.length > 0 && (
             <div>
               <h3 className="mt-12 mb-5 text-xl font-bold">Awards</h3>
-              {awards.map((award) => (
+              {doctor.awards.map((award) => (
                 <Badge variant={'destructive'} key={award}>
                   {award}
                 </Badge>
@@ -122,25 +155,27 @@ const DoctorDetails = ({
             </div>
           )}
         </div>
-        <div className="mt-5">
-          <h3 className="mt-12 mb-5 text-xl font-bold">Identification Card</h3>
-          <div className="flex flex-wrap gap-4">
-            <Image
-              src={front}
-              alt="front Id"
-              width={409}
-              height={244}
-              className="h-[244px] w-[409px] rounded-lg object-cover"
-            />
-            <Image
-              src={back}
-              alt="back Id"
-              width={409}
-              height={244}
-              className="h-[244px] w-[409px] rounded-lg object-cover"
-            />
+        {doctor.IDs && (
+          <div className="mt-5">
+            <h3 className="mt-12 mb-5 text-xl font-bold">Identification Card</h3>
+            <div className="flex flex-wrap gap-4">
+              <Image
+                src={doctor.IDs.front}
+                alt="front Id"
+                width={409}
+                height={244}
+                className="h-[244px] w-[409px] rounded-lg object-cover"
+              />
+              <Image
+                src={doctor.IDs.back}
+                alt="back Id"
+                width={409}
+                height={244}
+                className="h-[244px] w-[409px] rounded-lg object-cover"
+              />
+            </div>
           </div>
-        </div>
+        )}
       </section>
     </div>
   );

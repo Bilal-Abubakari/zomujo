@@ -1,5 +1,6 @@
 import { IBaseUser } from '@/types/auth.interface';
 import { IExtraBase } from '@/types/shared.interface';
+import { AppointmentSlots } from '@/types/slots.interface';
 
 export interface IDoctor extends IExtraBase {
   email: string;
@@ -7,6 +8,7 @@ export interface IDoctor extends IExtraBase {
   contact: string;
   address: string;
   city: string;
+  appointmentSlots: AppointmentSlots[];
   qualifications: string[];
   specializations: string[];
   schoolsAttended: string[];

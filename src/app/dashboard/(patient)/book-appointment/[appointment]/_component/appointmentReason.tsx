@@ -5,7 +5,7 @@ import { Calendar } from 'lucide-react';
 import React, { JSX } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { AvailabilityProps } from '@/types/booking.interface';
-import { AppointmentType } from '@/types/appointment.interface';
+import { AppointmentType } from '@/types/slots.interface';
 
 const AppointmentReason = ({
   register,
@@ -68,8 +68,8 @@ const AppointmentReason = ({
       />
 
       <div className="mt-4 flex justify-between">
-        <Button child={'Back'} variant={'outline'} onClick={() => setCurrentStep(1)} />
-        <Button child={'Confirm booking'} onClick={() => setCurrentStep(3)} disabled={!isValid} />
+        <Button child={'Back'} variant={'outline'} onClick={() => setCurrentStep?.(1)} />
+        <Button child={'Confirm booking'} onClick={() => setCurrentStep?.(3)} disabled={!isValid} />
       </div>
     </div>
   );

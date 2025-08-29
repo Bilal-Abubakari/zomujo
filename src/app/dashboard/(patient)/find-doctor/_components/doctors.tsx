@@ -25,8 +25,6 @@ import React, {
 } from 'react';
 import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
 import { genderOptions } from '@/constants/constants';
-import DoctorDetails from '@/app/dashboard/_components/doctorDetails';
-import { Modal } from '@/components/ui/dialog';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
 
@@ -67,9 +65,6 @@ const Doctors = (): JSX.Element => {
       label: 'Descending',
     },
   ];
-
-  const [selectedDoctor, setSelectedDoctor] = useState<IDoctor>();
-  const [openModal, setOpenModal] = useState(false);
 
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -272,19 +267,8 @@ const Doctors = (): JSX.Element => {
       </div>
       <Suggested title={'Doctors'} showViewAll={false}>
         {doctors.map((doctor) => (
-          <div
-            onClick={() => {
-              setSelectedDoctor(doctor);
-              setOpenModal(true);
-            }}
-            onKeyDown={() => {
-              setSelectedDoctor(doctor);
-              setOpenModal(true);
-            }}
-            className="cursor-pointer"
-            key={doctor.id}
-          >
-            <DoctorCard key={doctor.id} {...doctor} />
+          <div className="cursor-pointer" key={doctor.id}>
+            <DoctorCard key={doctor.id} doctor={doctor} />
           </div>
         ))}
       </Suggested>
@@ -318,13 +302,6 @@ const Doctors = (): JSX.Element => {
         <ChevronUp size={24} />
       </button>
       <div ref={observerRef} className="h-10" />
-      <Modal
-        open={openModal}
-        content={<DoctorDetails {...selectedDoctor!} showBookmark={true} />}
-        className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
-        setState={setOpenModal}
-        showClose={true}
-      />
     </>
   );
 };

@@ -14,10 +14,13 @@ export interface IBookingForm extends IInitializeAppointment {
   appointmentType: string;
 }
 
+export type IBookingSlotId = Pick<IBookingForm, 'slotId'>;
+
 export type AvailabilityProps = {
+  doctorId?: string;
   register: UseFormRegister<IBookingForm>;
   setValue: UseFormSetValue<IBookingForm>;
-  setCurrentStep: Dispatch<SetStateAction<number>>;
+  setCurrentStep?: Dispatch<SetStateAction<number>>;
   isValid?: boolean;
   watch: UseFormWatch<IBookingForm>;
   errors?: FieldErrors<IBookingForm>;

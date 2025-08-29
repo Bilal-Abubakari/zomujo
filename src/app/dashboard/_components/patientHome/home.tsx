@@ -62,7 +62,7 @@ const PatientHome = (): JSX.Element => {
         <div className="mt-4">
           <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
             {doctors.map((doctor) => (
-              <DoctorCard key={doctor.id} {...doctor} />
+              <DoctorCard key={doctor.id} doctor={doctor} />
             ))}
           </Suggested>
           {doctorSuggestions}
@@ -81,7 +81,7 @@ const PatientHome = (): JSX.Element => {
             <CarouselContent>
               {doctors.map((doctor) => (
                 <CarouselItem key={doctor.id}>
-                  <DoctorCard key={doctor.id} {...doctor} />
+                  <DoctorCard key={doctor.id} doctor={doctor} />
                 </CarouselItem>
               ))}
             </CarouselContent>

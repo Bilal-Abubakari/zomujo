@@ -382,7 +382,7 @@ const DoctorPanel = (): JSX.Element => {
 
       <Modal
         open={openModal}
-        content={<DoctorDetails {...selectedDoctor!} />}
+        content={<DoctorDetails doctorId={selectedDoctor?.id ?? ''} />}
         className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
         setState={setOpenModal}
         showClose={true}

@@ -14,12 +14,12 @@ import { toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { deletePattern, getSlotPatterns } from '@/lib/features/appointments/appointmentsThunk';
-import { ISlotPattern } from '@/types/appointment.interface';
 import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
 import { TableData } from '@/components/ui/table';
 import { getFrequencyFromRule, getWeekDaysFromRule } from '@/lib/rule';
 import { Badge } from '@/components/ui/badge';
 import CreateException from '@/app/dashboard/settings/_components/timeSlots/createException';
+import { ISlotPattern } from '@/types/slots.interface';
 
 const ViewPatterns = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);

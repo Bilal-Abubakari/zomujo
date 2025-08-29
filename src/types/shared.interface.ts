@@ -22,6 +22,20 @@ export interface IPagination<T> {
   totalPages: number;
 }
 
+export type Month =
+  | 'jan'
+  | 'feb'
+  | 'mar'
+  | 'apr'
+  | 'may'
+  | 'jun'
+  | 'jul'
+  | 'aug'
+  | 'sep'
+  | 'oct'
+  | 'nov'
+  | 'dec';
+
 export interface IQueryParams<T = undefined> {
   page?: number;
   search?: string;
@@ -32,6 +46,8 @@ export interface IQueryParams<T = undefined> {
   startTime?: string;
   endTime?: string;
   startDate?: Date;
+  date?: string;
+  month?: Month;
   orgId?: string;
   endDate?: Date;
   priceMin?: string;
