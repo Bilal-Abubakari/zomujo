@@ -42,7 +42,7 @@ const SolutionsOffered = (): JSX.Element => {
             <Image src={ContentProfile} alt="Healthcare app mockup" className="h-auto w-full" />
           </div>
           <div className="flex flex-col space-y-8 xl:flex-row">
-            {solutions.map(({title, description,icon}) => {
+            {solutions.map(({ title, description, icon }) => {
               const IconComponent = icon;
               return (
                 <div key={title} className="flex items-start space-x-4">

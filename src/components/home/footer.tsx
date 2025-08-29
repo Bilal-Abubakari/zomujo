@@ -27,7 +27,7 @@ const Footer = (): JSX.Element => {
           </div>
 
           <div className="flex flex-col space-y-8 md:flex-row md:space-y-0 md:space-x-16">
-            {footerSections.map(({links,title}) => (
+            {footerSections.map(({ links, title }) => (
               <div key={title}>
                 <h4 className="text-foreground mb-4 font-semibold">{title}</h4>
                 <ul className="space-y-2">

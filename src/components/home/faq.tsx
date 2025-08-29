@@ -49,7 +49,7 @@ const Faq = (): JSX.Element => {
         </div>
 
         <div className="mx-auto max-w-3xl space-y-4">
-          {faqs.map(({question, answer}, index) => (
+          {faqs.map(({ question, answer }, index) => (
             <div key={question} className="border-border rounded-lg border">
               <button
                 className="hover:bg-muted/50 flex w-full items-center justify-between px-6 py-4 text-left transition-colors"
