@@ -8,6 +8,7 @@ import { IQueryParams } from '@/types/shared.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { QueryParamKey, useQueryParam } from '@/hooks/useQueryParam';
 import { Combobox } from '@/components/ui/select';
+import Header from './header';
 
 const Hero = (): JSX.Element => {
   const [current, setCurrent] = useState(0);
@@ -32,8 +33,10 @@ const Hero = (): JSX.Element => {
   return (
     <section
       ref={heroRef}
-      className={`relative h-[700px] overflow-hidden text-white ${styles.heroBackground} ${styles.panoramic}`}
+      className={`relative h-[95vh] overflow-hidden text-white ${styles.heroBackground} ${styles.panoramic}`}
     >
+      <Header />
+
       <div className={styles.gradientOverlay}></div>
       <div className={styles.circle1}></div>
       <div className={styles.circle2}></div>
@@ -44,10 +47,10 @@ const Hero = (): JSX.Element => {
         className={`relative z-10 flex h-full flex-col items-center justify-center px-4 text-center ${styles.fadeIn}`}
       >
         <h1 className="mb-2 text-5xl font-extrabold text-white drop-shadow-lg md:text-6xl">
-          Find Your Doctor
+          Book local Specialist who take your insurance{' '}
         </h1>
         <div className="mb-2 flex min-h-[2.2rem] items-center justify-center text-lg font-bold md:text-xl">
-          <span className="text-primary animate-fadeSpeciality text-lg font-extrabold">
+          <span className="animate-fadeSpeciality text-lg font-extrabold">
             {specialties[current].label}
           </span>
         </div>
@@ -81,47 +84,6 @@ const Hero = (): JSX.Element => {
             }
           />
         </div>
-      </div>
-      <div
-        className="absolute top-0 left-0 z-10"
-        style={{
-          width: '160px',
-          height: '120px',
-          background: 'linear-gradient(135deg, #08af85 60%, #e4e7ec 100%)',
-          opacity: 0.7,
-          clipPath: 'polygon(0 0, 100% 0, 80% 100%, 0 100%)',
-        }}
-      />
-      <div
-        className="absolute right-0 bottom-0 z-10"
-        style={{
-          width: '120px',
-          height: '90px',
-          background: 'linear-gradient(135deg, #e4e7ec 60%, #08af85 100%)',
-          opacity: 0.5,
-          clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 0 100%)',
-        }}
-      />
-      <div className={styles.waveWrapper}>
-        <svg
-          viewBox="0 0 1440 80"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className={styles.waveSvg}
-        >
-          <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#08af85" fillOpacity="0.15">
-            <animate
-              attributeName="d"
-              dur="6s"
-              repeatCount="indefinite"
-              values="
-            M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z;
-            M0,30 C400,60 1040,20 1440,30 L1440,80 L0,80 Z;
-            M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z
-          "
-            />
-          </path>
-        </svg>
       </div>
     </section>
   );

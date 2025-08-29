@@ -126,13 +126,13 @@ const AppointmentRequestPanel = (): JSX.Element => {
       <div className="h-[calc(100vh-203px)] w-full overflow-y-scroll rounded-2xl border bg-white pt-6 max-md:h-[380px]">
         <div className="flex flex-row items-center justify-center gap-2">
           <p className="text-xl font-bold">Appointment Requests</p>
-          <Badge variant={'brown'}>{requests.length}</Badge>
+          <Badge variant={'brown'}>{requests?.length}</Badge>
         </div>
         <hr className="mx-6 mt-6 border border-gray-200" />
 
         {!isLoadingAppointments ? (
           <div className="hidden md:block">
-            {requests.map((request) => (
+            {requests?.map((request) => (
               <AppointmentRequestCard
                 key={request.id}
                 request={request}

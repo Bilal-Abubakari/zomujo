@@ -15,7 +15,7 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(120deg, rgba(8, 175, 133, 0.6) 0%, rgba(30, 41, 59, 0.35) 100%);
+  background: linear-gradient(to bottom, transparent 60%, white 100%);
   animation: gradientMove 8s ease-in-out infinite alternate;
 }
 
