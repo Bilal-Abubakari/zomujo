@@ -49,13 +49,13 @@ const Faq = (): JSX.Element => {
         </div>
 
         <div className="mx-auto max-w-3xl space-y-4">
-          {faqs.map((faq, index) => (
-            <div key={index} className="border-border rounded-lg border">
+          {faqs.map(({question, answer}, index) => (
+            <div key={question} className="border-border rounded-lg border">
               <button
                 className="hover:bg-muted/50 flex w-full items-center justify-between px-6 py-4 text-left transition-colors"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
-                <span className="text-foreground font-semibold">{faq.question}</span>
+                <span className="text-foreground font-semibold">{question}</span>
                 {openIndex === index ? (
                   <Minus className="text-primary h-5 w-5" />
                 ) : (
@@ -63,7 +63,7 @@ const Faq = (): JSX.Element => {
                 )}
               </button>
               {openIndex === index && (
-                <div className="text-muted-foreground px-6 pb-4">{faq.answer}</div>
+                <div className="text-muted-foreground px-6 pb-4">{answer}</div>
               )}
             </div>
           ))}

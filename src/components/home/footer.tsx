@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { JSX } from 'react';
 
 const Footer = (): JSX.Element => {
@@ -26,18 +27,18 @@ const Footer = (): JSX.Element => {
           </div>
 
           <div className="flex flex-col space-y-8 md:flex-row md:space-y-0 md:space-x-16">
-            {footerSections.map((section, index) => (
-              <div key={index}>
-                <h4 className="text-foreground mb-4 font-semibold">{section.title}</h4>
+            {footerSections.map(({links,title}) => (
+              <div key={title}>
+                <h4 className="text-foreground mb-4 font-semibold">{title}</h4>
                 <ul className="space-y-2">
-                  {section.links.map((link, linkIndex) => (
-                    <li key={linkIndex}>
-                      <a
+                  {links.map((link, linkIndex) => (
+                    <li key={link + linkIndex}>
+                      <Link
                         href="#"
                         className="text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {link}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>

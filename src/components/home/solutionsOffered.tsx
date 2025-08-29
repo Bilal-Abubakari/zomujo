@@ -42,16 +42,16 @@ const SolutionsOffered = (): JSX.Element => {
             <Image src={ContentProfile} alt="Healthcare app mockup" className="h-auto w-full" />
           </div>
           <div className="flex flex-col space-y-8 xl:flex-row">
-            {solutions.map((solution, index) => {
-              const IconComponent = solution.icon;
+            {solutions.map(({title, description,icon}) => {
+              const IconComponent = icon;
               return (
-                <div key={index} className="flex items-start space-x-4">
+                <div key={title} className="flex items-start space-x-4">
                   <div className="bg-primary/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg">
                     <IconComponent className="text-primary h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="mb-2 text-xl font-semibold">{solution.title}</h3>
-                    <p className="text-muted-foreground">{solution.description}</p>
+                    <h3 className="mb-2 text-xl font-semibold">{title}</h3>
+                    <p className="text-muted-foreground">{description}</p>
                   </div>
                 </div>
               );

@@ -21,8 +21,8 @@ const InterestedProvider = (): JSX.Element => {
             </h2>
 
             <div className="mb-8 space-y-4">
-              {benefits.map((benefit, index) => (
-                <div key={index} className="flex items-start space-x-3">
+              {benefits.map((benefit) => (
+                <div key={benefit} className="flex items-start space-x-3">
                   <div className="bg-primary mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full">
                     <Check className="text-primary-foreground h-4 w-4" />
                   </div>
