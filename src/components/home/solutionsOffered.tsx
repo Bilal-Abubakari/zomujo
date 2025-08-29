@@ -3,7 +3,7 @@ import { Shield, Zap, BarChart } from 'lucide-react';
 import Image from 'next/image';
 import { JSX } from 'react';
 
-const SolutionsOffered = () :JSX.Element=> {
+const SolutionsOffered = (): JSX.Element => {
   const solutions = [
     {
       icon: Shield,

@@ -1,6 +1,6 @@
-import { JSX } from "react";
+import { JSX } from 'react';
 
-const HowItWorks = () : JSX.Element => {
+const HowItWorks = (): JSX.Element => {
   const patientSteps = [
     'Register & Verify (simple sign-up, phone/email verification)',
     'Set Insurance or Payment Preference',
@@ -17,8 +17,8 @@ const HowItWorks = () : JSX.Element => {
           <p className="text-primary mb-2 font-semibold">Features</p>
           <h2 className="text-foreground mb-4 text-4xl font-bold">How it works</h2>
           <p className="text-muted-foreground mx-auto max-w-2xl">
-            Whether you&apos;re a patient seeking care or a healthcare provider, our platform has the
-            tools you need to succeed.
+            Whether you&apos;re a patient seeking care or a healthcare provider, our platform has
+            the tools you need to succeed.
           </p>
         </div>
 

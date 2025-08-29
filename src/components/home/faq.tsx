@@ -2,7 +2,7 @@ import { JSX, useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const Faq = () :JSX.Element => {
+const Faq = (): JSX.Element => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const faqs = [

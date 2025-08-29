@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import { JSX } from 'react';
 
 const Footer = (): JSX.Element => {
   const footerSections = [
