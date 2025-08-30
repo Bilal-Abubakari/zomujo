@@ -39,6 +39,8 @@ interface IQuery extends Pick<Required<IQueryParams>, 'specialty'> {
   recordsTab: RecordsTab;
   appointmentId: string;
   q: string;
+  doctorId: string;
+  slotId: string;
 }
 
 export type QueryParamKey = keyof IQuery;

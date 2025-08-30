@@ -13,13 +13,14 @@ type UserSignUpProps = {
   role: Role;
   isLoading: boolean;
   submit: (userCredentials: IUserSignUp) => void;
+  hasBookingInfo: boolean;
 };
 
 export type UserSignUpMethods = {
   resetUserSignUp: () => void;
 };
 const UserSignUp = forwardRef<UserSignUpMethods, UserSignUpProps>(
-  ({ submit, role, isLoading }, ref): JSX.Element => {
+  ({ submit, role, isLoading, hasBookingInfo }, ref): JSX.Element => {
     const usersSchema = z
       .object({
         firstName: nameSchema,
@@ -54,6 +55,9 @@ const UserSignUp = forwardRef<UserSignUpMethods, UserSignUpProps>(
     };
 
     const getFormTitle = (): string => {
+      if (hasBookingInfo) {
+        return 'Continue Booking';
+      }
       if (role === Role.Doctor) {
         return 'Sign Up as Doctor';
       }
