@@ -56,9 +56,10 @@ const PatientHome = (): JSX.Element => {
   const suggest = useMemo(
     () => (
       <>
-        <div className="-mt-10">
-          <Hospitals title="Suggested Hospitals" showViewAll={true} />
-        </div>
+        {/*TODO: For the MVP we will deal with only doctors. Hospitals will come later*/}
+        {/*<div className="-mt-10">*/}
+        {/*  <Hospitals title="Suggested Hospitals" showViewAll={true} />*/}
+        {/*</div>*/}
         <div className="mt-4">
           <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
             {doctors.map((doctor) => (
