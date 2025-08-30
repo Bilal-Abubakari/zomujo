@@ -15,7 +15,6 @@ import { getCoordinates } from '@/lib/location';
 import { showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { ToastStatus } from '@/types/shared.enum';
-import Hospitals from '../../(patient)/find-doctor/_components/hospitals';
 import { Suggested } from './_component/suggested';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
@@ -76,7 +75,8 @@ const PatientHome = (): JSX.Element => {
   const suggestSmallerScreen = useMemo(
     () => (
       <>
-        <Hospitals title="Suggested Hospitals" showViewAll={true} />
+        {/*TODO: For the MVP we will deal with only doctors. Hospitals will come later*/}
+        {/*<Hospitals title="Suggested Hospitals" showViewAll={true} />*/}
         <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
           <Carousel className="w-full">
             <CarouselContent>
