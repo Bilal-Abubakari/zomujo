@@ -44,6 +44,8 @@ export interface IUserSignUp extends IBaseUser {
 
 export interface IUserSignUpRole extends IUserSignUp {
   role: Role;
+  doctorId?: string;
+  slotId?: string;
 }
 
 export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {

@@ -42,6 +42,18 @@ export const getAppointmentSlots = createAsyncThunk(
   },
 );
 
+export const getAppointmentSlot = createAsyncThunk(
+  'appointments/getSlot',
+  async (id: string): Promise<Toast | AppointmentSlots> => {
+    try {
+      const { data } = await axios.get<IResponse<AppointmentSlots>>(`appointments/slots/${id}`);
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const getAppointmentSlotsByDate = createAsyncThunk(
   'appointments/getSlotsByDate',
   async (
