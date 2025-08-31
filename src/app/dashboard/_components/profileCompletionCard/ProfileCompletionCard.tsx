@@ -29,7 +29,7 @@ const ProfileCompletionCard = (): JSX.Element => {
     <div
       className={cn(
         'relative hidden w-full flex-col items-center justify-center gap-6 rounded-lg bg-linear-to-t from-teal-800 to-emerald-500 px-5 py-4',
-        completionRate === 100 ? 'hidden' : 'flex',
+        completionRate >= 100 ? 'hidden' : 'flex',
       )}
     >
       <div className="z-20 flex h-14 w-full flex-col items-start justify-start gap-2">
