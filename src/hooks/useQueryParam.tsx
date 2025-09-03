@@ -30,7 +30,7 @@ export enum RecordsTab {
   MyRecord = 'myRecord',
 }
 
-interface IQuery extends Pick<Required<IQueryParams>, 'specialty'> {
+interface IQuery extends Pick<Required<IQueryParams>, 'specialty' | 'priceMax' | 'search'> {
   tab: Tab;
   appointmentType: MedicalAppointmentType;
   [PaymentVerification.reference]: string;
@@ -44,6 +44,7 @@ interface IQuery extends Pick<Required<IQueryParams>, 'specialty'> {
 }
 
 export type QueryParamKey = keyof IQuery;
+type PartialUpdateQueries = Partial<Record<QueryParamKey, QueryParamValue>>;
 
 type QueryParamValue = IQuery[QueryParamKey];
 
@@ -51,6 +52,7 @@ export function useQueryParam(): {
   updateQuery: (key: QueryParamKey, value: QueryParamValue) => void;
   getQueryParam: (key: QueryParamKey) => QueryParamValue;
   hasSearchParams: boolean;
+  updateQueries: (params: PartialUpdateQueries) => void;
 } {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -62,10 +64,23 @@ export function useQueryParam(): {
     router.push(`${pathname}?${currentSearchParams.toString()}`);
   };
 
+  const updateQueries = (params: PartialUpdateQueries): void => {
+    const currentSearchParams = new URLSearchParams(searchParams.toString());
+    Object.entries(params ?? {}).forEach(([key, value]) => {
+      currentSearchParams.append(key, value);
+    });
+    router.push(`${pathname}?${currentSearchParams.toString()}`);
+  };
+
   const getQueryParam = useCallback(
     (key: QueryParamKey): QueryParamValue => searchParams.get(key) as QueryParamValue,
     [searchParams],
   );
 
-  return { updateQuery, getQueryParam, hasSearchParams: !![...searchParams.values()].length };
+  return {
+    updateQuery,
+    getQueryParam,
+    hasSearchParams: !![...searchParams.values()].length,
+    updateQueries,
+  };
 }

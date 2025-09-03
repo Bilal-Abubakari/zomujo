@@ -3,7 +3,7 @@ import MultiInputField from '@/components/multi-input-field/multiInputField';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { MODE } from '@/constants/constants';
+import { MODE, specialties } from '@/constants/constants';
 import { toast } from '@/hooks/use-toast';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { updateDoctorProfile } from '@/lib/features/doctors/doctorsThunk';
@@ -24,6 +24,7 @@ import React, { JSX, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
+import { MultiSelect } from '@/components/ui/multiSelect';
 
 const PersonalDetailsSchema = z.object({
   firstName: nameSchema,
@@ -186,13 +187,15 @@ const PersonalInfo = (): JSX.Element => {
             />
           </div>
           <div className="w-full max-w-[384px]">
-            <MultiInputField
+            <MultiSelect
+              labelName="Specialization"
+              options={specialties}
+              defaultValue={watch('specializations')}
+              placeholder="Select specializations"
               ref={register('specializations').ref}
-              handleValueChange={(value) => handleMultiInputChange('specializations', value)}
+              onValueChange={(value) => handleMultiInputChange('specializations', value)}
+              animation={2}
               error={errors.specializations?.message || ''}
-              label="Specialization"
-              placeholder="Ophthalmology"
-              defaultValues={watch('specializations')}
             />
           </div>
         </div>

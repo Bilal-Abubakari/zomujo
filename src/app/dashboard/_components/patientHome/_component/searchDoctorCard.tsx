@@ -4,12 +4,21 @@ import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/select';
 import { specialties } from '@/constants/constants';
+import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 
 const SearchDoctorsCard = (): JSX.Element => {
   const router = useRouter();
-  const [search, setSearch] = useState('');
+  const [params, setParams] = useState({
+    specialty: '',
+    search: '',
+    priceMax: '500',
+  });
 
-  const findMedical = (): void => router.push(`/dashboard/find-doctor?specialty=${search}`);
+  const findMedical = (): void =>
+    router.push(
+      `/dashboard/find-doctor?specialty=${params.specialty}&search=${params.search}&priceMax=${params.priceMax}`,
+    );
 
   return (
     <div className="bg-primary bg-arc1 relative flex w-full flex-col gap-8 rounded-2xl bg-no-repeat p-8">
@@ -21,21 +30,50 @@ const SearchDoctorsCard = (): JSX.Element => {
           Search for top hospitals or qualified doctors and book an appointment online.
         </p>
       </div>
-      <div className="flex h-12 w-full flex-row items-center justify-between gap-2 rounded-xl bg-white p-1.5">
+      <div className="flex-baseline flex w-full flex-row flex-wrap items-center justify-between gap-2 rounded-xl bg-white p-1.5 py-2 2xl:flex-nowrap">
         <Combobox
           isLoading={false}
-          onChange={(value) => setSearch(value)}
+          onChange={(value) => setParams((prev) => ({ ...prev, specialty: value }))}
           options={specialties}
-          value={search}
+          value={params.specialty}
           placeholder="Search by specialty"
           searchPlaceholder="Search specialty..."
           defaultMaxWidth={false}
+          className="py-6"
+          label="Specialty"
         />
+        <Input
+          type="text"
+          placeholder="Search by doctors' name"
+          className="py-6 font-medium text-[#111111] placeholder:text-[#111111] focus:border-1 focus:border-gray-400 focus:shadow-none focus:outline-none"
+          labelName="Doctors' name"
+          labelClassName="text-left text-[#111]"
+          value={params.search}
+          onChange={(event) => setParams((prev) => ({ ...prev, search: event.target.value }))}
+          defaultMaxWidth={false}
+        />
+        <div className="-mt-10 w-full">
+          <p className="mt-10 text-left text-sm font-bold text-[#111111] 2xl:mt-2">Max Price</p>
+          <Slider
+            value={[Number(params.priceMax)]}
+            onValueChange={(value) =>
+              setParams((prev) => ({ ...prev, priceMax: String(value[0]) }))
+            }
+            min={80}
+            max={10000}
+            step={10}
+            className="mt-4"
+          />
+          <div className="absolute mt-2 flex h-5 items-center justify-center rounded-full bg-gray-500 px-2.5">
+            <p className="text-xs font-medium text-black">
+              GHS {Number(params.priceMax || 80).toLocaleString()}{' '}
+            </p>
+          </div>
+        </div>
         <Button
           child="Find"
           onClick={findMedical}
-          className="rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm"
-          disabled={!search.length}
+          className="mt-8 rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm 2xl:mt-2"
         />
       </div>
     </div>
