@@ -187,7 +187,6 @@ const PersonalInfo = (): JSX.Element => {
             />
           </div>
           <div className="w-full max-w-[384px]">
-
             <MultiSelect
               labelName="Specialization"
               options={specialties}

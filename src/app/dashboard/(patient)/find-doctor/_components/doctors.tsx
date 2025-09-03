@@ -244,7 +244,7 @@ const Doctors = (): JSX.Element => {
             label="Specialty"
             options={specialties}
             value={queryParameters?.specialty ?? ''}
-            className="px-4 max-h-[62px]"
+            className="max-h-[62px] px-4"
             placeholder="Search by specialty..."
             searchPlaceholder="Search for specialty..."
             defaultMaxWidth={false}
