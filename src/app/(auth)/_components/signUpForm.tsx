@@ -29,7 +29,13 @@ const roleOptions: ISelected[] = [
   { label: 'Organization', value: Role.Admin },
 ];
 
-const SignUpForm = (): JSX.Element => {
+export type SignUpFormProps = {
+  hasBookingInfo: boolean;
+  doctorId?: string;
+  slotId?: string;
+};
+
+const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.Element => {
   const userSignUpRef = useRef<UserSignUpMethods>(null);
   const organizationsSchema = z.object({
     name: nameSchema,
@@ -68,7 +74,9 @@ const SignUpForm = (): JSX.Element => {
       );
       payload = organizationRequestResponse;
     } else if (role !== Role.Admin && 'firstName' in userCredentials) {
-      const { payload: userSignUpResponse } = await dispatch(signUp({ ...userCredentials, role }));
+      const { payload: userSignUpResponse } = await dispatch(
+        signUp({ ...userCredentials, role, doctorId, slotId }),
+      );
       payload = userSignUpResponse;
     } else {
       return;
@@ -132,22 +140,30 @@ const SignUpForm = (): JSX.Element => {
           />
         )}
       </div>
-      <div className="mt-4 mb-5 flex justify-center space-x-6">
-        {roleOptions.map(({ label, value }) => (
-          <label key={value} className="flex items-center space-x-2">
-            <input
-              type="radio"
-              value={value}
-              className="accent-primary h-4 w-4"
-              checked={role === value}
-              onChange={handleRoleChange}
-            />
-            <span>{label}</span>
-          </label>
-        ))}
-      </div>
+      {!hasBookingInfo && (
+        <div className="mt-4 mb-5 flex justify-center space-x-6">
+          {roleOptions.map(({ label, value }) => (
+            <label key={value} className="flex items-center space-x-2">
+              <input
+                type="radio"
+                value={value}
+                className="accent-primary h-4 w-4"
+                checked={role === value}
+                onChange={handleRoleChange}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
+      )}
       {role !== Role.Admin && (
-        <UserSignUp ref={userSignUpRef} role={role} isLoading={isLoading} submit={onSubmit} />
+        <UserSignUp
+          ref={userSignUpRef}
+          role={role}
+          isLoading={isLoading}
+          submit={onSubmit}
+          hasBookingInfo={hasBookingInfo}
+        />
       )}
       {role === Role.Admin && (
         <>
