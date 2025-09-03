@@ -24,9 +24,10 @@ import React, {
   useState,
 } from 'react';
 import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
-import { genderOptions } from '@/constants/constants';
+import { genderOptions, specialties } from '@/constants/constants';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
+import { Combobox } from '@/components/ui/select';
 
 const Doctors = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -187,7 +188,7 @@ const Doctors = (): JSX.Element => {
           <Input
             labelName="Min Price"
             placeholder="GHS 100"
-            wrapperClassName="max-w-52"
+            wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="priceMin"
@@ -196,7 +197,7 @@ const Doctors = (): JSX.Element => {
           <Input
             labelName="Max Price"
             placeholder="GHS 1000"
-            wrapperClassName="max-w-52"
+            wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="priceMax"
@@ -205,7 +206,7 @@ const Doctors = (): JSX.Element => {
           <Input
             labelName="Min Rating"
             placeholder="0"
-            wrapperClassName="max-w-52"
+            wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="rateMin"
@@ -214,7 +215,7 @@ const Doctors = (): JSX.Element => {
           <Input
             labelName="Max Rating"
             placeholder="5"
-            wrapperClassName="max-w-52"
+            wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="rateMax"
@@ -223,7 +224,7 @@ const Doctors = (): JSX.Element => {
           <Input
             labelName="Min Experience"
             placeholder="0 year"
-            wrapperClassName="max-w-52"
+            wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="experienceMin"
@@ -232,21 +233,22 @@ const Doctors = (): JSX.Element => {
           <Input
             labelName="Max Experience"
             placeholder="10 years"
-            wrapperClassName="max-w-52"
+            wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="experienceMax"
             onChange={handleValueChange}
           />
-          <Input
-            labelName="Speciality"
-            placeholder="Global Health"
-            wrapperClassName="max-w-52"
+          <Combobox
+            onChange={(value) => setQueryParameters((prev) => ({ ...prev, specialty: value }))}
+            label="Specialty"
+            options={specialties}
+            value={queryParameters?.specialty ?? ''}
+            className="px-4 max-h-[62px]"
+            placeholder="Search by specialty..."
+            searchPlaceholder="Search for specialty..."
             defaultMaxWidth={false}
-            type="search"
-            name="specialty"
-            value={queryParameters.specialty}
-            onChange={handleValueChange}
+            wrapperClassName="text-left text-[#111111] max-w-52 max-h-[62px]"
           />
           <OptionsMenu
             options={genderOptions}
@@ -261,7 +263,7 @@ const Doctors = (): JSX.Element => {
               }));
               setDoctors([]);
             }}
-            className="mt-auto h-10 cursor-pointer bg-gray-50 sm:flex"
+            className="mt-[20px] h-10 max-h-[62px] cursor-pointer bg-gray-50 sm:flex"
           />
         </div>
       </div>

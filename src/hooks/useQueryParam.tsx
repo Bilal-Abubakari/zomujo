@@ -50,7 +50,7 @@ export function useQueryParam(): {
   updateQuery: (key: QueryParamKey, value: QueryParamValue) => void;
   getQueryParam: (key: QueryParamKey) => QueryParamValue;
   hasSearchParams: boolean;
-  updateQueries: (params:PartialUpdateQueries)=> void
+  updateQueries: (params: PartialUpdateQueries) => void;
 } {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,6 +79,6 @@ export function useQueryParam(): {
     updateQuery,
     getQueryParam,
     hasSearchParams: !![...searchParams.values()].length,
-    updateQueries
+    updateQueries,
   };
 }

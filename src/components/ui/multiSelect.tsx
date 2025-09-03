@@ -123,6 +123,7 @@ interface MultiSelectProps
    * Optional, defaults to true.
    */
   defaultMaxWidth?: boolean;
+  error?: string;
 }
 
 export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
@@ -141,6 +142,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       labelName,
       labelClassName,
       defaultMaxWidth = true,
+      error,
       ...props
     },
     ref,
@@ -207,6 +209,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
               onClick={handleTogglePopover}
               className={cn(
                 'bg-background hover:bg-background! flex h-auto min-h-10 w-full items-center justify-between rounded-md border p-1 [&_svg]:pointer-events-auto',
+                { 'border-red-500': error, 'focus:border-red-500': error },
                 className,
               )}
               child={
@@ -349,6 +352,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
             </Command>
           </PopoverContent>
         </Popover>
+        {error && <small className="-mt-1 text-xs font-medium text-red-500">{error}</small>}
       </div>
     );
   },

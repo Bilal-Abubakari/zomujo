@@ -12,10 +12,13 @@ const SearchDoctorsCard = (): JSX.Element => {
   const [params, setParams] = useState({
     specialty: '',
     search: '',
-    priceMax:'500'
+    priceMax: '500',
   });
 
-  const findMedical = (): void => router.push(`/dashboard/find-doctor?specialty=${params.specialty}&search=${params.search}&priceMax=${params.priceMax}`);
+  const findMedical = (): void =>
+    router.push(
+      `/dashboard/find-doctor?specialty=${params.specialty}&search=${params.search}&priceMax=${params.priceMax}`,
+    );
 
   return (
     <div className="bg-primary bg-arc1 relative flex w-full flex-col gap-8 rounded-2xl bg-no-repeat p-8">
@@ -27,7 +30,7 @@ const SearchDoctorsCard = (): JSX.Element => {
           Search for top hospitals or qualified doctors and book an appointment online.
         </p>
       </div>
-      <div className="flex-baseline flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-white p-1.5 py-2 flex-wrap  2xl:flex-nowrap">
+      <div className="flex-baseline flex w-full flex-row flex-wrap items-center justify-between gap-2 rounded-xl bg-white p-1.5 py-2 2xl:flex-nowrap">
         <Combobox
           isLoading={false}
           onChange={(value) => setParams((prev) => ({ ...prev, specialty: value }))}
@@ -36,7 +39,7 @@ const SearchDoctorsCard = (): JSX.Element => {
           placeholder="Search by specialty"
           searchPlaceholder="Search specialty..."
           defaultMaxWidth={false}
-          className='py-6'
+          className="py-6"
           label="Specialty"
         />
         <Input
@@ -49,8 +52,8 @@ const SearchDoctorsCard = (): JSX.Element => {
           onChange={(event) => setParams((prev) => ({ ...prev, search: event.target.value }))}
           defaultMaxWidth={false}
         />
-        <div className='w-full -mt-10'>
-          <p className="  mt-10 2xl:mt-2 text-left text-sm font-bold text-[#111111]">Max Price</p>
+        <div className="-mt-10 w-full">
+          <p className="mt-10 text-left text-sm font-bold text-[#111111] 2xl:mt-2">Max Price</p>
           <Slider
             value={[Number(params.priceMax)]}
             onValueChange={(value) =>
@@ -70,7 +73,7 @@ const SearchDoctorsCard = (): JSX.Element => {
         <Button
           child="Find"
           onClick={findMedical}
-          className="rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm mt-8 2xl:mt-2"
+          className="mt-8 rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm 2xl:mt-2"
         />
       </div>
     </div>

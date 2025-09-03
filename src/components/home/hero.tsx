@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { specialties } from '@/constants/constants';
 import { IQueryParams } from '@/types/shared.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
-import {  useQueryParam } from '@/hooks/useQueryParam';
+import { useQueryParam } from '@/hooks/useQueryParam';
 import { Combobox } from '@/components/ui/select';
 import Header from './header';
 import { Input } from '../ui/input';
@@ -16,7 +16,7 @@ const Hero = (): JSX.Element => {
   const [current, setCurrent] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus>>();
-  const { updateQueries} = useQueryParam();
+  const { updateQueries } = useQueryParam();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -26,7 +26,7 @@ const Hero = (): JSX.Element => {
   }, []);
 
   const handleSearch = (): void => {
-   updateQueries({...queryParameters,'q': 'true'})
+    updateQueries({ ...queryParameters, q: 'true' });
   };
 
   return (
