@@ -19,18 +19,10 @@ import { selectThunkState } from '@/lib/features/auth/authSelector';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ILogin, ILoginResponse } from '@/types/auth.interface';
 import { authenticationProvider } from './authenticationProvider';
-import { useQueryParam } from '@/hooks/useQueryParam';
-import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
-import { getAppointmentSlot } from '@/lib/features/appointments/appointmentsThunk';
-import { showErrorToast } from '@/lib/utils';
-import { toast } from '@/hooks/use-toast';
-import { ToastStatus } from '@/types/shared.enum';
-import { AppointmentSlots } from '@/types/slots.interface';
-import { IDoctor } from '@/types/doctor.interface';
+import { useBookingInfo } from '@/hooks/useBookingInfo';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
-import { AvatarComp } from '@/components/ui/avatar';
-import moment from 'moment';
 import AuthPopIn from './authPopIn';
+import BookingInfoCard from './BookingInfoCard';
 
 const loginSchema = z.object({
   email: emailSchema,
@@ -47,46 +39,16 @@ const LoginForm = (): JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { isLoading, errorMessage } = useAppSelector(selectThunkState);
+  const { isLoading: isAuthLoading, errorMessage } = useAppSelector(selectThunkState);
 
-  const { getQueryParam } = useQueryParam();
-  const doctorId = getQueryParam('doctorId');
-  const slotId = getQueryParam('slotId');
-  const [isFetchingBookingInfo, setIsFetchingBookingInfo] = useState(true);
-  const [appointmentSlot, setAppointmentSlot] = useState<AppointmentSlots | null>(null);
-  const [doctor, setDoctor] = useState<IDoctor | null>(null);
+  const { isLoading, appointmentSlot, doctor, hasBookingInfo, fullName } = useBookingInfo();
   const [isPopInOpen, setIsPopInOpen] = useState(false);
 
-  const fullName = useMemo(
-    () => (doctor ? `${doctor.firstName} ${doctor.lastName}` : ''),
-    [doctor],
-  );
-  const hasBookingInfo = useMemo(() => !!doctorId && !!slotId, [doctorId, slotId]);
-
   useEffect(() => {
-    const fetchBookingInfo = async (): Promise<void> => {
-      if (hasBookingInfo) {
-        setIsPopInOpen(true);
-        const [{ payload: doctorInfoResponse }, { payload: slotResponse }] = await Promise.all([
-          dispatch(doctorInfo(doctorId)),
-          dispatch(getAppointmentSlot(slotId)),
-        ]);
-        if (showErrorToast(doctorInfoResponse) || showErrorToast(slotResponse)) {
-          toast({
-            title: ToastStatus.Error,
-            description: 'Failed to load booking info',
-            variant: 'destructive',
-          });
-          setIsFetchingBookingInfo(false);
-          return;
-        }
-        setAppointmentSlot(slotResponse as AppointmentSlots);
-        setDoctor(doctorInfoResponse as IDoctor);
-      }
-      setIsFetchingBookingInfo(false);
-    };
-    void fetchBookingInfo();
-  }, [dispatch, doctorId, hasBookingInfo, slotId]);
+    if (hasBookingInfo) {
+      setIsPopInOpen(true);
+    }
+  }, [hasBookingInfo]);
 
   const onSubmit = async (loginCredentials: ILogin): Promise<void> => {
     const { payload } = await dispatch(login(loginCredentials));
@@ -106,7 +68,7 @@ const LoginForm = (): JSX.Element => {
 
   return (
     <form className="flex w-full flex-col items-center" onSubmit={handleSubmit(onSubmit)}>
-      {isFetchingBookingInfo && hasBookingInfo && <LoadingOverlay />}
+      {isLoading && hasBookingInfo && <LoadingOverlay />}
       {hasBookingInfo && (
         <AuthPopIn
           isOpen={isPopInOpen}
@@ -122,29 +84,7 @@ const LoginForm = (): JSX.Element => {
       )}
       {hasBookingInfo && doctor && appointmentSlot ? (
         <>
-          <div className="mx-auto w-full max-w-sm rounded-lg border p-4">
-            <div className="mb-4 flex w-full flex-row gap-4">
-              <div>
-                <AvatarComp
-                  imageSrc={doctor?.profilePicture}
-                  name={fullName}
-                  className="h-18 w-18"
-                />
-              </div>
-              <div className="flex w-full flex-col justify-center gap-y-1">
-                <div className="flex items-center">
-                  <h2 className="text-lg font-bold text-gray-900">Dr. {fullName}</h2>
-                </div>
-                <p className="text-primary-600 text-sm font-medium">
-                  {doctor?.specializations ? doctor.specializations[0] : 'General Practitioner'}
-                </p>
-                <p className="text-primary-600 text-sm font-medium">
-                  {appointmentSlot?.date && moment(appointmentSlot.date).format('ddd, MMM D')} at{' '}
-                  {appointmentSlot?.startTime && moment(appointmentSlot.startTime).format('h:mm A')}
-                </p>
-              </div>
-            </div>
-          </div>
+          <BookingInfoCard doctor={doctor} appointmentSlot={appointmentSlot} fullName={fullName} />
           <div className="mx-auto mt-8 w-full max-w-sm">
             <span className="text-2xl font-bold">Welcome back!</span>
             <p className="mt-1 text-sm text-gray-500">
@@ -187,9 +127,9 @@ const LoginForm = (): JSX.Element => {
           {...register('password')}
         />
         <Button
-          isLoading={isLoading}
+          isLoading={isAuthLoading}
           child="Login"
-          disabled={!isValid || isLoading}
+          disabled={!isValid || isAuthLoading}
           className="w-full max-w-sm"
         />
         <div className="flex w-full max-w-sm justify-between">
