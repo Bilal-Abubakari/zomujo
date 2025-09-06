@@ -15,8 +15,8 @@ export interface IUseBookingInfo {
   doctor: IDoctor | null;
   hasBookingInfo: boolean;
   fullName: string;
-  doctorId: string | null;
-  slotId: string | null;
+  doctorId: string | undefined;
+  slotId: string | undefined;
 }
 
 export const useBookingInfo = (): IUseBookingInfo => {
