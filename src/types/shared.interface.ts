@@ -7,9 +7,10 @@ export interface IResponse<T = undefined> {
   message: string;
 }
 
-export interface ICustomResponse {
+export interface ICustomResponse<T = undefined> {
   success: boolean;
   message: string;
+  data?: T;
 }
 
 export interface IPagination<T> {
