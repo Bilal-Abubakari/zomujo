@@ -17,15 +17,20 @@ import { AppointmentSlots } from '@/types/slots.interface';
 import { IDoctor } from '@/types/doctor.interface';
 import moment from 'moment';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
+import AuthPopIn from './authPopIn';
+import { useSearchParams } from 'next/navigation';
 
 const SignUp = (): JSX.Element => {
   const { getQueryParam } = useQueryParam();
+  const searchParams = useSearchParams();
   const doctorId = getQueryParam('doctorId');
   const slotId = getQueryParam('slotId');
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(true);
   const [appointmentSlot, setAppointmentSlot] = useState<AppointmentSlots | null>(null);
   const [doctor, setDoctor] = useState<IDoctor | null>(null);
+  const [isPopInOpen, setIsPopInOpen] = useState(false);
+
   const fullName = useMemo(
     () => (doctor ? `${doctor.firstName} ${doctor.lastName}` : ''),
     [doctor],
@@ -35,6 +40,7 @@ const SignUp = (): JSX.Element => {
   useEffect(() => {
     const fetchBookingInfo = async (): Promise<void> => {
       if (hasBookingInfo) {
+        setIsPopInOpen(true);
         const [{ payload: doctorInfoResponse }, { payload: slotResponse }] = await Promise.all([
           dispatch(doctorInfo(doctorId)),
           dispatch(getAppointmentSlot(slotId)),
@@ -55,9 +61,27 @@ const SignUp = (): JSX.Element => {
     void fetchBookingInfo();
   }, [dispatch, doctorId, hasBookingInfo, slotId]);
 
+  const loginLink = useMemo(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    return `/login?${params.toString()}`;
+  }, [searchParams]);
+
   return (
     <div className="relative -ml-6">
       {isLoading && <LoadingOverlay />}
+      {hasBookingInfo && (
+        <AuthPopIn
+          isOpen={isPopInOpen}
+          onClose={() => setIsPopInOpen(false)}
+          message={
+            <p className="text-sm text-gray-600">
+              Already have an account? Log in to complete your booking.
+            </p>
+          }
+          buttonText="Go to Login"
+          link={loginLink}
+        />
+      )}
       <AuthenticationFrame
         imageSlide={SignUpSlide}
         imageAlt="sign-up"
