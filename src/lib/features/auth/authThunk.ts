@@ -23,6 +23,7 @@ import { IDoctor } from '@/types/doctor.interface';
 import { generateSuccessToast } from '@/lib/utils';
 import { Toast } from '@/hooks/use-toast';
 import { Status } from '@/types/shared.enum';
+import { ICheckout } from '@/types/payment.interface';
 
 const authPath = 'auth/' as const;
 const adminPath = 'admins/' as const;
@@ -35,7 +36,7 @@ export const login = createAsyncThunk(
         loginCredentials,
       );
       dispatch(setUserInfo(data.data));
-      return true;
+      return data.data;
     } catch (error) {
       dispatch(setErrorMessage(axiosErrorHandler(error)));
       return false;
@@ -137,7 +138,7 @@ export const resetPassword = createAsyncThunk(
 
 export const verifyEmail = createAsyncThunk(
   'authentication/verifyEmail',
-  async (token: string, { dispatch }): Promise<ICustomResponse> => {
+  async (token: string, { dispatch }): Promise<ICustomResponse<ICheckout>> => {
     try {
       const {
         data: { data, message },
@@ -146,6 +147,7 @@ export const verifyEmail = createAsyncThunk(
       return {
         success: true,
         message,
+        data: data.paystack,
       };
     } catch (error) {
       return {
