@@ -58,7 +58,6 @@ const AvailableAppointment = (): JSX.Element => {
     resolver: zodResolver(bookingSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
-      amount: getAmount(),
       appointmentType: AppointmentType.Virtual,
       date: dateToday.toISOString(),
     },
@@ -70,9 +69,7 @@ const AvailableAppointment = (): JSX.Element => {
     }
     setIsPaymentInitiated(true);
 
-    const { payload } = await dispatch(
-      initiatePayment({ amount: getAmount(), additionalInfo, reason, slotId }),
-    );
+    const { payload } = await dispatch(initiatePayment({ additionalInfo, reason, slotId }));
 
     if (payload && showErrorToast(payload)) {
       toast(payload);
