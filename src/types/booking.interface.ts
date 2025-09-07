@@ -3,7 +3,6 @@ import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'rea
 
 export interface IInitializeAppointment {
   slotId: string;
-  amount: number;
   reason: string;
   additionalInfo: string;
 }

@@ -3,7 +3,6 @@ import { Calendar, Clock, Medal, Star, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useState } from 'react';
 import { IDoctor } from '@/types/doctor.interface';
-import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 import { Button } from '@/components/ui/button';
 import { AvatarComp } from '@/components/ui/avatar';
 import moment from 'moment';
@@ -16,8 +15,12 @@ import { MODE } from '@/constants/constants';
 import { IBookingForm } from '@/types/booking.interface';
 import { bookingSchema } from '@/schemas/booking.schema';
 import DoctorDetails from '@/app/dashboard/_components/doctorDetails';
-import { useAppSelector } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
+import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
+import { showErrorToast } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
+import { ICheckout } from '@/types/payment.interface';
 
 export type DoctorCardProps = {
   doctor: IDoctor;
@@ -42,17 +45,13 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     mode: MODE.ON_TOUCH,
   });
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [showSlots, setShowSlots] = useState(false);
   const [openDoctorDetails, setOpenDoctorDetails] = useState(false);
   const user = useAppSelector(selectUser);
+  const [isInitiatingPayment, setIsInitiatingPayment] = useState<boolean>(false);
 
   const handleBookAppointment = (): void => {
-    if (user) {
-      router.push(
-        `/dashboard/book-appointment/${id}?appointmentType=${MedicalAppointmentType.Doctor}`,
-      );
-      return;
-    }
     setShowSlots(true);
   };
 
@@ -66,7 +65,29 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
 
   const bookAppointment = (): void => {
     const { slotId } = getValues();
+    if (user) {
+      void onSubmit(slotId);
+      return;
+    }
     router.push(`/sign-up?doctorId=${id}&slotId=${slotId}&doctor=${encodeURIComponent(fullName)}`);
+  };
+
+  const onSubmit = async (slotId: string): Promise<void> => {
+    setIsInitiatingPayment(true);
+
+    const { payload } = await dispatch(
+      initiatePayment({ additionalInfo: '', reason: 'Reason is not a priority now', slotId }), // TODO: Will remove or handle reason later
+    );
+
+    if (payload && showErrorToast(payload)) {
+      toast(payload);
+      setIsInitiatingPayment(false);
+      return;
+    }
+
+    const { authorization_url } = payload as ICheckout;
+    window.location.replace(authorization_url);
+    setIsInitiatingPayment(false);
   };
 
   return (
@@ -122,7 +143,12 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         }
         footer={
           <div className="mt-11 ml-auto flex justify-end">
-            <Button onClick={bookAppointment} child="Continue" disabled={!watch('slotId')} />
+            <Button
+              isLoading={isInitiatingPayment}
+              onClick={bookAppointment}
+              child="Continue"
+              disabled={!watch('slotId') || isInitiatingPayment}
+            />
           </div>
         }
         title="Book an appointment"
