@@ -26,7 +26,7 @@ export default function Home(): JSX.Element {
   return (
     <div>
       {hasSearchParams ? (
-        <div className="mx-10">
+        <div className="mx-4 md:mx-10">
           <div className="mt-4 mb-4 flex items-center justify-between">
             <Button
               onClick={handleBackClick}

@@ -78,7 +78,7 @@ export const SidebarLayout = ({
   };
 
   return (
-    <Sidebar className={cn('me:block hidden', sidebarClassName)}>
+    <Sidebar className={cn('me:sticky', sidebarClassName)}>
       {!type && (
         <SidebarHeader className="pt-3.5 pb-[50px]">
           <SidebarTrigger child={<Image src={Logo} alt="Zyptyk-logo" />} className="h-10 w-10" />
@@ -149,11 +149,11 @@ export const SidebarLayout = ({
         ))}
       </SidebarContent>
       {!type && (
-        <SidebarFooter>
+        <SidebarFooter className="me:block hidden">
           {!isAnAdmin && <ProfileCompletionCard />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <SidebarMenuButton className="h-full">
+              <SidebarMenuButton className="mt-4">
                 <AvatarComp name={userName} />
                 <div className="flex flex-col text-xs font-medium">
                   <span>{userName}</span>
@@ -167,49 +167,6 @@ export const SidebarLayout = ({
         </SidebarFooter>
       )}
     </Sidebar>
-  );
-};
-
-export const PhoneNavbar = ({ type }: Pick<SideBarProps, 'type'>): JSX.Element => {
-  const role = useAppSelector(selectUserRole);
-  const userName = useAppSelector(selectUserName);
-  const pathName = usePathname();
-  const flattenedMenu = getSidebarByRole(role, type).sidebarGroup.flatMap((group) => group.menu);
-  const style =
-    'h-full p-2 hover:bg-transparent data-[active=true]:bg-transparent relative before:absolute before:left-1/2 before:top-0 before:-translate-x-1/2 before:transform rounded-lg before:h-[3px] before:w-[30px] before:rounded before:bg-primary before:opacity-0 data-[active=true]/menu-action:before:opacity-100';
-
-  return (
-    <div className="me:hidden fixed bottom-0 z-50 flex h-[69px] w-full items-center justify-evenly gap-6 overflow-x-scroll bg-white">
-      {flattenedMenu.map(({ title, Icon, phoneTitle, url }) => (
-        <div key={title} title={title}>
-          <SidebarMenuButton isActive={pathName === url} title={title} className={style}>
-            <Link href={url} className="flex flex-col items-center justify-center">
-              {Icon && <Icon size={24} />}
-              <div>
-                <span
-                  className={cn(
-                    'w-5 truncate text-xs font-bold',
-                    pathName === url && 'text-primary',
-                  )}
-                >
-                  {phoneTitle ?? title}
-                </span>
-              </div>
-            </Link>
-          </SidebarMenuButton>
-        </div>
-      ))}
-      <SidebarMenuButton title="your profile" className={cn(style, 'max-w-16 min-w-16')}>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex flex-col items-center justify-center">
-              <AvatarComp name={userName} />
-            </div>
-          </DropdownMenuTrigger>
-          <ProfileDropdownMenu />
-        </DropdownMenu>
-      </SidebarMenuButton>
-    </div>
   );
 };
 

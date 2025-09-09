@@ -38,6 +38,7 @@ const Doctors = (): JSX.Element => {
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus>>({
     page: 1,
     orderDirection: OrderDirection.Descending,
@@ -55,17 +56,6 @@ const Doctors = (): JSX.Element => {
     rateMax: '',
     booking: true,
   });
-
-  const statusFilterOptions: ISelected[] = [
-    {
-      value: OrderDirection.Ascending,
-      label: 'Ascending',
-    },
-    {
-      value: OrderDirection.Descending,
-      label: 'Descending',
-    },
-  ];
 
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -166,25 +156,20 @@ const Doctors = (): JSX.Element => {
             />
             {searchTerm && <Button child={<SendHorizontal />} />}
           </form>
-          <div className="ml-2">
-            <OptionsMenu
-              options={statusFilterOptions}
-              Icon={ListFilter}
-              menuTrigger="Filter"
-              selected={queryParameters.orderDirection}
-              setSelected={(value) => {
-                setQueryParameters((prev) => ({
-                  ...prev,
-                  page: 1,
-                  orderDirection: value as OrderDirection,
-                }));
-                setDoctors([]);
-              }}
-              className="h-10 cursor-pointer bg-gray-50 sm:flex"
+          <div className="ml-2 flex gap-2">
+            <Button
+              onClick={() => setShowAdvancedFilters((prev) => !prev)}
+              className="h-10 cursor-pointer bg-gray-50 sm:flex lg:hidden"
+              variant="outline"
+              child={
+                <>
+                  <ListFilter className="mr-2 h-4 w-4" /> Filters
+                </>
+              }
             />
           </div>
         </div>
-        <div className="mt-2 flex flex-wrap gap-4">
+        <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-wrap gap-4 lg:flex`}>
           <Input
             labelName="Min Price"
             placeholder="GHS 100"
@@ -292,7 +277,7 @@ const Doctors = (): JSX.Element => {
               className="m-auto h-[60vh] w-[60vw]"
             />
           }
-          <p className="mt-4 text-center text-xl"> Sorry nothing to find here </p>
+          <p className="mt-4 text-center text-lg md:text-xl"> Sorry nothing to find here </p>
         </section>
       )}
       <button
