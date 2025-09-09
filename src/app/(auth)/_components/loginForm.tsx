@@ -86,7 +86,7 @@ const LoginForm = (): JSX.Element => {
         <>
           <BookingInfoCard doctor={doctor} appointmentSlot={appointmentSlot} fullName={fullName} />
           <div className="mx-auto mt-8 w-full max-w-sm">
-            <span className="text-2xl font-bold">Welcome back!</span>
+            <span className="text-xl font-bold sm:text-2xl">Welcome back!</span>
             <p className="mt-1 text-sm text-gray-500">
               Login to complete your booking with Dr. {doctor.lastName}.
             </p>
@@ -132,10 +132,10 @@ const LoginForm = (): JSX.Element => {
           disabled={!isValid || isAuthLoading}
           className="w-full max-w-sm"
         />
-        <div className="flex w-full max-w-sm justify-between">
+        <div className="flex w-full max-w-sm items-center justify-between text-sm sm:text-base">
           <Checkbox
             name="remember"
-            labelClassName="font-normal leading-none text-base"
+            labelClassName="font-normal leading-none"
             labelName="Remember me"
           />
 
@@ -143,7 +143,7 @@ const LoginForm = (): JSX.Element => {
             Forgot password?
           </Link>
         </div>
-        <div>
+        <div className="text-sm sm:text-base">
           <span> Don&rsquo;t have an account? </span>
           <Link href={signUpLink} className="text-primary pl-1">
             Sign Up
