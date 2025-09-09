@@ -29,7 +29,7 @@ const SignUp = (): JSX.Element => {
   }, [searchParams]);
 
   return (
-    <div className="relative -ml-6">
+    <div className="relative md:-ml-6">
       {isLoading && hasBookingInfo && <LoadingOverlay />}
       {hasBookingInfo && (
         <AuthPopIn
@@ -56,8 +56,8 @@ const SignUp = (): JSX.Element => {
               appointmentSlot={appointmentSlot}
               fullName={fullName}
             />
-            <div className="mx-auto mt-8 w-full max-w-sm">
-              <span className="text-2xl font-bold">Tell us a bit about you</span>
+            <div className="mx-auto mt-4 w-full max-w-sm md:mt-8">
+              <span className="text-xl font-bold md:text-2xl">Tell us a bit about you</span>
               <p className="mt-1 text-sm text-gray-500">
                 To book your appointment, we need to verify a few things for Dr. {doctor.lastName}
               </p>
@@ -67,7 +67,7 @@ const SignUp = (): JSX.Element => {
           <div>
             <Image src={Logo} width={44} height={44} alt="Zyptyk-logo" className="m-auto" />
             <div className="mt-5 flex w-full flex-col items-center space-y-3 2xl:space-y-3.5">
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center text-center">
                 <Text variantStyle="h4" variant="h4">
                   Get started with Zyptyk
                 </Text>
