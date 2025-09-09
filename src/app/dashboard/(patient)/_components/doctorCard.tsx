@@ -1,5 +1,5 @@
 'use client';
-import { Calendar, Clock, Medal, Star, Users } from 'lucide-react';
+import { Calendar, Clock, Medal, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useState } from 'react';
 import { IDoctor } from '@/types/doctor.interface';
@@ -18,7 +18,7 @@ import DoctorDetails from '@/app/dashboard/_components/doctorDetails';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
-import { showErrorToast } from '@/lib/utils';
+import { capitalize, showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { ICheckout } from '@/types/payment.interface';
 
@@ -31,7 +31,6 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     firstName,
     lastName,
     specializations,
-    rate,
     experience,
     appointmentSlots,
     noOfConsultations,
@@ -60,7 +59,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
       return 'No available slots';
     }
     const date = appointmentSlots[0].date;
-    return `Next available ${isToday(date) ? 'Today' : moment(date).format('ddd, MMM, D')}`;
+    return isToday(date) ? 'Today' : moment(date).format('ddd, MMM, D');
   };
 
   const bookAppointment = (): void => {
@@ -118,18 +117,18 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
               {' '}
               <AvatarComp imageSrc={profilePicture} name={fullName} className="h-20 w-20" />
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Dr. {fullName}</h2>
-                <p className="text-primary-600 text-md font-medium">
-                  {specializations ? specializations[0] : 'General Practitioner'}
+                <h2 className="text-lg font-bold text-gray-900 md:text-xl">Dr. {fullName}</h2>
+                <p className="text-primary-600 text-sm font-medium md:text-base">
+                  {specializations ? capitalize(specializations[0]) : 'General Practitioner'}
                 </p>
-                <p>
+                <p className="text-sm md:text-base">
                   {experience ?? 1} year(s) experience &#8226; {noOfConsultations}{' '}
                   {noOfConsultations === 1 ? 'consultation' : 'consultations'}
                 </p>
               </div>
             </div>
             <div className="mt-8">
-              <span className="text-xl font-semibold">Available Appointments</span>
+              <span className="text-base font-semibold md:text-lg">Available Appointments</span>
               <div className="mt-4 max-h-[50vh] overflow-y-auto">
                 <AvailableDates
                   doctorId={id}
@@ -154,58 +153,75 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         title="Book an appointment"
         showClose={true}
       />
-      <div className="hover:border-primary-100 flex w-full max-w-[400px] shrink-0 cursor-pointer flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
-        <div className="flex flex-col">
+      <div className="hover:border-primary-100 flex h-full w-full max-w-[400px] flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+        <div className="flex flex-1 flex-col">
           <div className="mb-4 flex w-full flex-row gap-4">
-            <div className="relative">
+            <div className="relative shrink-0">
               <AvatarComp imageSrc={profilePicture} name={fullName} className="h-14 w-14" />
               <div className="absolute -right-1 bottom-1 h-4 w-4 rounded-full border-2 border-white bg-green-400"></div>
             </div>
-            <div className="flex w-full flex-col justify-center">
+            <div className="flex w-full flex-col justify-center overflow-hidden">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-gray-900">Dr. {fullName}</h2>
-                <div className="bg-primary-50 flex h-fit items-center gap-1 rounded-full px-2 py-0.5">
-                  <Star size={14} className="fill-warning-300 text-warning-300" />
-                  <p className="text-primary-dark text-sm font-semibold">{rate}</p>
-                </div>
+                <span
+                  title={`Dr. ${fullName}`}
+                  className="truncate text-base font-bold text-gray-900 md:text-lg"
+                >
+                  Dr. {fullName}
+                </span>
               </div>
-              <p className="text-primary-600 text-sm font-medium">
-                {specializations ? specializations[0] : 'General Practitioner'}
+              <p
+                title={specializations ? specializations[0] : 'General Practitioner'}
+                className="text-primary-600 truncate text-xs font-medium md:text-sm"
+              >
+                {specializations ? capitalize(specializations[0]) : 'General Practitioner'}
               </p>
             </div>
           </div>
 
           <hr className="mb-4 w-full border-gray-100" />
 
-          <div className="mb-5 grid w-full grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
+          <div className="mb-5 flex w-full flex-wrap gap-y-3">
+            <div className="flex w-1/2 items-center gap-2 pr-2">
               <Medal size={16} className="text-primary-500" />
               <p
                 title={`${experience ?? 1} year(s) experience`}
-                className="truncate text-sm text-gray-700"
+                className="truncate text-xs text-gray-700 md:text-sm"
               >
                 {experience ?? 1} year(s) experience
               </p>
             </div>
 
             {noOfConsultations && (
-              <div className="flex items-center gap-2">
+              <div className="flex w-1/2 items-center gap-2 pl-2">
                 <Users size={16} className="text-primary-500" />
-                <p className="text-sm text-gray-700">{noOfConsultations} consultations</p>
+                <p
+                  title={`${noOfConsultations} consultations`}
+                  className="truncate text-xs text-gray-700 md:text-sm"
+                >
+                  {noOfConsultations} consultations
+                </p>
               </div>
             )}
 
-            <div className="flex items-center gap-2">
+            <div className="flex w-1/2 items-center gap-2 pr-2">
               <Clock size={16} className="text-primary-500" />
-              <p className="text-sm text-gray-700">{fee.lengthOfSession} session</p>
+              <p
+                title={`${fee.lengthOfSession} session`}
+                className="truncate text-xs text-gray-700 md:text-sm"
+              >
+                {fee.lengthOfSession} session
+              </p>
             </div>
 
-            <div className="col-span-2 flex items-center gap-2">
-              <Calendar size={16} className="text-primary-500" />
-              <p className="text-sm text-gray-700">
-                {getAvailability()}{' '}
-                <Button onClick={() => setShowSlots(true)} variant="link" child="See more" />
-              </p>
+            <div className="flex w-full items-start gap-2 pt-3">
+              <Calendar size={16} className="text-primary-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-700">Next available:</p>
+                <p className="text-sm text-gray-700">
+                  {getAvailability()}{' '}
+                  <Button onClick={() => setShowSlots(true)} variant="link" child="See more" />
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -214,11 +230,12 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
             onClick={() => setOpenDoctorDetails(true)}
             variant="link"
             child="View Doctor Details"
+            className="text-sm"
           />
         </div>
         <div className="mt-auto flex flex-row items-center justify-between border-t border-gray-100 pt-2">
           <div className="flex flex-col">
-            <p className="text-primary-dark text-lg font-bold">GHs {fee?.amount}</p>
+            <p className="text-primary-dark text-base font-bold md:text-lg">GHs {fee?.amount}</p>
             <p className="text-xs font-medium text-gray-500">per session</p>
           </div>
 
@@ -226,7 +243,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
             disabled={appointmentSlots.length === 0}
             title={appointmentSlots.length === 0 ? 'No available slots' : 'Book Appointment'}
             onClick={handleBookAppointment}
-            className="bg-primary hover:bg-primary-600 h-10 rounded-md px-4 font-medium text-white transition-colors duration-300"
+            className="bg-primary hover:bg-primary-600 h-10 shrink-0 rounded-md px-3 text-sm font-medium text-white transition-colors duration-300 md:px-4"
             child="Book Appointment"
           />
         </div>
