@@ -26,7 +26,7 @@ const roleOptions: ISelected[] = [
     value: Role.Patient,
   },
   { label: 'Doctor', value: Role.Doctor },
-  // { label: 'Organization', value: Role.Admin }, TODO: Organization not
+  // { label: 'Organization', value: Role.Admin }, TODO: Organization not part of MVP
 ];
 
 export type SignUpFormProps = {
