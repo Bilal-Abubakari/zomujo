@@ -1,7 +1,7 @@
 import { NotFound } from '@/assets/images';
 import SkeletonDoctorPatientCard from '@/components/skeleton/skeletonDoctorPatientCard';
 import { Button } from '@/components/ui/button';
-import { ISelected, OptionsMenu } from '@/components/ui/dropdown-menu';
+import { OptionsMenu } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { PaginationData } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
