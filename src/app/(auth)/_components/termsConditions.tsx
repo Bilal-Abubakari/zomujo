@@ -9,8 +9,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 const TermsAndCondition = (): JSX.Element => {
   const searchParams = useSearchParams();
-    const sectionParam = searchParams.get('section') || '';
-    const router = useRouter()
+  const sectionParam = searchParams.get('section') || '';
+  const router = useRouter();
 
   const [activeSection, setActiveSection] = useState(sectionParam);
   const sections = [
@@ -23,7 +23,7 @@ const TermsAndCondition = (): JSX.Element => {
     { id: 'modifications', title: 'Modifications', icon: FileText },
   ];
 
-  const scrollToSection = (sectionId: string):void => {
+  const scrollToSection = (sectionId: string): void => {
     setActiveSection(sectionId);
     const element = document.getElementById(sectionId);
     if (element) {

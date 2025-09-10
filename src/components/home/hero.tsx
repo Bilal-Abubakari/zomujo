@@ -45,7 +45,7 @@ const Hero = (): JSX.Element => {
       <div
         className={`relative z-10 flex h-full flex-col items-center justify-center px-4 text-center ${styles.fadeIn}`}
       >
-        <h1 className="mb-2 text-3xl mt-48 sm:text-5xl sm:mt-0 font-extrabold text-white drop-shadow-lg t  md:text-6xl">
+        <h1 className="t mt-48 mb-2 text-3xl font-extrabold text-white drop-shadow-lg sm:mt-0 sm:text-5xl md:text-6xl">
           Book local Specialist who take your insurance{' '}
         </h1>
         <div className="mb-2 flex min-h-[2.2rem] items-center justify-center text-lg font-bold md:text-xl">
