@@ -41,9 +41,9 @@ const TermsAndCondition = (): JSX.Element => {
         <div className="container mx-auto px-6 py-8">
           <div className="mb-4 flex items-center gap-3">
             <div className="bg-gradient-hero shadow-medium flex h-12 w-12 items-center justify-center rounded-xl">
-              <div onClick={() => router.back()} className="cursor-pointer">
+              <button onClick={() => router.back()} className="cursor-pointer">
                 <Image src={Logo} alt="Logo" />
-              </div>
+              </button>
             </div>
             <div>
               <h1 className="text-foreground text-3xl font-bold">Zumojo</h1>
@@ -110,7 +110,7 @@ const TermsAndCondition = (): JSX.Element => {
                     </div>
                     <div className="prose prose-blue max-w-none">
                       <p className="text-foreground leading-relaxed">
-                        Welcome to Zumojo (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;).
+                        Welcome to Zumojo.
                         These Terms and Conditions (&quot;Terms&quot;) govern your use of our health
                         and wellness mobile application and related services (collectively, the
                         &quot;Service&quot;).
