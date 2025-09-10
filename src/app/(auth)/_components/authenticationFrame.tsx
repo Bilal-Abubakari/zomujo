@@ -46,9 +46,9 @@ export default function AuthenticationFrame({
           <p className="text-sm">© {getCurrentYear()} Zyptyk. All rights reserved.</p>
 
           <div className="text-primary space-x-1">
-            <Link href="/">Terms & Conditions</Link>
+            <Link href="/terms-conditions">Terms & Conditions</Link>
             <span className="text-black">|</span>
-            <Link href="/">Privacy & Policy</Link>
+            <Link href="/terms-conditions?section=privacy">Privacy & Policy</Link>
           </div>
         </div>
       </div>
