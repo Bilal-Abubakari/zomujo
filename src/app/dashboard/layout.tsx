@@ -1,7 +1,7 @@
 'use client';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { JSX, ReactNode } from 'react';
-import { PhoneNavbar, SidebarLayout } from './_components/sidebar/sidebarLayout';
+import { SidebarLayout } from './_components/sidebar/sidebarLayout';
 import Toolbar from '@/app/dashboard/_components/toolbar';
 import { useAppSelector } from '@/lib/hooks';
 import {
@@ -29,8 +29,7 @@ export default function Layout({
       <DashboardProvider>
         <SidebarProvider>
           <SidebarLayout />
-          <PhoneNavbar />
-          <main className="bg-grayscale-100 me:border w-full px-1 2xl:px-6">
+          <main className="bg-grayscale-100 me:border w-full px-4 2xl:px-6">
             <Toolbar />
             {children}
           </main>

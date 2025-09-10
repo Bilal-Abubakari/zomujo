@@ -72,7 +72,7 @@ const SidebarProvider = forwardRef<
     },
     ref,
   ) => {
-    const isMobile = useIsMobile();
+    const isMobile = useIsMobile(1024);
     const [openMobile, setOpenMobile] = useState(false);
 
     // This is the internal state of the sidebar.

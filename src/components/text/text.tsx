@@ -17,10 +17,10 @@ type CustomTextProps = HTMLAttributes<HTMLHeadingElement | HTMLParagraphElement>
 };
 
 const textStyles: Record<TextVariantStyle, string> = {
-  h3: 'text-2xl leading-[2.8rem] sm:text-[38px]',
-  'body-small': 'text-base',
+  h3: 'text-2xl leading-[2.4rem] sm:text-3xl sm:leading-[2.8rem] lg:text-[38px]',
+  'body-small': 'text-sm sm:text-base',
   h2: 'text-xl sm:text-2xl leading-[2rem]',
-  h4: 'sm:text-[32px] text-2xl leading-[3rem]',
+  h4: 'text-2xl leading-9 sm:text-[32px] sm:leading-[3rem]',
 } as const;
 
 const boldStyles: Record<BoldVariant, string> = {

@@ -65,7 +65,7 @@ const UserSignUp = forwardRef<UserSignUpMethods, UserSignUpProps>(
     };
 
     return (
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6 md:space-y-8">
         <Input
           labelName="First Name"
           error={errors.firstName?.message?.toString()}

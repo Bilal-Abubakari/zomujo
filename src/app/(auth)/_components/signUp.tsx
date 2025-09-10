@@ -5,94 +5,61 @@ import Image from 'next/image';
 import { Logo, SignUpSlide } from '@/assets/images';
 import SignUpForm from '../_components/signUpForm';
 import React, { JSX, useEffect, useMemo, useState } from 'react';
-import { useQueryParam } from '@/hooks/useQueryParam';
-import { AvatarComp } from '@/components/ui/avatar';
-import { useAppDispatch } from '@/lib/hooks';
-import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
-import { getAppointmentSlot } from '@/lib/features/appointments/appointmentsThunk';
-import { showErrorToast } from '@/lib/utils';
-import { toast } from '@/hooks/use-toast';
-import { ToastStatus } from '@/types/shared.enum';
-import { AppointmentSlots } from '@/types/slots.interface';
-import { IDoctor } from '@/types/doctor.interface';
-import moment from 'moment';
+import { useBookingInfo } from '@/hooks/useBookingInfo';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
+import AuthPopIn from './authPopIn';
+import { useSearchParams } from 'next/navigation';
+import BookingInfoCard from './BookingInfoCard';
 
 const SignUp = (): JSX.Element => {
-  const { getQueryParam } = useQueryParam();
-  const doctorId = getQueryParam('doctorId');
-  const slotId = getQueryParam('slotId');
-  const dispatch = useAppDispatch();
-  const [isLoading, setIsLoading] = useState(true);
-  const [appointmentSlot, setAppointmentSlot] = useState<AppointmentSlots | null>(null);
-  const [doctor, setDoctor] = useState<IDoctor | null>(null);
-  const fullName = useMemo(
-    () => (doctor ? `${doctor.firstName} ${doctor.lastName}` : ''),
-    [doctor],
-  );
-  const hasBookingInfo = useMemo(() => !!doctorId && !!slotId, [doctorId, slotId]);
+  const searchParams = useSearchParams();
+  const { isLoading, appointmentSlot, doctor, hasBookingInfo, fullName, doctorId, slotId } =
+    useBookingInfo();
+  const [isPopInOpen, setIsPopInOpen] = useState(false);
 
   useEffect(() => {
-    const fetchBookingInfo = async (): Promise<void> => {
-      if (hasBookingInfo) {
-        const [{ payload: doctorInfoResponse }, { payload: slotResponse }] = await Promise.all([
-          dispatch(doctorInfo(doctorId)),
-          dispatch(getAppointmentSlot(slotId)),
-        ]);
-        if (showErrorToast(doctorInfoResponse) || showErrorToast(slotResponse)) {
-          toast({
-            title: ToastStatus.Error,
-            description: 'Failed to load booking info',
-            variant: 'destructive',
-          });
-          return;
-        }
-        setAppointmentSlot(slotResponse as AppointmentSlots);
-        setDoctor(doctorInfoResponse as IDoctor);
-      }
-      setIsLoading(false);
-    };
-    void fetchBookingInfo();
-  }, [dispatch, doctorId, hasBookingInfo, slotId]);
+    if (hasBookingInfo) {
+      setIsPopInOpen(true);
+    }
+  }, [hasBookingInfo]);
+
+  const loginLink = useMemo(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    return `/login?${params.toString()}`;
+  }, [searchParams]);
 
   return (
-    <div className="relative -ml-6">
-      {isLoading && <LoadingOverlay />}
+    <div className="relative md:-ml-6">
+      {isLoading && hasBookingInfo && <LoadingOverlay />}
+      {hasBookingInfo && (
+        <AuthPopIn
+          isOpen={isPopInOpen}
+          onClose={() => setIsPopInOpen(false)}
+          message={
+            <p className="text-sm text-gray-600">
+              Already have an account? Log in to complete your booking.
+            </p>
+          }
+          buttonText="Go to Login"
+          link={loginLink}
+        />
+      )}
       <AuthenticationFrame
         imageSlide={SignUpSlide}
         imageAlt="sign-up"
         imagePosition={ImagePosition.Left}
       >
-        {hasBookingInfo ? (
+        {hasBookingInfo && doctor && appointmentSlot ? (
           <>
-            <div className="mx-auto w-full max-w-sm rounded-lg border p-4">
-              <div className="mb-4 flex w-full flex-row gap-4">
-                <div>
-                  <AvatarComp
-                    imageSrc={doctor?.profilePicture}
-                    name={fullName}
-                    className="h-18 w-18"
-                  />
-                </div>
-                <div className="flex w-full flex-col justify-center gap-y-1">
-                  <div className="flex items-center">
-                    <h2 className="text-lg font-bold text-gray-900">Dr. {fullName}</h2>
-                  </div>
-                  <p className="text-primary-600 text-sm font-medium">
-                    {doctor?.specializations ? doctor.specializations[0] : 'General Practitioner'}
-                  </p>
-                  <p className="text-primary-600 text-sm font-medium">
-                    {appointmentSlot?.date && moment(appointmentSlot.date).format('ddd, MMM D')} at{' '}
-                    {appointmentSlot?.startTime &&
-                      moment(appointmentSlot.startTime).format('h:mm A')}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="mx-auto mt-8 w-full max-w-sm">
-              <span className="text-2xl font-bold">Tell us a bit about you</span>
+            <BookingInfoCard
+              doctor={doctor}
+              appointmentSlot={appointmentSlot}
+              fullName={fullName}
+            />
+            <div className="mx-auto mt-4 w-full max-w-sm md:mt-8">
+              <span className="text-xl font-bold md:text-2xl">Tell us a bit about you</span>
               <p className="mt-1 text-sm text-gray-500">
-                To book your appointment, we need to verify a few things for Dr. Bilal&#39;s office
+                To book your appointment, we need to verify a few things for Dr. {doctor.lastName}
               </p>
             </div>
           </>
@@ -100,7 +67,7 @@ const SignUp = (): JSX.Element => {
           <div>
             <Image src={Logo} width={44} height={44} alt="Zyptyk-logo" className="m-auto" />
             <div className="mt-5 flex w-full flex-col items-center space-y-3 2xl:space-y-3.5">
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center text-center">
                 <Text variantStyle="h4" variant="h4">
                   Get started with Zyptyk
                 </Text>

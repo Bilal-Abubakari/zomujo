@@ -11,6 +11,7 @@ import { capitalize } from '@/lib/utils';
 import { verifyPayment } from '@/lib/features/payments/paymentsThunk';
 import { PaymentVerification, useQueryParam } from '@/hooks/useQueryParam';
 import { ICustomResponse } from '@/types/shared.interface';
+import { ICheckout } from '@/types/payment.interface';
 
 type VerificationsProps = {
   type?: 'email' | 'payment';
@@ -36,7 +37,7 @@ const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
 
       const timeout = setTimeout(() => {
         router.push(redirectUrl);
-      }, 6000);
+      }, 600000);
 
       return (): void => {
         clearInterval(interval);
@@ -55,9 +56,14 @@ const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
         ? verifyEmail(token)
         : verifyPayment(getQueryParam(PaymentVerification.reference)),
     );
-    const { success, message } = payload as ICustomResponse;
+    const { success, message, data } = payload as ICustomResponse<ICheckout>;
     if (success) {
-      handleVerificationSuccess(message);
+      const paymentUrl = data?.authorization_url;
+      if (paymentUrl) {
+        window.location.replace(paymentUrl);
+      } else {
+        handleVerificationSuccess(message);
+      }
     } else {
       setErrorMessage(message);
     }
@@ -69,7 +75,7 @@ const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
   }, [submitVerification]);
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-2">
+    <div className="flex h-screen flex-col items-center justify-center gap-2 px-8 text-center">
       {isLoading ? (
         <>
           <Loader2 strokeWidth={1} className="animate-spin" size={64} />

@@ -8,5 +8,4 @@ export const bookingSchema = z.object({
   reason: requiredStringSchema(),
   appointmentType: requiredStringSchema(),
   additionalInfo: requiredStringSchema(false),
-  amount: z.number(),
 });

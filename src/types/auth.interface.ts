@@ -1,4 +1,5 @@
 import { Gender, Role, Status } from '@/types/shared.enum';
+import { ICheckout } from '@/types/payment.interface';
 
 export interface IPersonalDetails {
   MDCRegistration: string;
@@ -21,6 +22,7 @@ export type DoctorOnboarding = IPersonalDetails & IDoctorPhotoUpload & IDoctorId
 export interface ILoginResponse {
   user: IUser;
   extra: unknown;
+  paystack?: ICheckout;
 }
 
 export interface IBaseUser {

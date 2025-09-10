@@ -14,11 +14,15 @@ import { MODE } from '@/constants/constants';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { AlertMessage } from '@/components/ui/alert';
 import { login } from '@/lib/features/auth/authThunk';
-import React, { JSX } from 'react';
+import React, { JSX, useEffect, useMemo, useState } from 'react';
 import { selectThunkState } from '@/lib/features/auth/authSelector';
-import { useRouter } from 'next/navigation';
-import { ILogin } from '@/types/auth.interface';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ILogin, ILoginResponse } from '@/types/auth.interface';
 import { authenticationProvider } from './authenticationProvider';
+import { useBookingInfo } from '@/hooks/useBookingInfo';
+import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
+import AuthPopIn from './authPopIn';
+import BookingInfoCard from './BookingInfoCard';
 
 const loginSchema = z.object({
   email: emailSchema,
@@ -33,70 +37,117 @@ const LoginForm = (): JSX.Element => {
   } = useForm<ILogin>({ resolver: zodResolver(loginSchema), mode: MODE.ON_TOUCH });
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const { isLoading, errorMessage } = useAppSelector(selectThunkState);
+  const { isLoading: isAuthLoading, errorMessage } = useAppSelector(selectThunkState);
+
+  const { isLoading, appointmentSlot, doctor, hasBookingInfo, fullName } = useBookingInfo();
+  const [isPopInOpen, setIsPopInOpen] = useState(false);
+
+  useEffect(() => {
+    if (hasBookingInfo) {
+      setIsPopInOpen(true);
+    }
+  }, [hasBookingInfo]);
 
   const onSubmit = async (loginCredentials: ILogin): Promise<void> => {
     const { payload } = await dispatch(login(loginCredentials));
     if (payload) {
+      const data = payload as ILoginResponse;
+      if (data.paystack) {
+        window.location.replace(data.paystack.authorization_url);
+      }
       router.push('/dashboard');
     }
   };
 
+  const signUpLink = useMemo(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    return `/sign-up?${params.toString()}`;
+  }, [searchParams]);
+
   return (
     <form className="flex w-full flex-col items-center" onSubmit={handleSubmit(onSubmit)}>
-      <Image src={Logo} width={44} height={44} alt="Zyptyk-logo" />
-      <div className="mt-5 flex w-full flex-col items-center space-y-3 2xl:space-y-3.5">
-        <div className="flex flex-col items-center">
-          <Text variantStyle="h4" variant="h4">
-            Welcome to Zyptyk
-          </Text>
-          <Text variantStyle="body-small" className="text-grayscale-500">
-            Login to your account to get started
-          </Text>
-        </div>
-        <div className="flex w-full flex-col items-center gap-8">
-          {errorMessage && (
-            <AlertMessage message={errorMessage} className="max-w-sm" variant="destructive" />
-          )}
-          <Input
-            labelName="Email"
-            type="email"
-            error={errors.email?.message}
-            placeholder="Enter your email"
-            {...register('email')}
+      {isLoading && hasBookingInfo && <LoadingOverlay />}
+      {hasBookingInfo && (
+        <AuthPopIn
+          isOpen={isPopInOpen}
+          onClose={() => setIsPopInOpen(false)}
+          message={
+            <p className="text-sm text-gray-600">
+              Don&apos;t have an account? Create one to complete your booking.
+            </p>
+          }
+          buttonText="Go to Sign Up"
+          link={signUpLink}
+        />
+      )}
+      {hasBookingInfo && doctor && appointmentSlot ? (
+        <>
+          <BookingInfoCard doctor={doctor} appointmentSlot={appointmentSlot} fullName={fullName} />
+          <div className="mx-auto mt-8 w-full max-w-sm">
+            <span className="text-xl font-bold sm:text-2xl">Welcome back!</span>
+            <p className="mt-1 text-sm text-gray-500">
+              Login to complete your booking with Dr. {doctor.lastName}.
+            </p>
+          </div>
+        </>
+      ) : (
+        <>
+          <Image src={Logo} width={44} height={44} alt="Zyptyk-logo" />
+          <div className="mt-5 flex w-full flex-col items-center space-y-3 2xl:space-y-3.5">
+            <div className="flex flex-col items-center">
+              <Text variantStyle="h4" variant="h4">
+                Welcome to Zyptyk
+              </Text>
+              <Text variantStyle="body-small" className="text-grayscale-500">
+                Login to your account to get started
+              </Text>
+            </div>
+          </div>
+        </>
+      )}
+      <div className="flex w-full flex-col items-center gap-8 pt-8">
+        {errorMessage && (
+          <AlertMessage message={errorMessage} className="max-w-sm" variant="destructive" />
+        )}
+        <Input
+          labelName="Email"
+          type="email"
+          error={errors.email?.message}
+          placeholder="Enter your email"
+          {...register('email')}
+        />
+        <Input
+          labelName="Password"
+          type="password"
+          placeholder="Enter your password"
+          enablePasswordToggle={true}
+          error={errors.password?.message}
+          {...register('password')}
+        />
+        <Button
+          isLoading={isAuthLoading}
+          child="Login"
+          disabled={!isValid || isAuthLoading}
+          className="w-full max-w-sm"
+        />
+        <div className="flex w-full max-w-sm items-center justify-between text-sm sm:text-base">
+          <Checkbox
+            name="remember"
+            labelClassName="font-normal leading-none"
+            labelName="Remember me"
           />
-          <Input
-            labelName="Password"
-            type="password"
-            placeholder="Enter your password"
-            enablePasswordToggle={true}
-            error={errors.password?.message}
-            {...register('password')}
-          />
-          <Button
-            isLoading={isLoading}
-            child="Login"
-            disabled={!isValid || isLoading}
-            className="w-full max-w-sm"
-          />
-          <div className="flex w-full max-w-sm justify-between">
-            <Checkbox
-              name="remember"
-              labelClassName="font-normal leading-none text-base"
-              labelName="Remember me"
-            />
 
-            <Link href="/forgot-password" className="text-primary">
-              Forgot password?
-            </Link>
-          </div>
-          <div>
-            <span> Don&rsquo;t have an account? </span>
-            <Link href="/sign-up" className="text-primary pl-1">
-              Sign Up
-            </Link>
-          </div>
+          <Link href="/forgot-password" className="text-primary">
+            Forgot password?
+          </Link>
+        </div>
+        <div className="text-sm sm:text-base">
+          <span> Don&rsquo;t have an account? </span>
+          <Link href={signUpLink} className="text-primary pl-1">
+            Sign Up
+          </Link>
         </div>
       </div>
     </form>
