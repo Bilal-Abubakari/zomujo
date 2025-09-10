@@ -36,7 +36,7 @@ const TermsAndCondition = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="bg-gradient-subtle min-h-screen">
+    <div className="bg-gray-50 min-h-screen">
       <header className="bg-background border-border shadow-soft border-b">
         <div className="container mx-auto px-6 py-8">
           <div className="mb-4 flex items-center gap-3">
@@ -110,15 +110,18 @@ const TermsAndCondition = (): JSX.Element => {
                     </div>
                     <div className="prose prose-blue max-w-none">
                       <p className="text-foreground leading-relaxed">
-                        Welcome to Zumojo. These Terms and Conditions (&quot;Terms&quot;) govern
-                        your use of our health and wellness mobile application and related services
-                        (collectively, the &quot;Service&quot;).
+                        Welcome to Zumojo. These Terms and Conditions
+                        (&quot;Terms&quot;) govern your use of our health and wellness mobile
+                        application and related services (collectively, the &quot;Service&quot;).
                       </p>
-                      <p className="text-foreground leading-relaxed">
-                        Our Service is designed to help you track, monitor, and improve your health
-                        and wellness. We are committed to providing you with tools and information
-                        to support your health journey while maintaining the highest standards of
-                        data security and privacy.
+                      <p className="text-foreground mt-2 leading-relaxed">
+                        Our Service is designed to provide a secure and reliable avenue for doctors
+                        to assist patients with their health-related issues. Through the platform,
+                        users may sign up either as a doctor, offering professional support and
+                        guidance, or as a patient, seeking assistance and advice. We are committed
+                        to connecting doctors and patients in a way that supports health and
+                        wellness, while maintaining the highest standards of data security and
+                        privacy.
                       </p>
                     </div>
                   </Card>
@@ -269,7 +272,7 @@ const TermsAndCondition = (): JSX.Element => {
                     </div>
                     <div className="prose prose-blue max-w-none space-y-4">
                       <p className="text-foreground leading-relaxed">
-                        To the fullest extent permitted by law, HealthApp shall not be liable for
+                        To the fullest extent permitted by law, Zumojo shall not be liable for
                         any indirect, incidental, special, consequential, or punitive damages, or
                         any loss of profits or revenues.
                       </p>
@@ -310,7 +313,7 @@ const TermsAndCondition = (): JSX.Element => {
                   </p>
                   <div className="space-y-2 text-sm opacity-90">
                     <p>Email: zumojo@gmail.com</p>
-                    <p>Phone: 1-800-HEALTH-1</p>
+                    <p>Phone: +233 20 146 2313</p>
                     <p>Address: Ghana, Accra</p>
                   </div>
                 </Card>
