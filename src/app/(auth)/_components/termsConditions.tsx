@@ -36,7 +36,7 @@ const TermsAndCondition = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       <header className="bg-background border-border shadow-soft border-b">
         <div className="container mx-auto px-6 py-8">
           <div className="mb-4 flex items-center gap-3">
@@ -110,9 +110,9 @@ const TermsAndCondition = (): JSX.Element => {
                     </div>
                     <div className="prose prose-blue max-w-none">
                       <p className="text-foreground leading-relaxed">
-                        Welcome to Zumojo. These Terms and Conditions
-                        (&quot;Terms&quot;) govern your use of our health and wellness mobile
-                        application and related services (collectively, the &quot;Service&quot;).
+                        Welcome to Zumojo. These Terms and Conditions (&quot;Terms&quot;) govern
+                        your use of our health and wellness mobile application and related services
+                        (collectively, the &quot;Service&quot;).
                       </p>
                       <p className="text-foreground mt-2 leading-relaxed">
                         Our Service is designed to provide a secure and reliable avenue for doctors
@@ -272,9 +272,9 @@ const TermsAndCondition = (): JSX.Element => {
                     </div>
                     <div className="prose prose-blue max-w-none space-y-4">
                       <p className="text-foreground leading-relaxed">
-                        To the fullest extent permitted by law, Zumojo shall not be liable for
-                        any indirect, incidental, special, consequential, or punitive damages, or
-                        any loss of profits or revenues.
+                        To the fullest extent permitted by law, Zumojo shall not be liable for any
+                        indirect, incidental, special, consequential, or punitive damages, or any
+                        loss of profits or revenues.
                       </p>
                       <p className="text-foreground leading-relaxed">
                         Our total liability to you for any damages shall not exceed the amount you
