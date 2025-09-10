@@ -110,10 +110,9 @@ const TermsAndCondition = (): JSX.Element => {
                     </div>
                     <div className="prose prose-blue max-w-none">
                       <p className="text-foreground leading-relaxed">
-                        Welcome to Zumojo.
-                        These Terms and Conditions (&quot;Terms&quot;) govern your use of our health
-                        and wellness mobile application and related services (collectively, the
-                        &quot;Service&quot;).
+                        Welcome to Zumojo. These Terms and Conditions (&quot;Terms&quot;) govern
+                        your use of our health and wellness mobile application and related services
+                        (collectively, the &quot;Service&quot;).
                       </p>
                       <p className="text-foreground leading-relaxed">
                         Our Service is designed to help you track, monitor, and improve your health
