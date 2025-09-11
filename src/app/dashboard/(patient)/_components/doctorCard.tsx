@@ -108,7 +108,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         showClose={true}
       />
       <Modal
-        className="max-w-xl"
+        className="max-h-[95vh] max-w-xl overflow-y-auto p-5"
         setState={setShowSlots}
         open={showSlots}
         content={
@@ -129,7 +129,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
             </div>
             <div className="mt-8">
               <span className="text-base font-semibold md:text-lg">Available Appointments</span>
-              <div className="mt-4 max-h-[50vh] overflow-y-auto">
+              <div className="mt-4 max-h-[45vh] overflow-y-auto">
                 <AvailableDates
                   doctorId={id}
                   register={register}
@@ -141,7 +141,15 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
           </div>
         }
         footer={
-          <div className="mt-11 ml-auto flex justify-end">
+          <div className="mt-4 ml-auto flex justify-end gap-x-4">
+            <Button
+              isLoading={isInitiatingPayment}
+              onClick={() => setShowSlots(false)}
+              variant="outline"
+              className="mr-3"
+              child="Close"
+              disabled={isInitiatingPayment}
+            />
             <Button
               isLoading={isInitiatingPayment}
               onClick={bookAppointment}

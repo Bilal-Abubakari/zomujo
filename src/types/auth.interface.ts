@@ -1,5 +1,6 @@
 import { Gender, Role, Status } from '@/types/shared.enum';
 import { ICheckout } from '@/types/payment.interface';
+import { ISharedBooking } from '@/types/shared-booking.interface';
 
 export interface IPersonalDetails {
   MDCRegistration: string;
@@ -44,10 +45,10 @@ export interface IUserSignUp extends IBaseUser {
   confirmPassword: string;
 }
 
-export interface IUserSignUpRole extends IUserSignUp {
+export type IAuthBooking = Partial<ISharedBooking>;
+
+export interface IUserSignUpRole extends IUserSignUp, IAuthBooking {
   role: Role;
-  doctorId?: string;
-  slotId?: string;
 }
 
 export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {
@@ -58,7 +59,7 @@ export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {
   gpsLink: string;
 }
 
-export interface ILogin {
+export interface ILogin extends IAuthBooking {
   email: string;
   password: string;
 }
