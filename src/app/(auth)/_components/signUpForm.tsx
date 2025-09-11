@@ -118,7 +118,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     setRole(target.value as Role);
 
   return (
-    <div className="mx-auto w-full max-w-sm">
+    <div className="mx-auto w-full max-w-sm overflow-y-auto">
       <div className="mt-4">
         {successMessage ? (
           <Modal
