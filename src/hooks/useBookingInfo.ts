@@ -8,15 +8,14 @@ import { toast } from '@/hooks/use-toast';
 import { ToastStatus } from '@/types/shared.enum';
 import { AppointmentSlots } from '@/types/slots.interface';
 import { IDoctor } from '@/types/doctor.interface';
+import { ISharedBooking } from '@/types/shared-booking.interface';
 
-export interface IUseBookingInfo {
+export interface IUseBookingInfo extends ISharedBooking {
   isLoading: boolean;
   appointmentSlot: AppointmentSlots | null;
   doctor: IDoctor | null;
   hasBookingInfo: boolean;
   fullName: string;
-  doctorId: string | undefined;
-  slotId: string | undefined;
 }
 
 export const useBookingInfo = (): IUseBookingInfo => {
