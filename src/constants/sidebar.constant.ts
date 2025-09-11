@@ -8,7 +8,6 @@ import {
   CircleHelp,
   Compass,
   Cross,
-  Heart,
   Home,
   MessageCircleMore,
   Settings,
@@ -55,17 +54,18 @@ export const PATIENT_SIDE_BAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/records`,
           Icon: Archive,
         },
-        {
-          title: 'Favorite Doctors',
-          url: '#',
-          Icon: Heart,
-          phoneTitle: 'Favorite',
-        },
-        {
-          title: 'Message',
-          url: '#',
-          Icon: MessageCircleMore,
-        },
+        // TODO: Not planned for MVP
+        // {
+        //   title: 'Favorite Doctors',
+        //   url: '#',
+        //   Icon: Heart,
+        //   phoneTitle: 'Favorite',
+        // },
+        // {
+        //   title: 'Message',
+        //   url: '#',
+        //   Icon: MessageCircleMore,
+        // },
       ],
     },
 
