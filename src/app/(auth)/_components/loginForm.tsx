@@ -41,7 +41,8 @@ const LoginForm = (): JSX.Element => {
 
   const { isLoading: isAuthLoading, errorMessage } = useAppSelector(selectThunkState);
 
-  const { isLoading, appointmentSlot, doctor, hasBookingInfo, fullName } = useBookingInfo();
+  const { isLoading, appointmentSlot, doctor, hasBookingInfo, fullName, doctorId, slotId } =
+    useBookingInfo();
   const [isPopInOpen, setIsPopInOpen] = useState(false);
 
   useEffect(() => {
@@ -51,11 +52,18 @@ const LoginForm = (): JSX.Element => {
   }, [hasBookingInfo]);
 
   const onSubmit = async (loginCredentials: ILogin): Promise<void> => {
-    const { payload } = await dispatch(login(loginCredentials));
+    const { payload } = await dispatch(
+      login({
+        ...loginCredentials,
+        doctorId,
+        slotId,
+      }),
+    );
     if (payload) {
       const data = payload as ILoginResponse;
       if (data.paystack) {
         window.location.replace(data.paystack.authorization_url);
+        return;
       }
       router.push('/dashboard');
     }
