@@ -8,7 +8,6 @@ import {
   CircleHelp,
   Compass,
   Cross,
-  Heart,
   Home,
   MessageCircleMore,
   Settings,
