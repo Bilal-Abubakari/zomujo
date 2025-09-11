@@ -67,7 +67,7 @@ const LoginForm = (): JSX.Element => {
   }, [searchParams]);
 
   return (
-    <form className="flex w-full flex-col items-center" onSubmit={handleSubmit(onSubmit)}>
+    <form className="flex w-full flex-col items-center overflow-y-auto" onSubmit={handleSubmit(onSubmit)}>
       {isLoading && hasBookingInfo && <LoadingOverlay />}
       {hasBookingInfo && (
         <AuthPopIn

@@ -2,7 +2,7 @@
 import { JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Shield, FileText, Users, Lock, Eye, Heart } from 'lucide-react';
+import { Shield, FileText, Users, Eye, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { Logo } from '@/assets/images';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -16,7 +16,6 @@ const TermsAndCondition = (): JSX.Element => {
   const sections = [
     { id: 'introduction', title: 'Introduction', icon: FileText },
     { id: 'acceptance', title: 'Acceptance of Terms', icon: Shield },
-    { id: 'privacy', title: 'Privacy & Data Protection', icon: Lock },
     { id: 'medical', title: 'Medical Disclaimer', icon: Heart },
     { id: 'usage', title: 'Permitted Usage', icon: Users },
     { id: 'liability', title: 'Limitation of Liability', icon: Eye },
@@ -68,7 +67,6 @@ const TermsAndCondition = (): JSX.Element => {
 
       <div className="container mx-auto px-6 py-8">
         <div className="grid gap-8 lg:grid-cols-4">
-          {/* Table of Contents */}
           <div className="lg:col-span-1">
             <Card className="shadow-medium sticky top-8 p-6">
               <h3 className="text-foreground mb-4 flex items-center gap-2 font-semibold">
@@ -149,39 +147,6 @@ const TermsAndCondition = (): JSX.Element => {
                         </li>
                         <li>• You agree to use the Service only for lawful purposes</li>
                       </ul>
-                    </div>
-                  </Card>
-                </section>
-
-                <section id="privacy" className="scroll-mt-8">
-                  <Card className="shadow-medium p-8">
-                    <div className="mb-6 flex items-center gap-3">
-                      <div className="bg-health-surface flex h-10 w-10 items-center justify-center rounded-lg">
-                        <Lock className="text-health-primary h-5 w-5" />
-                      </div>
-                      <h3 className="text-foreground text-2xl font-bold">
-                        Privacy & Data Protection
-                      </h3>
-                    </div>
-                    <div className="prose prose-blue max-w-none space-y-4">
-                      <p className="text-foreground leading-relaxed">
-                        Your privacy is of utmost importance to us. We collect, use, and protect
-                        your personal health information in accordance with applicable laws and
-                        regulations, including HIPAA where applicable.
-                      </p>
-                      <div className="bg-health-surface rounded-lg p-4">
-                        <h4 className="text-foreground mb-2 font-semibold">Data We Collect:</h4>
-                        <ul className="text-foreground space-y-1 text-sm">
-                          <li>• Health metrics and vital signs you input</li>
-                          <li>• App usage and interaction data</li>
-                          <li>• Device information and technical data</li>
-                          <li>• Account and profile information</li>
-                        </ul>
-                      </div>
-                      <p className="text-foreground leading-relaxed">
-                        We implement industry-standard security measures to protect your data,
-                        including encryption, secure data transmission, and regular security audits.
-                      </p>
                     </div>
                   </Card>
                 </section>
