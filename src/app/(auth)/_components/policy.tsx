@@ -3,12 +3,12 @@ import { Logo } from '@/assets/images';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import {  Users, UserCheck, Clock, Mail, Phone } from 'lucide-react';
+import { Users, UserCheck, Clock, Mail, Phone } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { JSX } from 'react';
 
-const Policy = ():JSX.Element => {
+const Policy = (): JSX.Element => {
   const router = useRouter();
   return (
     <div className="min-h-screen bg-gray-50">
