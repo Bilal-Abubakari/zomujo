@@ -49,7 +49,7 @@ const TermsAndCondition = (): JSX.Element => {
               <p className="text-muted-foreground">Your trusted health companion</p>
             </div>
           </div>
-          <h2 className="text-foreground mb-2 text-4xl font-bold">Terms & Conditions</h2>
+          <h2 className="text-foreground mb-2 text-xl md:text-4xl font-bold">Terms & Conditions</h2>
           <p className="text-muted-foreground max-w-2xl text-lg">
             Please read these terms carefully. By using our health application, you agree to be
             bound by these terms and conditions.
