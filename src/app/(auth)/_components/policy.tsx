@@ -12,7 +12,7 @@ const Policy = (): JSX.Element => {
   const router = useRouter();
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto sm:px-1 md:px-4">
         <div className="mx-auto max-w-6xl text-center">
           <>
             <div>
@@ -21,7 +21,7 @@ const Policy = (): JSX.Element => {
                 style={{ boxShadow: 'var(--header-shadow)' }}
               >
                 <div className="container mx-auto px-4 py-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center space-x-2">
                       <button onClick={() => router.back()}>
                         <Image className="h-8 w-8 text-blue-400" src={Logo} alt="Logo" />
@@ -43,7 +43,9 @@ const Policy = (): JSX.Element => {
               <Separator />
               <main className="container mx-auto max-w-4xl px-4 py-8">
                 <div className="mb-12 text-center">
-                  <h1 className="text-foreground mb-4 text-4xl font-bold">Privacy Policy</h1>
+                  <h1 className="text-foreground mb-4 text-2xl font-bold md:text-4xl">
+                    Privacy Policy
+                  </h1>
                   <p className="text-muted-foreground mx-auto max-w-2xl text-[18px]">
                     Your privacy and data security are our top priorities. This policy explains how
                     we handle information for both healthcare professionals and patients.
@@ -53,9 +55,9 @@ const Policy = (): JSX.Element => {
                 <div className="mb-12 grid gap-6 md:grid-cols-2">
                   <Card className="hover:border-border-blue-400/40 border-blue-400/20 transition-colors">
                     <CardHeader>
-                      <CardTitle className="flex items-center text-blue-400">
+                      <CardTitle className="text-md flex items-center text-blue-400 md:text-2xl">
                         <UserCheck className="mr-2 h-6 w-6" />
-                        For Healthcare Professionals
+                        For Health care Professionals
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -68,7 +70,7 @@ const Policy = (): JSX.Element => {
 
                   <Card className="border-green-400/20 transition-colors hover:border-green-400/40">
                     <CardHeader>
-                      <CardTitle className="flex items-center border-green-400 text-green-400">
+                      <CardTitle className="text-md flex items-center border-green-400 text-green-400 md:text-2xl">
                         <Users className="mr-2 h-6 w-6" />
                         For Patients
                       </CardTitle>
