@@ -12,7 +12,7 @@ const Policy = (): JSX.Element => {
   const router = useRouter();
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto  sm:px-1 md:px-4">
+      <div className="container mx-auto sm:px-1 md:px-4">
         <div className="mx-auto max-w-6xl text-center">
           <>
             <div>
