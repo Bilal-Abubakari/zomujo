@@ -83,6 +83,7 @@ export const reassuringMessages = [
 ] as const;
 
 export const specialties = [
+  { value: 'general practice', label: 'General Practice' },
   { value: 'cardiology', label: 'Cardiology' },
   { value: 'neurology', label: 'Neurology' },
   { value: 'orthopedics', label: 'Orthopedics' },
