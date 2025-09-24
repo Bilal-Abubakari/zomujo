@@ -48,7 +48,6 @@ export type DoctorPersonalInfo = Pick<
   | 'contact'
   | 'experience'
   | 'languages'
-  | 'awards'
   | 'specializations'
   | 'bio'
   | 'education'

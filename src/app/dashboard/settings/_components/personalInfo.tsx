@@ -34,10 +34,9 @@ const PersonalDetailsSchema = z.object({
     degree: nameSchema,
   }),
   languages: nameArraySchema,
-  awards: nameArraySchema,
   bio: textAreaSchema,
   experience: positiveNumberSchema,
-  specializations: nameArraySchema,
+  specializations: z.array(nameSchema).max(3, 'You can select up to 3 specializations'),
   contact: phoneNumberSchema,
 });
 
@@ -177,16 +176,6 @@ const PersonalInfo = (): JSX.Element => {
         </div>
         <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <div className="w-full max-w-[384px]">
-            <MultiInputField
-              ref={register('awards').ref}
-              handleValueChange={(value) => handleMultiInputChange('awards', value)}
-              error={errors.awards?.message || ''}
-              label="Awards"
-              placeholder="Best Doctor"
-              defaultValues={watch('awards')}
-            />
-          </div>
-          <div className="w-full max-w-[384px]">
             <MultiSelect
               labelName="Specialization"
               options={specialties}
@@ -211,7 +200,7 @@ const PersonalInfo = (): JSX.Element => {
         </div>
         <div className="mt-8 max-w-[384px] items-baseline">
           <Textarea
-            labelName=" Bio (something your patients will love about you)"
+            labelName=" Bio (This is what your patients will see)"
             className="w-full resize-none bg-transparent"
             error={errors.bio?.message || ''}
             {...register('bio')}
