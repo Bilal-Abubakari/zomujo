@@ -43,7 +43,7 @@ const PersonalDetailsSchema = z.object({
 
 const PersonalInfo = (): JSX.Element => {
   const personalDetails = useAppSelector(selectExtra) as IDoctor;
-  
+
   const getFormDataFromPersonalDetails = (details: IDoctor | null) => ({
     firstName: details?.firstName || '',
     lastName: details?.lastName || '',
