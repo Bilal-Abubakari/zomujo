@@ -43,6 +43,26 @@ const PersonalDetailsSchema = z.object({
 
 const PersonalInfo = (): JSX.Element => {
   const personalDetails = useAppSelector(selectExtra) as IDoctor;
+  
+  const getFormDataFromPersonalDetails = (details: IDoctor | null) => ({
+    firstName: details?.firstName || '',
+    lastName: details?.lastName || '',
+    education: {
+      school: details?.education?.school || '',
+      degree: details?.education?.degree || '',
+    },
+    languages: details?.languages || [],
+    bio: details?.bio || '',
+    experience: details?.experience || 0,
+    specializations: details?.specializations || [],
+    contact: details?.contact || '',
+    profilePicture: details?.profilePicture || '',
+  });
+
+  const defaultFormData = useMemo(
+    () => getFormDataFromPersonalDetails(personalDetails),
+    [personalDetails],
+  );
 
   const {
     register,
@@ -53,19 +73,7 @@ const PersonalInfo = (): JSX.Element => {
   } = useForm<DoctorPersonalInfo>({
     resolver: zodResolver(PersonalDetailsSchema),
     mode: MODE.ON_TOUCH,
-    defaultValues: {
-      firstName: personalDetails?.firstName || '',
-      lastName: personalDetails?.lastName || '',
-      education: {
-        school: personalDetails?.education?.school || '',
-        degree: personalDetails?.education?.degree || '',
-      },
-      languages: personalDetails?.languages || [],
-      bio: personalDetails?.bio || '',
-      experience: personalDetails?.experience || 0,
-      specializations: personalDetails?.specializations || [],
-      contact: personalDetails?.contact || '',
-    },
+    defaultValues: defaultFormData,
   });
 
   const {
@@ -81,24 +89,6 @@ const PersonalInfo = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
-  const originalFormData = useMemo(
-    () => ({
-      firstName: personalDetails?.firstName || '',
-      lastName: personalDetails?.lastName || '',
-      education: {
-        school: personalDetails?.education?.school || '',
-        degree: personalDetails?.education?.degree || '',
-      },
-      languages: personalDetails?.languages || [],
-      bio: personalDetails?.bio || '',
-      experience: personalDetails?.experience || 0,
-      specializations: personalDetails?.specializations || [],
-      contact: personalDetails?.contact || '',
-      profilePicture: personalDetails?.profilePicture || '',
-    }),
-    [personalDetails],
-  );
-
   const currentFormData = watch();
   const currentFormDataWithImage = {
     ...currentFormData,
@@ -106,7 +96,10 @@ const PersonalInfo = (): JSX.Element => {
     profilePicture: userProfilePicture || '',
   };
 
-  const hasChanges = useMemo(() => !isEqual(originalFormData, currentFormDataWithImage), [originalFormData, currentFormDataWithImage]);
+  const hasChanges = useMemo(
+    () => !isEqual(defaultFormData, currentFormDataWithImage),
+    [defaultFormData, currentFormDataWithImage],
+  );
 
   async function onSubmit(doctorPersonalInfo: DoctorPersonalInfo): Promise<void> {
     setIsLoading(true);
