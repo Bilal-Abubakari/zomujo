@@ -20,11 +20,12 @@ import { DoctorPersonalInfo, IDoctor } from '@/types/doctor.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import React, { JSX, useState } from 'react';
+import React, { JSX, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
 import { MultiSelect } from '@/components/ui/multiSelect';
+import { isEqual } from 'lodash';
 
 const PersonalDetailsSchema = z.object({
   firstName: nameSchema,
@@ -43,6 +44,28 @@ const PersonalDetailsSchema = z.object({
 const PersonalInfo = (): JSX.Element => {
   const personalDetails = useAppSelector(selectExtra) as IDoctor;
 
+  const getFormDataFromPersonalDetails = (
+    details: IDoctor | null,
+  ): DoctorPersonalInfo & Pick<IDoctor, 'profilePicture'> => ({
+    firstName: details?.firstName || '',
+    lastName: details?.lastName || '',
+    education: {
+      school: details?.education?.school || '',
+      degree: details?.education?.degree || '',
+    },
+    languages: details?.languages || [],
+    bio: details?.bio || '',
+    experience: details?.experience || 0,
+    specializations: details?.specializations || [],
+    contact: details?.contact || '',
+    profilePicture: details?.profilePicture || '',
+  });
+
+  const defaultFormData = useMemo(
+    () => getFormDataFromPersonalDetails(personalDetails),
+    [personalDetails],
+  );
+
   const {
     register,
     setValue,
@@ -52,7 +75,7 @@ const PersonalInfo = (): JSX.Element => {
   } = useForm<DoctorPersonalInfo>({
     resolver: zodResolver(PersonalDetailsSchema),
     mode: MODE.ON_TOUCH,
-    defaultValues: personalDetails,
+    defaultValues: defaultFormData,
   });
 
   const {
@@ -67,6 +90,21 @@ const PersonalInfo = (): JSX.Element => {
 
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
+
+  const currentFormData = watch();
+  const currentFormDataWithImage = useMemo(
+    () => ({
+      ...currentFormData,
+      experience: Number(currentFormData.experience),
+      profilePicture: userProfilePicture || '',
+    }),
+    [currentFormData, userProfilePicture],
+  );
+
+  const hasChanges = useMemo(
+    () => !isEqual(defaultFormData, currentFormDataWithImage),
+    [defaultFormData, currentFormDataWithImage],
+  );
 
   async function onSubmit(doctorPersonalInfo: DoctorPersonalInfo): Promise<void> {
     setIsLoading(true);
@@ -118,7 +156,7 @@ const PersonalInfo = (): JSX.Element => {
         </div>
       </section>
       <hr className="my-[30px]" />
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form className="pb-20" onSubmit={handleSubmit(onSubmit)}>
         <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <Input
             labelName="First name"
@@ -210,7 +248,7 @@ const PersonalInfo = (): JSX.Element => {
           child="Save Changes"
           className="me:mb-0 my-[15px] mb-24 ml-auto flex"
           isLoading={isLoading}
-          disabled={!isValid || isLoading}
+          disabled={!isValid || isLoading || !hasChanges}
         />
       </form>
     </>
