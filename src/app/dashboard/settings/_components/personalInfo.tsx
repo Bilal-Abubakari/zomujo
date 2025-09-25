@@ -44,7 +44,9 @@ const PersonalDetailsSchema = z.object({
 const PersonalInfo = (): JSX.Element => {
   const personalDetails = useAppSelector(selectExtra) as IDoctor;
 
-  const getFormDataFromPersonalDetails = (details: IDoctor | null) => ({
+  const getFormDataFromPersonalDetails = (
+    details: IDoctor | null,
+  ): DoctorPersonalInfo & Pick<IDoctor, 'profilePicture'> => ({
     firstName: details?.firstName || '',
     lastName: details?.lastName || '',
     education: {
@@ -90,11 +92,14 @@ const PersonalInfo = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
 
   const currentFormData = watch();
-  const currentFormDataWithImage = {
-    ...currentFormData,
-    experience: Number(currentFormData.experience),
-    profilePicture: userProfilePicture || '',
-  };
+  const currentFormDataWithImage = useMemo(
+    () => ({
+      ...currentFormData,
+      experience: Number(currentFormData.experience),
+      profilePicture: userProfilePicture || '',
+    }),
+    [currentFormData, userProfilePicture],
+  );
 
   const hasChanges = useMemo(
     () => !isEqual(defaultFormData, currentFormDataWithImage),
