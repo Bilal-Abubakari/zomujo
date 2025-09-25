@@ -44,23 +44,27 @@ import {
   PATIENT_SIDE_BAR,
 } from '@/constants/sidebar.constant';
 import { logout } from '@/lib/features/auth/authThunk';
+import { useIsMobile } from '@/hooks/useMobile';
 
 type SideBarProps = {
   type?: SidebarType;
   sidebarClassName?: string;
   sidebarContentClassName?: string;
   sidebarTabClassName?: string;
+  hideOnMobile?: boolean;
 };
 export const SidebarLayout = ({
   type,
   sidebarClassName,
   sidebarContentClassName,
   sidebarTabClassName,
+  hideOnMobile = false,
 }: SideBarProps): JSX.Element => {
   const userName = useAppSelector(selectUserName);
   const isAnAdmin = useAppSelector(selectIsAnAdmin);
   const role = useAppSelector(selectUserRole);
   const pathName = usePathname();
+  const isMobile = useIsMobile(1024);
 
   const getRole = (): string => {
     switch (role) {
@@ -77,8 +81,12 @@ export const SidebarLayout = ({
     }
   };
 
+  if (isMobile && hideOnMobile) {
+    return <></>;
+  }
+
   return (
-    <Sidebar className={cn('me:sticky', sidebarClassName)}>
+    <Sidebar className={cn('flex hidden h-screen flex-col', sidebarClassName)}>
       {!type && (
         <SidebarHeader className="pt-3.5 pb-[50px]">
           <SidebarTrigger child={<Image src={Logo} alt="Zyptyk-logo" />} className="h-10 w-10" />
@@ -149,11 +157,11 @@ export const SidebarLayout = ({
         ))}
       </SidebarContent>
       {!type && (
-        <SidebarFooter className="me:block hidden">
+        <SidebarFooter className="me:block hidden flex-shrink-0">
           {!isAnAdmin && <ProfileCompletionCard />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <SidebarMenuButton className="mt-4">
+              <SidebarMenuButton className="mt-4 py-10">
                 <AvatarComp name={userName} />
                 <div className="flex flex-col text-xs font-medium">
                   <span>{userName}</span>
@@ -179,7 +187,7 @@ export const Navbar = ({
 
   return (
     <>
-      <div className="me:hidden flex justify-evenly overflow-x-scroll bg-white">
+      <div className="me:hidden flex justify-evenly overflow-x-scroll bg-white p-2 pl-10">
         {flattenedMenu.map(({ title, phoneTitle, url }) => (
           <div key={title} title={title}>
             <SidebarMenuButton
