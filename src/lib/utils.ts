@@ -197,3 +197,37 @@ export const dataURLtoBlob = (dataUrl: string): Blob => {
  */
 export const blobToFile = (theBlob: Blob, fileName: string): File =>
   new File([theBlob], fileName, { lastModified: new Date().getTime(), type: theBlob.type });
+
+/**
+ * Generates a toast message prompting the user to complete a specific step.
+ * Used for onboarding flows such as profile, payment method, or pricing setup.
+ *
+ * @param type - The type of completion required (`'profile'`, `'paymentMethod'`, or `'pricing'`).
+ * @returns A `Toast` object with the appropriate description for the step.
+ */
+export const dataCompletionToast = (type: 'profile' | 'paymentMethod' | 'pricing'): Toast => {
+  const baseToast: Toast = {
+    title: 'Next Step',
+    duration: 10000,
+    variant: 'default',
+  };
+  switch (type) {
+    case 'profile':
+      return {
+        ...baseToast,
+        description: 'Kindly complete your profile to start seeing patients',
+      };
+    case 'paymentMethod':
+      return {
+        ...baseToast,
+        description: 'Kindly set up your payment method to start seeing patients',
+      };
+    case 'pricing':
+      return {
+        ...baseToast,
+        description: 'Kindly set up your pricing to start seeing patients',
+      };
+    default:
+      return baseToast;
+  }
+};

@@ -10,8 +10,13 @@ import { selectExtra, selectIsOrganizationAdmin } from '@/lib/features/auth/auth
 import { IRate } from '@/types/payment.interface';
 import { IDoctor } from '@/types/doctor.interface';
 import { AsyncThunkAction } from '@reduxjs/toolkit';
+import { useRouter } from 'next/navigation';
+import { dataCompletionToast } from '@/lib/utils';
+import { PaymentTab } from '@/hooks/useQueryParam';
 
 const Pricing = (): JSX.Element => {
+  const router = useRouter();
+  const doctorInfo = useAppSelector(selectExtra) as IDoctor;
   const MIN_AMOUNT = 20;
   const MAX_AMOUNT = 10000;
 
@@ -23,7 +28,6 @@ const Pricing = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const isAdmin = useAppSelector(selectIsOrganizationAdmin);
   const [isLoading, setIsLoading] = useState(false);
-  const { fee } = useAppSelector(selectExtra)! as IDoctor;
   async function updateRate(rate: IRate): Promise<void> {
     setIsLoading(true);
     const action = isAdmin
@@ -33,15 +37,29 @@ const Pricing = (): JSX.Element => {
     const { payload } = await dispatch(action);
 
     if (payload) {
-      toast(payload);
+      const toastData = payload as Toast;
+      toast(toastData);
+      if (toastData.variant === 'success') {
+        if (!doctorInfo?.bio) {
+          router.push('/dashboard/settings');
+          toast(dataCompletionToast('profile'));
+          return;
+        }
+        if (!doctorInfo?.hasDefaultPayment) {
+          router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
+          router.refresh();
+          toast(dataCompletionToast('paymentMethod'));
+          return;
+        }
+      }
     }
 
     setIsLoading(false);
   }
 
   useEffect(() => {
-    if (fee) {
-      const { amount, lengthOfSession } = fee;
+    if (doctorInfo?.fee) {
+      const { amount, lengthOfSession } = doctorInfo.fee;
       const sectionLength = lengthOfSession.split(' ')[0];
       if (amount) {
         setCurrentAmount(amount);

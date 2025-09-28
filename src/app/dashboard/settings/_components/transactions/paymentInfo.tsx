@@ -4,15 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { MODE } from '@/constants/constants';
-import { toast } from '@/hooks/use-toast';
-import { selectUserId } from '@/lib/features/auth/authSelector';
+import { Toast, toast } from '@/hooks/use-toast';
+import { selectExtra, selectUserId } from '@/lib/features/auth/authSelector';
 import {
   addPaymentsDetails,
   getBanks,
   getPaymentDetails,
 } from '@/lib/features/payments/paymentsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { showErrorToast } from '@/lib/utils';
+import { dataCompletionToast, showErrorToast } from '@/lib/utils';
 import {
   booleanSchema,
   nameSchema,
@@ -30,6 +30,9 @@ import { Combobox } from '@/components/ui/select';
 import { AlertMessage } from '@/components/ui/alert';
 import { selectBankOptions, selectPayments } from '@/lib/features/payments/paymentSelector';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useRouter } from 'next/navigation';
+import { IDoctor } from '@/types/doctor.interface';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type PaymentInfoWithoutType = Omit<IPaymentDetails, 'type'>;
 
@@ -37,16 +40,20 @@ const PaymentInfo = (): JSX.Element => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
   const userId = useAppSelector(selectUserId);
+  const [isLoading, setIsLoading] = useState(false);
   const [userPaymentDetails, setUserPaymentDetails] = useState<IPaymentDetails[]>([]);
 
   useEffect(() => {
     const paymentDetails = async (): Promise<void> => {
+      setIsLoading(true);
       const { payload } = await dispatch(getPaymentDetails(userId!));
       if (payload && showErrorToast(payload)) {
         toast(payload);
+        setIsLoading(false);
         return;
       }
       setUserPaymentDetails(payload as IPaymentDetails[]);
+      setIsLoading(false);
     };
     void paymentDetails();
   }, [isModalOpen]);
@@ -54,16 +61,25 @@ const PaymentInfo = (): JSX.Element => {
   return (
     <>
       <div className="flex flex-wrap gap-6">
-        {userPaymentDetails.map(({ reference, accountNumber, type }) => (
-          <Card name={reference} number={accountNumber} type={type} key={accountNumber} />
-        ))}
+        {isLoading ? (
+          <>
+            <Skeleton className="h-[139px] w-[139px] rounded-[7.32px]" />
+            <Skeleton className="h-[139px] w-[139px] rounded-[7.32px]" />
+          </>
+        ) : (
+          userPaymentDetails.map(({ reference, accountNumber, type }) => (
+            <Card name={reference} number={accountNumber} type={type} key={accountNumber} />
+          ))
+        )}
 
-        <div
-          className="flex h-[139px] w-[139px] cursor-pointer items-center justify-center rounded-[7.32px] border border-dashed text-gray-500"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <Plus />
-        </div>
+        {!isLoading && (
+          <div
+            className="flex h-[139px] w-[139px] cursor-pointer items-center justify-center rounded-[7.32px] border border-dashed text-gray-500"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <Plus />
+          </div>
+        )}
       </div>
       {isModalOpen && (
         <Modal
@@ -98,6 +114,8 @@ type PaymentMethodProps = {
   closeModal?: () => void;
 };
 const PaymentMethod = ({ closeModal }: PaymentMethodProps): JSX.Element => {
+  const router = useRouter();
+  const doctorInfo = useAppSelector(selectExtra) as IDoctor;
   const {
     register,
     handleSubmit,
@@ -123,9 +141,21 @@ const PaymentMethod = ({ closeModal }: PaymentMethodProps): JSX.Element => {
     const { payload } = await dispatch(addPaymentsDetails({ ...formData, type }));
 
     if (payload) {
-      toast(payload);
-    } else if (closeModal) {
-      closeModal();
+      const toastData = payload as Toast;
+      toast(toastData);
+      if (toastData.variant === 'success') {
+        closeModal?.();
+        if (!doctorInfo?.bio) {
+          router.push('/dashboard/settings');
+          toast(dataCompletionToast('profile'));
+          return;
+        }
+        if (!doctorInfo?.fee) {
+          router.push('/dashboard/settings/payment?tab=pricing');
+          toast(dataCompletionToast('pricing'));
+          return;
+        }
+      }
     }
     setIsLoading(false);
   }

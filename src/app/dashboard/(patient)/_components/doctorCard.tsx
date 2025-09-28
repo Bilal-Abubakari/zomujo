@@ -222,10 +222,10 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
             <div className="flex w-1/2 items-center gap-2 pr-2">
               <Clock size={16} className="text-primary-500" />
               <p
-                title={`${fee.lengthOfSession} session`}
+                title={`${fee?.lengthOfSession} session`}
                 className="truncate text-xs text-gray-700 md:text-sm"
               >
-                {fee.lengthOfSession} session
+                {fee?.lengthOfSession} session
               </p>
             </div>
 

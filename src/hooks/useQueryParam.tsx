@@ -30,6 +30,12 @@ export enum RecordsTab {
   MyRecord = 'myRecord',
 }
 
+export enum PaymentTab {
+  Pricing = 'pricing',
+  PaymentMethod = 'paymentMethod',
+  Wallet = 'wallet',
+}
+
 interface IQuery extends Pick<Required<IQueryParams>, 'specialty' | 'priceMax' | 'search'> {
   tab: Tab;
   appointmentType: MedicalAppointmentType;
