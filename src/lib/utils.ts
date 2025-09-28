@@ -247,7 +247,14 @@ export function sliderPosition(value: number, type: 'amount' | 'sessionLength'):
     const offset = -20;
     return value * multiplier + offset;
   }
-  const multiplier = value < 60 ? 1.3 : value < 80 ? 2.4 : 3;
+  let multiplier: number;
+  if (value < 60) {
+    multiplier = 1.3;
+  } else if (value < 80) {
+    multiplier = 2.4;
+  } else {
+    multiplier = 3;
+  }
   const offset = value < 50 ? -30 : 0;
   return value * multiplier + offset;
 }
