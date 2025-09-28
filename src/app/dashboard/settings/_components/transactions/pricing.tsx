@@ -11,7 +11,7 @@ import { IRate } from '@/types/payment.interface';
 import { IDoctor } from '@/types/doctor.interface';
 import { AsyncThunkAction } from '@reduxjs/toolkit';
 import { useRouter } from 'next/navigation';
-import { dataCompletionToast } from '@/lib/utils';
+import { dataCompletionToast, sliderPosition } from '@/lib/utils';
 import { PaymentTab } from '@/hooks/useQueryParam';
 
 const Pricing = (): JSX.Element => {
@@ -67,16 +67,7 @@ const Pricing = (): JSX.Element => {
       }
     }
   }, []);
-  function sliderPosition(value: number, type: 'amount' | 'sessionLength'): number {
-    if (type === 'amount') {
-      const multiplier = 1.3;
-      const offset = -20;
-      return value * multiplier + offset;
-    }
-    const multiplier = value < 60 ? 1.3 : value < 80 ? 2.4 : 3;
-    const offset = value < 50 ? -30 : 0;
-    return value * multiplier + offset;
-  }
+
   return (
     <div className="flex w-full flex-col items-end gap-24 sm:ml-6 sm:w-[454px]">
       <div className="relative flex w-full flex-1 flex-col gap-4">
