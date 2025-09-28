@@ -42,9 +42,12 @@ const AvailableAppointment = (): JSX.Element => {
       return 0;
     }
     if ('fee' in information) {
-      return information.fee.amount;
+      return Number(information.fee?.amount);
     }
-    return information.regularFee;
+    if ('regularFee' in information) {
+      return information.regularFee;
+    }
+    return 0;
   }, [information]);
 
   const {
@@ -249,14 +252,7 @@ const AvailableAppointment = (): JSX.Element => {
             </div>
             <div className="mb-4 flex items-center justify-between">
               <div className="text-gray-500">Total</div>
-              <div className="text-lg font-bold">
-                {' '}
-                GHC{' '}
-                {information && 'fee' in information
-                  ? (information?.fee?.amount ?? 0)
-                  : (information?.regularFee ?? 0)}
-                .00
-              </div>
+              <div className="text-lg font-bold"> GHC {getAmount()}.00</div>
             </div>
 
             <div className="mt-4 flex justify-between">
