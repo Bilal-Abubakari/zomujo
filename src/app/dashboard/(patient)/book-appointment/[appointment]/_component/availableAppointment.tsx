@@ -125,17 +125,15 @@ const AvailableAppointment = (): JSX.Element => {
         <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row">
           <p className="leading-4">Step {currentStep} of 3</p>
           <div className="flex flex-row items-center justify-between">
-            {Array(3)
-              .fill('')
-              .map((_, i) => (
-                <div
-                  key={`progress-${i}`}
-                  className={cn(
-                    'h-1 w-20 duration-150',
-                    currentStep >= i + 1 ? 'bg-primary' : 'bg-gray-200',
-                  )}
-                />
-              ))}
+            {new Array(3).fill('').map((_, i) => (
+              <div
+                key={`progress-${i}`}
+                className={cn(
+                  'h-1 w-20 duration-150',
+                  currentStep >= i + 1 ? 'bg-primary' : 'bg-gray-200',
+                )}
+              />
+            ))}
           </div>
         </div>
         {currentStep === 1 && (
