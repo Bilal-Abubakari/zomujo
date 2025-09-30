@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MODE, specialties } from '@/constants/constants';
-import { toast } from '@/hooks/use-toast';
+import { Toast, toast } from '@/hooks/use-toast';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { updateDoctorProfile } from '@/lib/features/doctors/doctorsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -26,6 +26,9 @@ import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
 import { MultiSelect } from '@/components/ui/multiSelect';
 import { isEqual } from 'lodash';
+import { useRouter } from 'next/navigation';
+import { PaymentTab } from '@/hooks/useQueryParam';
+import { dataCompletionToast } from '@/lib/utils';
 
 const PersonalDetailsSchema = z.object({
   firstName: nameSchema,
@@ -42,6 +45,7 @@ const PersonalDetailsSchema = z.object({
 });
 
 const PersonalInfo = (): JSX.Element => {
+  const router = useRouter();
   const personalDetails = useAppSelector(selectExtra) as IDoctor;
 
   const getFormDataFromPersonalDetails = (
@@ -110,7 +114,20 @@ const PersonalInfo = (): JSX.Element => {
     setIsLoading(true);
     const { payload } = await dispatch(updateDoctorProfile(doctorPersonalInfo));
     if (payload) {
-      toast(payload);
+      const toastData = payload as Toast;
+      toast(toastData);
+      if (toastData.variant === 'success') {
+        if (!personalDetails?.fee) {
+          router.push(`/dashboard/settings/payment?tab=${PaymentTab.Pricing}`);
+          toast(dataCompletionToast('pricing'));
+          return;
+        }
+        if (!personalDetails?.hasDefaultPayment) {
+          router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
+          toast(dataCompletionToast('paymentMethod'));
+          return;
+        }
+      }
     }
     setIsLoading(false);
   }

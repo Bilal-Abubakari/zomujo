@@ -29,6 +29,7 @@ const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
   const { getQueryParam } = useQueryParam();
 
   const handleVerificationSuccess = useCallback((payload: string) => {
+    router.prefetch(redirectUrl);
     setSuccessMessage(payload);
     const interval = setInterval(() => {
       setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
@@ -65,19 +66,11 @@ const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
       setErrorMessage(message);
     }
     setIsLoading(false);
-  }, [token]);
+  }, [token, dispatch, type, getQueryParam, handleVerificationSuccess]);
 
   useEffect(() => {
     void submitVerification();
   }, [submitVerification]);
-
-  useEffect(() => {
-    let cleanup: (() => void) | undefined;
-    if (successMessage) {
-      cleanup = handleVerificationSuccess(successMessage);
-    }
-    return cleanup;
-  }, [successMessage]);
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-2 px-8 text-center">

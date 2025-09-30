@@ -1,30 +1,90 @@
 'use client';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { cn } from '@/lib/utils';
+import { IDoctor } from '@/types/doctor.interface';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { PaymentTab } from '@/hooks/useQueryParam';
 
-/**
- * Fields not need for the calculation of progress
- */
-const EXCLUDED_FIELDS_NUMBER = 6;
 const ProfileCompletionCard = (): JSX.Element => {
   const router = useRouter();
-  const extra = useSelector(selectExtra);
+  const extra = useSelector(selectExtra) as IDoctor | null;
   const [completionRate, setCompletionRate] = useState(0);
+  const [completionMessage, setCompletionMessage] = useState(
+    'Complete profile to unlock your profile for patient requests',
+  );
 
   useEffect(() => {
     if (extra) {
-      const values = Object.values(extra);
-      const total = values.length - EXCLUDED_FIELDS_NUMBER;
-      const userProvidedFields = values.filter(
-        (value) => Boolean(value) && (!Array.isArray(value) || value.length > 0),
-      );
+      let completedCount = 0;
+      const baseCompletion = 50;
+      const remainingPercentage = 50;
+      const totalStages = 3;
 
-      setCompletionRate(Math.floor((userProvidedFields.length / total) * 100));
+      // Stage 1: Profile Info
+      const hasProfileInfo =
+        extra.experience &&
+        extra.education &&
+        extra.specializations?.length > 0 &&
+        extra.languages?.length > 0 &&
+        extra.bio;
+      if (hasProfileInfo) {
+        completedCount++;
+      }
+
+      // Stage 2: Fee
+      if (extra.fee) {
+        completedCount++;
+      }
+
+      // Stage 3: Payment Method
+      if (extra.hasDefaultPayment) {
+        completedCount++;
+      }
+
+      if (!hasProfileInfo) {
+        setCompletionMessage('Complete your profile to unlock your profile for patient requests.');
+      } else if (!extra.fee) {
+        setCompletionMessage('Set up your pricing to continue and unlock your profile.');
+      } else if (!extra.hasDefaultPayment) {
+        setCompletionMessage('Add a payment method to receive payments and unlock your profile.');
+      }
+
+      const additionalPercentage = (completedCount / totalStages) * remainingPercentage;
+      setCompletionRate(Math.floor(baseCompletion + additionalPercentage));
     }
   }, [extra]);
+
+  const handleCompleteProfileClick = (): void => {
+    if (!extra) {
+      return;
+    }
+
+    // Stage 1 check: Profile Info
+    const hasProfileInfo =
+      extra.experience &&
+      extra.education &&
+      extra.specializations?.length > 0 &&
+      extra.languages?.length > 0 &&
+      extra.bio;
+    if (!hasProfileInfo) {
+      router.push('/dashboard/settings');
+      return;
+    }
+
+    // Stage 2 check: Fee
+    if (!extra.fee) {
+      router.push(`/dashboard/settings/payment?tab=${PaymentTab.Pricing}`);
+      return;
+    }
+
+    // Stage 3 check: Payment Method
+    if (!extra.hasDefaultPayment) {
+      router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -37,9 +97,7 @@ const ProfileCompletionCard = (): JSX.Element => {
           <p className="text-base font-medium text-white">Getting Started</p>
           <p className="text-sm font-bold text-white">{completionRate}%</p>
         </div>
-        <div className="text-xs font-normal text-white">
-          Complete profile to unlock other superb features
-        </div>
+        <div className="text-xs font-normal text-white">{completionMessage}</div>
       </div>
       <div className="z-20 h-1 w-full rounded-full bg-white/10">
         <div
@@ -50,9 +108,7 @@ const ProfileCompletionCard = (): JSX.Element => {
         ></div>
       </div>
       <button
-        onClick={() => {
-          router.push('/dashboard/settings');
-        }}
+        onClick={handleCompleteProfileClick}
         className="z-20 flex h-9 flex-col items-center justify-center self-stretch rounded-md border border-white/20 bg-white/20 backdrop-blur-lg"
       >
         <p className="text-sm font-medium text-white">Complete Profile</p>

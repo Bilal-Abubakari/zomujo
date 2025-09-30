@@ -30,6 +30,12 @@ export enum RecordsTab {
   MyRecord = 'myRecord',
 }
 
+export enum PaymentTab {
+  Pricing = 'pricing',
+  PaymentMethod = 'paymentMethod',
+  Wallet = 'wallet',
+}
+
 interface IQuery extends Pick<Required<IQueryParams>, 'specialty' | 'priceMax' | 'search'> {
   tab: Tab;
   appointmentType: MedicalAppointmentType;
@@ -66,9 +72,9 @@ export function useQueryParam(): {
 
   const updateQueries = (params: PartialUpdateQueries): void => {
     const currentSearchParams = new URLSearchParams(searchParams.toString());
-    Object.entries(params ?? {}).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(params ?? {})) {
       currentSearchParams.append(key, value);
-    });
+    }
     router.push(`${pathname}?${currentSearchParams.toString()}`);
   };
 
