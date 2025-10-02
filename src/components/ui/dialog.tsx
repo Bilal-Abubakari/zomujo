@@ -209,6 +209,7 @@ const Modal = ({
 );
 
 export type ConfirmationProps = {
+  title?: string;
   description: ReactNode | string;
   acceptButtonTitle?: string;
   rejectButtonTitle?: string;
@@ -226,12 +227,15 @@ const Confirmation = ({
   acceptCommand,
   rejectCommand,
   setState,
+  title,
   isLoading,
 }: ConfirmationProps): JSX.Element => (
   <Modal
+    title={title}
     open={open}
     content={
       <div>
+        {title && <DialogTitle>{title}</DialogTitle>}
         <p>{description}</p>
         <div className="flex justify-end gap-4 pt-4">
           <Button
