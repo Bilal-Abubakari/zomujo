@@ -1,7 +1,13 @@
 import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { generateSuccessToast } from '@/lib/utils';
-import { IBank, ICheckout, IRate, IPaymentDetails } from '@/types/payment.interface';
+import {
+  IBank,
+  ICheckout,
+  IRate,
+  IPaymentDetails,
+  ICreatePaymentDetails,
+} from '@/types/payment.interface';
 import { IResponse } from '@/types/shared.interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setError } from '@/lib/features/payments/paymentSlice';
@@ -10,7 +16,7 @@ import { updateExtra } from '@/lib/features/auth/authSlice';
 
 export const addPaymentsDetails = createAsyncThunk(
   'payment/addingPayments',
-  async (paymentInfo: IPaymentDetails, { dispatch }): Promise<Toast> => {
+  async (paymentInfo: ICreatePaymentDetails, { dispatch }): Promise<Toast> => {
     try {
       const {
         data: { message },
@@ -20,6 +26,34 @@ export const addPaymentsDetails = createAsyncThunk(
           hasDefaultPayment: true,
         }),
       );
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const updatePaymentsDetails = createAsyncThunk(
+  'payment/updatePaymentDetails',
+  async (paymentInfo: IPaymentDetails): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.patch<IResponse>(`payments/methods`, paymentInfo);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const deletePaymentDetails = createAsyncThunk(
+  'payment/deletePaymentDetails',
+  async (id: string): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.delete<IResponse>(`payments/methods/${id}`);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
