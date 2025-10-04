@@ -19,6 +19,7 @@ import UpdatePatientInfo from '@/app/dashboard/(patient)/_components/updatePatie
 import { IDoctor } from '@/types/doctor.interface';
 import { useRouter } from 'next/navigation';
 import { PaymentTab } from '@/hooks/useQueryParam';
+import { AcceptDeclineStatus } from '@/types/shared.enum';
 
 export default function Layout({
   children,
@@ -38,6 +39,24 @@ export default function Layout({
     setModalOpen(shouldShowOnboardingModal);
   }, [shouldShowOnboardingModal]);
 
+  const getProfileCompletionStatus = (
+    doctorExtra: IDoctor,
+  ): { hasProfileInfo: boolean; hasFee: boolean; hasPayment: boolean; isComplete: boolean } => {
+    const hasProfileInfo =
+      !!doctorExtra.experience &&
+      doctorExtra.education &&
+      doctorExtra.specializations?.length > 0 &&
+      doctorExtra.languages?.length > 0 &&
+      !!doctorExtra.bio;
+
+    return {
+      hasProfileInfo,
+      hasFee: !!doctorExtra.fee,
+      hasPayment: doctorExtra.hasDefaultPayment,
+      isComplete: hasProfileInfo && !!doctorExtra.fee && doctorExtra.hasDefaultPayment,
+    };
+  };
+
   const handleDismissOnboarding = (): void => {
     if (dontShowAgain) {
       dispatch(dismissOnboardingModal());
@@ -50,52 +69,106 @@ export default function Layout({
       return;
     }
 
-    // Stage 1 check: Profile Info
-    const hasProfileInfo =
-      extra.experience &&
-      extra.education &&
-      extra.specializations?.length > 0 &&
-      extra.languages?.length > 0 &&
-      extra.bio;
+    const { hasProfileInfo, hasFee } = getProfileCompletionStatus(extra);
 
     if (!hasProfileInfo) {
       router.push('/dashboard/settings');
-      handleDismissOnboarding();
-      return;
-    }
-
-    // Stage 2 check: Fee
-    if (!extra.fee) {
+    } else if (!hasFee) {
       router.push(`/dashboard/settings/payment?tab=${PaymentTab.Pricing}`);
-      handleDismissOnboarding();
-      return;
+    } else {
+      router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
     }
 
-    // Stage 3 check: Payment Method
-    if (!extra.hasDefaultPayment) {
-      router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
-      handleDismissOnboarding();
-    }
+    handleDismissOnboarding();
   };
+
+  const InfoCard = ({
+    icon,
+    title,
+    description,
+    bgColor,
+    textColor,
+  }: {
+    icon: string;
+    title: string;
+    description: string;
+    bgColor: string;
+    textColor: string;
+  }): JSX.Element => (
+    <div className={`rounded-lg border p-4 ${bgColor}`}>
+      <div className="flex items-start space-x-3">
+        <div className="flex-shrink-0">
+          <div
+            className={`flex h-6 w-6 items-center justify-center rounded-full ${textColor.includes('yellow') ? 'bg-yellow-400' : textColor.includes('green') ? 'bg-green-400' : 'bg-blue-400'}`}
+          >
+            <span className="text-sm font-medium text-white">{icon}</span>
+          </div>
+        </div>
+        <div>
+          <h3 className={`text-sm font-medium ${textColor}`}>{title}</h3>
+          <p className={`mt-1 text-sm ${textColor.replace('-800', '-700')}`}>{description}</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ActionButtons = ({
+    showCompleteProfile = true,
+  }: {
+    showCompleteProfile?: boolean;
+  }): JSX.Element => (
+    <div className={showCompleteProfile ? 'flex gap-3' : 'flex justify-center'}>
+      {showCompleteProfile ? (
+        <>
+          <button
+            onClick={handleDismissOnboarding}
+            className="flex-1 rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
+          >
+            I&#39;ll do this later
+          </button>
+          <button
+            onClick={handleCompleteProfileClick}
+            className="flex-1 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+          >
+            Complete Profile
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={() => dispatch(dismissOnboardingModal())}
+          className="rounded-md border border-transparent bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
+        >
+          Got it, thanks!
+        </button>
+      )}
+    </div>
+  );
+
+  const CheckboxSection = (): JSX.Element => (
+    <div className="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        id="dontShowAgain"
+        checked={dontShowAgain}
+        onChange={(e) => setDontShowAgain(e.target.checked)}
+        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+      />
+      <label htmlFor="dontShowAgain" className="text-sm text-gray-600">
+        Don&#39;t show this message again
+      </label>
+    </div>
+  );
 
   const OnboardingModalContent = (): JSX.Element => {
     if (!extra) {
       return <div></div>;
     }
 
-    const doctorStatus = (extra as IDoctor).status;
-
-    const hasProfileInfo =
-      extra.experience &&
-      extra.education &&
-      extra.specializations?.length > 0 &&
-      extra.languages?.length > 0 &&
-      extra.bio;
-
-    const isProfileComplete = hasProfileInfo && extra.fee && extra.hasDefaultPayment;
+    const doctorStatus = extra.status;
+    const { isComplete } = getProfileCompletionStatus(extra);
 
     // Scenario 1: Pending doctor with incomplete profile
-    if (doctorStatus === 'pending' && !isProfileComplete) {
+    if (doctorStatus === AcceptDeclineStatus.Pending && !isComplete) {
       return (
         <div className="space-y-6">
           <div className="space-y-2">
@@ -106,76 +179,30 @@ export default function Layout({
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-yellow-400">
-                    <span className="text-sm font-medium text-white">1</span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-yellow-800">Account Verification</h3>
-                  <p className="mt-1 text-sm text-yellow-700">
-                    Your account is currently <strong>pending verification</strong> based on the
-                    information you submitted. Once approved by our admin team, patients will be
-                    able to start booking appointments with you.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-400">
-                    <span className="text-sm font-medium text-white">2</span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-blue-800">Complete Your Profile</h3>
-                  <p className="mt-1 text-sm text-blue-700">
-                    While waiting for verification, you can complete your profile to be fully ready
-                    for bookings. This includes adding your experience, education, specializations,
-                    consultation fees, and payment methods.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="dontShowAgain"
-              checked={dontShowAgain}
-              onChange={(e) => setDontShowAgain(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            <InfoCard
+              icon="1"
+              title="Account Verification"
+              description="Your account is currently pending verification based on the information you submitted. Once approved by our admin team, patients will be able to start booking appointments with you."
+              bgColor="border-yellow-200 bg-yellow-50"
+              textColor="text-yellow-800"
             />
-            <label htmlFor="dontShowAgain" className="text-sm text-gray-600">
-              Don&#39;t show this message again
-            </label>
+            <InfoCard
+              icon="2"
+              title="Complete Your Profile"
+              description="While waiting for verification, you can complete your profile to be fully ready for bookings. This includes adding your experience, education, specializations, consultation fees, and payment methods."
+              bgColor="border-blue-200 bg-blue-50"
+              textColor="text-blue-800"
+            />
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={handleDismissOnboarding}
-              className="flex-1 rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
-            >
-              I&#39;ll do this later
-            </button>
-            <button
-              onClick={handleCompleteProfileClick}
-              className="flex-1 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-            >
-              Complete Profile
-            </button>
-          </div>
+          <CheckboxSection />
+          <ActionButtons />
         </div>
       );
     }
 
     // Scenario 2: Accepted doctor with incomplete profile
-    if (doctorStatus === 'accepted' && !isProfileComplete) {
+    if (doctorStatus === AcceptDeclineStatus.Accepted && !isComplete) {
       return (
         <div className="space-y-6">
           <div className="space-y-2">
@@ -186,74 +213,30 @@ export default function Layout({
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-400">
-                    <span className="text-sm font-medium text-white">✓</span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-green-800">Account Verified</h3>
-                  <p className="mt-1 text-sm text-green-700">
-                    Your account has been successfully verified! You&#39;re almost ready to start
-                    receiving patient bookings.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-400">
-                    <span className="text-sm font-medium text-white">!</span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-blue-800">Complete Your Profile</h3>
-                  <p className="mt-1 text-sm text-blue-700">
-                    To start receiving bookings, please complete your profile by adding your
-                    experience, education, specializations, consultation fees, and payment methods.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="dontShowAgain"
-              checked={dontShowAgain}
-              onChange={(e) => setDontShowAgain(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            <InfoCard
+              icon="✓"
+              title="Account Verified"
+              description="Your account has been successfully verified! You're almost ready to start receiving patient bookings."
+              bgColor="border-green-200 bg-green-50"
+              textColor="text-green-800"
             />
-            <label htmlFor="dontShowAgain" className="text-sm text-gray-600">
-              Don&#39;t show this message again
-            </label>
+            <InfoCard
+              icon="!"
+              title="Complete Your Profile"
+              description="To start receiving bookings, please complete your profile by adding your experience, education, specializations, consultation fees, and payment methods."
+              bgColor="border-blue-200 bg-blue-50"
+              textColor="text-blue-800"
+            />
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={handleDismissOnboarding}
-              className="flex-1 rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
-            >
-              I&#39;ll do this later
-            </button>
-            <button
-              onClick={handleCompleteProfileClick}
-              className="flex-1 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-            >
-              Complete Profile
-            </button>
-          </div>
+          <CheckboxSection />
+          <ActionButtons />
         </div>
       );
     }
 
     // Scenario 3: Accepted doctor with complete profile
-    if (doctorStatus === 'accepted' && isProfileComplete) {
+    if (doctorStatus === AcceptDeclineStatus.Accepted && isComplete) {
       return (
         <div className="space-y-6">
           <div className="space-y-2">
@@ -264,51 +247,23 @@ export default function Layout({
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-400">
-                    <span className="text-sm font-medium text-white">✓</span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-green-800">Profile Complete</h3>
-                  <p className="mt-1 text-sm text-green-700">
-                    Excellent! You have successfully completed your profile setup. Our admin team
-                    will now conduct due diligence on the information you&#39;ve provided to ensure
-                    everything meets our standards.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-400">
-                    <span className="text-sm font-medium text-white">💡</span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-blue-800">What&#39;s Next?</h3>
-                  <p className="mt-1 text-sm text-blue-700">
-                    While we complete our review, feel free to explore the application and
-                    familiarize yourself with all the features available to you. Patients will be
-                    able to book appointments with you once the review is complete.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <InfoCard
+              icon="✓"
+              title="Profile Complete"
+              description="Excellent! You have successfully completed your profile setup. Our admin team will now conduct due diligence on the information you've provided to ensure everything meets our standards."
+              bgColor="border-green-200 bg-green-50"
+              textColor="text-green-800"
+            />
+            <InfoCard
+              icon="💡"
+              title="What's Next?"
+              description="While we complete our review, feel free to explore the application and familiarize yourself with all the features available to you. Patients will be able to book appointments with you once the review is complete."
+              bgColor="border-blue-200 bg-blue-50"
+              textColor="text-blue-800"
+            />
           </div>
 
-          <div className="flex justify-center">
-            <button
-              onClick={() => dispatch(dismissOnboardingModal())}
-              className="rounded-md border border-transparent bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
-            >
-              Got it, thanks!
-            </button>
-          </div>
+          <ActionButtons showCompleteProfile={false} />
         </div>
       );
     }
