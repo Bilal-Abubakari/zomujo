@@ -82,7 +82,7 @@ export const selectDoctorStatus = createSelector(selectIsDoctor, selectExtra, (i
   if (!isDoctor || !extra) {
     return null;
   }
-  return (extra as IDoctor).status as AcceptDeclineStatus;
+  return (extra as IDoctor).status;
 });
 export const selectHideOnboardingModal = createSelector(
   selectAuthentication,
