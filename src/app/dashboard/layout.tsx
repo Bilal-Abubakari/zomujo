@@ -46,7 +46,13 @@ export default function Layout({
 
   const getProfileCompletionStatus = (
     doctorExtra: IDoctor,
-  ): { hasProfileInfo: boolean; hasFee: boolean; hasPayment: boolean; isComplete: boolean } => {
+  ): {
+    hasProfileInfo: boolean;
+    hasFee: boolean;
+    hasPayment: boolean;
+    hasSlots: boolean;
+    isComplete: boolean;
+  } => {
     const hasProfileInfo =
       !!doctorExtra.experience &&
       doctorExtra.education &&
@@ -58,7 +64,12 @@ export default function Layout({
       hasProfileInfo,
       hasFee: !!doctorExtra.fee,
       hasPayment: doctorExtra.hasDefaultPayment,
-      isComplete: hasProfileInfo && !!doctorExtra.fee && doctorExtra.hasDefaultPayment,
+      hasSlots: doctorExtra.hasSlots,
+      isComplete:
+        hasProfileInfo &&
+        !!doctorExtra.fee &&
+        doctorExtra.hasDefaultPayment &&
+        doctorExtra.hasSlots,
     };
   };
 
@@ -74,7 +85,7 @@ export default function Layout({
       return;
     }
 
-    const { hasProfileInfo, hasFee } = getProfileCompletionStatus(extra);
+    const { hasProfileInfo, hasFee, hasPayment } = getProfileCompletionStatus(extra);
 
     if (!hasProfileInfo) {
       router.push('/dashboard/settings');
@@ -86,8 +97,14 @@ export default function Layout({
       handleDismissOnboarding();
       return;
     }
+    if (!hasPayment) {
+      router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
+      handleDismissOnboarding();
+      return;
+    }
 
-    router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
+    // If all previous steps are complete, go to availability
+    router.push('/dashboard/availability');
     handleDismissOnboarding();
   };
 
@@ -121,7 +138,7 @@ export default function Layout({
             <InfoCard
               icon="2"
               title="Complete Your Profile"
-              description="While waiting for verification, you can complete your profile to be fully ready for bookings. This includes adding your experience, education, specializations, consultation fees, and payment methods."
+              description="While waiting for verification, you can complete your profile to be fully ready for bookings. This includes adding your experience, education, specializations, consultation fees, payment methods, and availability slots."
               bgColor="border-blue-200 bg-blue-50"
               textColor="text-blue-800"
             />
@@ -161,7 +178,7 @@ export default function Layout({
             <InfoCard
               icon="!"
               title="Complete Your Profile"
-              description="To start receiving bookings, please complete your profile by adding your experience, education, specializations, consultation fees, and payment methods."
+              description="To start receiving bookings, please complete your profile by adding your experience, education, specializations, consultation fees, payment methods, and availability slots."
               bgColor="border-blue-200 bg-blue-50"
               textColor="text-blue-800"
             />

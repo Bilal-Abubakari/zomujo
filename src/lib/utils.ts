@@ -205,7 +205,9 @@ export const blobToFile = (theBlob: Blob, fileName: string): File =>
  * @param type - The type of completion required (`'profile'`, `'paymentMethod'`, or `'pricing'`).
  * @returns A `Toast` object with the appropriate description for the step.
  */
-export const dataCompletionToast = (type: 'profile' | 'paymentMethod' | 'pricing'): Toast => {
+export const dataCompletionToast = (
+  type: 'profile' | 'paymentMethod' | 'pricing' | 'availability',
+): Toast => {
   const baseToast: Toast = {
     title: 'Next Step',
     duration: 10000,
@@ -226,6 +228,11 @@ export const dataCompletionToast = (type: 'profile' | 'paymentMethod' | 'pricing
       return {
         ...baseToast,
         description: 'Kindly set up your pricing to start seeing patients',
+      };
+    case 'availability':
+      return {
+        ...baseToast,
+        description: 'Kindly set up your availability to start seeing patients',
       };
     default:
       return baseToast;

@@ -20,9 +20,9 @@ const ProfileCompletionCard = (): JSX.Element => {
   useEffect(() => {
     if (extra) {
       let completedCount = 0;
-      const baseCompletion = 50;
-      const remainingPercentage = 50;
-      const totalStages = 3;
+      const baseCompletion = 40;
+      const remainingPercentage = 60;
+      const totalStages = 4;
 
       // Stage 1: Profile Info
       const hasProfileInfo =
@@ -45,12 +45,19 @@ const ProfileCompletionCard = (): JSX.Element => {
         completedCount++;
       }
 
+      // Stage 4: Slot pattern
+      if (extra.hasSlots) {
+        completedCount++;
+      }
+
       if (!hasProfileInfo) {
         setCompletionMessage('Complete your profile to unlock your profile for patient requests.');
       } else if (!extra.fee) {
         setCompletionMessage('Set up your pricing to continue and unlock your profile.');
       } else if (!extra.hasDefaultPayment) {
         setCompletionMessage('Add a payment method to receive payments and unlock your profile.');
+      } else if (!extra.hasSlots) {
+        setCompletionMessage('Set your availability to start receiving patient requests.');
       }
 
       const additionalPercentage = (completedCount / totalStages) * remainingPercentage;
@@ -84,6 +91,11 @@ const ProfileCompletionCard = (): JSX.Element => {
     // Stage 3 check: Payment Method
     if (!extra.hasDefaultPayment) {
       router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
+    }
+
+    // Stage 4 check: Slot pattern
+    if (!extra.hasSlots) {
+      router.push('/dashboard/availability');
     }
   };
 

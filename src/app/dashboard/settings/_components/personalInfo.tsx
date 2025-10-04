@@ -127,6 +127,11 @@ const PersonalInfo = (): JSX.Element => {
           toast(dataCompletionToast('paymentMethod'));
           return;
         }
+        if (!personalDetails?.hasSlots) {
+          router.push('/dashboard/availability');
+          toast(dataCompletionToast('availability'));
+          return;
+        }
       }
     }
     setIsLoading(false);
