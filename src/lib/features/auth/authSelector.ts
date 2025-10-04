@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
-import { Role, Status } from '@/types/shared.enum';
+import { Role, Status, AcceptDeclineStatus } from '@/types/shared.enum';
+import { IDoctor } from '@/types/doctor.interface';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const selectAuthentication = ({ authentication }: RootState) => authentication;
@@ -8,6 +9,8 @@ const selectAuthentication = ({ authentication }: RootState) => authentication;
 export const selectUserRole = createSelector(selectAuthentication, ({ user }) => user?.role);
 
 export const selectIsPatient = createSelector(selectUserRole, (role) => role === Role.Patient);
+
+export const selectIsDoctor = createSelector(selectUserRole, (role) => role === Role.Doctor);
 
 export const selectIsAnAdmin = createSelector(
   selectUserRole,
@@ -64,7 +67,62 @@ export const selectPatientMustUpdateMandatoryInfo = createSelector(
   (isPatient, extra) => isPatient && (!extra?.dob || !extra?.gender),
 );
 
+export const selectDoctorMustCompleteOnboarding = createSelector(
+  selectIsDoctor,
+  selectExtra,
+  (isDoctor, extra) => isDoctor && !(extra as IDoctor).MDCRegistration,
+);
+
 export const selectUserProfilePicture = createSelector(
   selectExtra,
   (extra) => extra?.profilePicture ?? '',
+);
+
+export const selectDoctorStatus = createSelector(selectIsDoctor, selectExtra, (isDoctor, extra) => {
+  if (!isDoctor || !extra) {
+    return null;
+  }
+  return (extra as IDoctor).status as AcceptDeclineStatus;
+});
+export const selectHideOnboardingModal = createSelector(
+  selectAuthentication,
+  ({ hideOnboardingModal }) => hideOnboardingModal,
+);
+
+export const selectShouldShowDoctorOnboardingModal = createSelector(
+  selectIsDoctor,
+  selectDoctorStatus,
+  selectExtra,
+  selectHideOnboardingModal,
+  (isDoctor, status, extra, hideModal) => {
+    if (!isDoctor || hideModal) {
+      return false;
+    }
+
+    const doctorExtra = extra as IDoctor;
+    if (!doctorExtra) {
+      return false;
+    }
+
+    // Check if profile is incomplete (same logic as ProfileCompletionCard)
+    const hasProfileInfo =
+      doctorExtra.experience &&
+      doctorExtra.education &&
+      doctorExtra.specializations?.length > 0 &&
+      doctorExtra.languages?.length > 0 &&
+      doctorExtra.bio;
+
+    const isProfileIncomplete =
+      !hasProfileInfo || !doctorExtra.fee || !doctorExtra.hasDefaultPayment;
+
+    if (status === AcceptDeclineStatus.Pending && isProfileIncomplete) {
+      return true;
+    }
+
+    if (status === AcceptDeclineStatus.Accepted && isProfileIncomplete) {
+      return true;
+    }
+
+    return status === AcceptDeclineStatus.Accepted && !isProfileIncomplete;
+  },
 );

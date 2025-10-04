@@ -1,15 +1,17 @@
 'use client';
-import { selectExtra } from '@/lib/features/auth/authSelector';
+import { selectExtra, selectUserRole } from '@/lib/features/auth/authSelector';
 import { cn } from '@/lib/utils';
 import { IDoctor } from '@/types/doctor.interface';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { PaymentTab } from '@/hooks/useQueryParam';
+import { Role } from '@/types/shared.enum';
 
 const ProfileCompletionCard = (): JSX.Element => {
   const router = useRouter();
   const extra = useSelector(selectExtra) as IDoctor | null;
+  const role = useSelector(selectUserRole);
   const [completionRate, setCompletionRate] = useState(0);
   const [completionMessage, setCompletionMessage] = useState(
     'Complete profile to unlock your profile for patient requests',
@@ -84,6 +86,10 @@ const ProfileCompletionCard = (): JSX.Element => {
       router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
     }
   };
+
+  if (role !== Role.Doctor) {
+    return <></>;
+  }
 
   return (
     <div
