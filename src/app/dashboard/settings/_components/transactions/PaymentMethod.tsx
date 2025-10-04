@@ -80,6 +80,10 @@ const PaymentMethod = ({ closeModal, paymentDetails }: PaymentMethodProps): JSX.
         router.push('/dashboard/settings/payment?tab=pricing');
         toast(dataCompletionToast('pricing'));
       }
+      if (!doctorInfo?.hasSlots) {
+        router.push('/dashboard/availability');
+        toast(dataCompletionToast('availability'));
+      }
     }
   };
 

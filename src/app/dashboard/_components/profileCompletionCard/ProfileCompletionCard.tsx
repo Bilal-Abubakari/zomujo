@@ -1,15 +1,17 @@
 'use client';
-import { selectExtra } from '@/lib/features/auth/authSelector';
+import { selectExtra, selectUserRole } from '@/lib/features/auth/authSelector';
 import { cn } from '@/lib/utils';
 import { IDoctor } from '@/types/doctor.interface';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { PaymentTab } from '@/hooks/useQueryParam';
+import { Role } from '@/types/shared.enum';
 
 const ProfileCompletionCard = (): JSX.Element => {
   const router = useRouter();
   const extra = useSelector(selectExtra) as IDoctor | null;
+  const role = useSelector(selectUserRole);
   const [completionRate, setCompletionRate] = useState(0);
   const [completionMessage, setCompletionMessage] = useState(
     'Complete profile to unlock your profile for patient requests',
@@ -18,9 +20,9 @@ const ProfileCompletionCard = (): JSX.Element => {
   useEffect(() => {
     if (extra) {
       let completedCount = 0;
-      const baseCompletion = 50;
-      const remainingPercentage = 50;
-      const totalStages = 3;
+      const baseCompletion = 40;
+      const remainingPercentage = 60;
+      const totalStages = 4;
 
       // Stage 1: Profile Info
       const hasProfileInfo =
@@ -43,12 +45,19 @@ const ProfileCompletionCard = (): JSX.Element => {
         completedCount++;
       }
 
+      // Stage 4: Slot pattern
+      if (extra.hasSlots) {
+        completedCount++;
+      }
+
       if (!hasProfileInfo) {
         setCompletionMessage('Complete your profile to unlock your profile for patient requests.');
       } else if (!extra.fee) {
         setCompletionMessage('Set up your pricing to continue and unlock your profile.');
       } else if (!extra.hasDefaultPayment) {
         setCompletionMessage('Add a payment method to receive payments and unlock your profile.');
+      } else if (!extra.hasSlots) {
+        setCompletionMessage('Set your availability to start receiving patient requests.');
       }
 
       const additionalPercentage = (completedCount / totalStages) * remainingPercentage;
@@ -83,7 +92,16 @@ const ProfileCompletionCard = (): JSX.Element => {
     if (!extra.hasDefaultPayment) {
       router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
     }
+
+    // Stage 4 check: Slot pattern
+    if (!extra.hasSlots) {
+      router.push('/dashboard/availability');
+    }
   };
+
+  if (role !== Role.Doctor) {
+    return <></>;
+  }
 
   return (
     <div

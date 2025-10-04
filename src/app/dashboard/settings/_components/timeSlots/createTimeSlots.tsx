@@ -12,14 +12,14 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { CalendarIcon, Info } from 'lucide-react';
-import { capitalize, cn, showErrorToast } from '@/lib/utils';
+import { capitalize, cn, dataCompletionToast, showErrorToast } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DateRange } from 'react-day-picker';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { createAppointmentSlot } from '@/lib/features/appointments/appointmentsThunk';
-import { useAppDispatch } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { generateRecurrenceRule, generateSlotDescription } from '@/lib/rule';
-import { toast } from '@/hooks/use-toast';
+import { Toast, toast } from '@/hooks/use-toast';
 import { ToastStatus } from '@/types/shared.enum';
 import { Confirmation } from '@/components/ui/dialog';
 import { shortDaysOfTheWeek } from '@/constants/constants';
@@ -27,8 +27,14 @@ import { TooltipComp } from '@/components/ui/tooltip';
 import { frequencies, weekDays } from '@/constants/appointments.constant';
 import moment from 'moment/moment';
 import { IFrequency, ISlotPatternBase, IWeekDays, AppointmentType } from '@/types/slots.interface';
+import { PaymentTab } from '@/hooks/useQueryParam';
+import { selectExtra } from '@/lib/features/auth/authSelector';
+import { IDoctor } from '@/types/doctor.interface';
+import { useRouter } from 'next/navigation';
 
 const CreateTimeSlots = (): JSX.Element => {
+  const doctorInfo = useAppSelector(selectExtra) as IDoctor;
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedWeekDays, setSelectedWeekDays] = useState<IWeekDays[]>([]);
   const [confirmation, setConfirmation] = useState(false);
@@ -74,7 +80,25 @@ const CreateTimeSlots = (): JSX.Element => {
     }
 
     if (payload) {
-      toast(payload);
+      const toastData = payload as Toast;
+      toast(toastData);
+      if (toastData.variant === 'success') {
+        if (!doctorInfo?.bio) {
+          router.push('/dashboard/settings');
+          toast(dataCompletionToast('profile'));
+          return;
+        }
+        if (!doctorInfo?.fee) {
+          router.push(`/dashboard/settings/payment?tab=${PaymentTab.Pricing}`);
+          toast(dataCompletionToast('pricing'));
+          return;
+        }
+        if (!doctorInfo?.hasDefaultPayment) {
+          router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
+          router.refresh();
+          toast(dataCompletionToast('paymentMethod'));
+        }
+      }
     }
   };
 

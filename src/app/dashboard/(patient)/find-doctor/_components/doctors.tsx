@@ -227,7 +227,7 @@ const Doctors = (): JSX.Element => {
           <Combobox
             onChange={(value) => setQueryParameters((prev) => ({ ...prev, specialty: value }))}
             label="Specialty"
-            options={specialties}
+            options={[{ value: '', label: 'All' }, ...specialties]}
             value={queryParameters?.specialty ?? ''}
             className="max-h-[62px] px-4"
             placeholder="Search by specialty..."
@@ -253,11 +253,12 @@ const Doctors = (): JSX.Element => {
         </div>
       </div>
       <Suggested title={'Doctors'} showViewAll={false}>
-        {doctors.map((doctor) => (
-          <div className="cursor-pointer" key={doctor.id}>
-            <DoctorCard key={doctor.id} doctor={doctor} />
-          </div>
-        ))}
+        {!isLoading &&
+          doctors.map((doctor) => (
+            <div className="cursor-pointer" key={doctor.id}>
+              <DoctorCard key={doctor.id} doctor={doctor} />
+            </div>
+          ))}
       </Suggested>
       {isLoading && (
         <div className="mt-2 flex flex-wrap gap-6">
