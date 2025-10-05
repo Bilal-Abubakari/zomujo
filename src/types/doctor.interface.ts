@@ -40,7 +40,7 @@ export interface IDoctor extends IExtraBase {
     amount: number;
   };
   hasDefaultPayment: boolean;
-  hasSlots: boolean;
+  hasSlot: boolean;
 }
 
 export type DoctorPersonalInfo = Pick<

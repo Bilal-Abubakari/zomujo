@@ -51,7 +51,7 @@ const Pricing = (): JSX.Element => {
           toast(dataCompletionToast('paymentMethod'));
           return;
         }
-        if (!doctorInfo?.hasSlots) {
+        if (!doctorInfo?.hasSlot) {
           router.push('/dashboard/availability');
           toast(dataCompletionToast('availability'));
           return;
