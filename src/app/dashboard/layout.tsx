@@ -64,17 +64,14 @@ export default function Layout({
       hasProfileInfo,
       hasFee: !!doctorExtra.fee,
       hasPayment: doctorExtra.hasDefaultPayment,
-      hasSlots: doctorExtra.hasSlots,
+      hasSlots: doctorExtra.hasSlot,
       isComplete:
-        hasProfileInfo &&
-        !!doctorExtra.fee &&
-        doctorExtra.hasDefaultPayment &&
-        doctorExtra.hasSlots,
+        hasProfileInfo && !!doctorExtra.fee && doctorExtra.hasDefaultPayment && doctorExtra.hasSlot,
     };
   };
 
-  const handleDismissOnboarding = (): void => {
-    if (dontShowAgain) {
+  const handleDismissOnboarding = (dismiss?: boolean): void => {
+    if (dontShowAgain || dismiss) {
       dispatch(dismissOnboardingModal());
     }
     setModalOpen(false);
@@ -104,7 +101,7 @@ export default function Layout({
     }
 
     // If all previous steps are complete, go to availability
-    router.push('/dashboard/availability');
+    router.push('/dashboard/settings/availability');
     handleDismissOnboarding();
   };
 
@@ -210,15 +207,15 @@ export default function Layout({
           <div className="space-y-4">
             <InfoCard
               icon="✓"
-              title="Profile Complete"
-              description="Excellent! You have successfully completed your profile setup. Our admin team will now conduct due diligence on the information you've provided to ensure everything meets our standards."
+              title="Profile Complete & Approved"
+              description="Excellent! You have successfully completed your profile setup and your account has been approved by our admin team."
               bgColor="border-green-200 bg-green-50"
               textColor="text-green-800"
             />
             <InfoCard
-              icon="💡"
-              title="What's Next?"
-              description="While we complete our review, feel free to explore the application and familiarize yourself with all the features available to you. Patients will be able to book appointments with you once the review is complete."
+              icon="⏳"
+              title="Setting Up Your Availability"
+              description="We are currently setting up your appointment slots based on the availability pattern you provided. This process will be completed shortly, and you should expect to receive patient bookings soon."
               bgColor="border-blue-200 bg-blue-50"
               textColor="text-blue-800"
             />
@@ -226,7 +223,7 @@ export default function Layout({
 
           <ActionButtons
             showCompleteProfile={false}
-            handleDismissOnboarding={handleDismissOnboarding}
+            handleDismissOnboarding={() => handleDismissOnboarding(true)}
             handleCompleteProfileClick={handleCompleteProfileClick}
           />
         </div>

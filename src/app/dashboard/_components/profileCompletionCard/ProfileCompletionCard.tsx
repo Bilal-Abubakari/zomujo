@@ -46,7 +46,7 @@ const ProfileCompletionCard = (): JSX.Element => {
       }
 
       // Stage 4: Slot pattern
-      if (extra.hasSlots) {
+      if (extra.hasSlot) {
         completedCount++;
       }
 
@@ -56,7 +56,7 @@ const ProfileCompletionCard = (): JSX.Element => {
         setCompletionMessage('Set up your pricing to continue and unlock your profile.');
       } else if (!extra.hasDefaultPayment) {
         setCompletionMessage('Add a payment method to receive payments and unlock your profile.');
-      } else if (!extra.hasSlots) {
+      } else if (!extra.hasSlot) {
         setCompletionMessage('Set your availability to start receiving patient requests.');
       }
 
@@ -94,7 +94,7 @@ const ProfileCompletionCard = (): JSX.Element => {
     }
 
     // Stage 4 check: Slot pattern
-    if (!extra.hasSlots) {
+    if (!extra.hasSlot) {
       router.push('/dashboard/availability');
     }
   };

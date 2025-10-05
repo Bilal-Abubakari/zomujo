@@ -127,7 +127,7 @@ const PersonalInfo = (): JSX.Element => {
           toast(dataCompletionToast('paymentMethod'));
           return;
         }
-        if (!personalDetails?.hasSlots) {
+        if (!personalDetails?.hasSlot) {
           router.push('/dashboard/availability');
           toast(dataCompletionToast('availability'));
           return;

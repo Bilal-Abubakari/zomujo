@@ -13,12 +13,14 @@ import {
   ISlotPatternBase,
   SlotStatus,
 } from '@/types/slots.interface';
+import { updateExtra } from '@/lib/features/auth/authSlice';
 
 export const createAppointmentSlot = createAsyncThunk(
   'appointments/createSlot',
-  async (pattern: ISlotPatternBase): Promise<Toast> => {
+  async (pattern: ISlotPatternBase, { dispatch }): Promise<Toast> => {
     try {
       const { data } = await axios.post<IResponse>(`appointments/slot-pattern`, pattern);
+      dispatch(updateExtra({ hasSlot: true }));
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
