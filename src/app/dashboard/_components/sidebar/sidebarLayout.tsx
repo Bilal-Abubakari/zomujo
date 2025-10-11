@@ -187,7 +187,7 @@ export const Navbar = ({
 
   return (
     <>
-      <div className="me:hidden flex justify-evenly overflow-x-scroll bg-white p-2 pl-10">
+      <div className="me:hidden mt-2 flex justify-evenly overflow-x-scroll bg-white p-2 pl-10">
         {flattenedMenu.map(({ title, phoneTitle, url }) => (
           <div key={title} title={title}>
             <SidebarMenuButton

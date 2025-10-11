@@ -138,11 +138,16 @@ export const resetPassword = createAsyncThunk(
 
 export const verifyEmail = createAsyncThunk(
   'authentication/verifyEmail',
-  async (token: string, { dispatch }): Promise<ICustomResponse<ICheckout>> => {
+  async (
+    { slotId, token }: { token: string; slotId?: string },
+    { dispatch },
+  ): Promise<ICustomResponse<ICheckout>> => {
     try {
       const {
         data: { data, message },
-      } = await axios.post<IResponse<ILoginResponse>>(`${authPath}verify-email/${token}`);
+      } = await axios.post<IResponse<ILoginResponse>>(
+        `${authPath}verify-email?token=${token}${slotId ? `&slotId=${slotId}` : ''}`,
+      );
       dispatch(setUserInfo(data));
       return {
         success: true,
