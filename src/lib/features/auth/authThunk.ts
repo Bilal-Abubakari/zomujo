@@ -143,10 +143,11 @@ export const verifyEmail = createAsyncThunk(
     { dispatch },
   ): Promise<ICustomResponse<ICheckout>> => {
     try {
+      const slotIdQuery = slotId ? `&slotId=${slotId}` : '';
       const {
         data: { data, message },
       } = await axios.post<IResponse<ILoginResponse>>(
-        `${authPath}verify-email?token=${token}${slotId ? `&slotId=${slotId}` : ''}`,
+        `${authPath}verify-email?token=${token}${slotIdQuery}`,
       );
       dispatch(setUserInfo(data));
       return {
