@@ -21,7 +21,7 @@ export default function Layout({
           sidebarContentClassName="bg-gray-100 border-r"
           sidebarTabClassName="data-[active=true]/menu-action:before:opacity-0"
         />
-        <div className="w-full overflow-y-scroll bg-gray-50 px-8 pt-8">{children}</div>
+        <div className="w-full overflow-y-scroll bg-gray-50 px-4 pt-8 sm:px-8">{children}</div>
       </div>
     </div>
   );

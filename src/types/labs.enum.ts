@@ -33,10 +33,10 @@ export enum ImmunologyCategory {
 export enum MicrobiologyCategory {
   Aspirates = 'Aspirates',
   Blood = 'Blood',
-  CerebrospinalFluid = 'Cerebrospinal Fluid (CSP)',
+  CerebrospinalFluid = 'Cerebrospinal Fluid (CSF)',
   CornealScraping = 'Corneal Scraping',
   IntravenousCatheterTip = 'Intravenous Catheter Tip',
-  Semen = 'Semen',
+  SeminalFluid = 'Seminal Fluid',
   Skin = 'Skin',
   Sputum = 'Sputum',
   Stool = 'Stool',

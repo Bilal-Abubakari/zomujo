@@ -28,6 +28,7 @@ import {
   Search,
   SendHorizontal,
   Signature,
+  View,
   Waypoints,
 } from 'lucide-react';
 import moment from 'moment';
@@ -39,12 +40,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 type SelectedAppointment = {
   date: Date;
   appointmentId: string;
 };
 const AppointmentRequests = (): JSX.Element => {
+  const router = useRouter();
   const user = useAppSelector(selectUser);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
@@ -198,6 +201,20 @@ const AppointmentRequests = (): JSX.Element => {
                     id,
                     acceptAppointment,
                   ),
+              },
+              {
+                title: (
+                  <>
+                    <View /> View Consultation
+                  </>
+                ),
+                clickCommand: (): void => {
+                  if (user?.role === Role.Doctor) {
+                    router.push(`/dashboard/patients/${patient.id}?appointmentId=${id}`);
+                  } else {
+                    router.push(`/dashboard/consultation-patient/${id}`);
+                  }
+                },
               },
               {
                 title: (

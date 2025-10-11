@@ -20,17 +20,17 @@ const DoctorOnboarding = (): JSX.Element => {
   }[currentStep];
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center bg-[#FAFAFA]">
-      <header className="relative w-full bg-white px-[72px] py-10">
+    <div className="flex min-h-screen w-screen flex-col items-center bg-[#FAFAFA]">
+      <header className="relative w-full bg-white px-4 py-6 sm:px-8 md:px-12 md:py-10 lg:px-[72px]">
         <Image
           src={Logo}
-          className="absolute top-1/2 left-1/2 h-11 w-11 -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 sm:h-11 sm:w-11"
           alt="Zyptyk Logo"
         />
       </header>
-      <div className="mt-[70px] flex w-[610px] flex-col gap-12">
+      <div className="mt-8 flex w-full max-w-[610px] flex-col gap-8 px-4 pb-8 sm:mt-12 sm:gap-10 sm:px-6 md:mt-16 md:gap-12 md:px-8 lg:mt-[70px] lg:px-0">
         <div className="flex flex-col gap-3">
-          <p className="leading-4">Step {currentStep} of 3</p>
+          <p className="text-sm leading-4 sm:text-base">Step {currentStep} of 3</p>
           <div className="flex flex-row items-center justify-between gap-4">
             {Array(3)
               .fill('')
@@ -46,7 +46,7 @@ const DoctorOnboarding = (): JSX.Element => {
           </div>
         </div>
         {errorMessage && (
-          <AlertMessage message={errorMessage} className="max-w-sm" variant="destructive" />
+          <AlertMessage message={errorMessage} className="w-full max-w-sm" variant="destructive" />
         )}
         {currentView}
       </div>

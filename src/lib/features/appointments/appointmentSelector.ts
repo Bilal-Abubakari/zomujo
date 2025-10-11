@@ -28,7 +28,7 @@ export const selectAppointmentLabs = createSelector(
 );
 
 export const selectConductedLabs = createSelector(selectAppointmentLabs, (labs) =>
-  labs?.filter(({ status }) => status === RequestStatus.Completed),
+  labs?.filter(({ fileUrl }) => !!fileUrl),
 );
 
 export const selectRequestedLabs = createSelector(selectAppointmentLabs, (labs) =>

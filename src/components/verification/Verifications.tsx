@@ -49,11 +49,22 @@ const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
     setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
-    const { payload } = await dispatch(
-      type === 'email'
-        ? verifyEmail(token)
-        : verifyPayment(getQueryParam(PaymentVerification.reference)),
-    );
+    let payload: unknown;
+
+    if (type === 'email') {
+      const { payload: verifyEmailPayload } = await dispatch(
+        verifyEmail({
+          token,
+          slotId: getQueryParam('slotId'),
+        }),
+      );
+      payload = verifyEmailPayload;
+    } else {
+      const { payload: verifyPaymentPayload } = await dispatch(
+        verifyPayment(getQueryParam(PaymentVerification.reference)),
+      );
+      payload = verifyPaymentPayload;
+    }
     const { success, message, data } = payload as ICustomResponse<ICheckout>;
     if (success) {
       const paymentUrl = data?.authorization_url;
