@@ -99,7 +99,10 @@ const ConsultationHistory = (): JSX.Element => {
           <h2 className="mb-4 text-xl font-bold">Medications Taken</h2>
           <div className="space-y-3">
             {appointment.symptoms.medicinesTaken.map((medicine, index) => (
-              <div key={index} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <div
+                key={`${index}-${medicine.name}`}
+                className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+              >
                 <div className="font-semibold text-gray-800">{medicine.name}</div>
                 <div className="text-sm text-gray-600">Dose: {medicine.dose}</div>
               </div>

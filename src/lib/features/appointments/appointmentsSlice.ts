@@ -17,7 +17,6 @@ const appointmentsSlice = createSlice({
   initialState,
   reducers: {
     setAppointment: (state, action: PayloadAction<IAppointment>) => {
-      console.log('Still confused', action.payload);
       state.appointment = action.payload;
     },
     updateSymptoms: (state, action: PayloadAction<IConsultationSymptoms>) => {
