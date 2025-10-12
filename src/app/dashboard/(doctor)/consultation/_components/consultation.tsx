@@ -1,7 +1,7 @@
 'use client';
 import React, { JSX, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { ClockFading } from 'lucide-react';
+import { ClockFading, CheckCircle, Clock } from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import Symptoms from '@/app/dashboard/(doctor)/consultation/_components/symptoms';
 import Labs from '@/app/dashboard/(doctor)/consultation/_components/labs';
@@ -12,7 +12,12 @@ import {
   setConsultationStatus,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams, useRouter } from 'next/navigation';
-import { selectIsLoading } from '@/lib/features/appointments/appointmentSelector';
+import {
+  selectIsLoading,
+  consultationStatus,
+  isConsultationInProgress,
+  hasConsultationEnded,
+} from '@/lib/features/appointments/appointmentSelector';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -21,10 +26,33 @@ import { Button } from '@/components/ui/button';
 import { ConsultationStatus } from '@/types/consultation.interface';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
+import ConsultationHistory from '@/app/dashboard/(doctor)/consultation/_components/ConsultationHistory';
 
 const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'];
 
 type StageType = (typeof stages)[number];
+
+const getStatusBadgeVariant = (status: string | undefined): 'brown' | 'default' => {
+  switch (status?.toLowerCase()) {
+    case 'progress':
+      return 'brown';
+    case 'completed':
+      return 'default';
+    default:
+      return 'default';
+  }
+};
+
+const getStatusIcon = (status: string | undefined): JSX.Element => {
+  switch (status?.toLowerCase()) {
+    case 'progress':
+      return <ClockFading className="mr-1" />;
+    case 'completed':
+      return <CheckCircle className="mr-1" />;
+    default:
+      return <Clock className="mr-1" />;
+  }
+};
 
 const Consultation = (): JSX.Element => {
   const [isLoadingConsultation, setIsLoadingConsultation] = useState(true);
@@ -34,6 +62,9 @@ const Consultation = (): JSX.Element => {
   const [update, setUpdate] = useState(false);
   const dispatch = useAppDispatch();
   const isLoadingAppointment = useAppSelector(selectIsLoading);
+  const currentConsultationStatus = useAppSelector(consultationStatus);
+  const isInProgress = useAppSelector(isConsultationInProgress);
+  const hasEnded = useAppSelector(hasConsultationEnded);
   const params = useParams();
   const [isEndingConsultation, setIsEndingConsultation] = useState(false);
 
@@ -84,9 +115,11 @@ const Consultation = (): JSX.Element => {
     setIsLoadingRecords(false);
   };
 
-  const fetchConsulationAppointment = async (): Promise<void> => {
+  const fetchConsultationAppointment = async (): Promise<void> => {
     setIsLoadingConsultation(true);
-    const { payload } = await dispatch(getConsultationAppointment(String(params.appointmentId)));
+    const payload = await dispatch(
+      getConsultationAppointment(String(params.appointmentId)),
+    ).unwrap();
     if (showErrorToast(payload)) {
       toast(payload as Toast);
     }
@@ -95,7 +128,7 @@ const Consultation = (): JSX.Element => {
 
   useEffect(() => {
     void fetchPatientRecords();
-    void fetchConsulationAppointment();
+    void fetchConsultationAppointment();
   }, []);
 
   return (
@@ -106,49 +139,65 @@ const Consultation = (): JSX.Element => {
           {(isLoadingAppointment || isLoadingRecords) && <LoadingOverlay />}
           <div className="flex items-center gap-3">
             <span>Consultation</span>
-            <Badge className="px-3 py-1.5" variant="brown">
-              <ClockFading className="mr-1" />
-              In-progress
-            </Badge>
-          </div>
-          <div
-            className={cn(
-              update || isLoadingAppointment
-                ? 'mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500'
-                : 'sticky top-0 z-50 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500',
-              'flex justify-between',
+            {currentConsultationStatus && (
+              <Badge
+                className="px-3 py-1.5"
+                variant={getStatusBadgeVariant(currentConsultationStatus)}
+              >
+                {getStatusIcon(currentConsultationStatus)}
+                {capitalize(currentConsultationStatus)}
+              </Badge>
             )}
-            id="clip"
-          >
-            <div>
-              {stages.map((stage, index) => (
-                <button
-                  onClick={() => setCurrentStage(stage)}
-                  key={stage}
-                  className={cn(
-                    index === 0 || index === stages.length - 1 ? '' : 'in-between',
-                    index === stages.length - 1 && 'last-crumb rounded-r-4xl',
-                    index === 0 && 'first-crumb rounded-l-4xl',
-                    'cursor-pointer',
-                    currentStage === stage || stages.indexOf(currentStage) > stages.indexOf(stage)
-                      ? 'bg-primary-light text-primary'
-                      : 'bg-gray-200',
-                    'inline-block px-8 py-[18px]',
-                  )}
-                >
-                  {capitalize(stage)}
-                </button>
-              ))}
-            </div>
-            <Button
-              isLoading={isEndingConsultation}
-              disabled={isEndingConsultation}
-              onClick={() => endConsultation()}
-              child="End Consultation"
-              variant="destructive"
-            />
           </div>
-          {getStage()}
+          {hasEnded ? (
+            <div className="mt-8">
+              <ConsultationHistory />
+            </div>
+          ) : (
+            <>
+              <div
+                className={cn(
+                  update || isLoadingAppointment
+                    ? 'mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500'
+                    : 'sticky top-0 z-50 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500',
+                  'flex justify-between',
+                )}
+                id="clip"
+              >
+                <div>
+                  {stages.map((stage, index) => (
+                    <button
+                      onClick={() => setCurrentStage(stage)}
+                      key={stage}
+                      className={cn(
+                        index === 0 || index === stages.length - 1 ? '' : 'in-between',
+                        index === stages.length - 1 && 'last-crumb rounded-r-4xl',
+                        index === 0 && 'first-crumb rounded-l-4xl',
+                        'cursor-pointer',
+                        currentStage === stage ||
+                          stages.indexOf(currentStage) > stages.indexOf(stage)
+                          ? 'bg-primary-light text-primary'
+                          : 'bg-gray-200',
+                        'inline-block px-8 py-[18px]',
+                      )}
+                    >
+                      {capitalize(stage)}
+                    </button>
+                  ))}
+                </div>
+                {isInProgress && (
+                  <Button
+                    isLoading={isEndingConsultation}
+                    disabled={isEndingConsultation}
+                    onClick={() => endConsultation()}
+                    child="End Consultation"
+                    variant="destructive"
+                  />
+                )}
+              </div>
+              {getStage()}
+            </>
+          )}
         </div>
       </div>
     </RoleProvider>
