@@ -263,6 +263,36 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     }
   }, [openAddSignature, doctorSignature]);
 
+  const renderLabsContent = (): JSX.Element => {
+    if (isLoadingLabs) {
+      return (
+        <div className="mt-5 flex items-center justify-center py-10">
+          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+          <span className="ml-3 text-gray-500">Loading labs...</span>
+        </div>
+      );
+    }
+
+    if (consultationLabs?.length) {
+      return (
+        <div className="mt-5 flex flex-wrap gap-5">
+          {consultationLabs.map(({ testName, id, fileUrl, status, createdAt, notes }) => (
+            <LabCard
+              key={id}
+              testName={testName}
+              fileUrl={fileUrl}
+              status={status}
+              date={createdAt}
+              notes={notes}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    return <div className="mt-5 text-gray-500">No labs conducted yet</div>;
+  };
+
   return (
     <>
       <Modal
@@ -284,27 +314,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
             </button>
           )}
         </h2>
-        {isLoadingLabs ? (
-          <div className="mt-5 flex items-center justify-center py-10">
-            <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
-            <span className="ml-3 text-gray-500">Loading labs...</span>
-          </div>
-        ) : consultationLabs?.length ? (
-          <div className="mt-5 flex flex-wrap gap-5">
-            {consultationLabs.map(({ testName, id, fileUrl, status, createdAt, notes }) => (
-              <LabCard
-                key={id}
-                testName={testName}
-                fileUrl={fileUrl}
-                status={status}
-                date={createdAt}
-                notes={notes}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="mt-5 text-gray-500">No labs conducted yet</div>
-        )}
+        {renderLabsContent()}
         {showPreviousLabs && previousLabs?.length && (
           <>
             <h2 className="mt-10 flex items-center font-bold">Labs From Previous Consultations</h2>
