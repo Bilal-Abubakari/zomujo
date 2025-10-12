@@ -19,7 +19,7 @@ import { CollapsibleTrigger } from '@radix-ui/react-collapsible';
 import { ChevronDown, EllipsisVertical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import ProfileCompletionCard from '../profileCompletionCard/ProfileCompletionCard';
 import {
   DropdownMenu,
@@ -226,11 +226,10 @@ export const Navbar = ({
 
 const ProfileDropdownMenu = (): JSX.Element => {
   const dispatch = useAppDispatch();
-  const router = useRouter();
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logout());
-    router.refresh();
+    window.location.reload();
   };
 
   return (
