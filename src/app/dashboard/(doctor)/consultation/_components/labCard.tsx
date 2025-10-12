@@ -43,6 +43,7 @@ export const LabCard = ({ testName, fileUrl, status, date, notes }: LabCardProps
         }
       />
       <div
+        role="button"
         onClick={() => setShowPdf(true)}
         className="hover:border-primary-500 cursor-pointer rounded-[8px] border border-gray-300 p-4 transition-colors transition-shadow hover:shadow-md"
       >

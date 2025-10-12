@@ -109,7 +109,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
 
   on(NotificationEvent.NewNotification, (data: unknown) => {
     const { payload } = data as INotification;
-    console.log('Payload here', payload);
     if (payload.topic === NotificationTopic.LabUpload) {
       void fetchConsultationLabs();
     }
