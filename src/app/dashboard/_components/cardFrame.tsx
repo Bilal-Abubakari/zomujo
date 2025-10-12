@@ -34,7 +34,7 @@ const CardFrame = ({
     </div>
     <hr className="my-4 border-gray-300" />
     {showEmptyResults && (
-      <div className="flex h-40 items-center justify-center">
+      <div className="flex h-40 items-center justify-center text-center">
         {emptyResultsMessage ?? `No ${title?.toLowerCase()} information found`}
       </div>
     )}

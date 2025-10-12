@@ -5,7 +5,7 @@ import { useAppSelector } from '@/lib/hooks';
 import { useRouter } from 'next/navigation';
 import { JSX, ReactNode, useEffect } from 'react';
 
-export function DashboardProvider({ children }: { children: ReactNode }): JSX.Element {
+export function DashboardProvider({ children }: Readonly<{ children: ReactNode }>): JSX.Element {
   const user = useAppSelector(selectUser);
   const mustCompleteOnboarding = useAppSelector(selectDoctorMustCompleteOnboarding);
   const router = useRouter();

@@ -15,7 +15,6 @@ import {
 import { AvatarComp } from '@/components/ui/avatar';
 import { selectUserName, selectDoctorStatus } from '@/lib/features/auth/authSelector';
 import { logout } from '@/lib/features/auth/authThunk';
-import { useRouter } from 'next/navigation';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 
 const Toolbar = (): JSX.Element => {
@@ -24,11 +23,10 @@ const Toolbar = (): JSX.Element => {
   const unreadNotifications = useAppSelector(selectUnReadNotificationCount);
   const userName = useAppSelector(selectUserName);
   const doctorStatus = useAppSelector(selectDoctorStatus);
-  const router = useRouter();
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logout());
-    router.refresh();
+    window.location.reload();
   };
 
   useEffect(() => {

@@ -18,7 +18,7 @@ const PersonalDetailsSchema = z.object({
   MDCRegistration: mdcNumberSchema,
   dob: requiredStringSchema(),
   contact: phoneNumberSchema,
-  gender: z.nativeEnum(Gender),
+  gender: z.enum(Gender),
 });
 
 const PersonalDetails = (): JSX.Element => {
@@ -43,19 +43,19 @@ const PersonalDetails = (): JSX.Element => {
 
   return (
     <form className="flex w-full flex-col gap-11" onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col gap-1.5">
-        <p className="flex flex-row items-center gap-3 text-[32px] leading-8 font-bold">
+      <div className="flex w-full flex-col gap-1.5">
+        <p className="flex flex-row items-center gap-3 text-2xl leading-8 font-bold sm:text-[32px]">
           <span>Personal Details</span>
           <span>
             <InfoIcon size={16} />
           </span>
         </p>
-        <p className="text-grayscale-medium leading-6">
+        <p className="text-grayscale-medium text-sm leading-6 sm:text-base">
           Provide your personal details for a personalized Zyptyk experience tailored to your
           preferences.
         </p>
       </div>
-      <div className="grid w-full grid-cols-2 gap-x-8 gap-y-[28px]">
+      <div className="grid w-full grid-cols-1 gap-x-8 gap-y-[28px] sm:grid-cols-2">
         <div>
           <Input
             labelName="MDC Registration Number"
@@ -84,7 +84,7 @@ const PersonalDetails = (): JSX.Element => {
             {...register('contact')}
           />
         </div>
-        <div className="max-w-sm">
+        <div>
           <SelectInput
             control={control}
             label="Gender"

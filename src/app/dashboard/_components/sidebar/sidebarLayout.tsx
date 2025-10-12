@@ -13,12 +13,13 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { CollapsibleTrigger } from '@radix-ui/react-collapsible';
 import { ChevronDown, EllipsisVertical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import ProfileCompletionCard from '../profileCompletionCard/ProfileCompletionCard';
 import {
   DropdownMenu,
@@ -65,6 +66,7 @@ export const SidebarLayout = ({
   const role = useAppSelector(selectUserRole);
   const pathName = usePathname();
   const isMobile = useIsMobile(1024);
+  const { setOpenMobile } = useSidebar();
 
   const getRole = (): string => {
     switch (role) {
@@ -84,6 +86,12 @@ export const SidebarLayout = ({
   if (isMobile && hideOnMobile) {
     return <></>;
   }
+
+  const handleLinkClick = (): void => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar className={cn('flex hidden h-screen flex-col', sidebarClassName)}>
@@ -115,7 +123,7 @@ export const SidebarLayout = ({
                             <SidebarMenuSub>
                               {subMenu.map(({ url, title, relatedUrl }) => (
                                 <SidebarMenuItem key={title}>
-                                  <Link href={url}>
+                                  <Link href={url} onClick={handleLinkClick}>
                                     <SidebarMenuButton
                                       key={title}
                                       title={title}
@@ -144,7 +152,7 @@ export const SidebarLayout = ({
                           title={title}
                           className={sidebarTabClassName}
                         >
-                          <Link href={url}>
+                          <Link href={url} onClick={handleLinkClick}>
                             {Icon && <Icon />} {title}
                           </Link>
                         </SidebarMenuButton>
@@ -187,7 +195,7 @@ export const Navbar = ({
 
   return (
     <>
-      <div className="me:hidden flex justify-evenly overflow-x-scroll bg-white p-2 pl-10">
+      <div className="me:hidden mt-2 flex justify-evenly overflow-x-scroll bg-white p-2 pl-10">
         {flattenedMenu.map(({ title, phoneTitle, url }) => (
           <div key={title} title={title}>
             <SidebarMenuButton
@@ -218,11 +226,10 @@ export const Navbar = ({
 
 const ProfileDropdownMenu = (): JSX.Element => {
   const dispatch = useAppDispatch();
-  const router = useRouter();
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logout());
-    router.refresh();
+    window.location.reload();
   };
 
   return (
