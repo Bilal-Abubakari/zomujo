@@ -93,6 +93,7 @@ export interface IDiagnosisRequest {
 export enum ConsultationStatus {
   Pending = 'pending',
   Completed = 'completed',
+  Progress = 'progress',
 }
 
 export interface ConsultationStatusRequest {

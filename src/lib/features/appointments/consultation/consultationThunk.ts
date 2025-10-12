@@ -138,7 +138,7 @@ export const setConsultationStatus = createAsyncThunk(
     try {
       const {
         data: { message },
-      } = await axios.post<IResponse>(`consultation/set-status`, consultationStatusRequest);
+      } = await axios.patch<IResponse>(`consultation/set-status`, consultationStatusRequest);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

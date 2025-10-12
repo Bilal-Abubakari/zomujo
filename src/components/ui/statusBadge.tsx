@@ -41,6 +41,8 @@ const StatusBadge = ({
       return <Badge variant="destructive">Deactivated</Badge>;
     case ConditionStatus.Controlled:
       return <Badge variant="gray">Chronic</Badge>;
+    case ConsultationStatus.Progress:
+      return <Badge variant="blue">In Progress</Badge>;
     default:
       return <Badge variant="brown">{defaultTitle ?? 'Pending'}</Badge>;
   }
