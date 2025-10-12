@@ -48,6 +48,7 @@ const NotificationActions = (): JSX.Element => {
 
   on(NotificationEvent.NewRequest, (data: unknown) => {
     const notification = data as INotification;
+    console.log('Notification', notification);
     setAppointment(notification.payload.appointment);
     updateNotificationsHandler(notification);
     setShowNewRecordRequest(false);

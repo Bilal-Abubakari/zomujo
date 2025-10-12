@@ -1,5 +1,8 @@
 import { ConditionStatus, DurationType } from '@/types/shared.enum';
 import { IMedicineWithoutId } from '@/types/patient.interface';
+import { IExtraBase } from '@/types/shared.interface';
+import { IPatientLab } from '@/types/labs.interface';
+import { ISlot } from '@/types/slots.interface';
 
 interface IName {
   name: string;
@@ -30,6 +33,17 @@ export type ISymptomMap = {
 export type IPatientSymptomMap = {
   [key in SymptomsType]: IPatientSymptom[];
 };
+
+export interface IConsultationDetails {
+  id: string;
+  status: ConsultationStatus;
+  doctor: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
+  patient: Pick<IExtraBase, 'firstName' | 'lastName' | 'profilePicture'>;
+  prescriptionUrl: string;
+  lab: IPatientLab[];
+  diagnosis: IDiagnosis[];
+  slot: ISlot;
+}
 
 export interface IConsultationSymptoms {
   complaints: string[];
@@ -77,7 +91,7 @@ export interface IDiagnosisRequest {
 }
 
 export enum ConsultationStatus {
-  Progress = 'progress',
+  Pending = 'pending',
   Completed = 'completed',
 }
 

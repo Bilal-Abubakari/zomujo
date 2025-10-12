@@ -7,6 +7,7 @@ import {
 } from '@/types/shared.enum';
 import { Badge } from '@/components/ui/badge';
 import React, { JSX } from 'react';
+import { ConsultationStatus } from '@/types/consultation.interface';
 
 type StatusBadgeProps = {
   status:
@@ -14,7 +15,8 @@ type StatusBadgeProps = {
     | AppointmentStatus
     | ApproveDeclineStatus
     | RequestStatus
-    | ConditionStatus;
+    | ConditionStatus
+    | ConsultationStatus;
   approvedTitle?: string;
   declinedTitle?: string;
   defaultTitle?: string;
@@ -30,6 +32,7 @@ const StatusBadge = ({
     case ApproveDeclineStatus.Approved:
     case ConditionStatus.Inactive:
     case RequestStatus.Completed:
+    case ConsultationStatus.Completed:
       return <Badge variant="default">{approvedTitle ?? 'Approved'}</Badge>;
     case AcceptDeclineStatus.Declined:
     case ConditionStatus.Active:

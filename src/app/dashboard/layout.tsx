@@ -113,6 +113,8 @@ export default function Layout({
     const doctorStatus = extra.status;
     const { isComplete } = getProfileCompletionStatus(extra);
 
+    console.log('Is complete', isComplete);
+
     // Scenario 1: Pending doctor with incomplete profile
     if (doctorStatus === AcceptDeclineStatus.Pending && !isComplete) {
       return (
