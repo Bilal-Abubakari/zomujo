@@ -45,6 +45,12 @@ export const LabCard = ({ testName, fileUrl, status, date, notes }: LabCardProps
       <div
         role="button"
         onClick={() => setShowPdf(true)}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            setShowPdf(true);
+          }
+        }}
         className="hover:border-primary-500 cursor-pointer rounded-[8px] border border-gray-300 p-4 transition-colors transition-shadow hover:shadow-md"
       >
         <div className="flex items-center gap-x-2">
