@@ -36,6 +36,14 @@ export interface ILab extends ILaboratoryRequest {
   updatedAt: string;
 }
 
+export interface IPatientLab extends ILab {
+  fileUrl: string | null;
+}
+
+export interface IUploadLab {
+  labId: string;
+  file: File;
+}
 export interface LaboratoryTest {
   [LabTestSection.ChemicalPathology]: ChemicalPathology;
   [LabTestSection.Haematology]: Haematology;

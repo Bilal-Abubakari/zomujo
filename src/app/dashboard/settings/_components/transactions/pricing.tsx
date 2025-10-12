@@ -52,7 +52,7 @@ const Pricing = (): JSX.Element => {
           return;
         }
         if (!doctorInfo?.hasSlot) {
-          router.push('/dashboard/availability');
+          router.push('/dashboard/settings/availability');
           toast(dataCompletionToast('availability'));
           return;
         }

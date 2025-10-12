@@ -1,10 +1,16 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { INotification, NotificationEvent } from '@/types/notification.interface';
+import {
+  INotification,
+  NotificationEvent,
+  NotificationTopic,
+} from '@/types/notification.interface';
 import { DefaultEventsMap } from '@socket.io/component-emitter';
 import { useAppDispatch } from '@/lib/hooks';
 import { updateNotifications } from '@/lib/features/notifications/notificationsSlice';
 import { toast } from '@/hooks/use-toast';
+import { updateExtra } from '@/lib/features/auth/authSlice';
+import { AcceptDeclineStatus } from '@/types/shared.enum';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
 
@@ -44,6 +50,7 @@ const useWebSocket = (): IWebSocketHook => {
       websocket.on(NotificationEvent.NewNotification, (data: INotification) => {
         updateNotificationsHandler(data);
         const { message, topic } = data.payload;
+        notificationHandler(topic as NotificationTopic);
         toast({
           title: topic,
           description: message,
@@ -60,6 +67,16 @@ const useWebSocket = (): IWebSocketHook => {
       console.error('WebSocket connection error:', error);
     }
   }, []);
+
+  const notificationHandler = (topic: NotificationTopic): void => {
+    if (topic === NotificationTopic.DoctorApproved) {
+      dispatch(
+        updateExtra({
+          status: AcceptDeclineStatus.Accepted,
+        }),
+      );
+    }
+  };
 
   const updateNotificationsHandler = (data: INotification): void => {
     dispatch(updateNotifications(data));

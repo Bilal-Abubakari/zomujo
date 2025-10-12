@@ -39,7 +39,9 @@ const symptomsSchema = z.object({
     }),
   ),
   duration: z.object({
-    value: requiredStringSchema(),
+    value: requiredStringSchema().refine((val) => Number(val) > 0, {
+      message: 'Duration must be a positive number',
+    }),
     type: z.enum(DurationType),
   }),
   symptoms: z.object({
@@ -103,7 +105,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const {
     control,
-    formState: { isValid },
+    formState: { isValid, errors },
     register,
     watch,
     setValue,
@@ -163,7 +165,11 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   };
 
   const handleSubmitAndGoToLabs = async (data: IConsultationSymptomsHFC): Promise<void> => {
-    const existingSymptoms: Partial<IAppointmentSymptoms> | undefined = _.cloneDeep(symptoms);
+    const appointmentId = String(params.appointmentId);
+    const existingSymptoms: Partial<IAppointmentSymptoms> | undefined = _.cloneDeep({
+      ...symptoms,
+      appointmentId,
+    });
     if (existingSymptoms) {
       delete existingSymptoms.id;
       delete existingSymptoms.createdAt;
@@ -173,7 +179,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     const consultationSymptomsRequest: IConsultationSymptomsRequest = {
       ...data,
       complaints,
-      appointmentId: String(params.appointmentId),
+      appointmentId,
     };
     if (_.isEqual(existingSymptoms, consultationSymptomsRequest)) {
       goToLabs();
@@ -290,6 +296,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
             {...register('duration.value')}
             className="max-w-sm bg-transparent"
             placeholder={'Number of days, weeks or months'}
+            error={errors.duration?.value?.message}
             type="number"
           />
           <SelectInput

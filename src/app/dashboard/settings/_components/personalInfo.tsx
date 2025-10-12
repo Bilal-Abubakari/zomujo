@@ -128,7 +128,7 @@ const PersonalInfo = (): JSX.Element => {
           return;
         }
         if (!personalDetails?.hasSlot) {
-          router.push('/dashboard/availability');
+          router.push('/dashboard/settings/availability');
           toast(dataCompletionToast('availability'));
           return;
         }
