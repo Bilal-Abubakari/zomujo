@@ -51,9 +51,10 @@ const PatientConsultationView = (): JSX.Element => {
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, labId: string): void => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFiles((prev) => ({ ...prev, [labId]: e.target.files![0] }));
+  const handleFileChange = ({ target }: ChangeEvent<HTMLInputElement>, labId: string): void => {
+    const file = target.files?.[0];
+    if (file) {
+      setSelectedFiles((prev) => ({ ...prev, [labId]: file }));
     }
   };
 
@@ -215,7 +216,7 @@ const PatientConsultationView = (): JSX.Element => {
             {consultationDetails?.diagnosis && consultationDetails.diagnosis.length > 0 ? (
               consultationDetails.diagnosis.map((diagnosis, index) => (
                 <div
-                  key={index}
+                  key={`${index}-${diagnosis.name}`}
                   className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
                 >
                   <div className="flex items-center justify-between">

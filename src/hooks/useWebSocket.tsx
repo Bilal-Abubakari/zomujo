@@ -69,14 +69,12 @@ const useWebSocket = (): IWebSocketHook => {
   }, []);
 
   const notificationHandler = (topic: NotificationTopic): void => {
-    switch (topic) {
-      case NotificationTopic.DoctorApproved:
-        dispatch(
-          updateExtra({
-            status: AcceptDeclineStatus.Accepted,
-          }),
-        );
-        break;
+    if (topic === NotificationTopic.DoctorApproved) {
+      dispatch(
+        updateExtra({
+          status: AcceptDeclineStatus.Accepted,
+        }),
+      );
     }
   };
 
