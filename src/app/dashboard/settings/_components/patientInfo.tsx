@@ -118,7 +118,7 @@ const PatientInfo = (): JSX.Element => {
           hasChanges={hasChanges}
           onSubmit={handleSubmit(onSubmit)}
           formType="patient"
-        />
+        /> 
       </TabsContent>
 
       <TabsContent value="records">
