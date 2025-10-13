@@ -9,6 +9,7 @@ import { IDiagnosis, IPrescription } from '@/types/consultation.interface';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { ICondition, IMedicine } from '@/types/patient.interface';
+import { cn } from '@/lib/utils';
 
 type DiagnosisConditionCommonProps = {
   name: string;
@@ -152,13 +153,15 @@ export const DiagnosesList = ({
   conditions,
   children,
   remove,
+  className,
 }: {
   doctorName: string;
   conditions: IDiagnosis[];
   children?: ReactNode;
   remove?: (index: number) => void;
+  className?: string;
 }): JSX.Element => (
-  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <div className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3', className)}>
     {children}
     {conditions.map(({ name, diagnosedAt, prescriptions, status, notes }) => (
       <DiagnosisCard

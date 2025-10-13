@@ -135,13 +135,13 @@ const Consultation = (): JSX.Element => {
     <RoleProvider role={Role.Doctor}>
       <div>
         {isLoadingConsultation && <LoadingOverlay />}
-        <div className="rounded-2xl border border-gray-300 px-6 py-8">
+        <div className="rounded-2xl border border-gray-300 px-4 py-6 sm:px-6 sm:py-8">
           {(isLoadingAppointment || isLoadingRecords) && <LoadingOverlay />}
           <div className="flex items-center gap-3">
-            <span>Consultation</span>
+            <span className="text-sm font-medium sm:text-base">Consultation</span>
             {currentConsultationStatus && (
               <Badge
-                className="px-3 py-1.5"
+                className="px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm"
                 variant={getStatusBadgeVariant(currentConsultationStatus)}
               >
                 {getStatusIcon(currentConsultationStatus)}
@@ -158,27 +158,27 @@ const Consultation = (): JSX.Element => {
               <div
                 className={cn(
                   update || isLoadingAppointment
-                    ? 'mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500'
-                    : 'sticky top-0 z-50 mb-8 border-t border-b border-gray-300 bg-gray-100 py-6 font-bold text-gray-500',
-                  'flex justify-between',
+                    ? 'mb-6 border-t border-b border-gray-300 bg-gray-100 py-4 font-bold text-gray-500 sm:mb-8 sm:py-6'
+                    : 'sticky top-0 z-50 mb-6 border-t border-b border-gray-300 bg-gray-100 py-4 font-bold text-gray-500 sm:mb-8 sm:py-6',
+                  'flex flex-col gap-4 lg:flex-row lg:justify-between',
                 )}
                 id="clip"
               >
-                <div>
+                <div className="scrollbar-hide flex gap-1 overflow-x-auto sm:gap-0">
                   {stages.map((stage, index) => (
                     <button
                       onClick={() => setCurrentStage(stage)}
                       key={stage}
                       className={cn(
                         index === 0 || index === stages.length - 1 ? '' : 'in-between',
-                        index === stages.length - 1 && 'last-crumb rounded-r-4xl',
-                        index === 0 && 'first-crumb rounded-l-4xl',
+                        index === stages.length - 1 && 'last-crumb rounded-r-2xl sm:rounded-r-4xl',
+                        index === 0 && 'first-crumb rounded-l-2xl sm:rounded-l-4xl',
                         'cursor-pointer',
                         currentStage === stage ||
                           stages.indexOf(currentStage) > stages.indexOf(stage)
                           ? 'bg-primary-light text-primary'
                           : 'bg-gray-200',
-                        'inline-block px-8 py-[18px]',
+                        'inline-block px-6 py-3 text-xs whitespace-nowrap sm:py-[18px] sm:text-sm md:px-8',
                       )}
                     >
                       {capitalize(stage)}
@@ -186,13 +186,16 @@ const Consultation = (): JSX.Element => {
                   ))}
                 </div>
                 {isInProgress && (
-                  <Button
-                    isLoading={isEndingConsultation}
-                    disabled={isEndingConsultation}
-                    onClick={() => endConsultation()}
-                    child="End Consultation"
-                    variant="destructive"
-                  />
+                  <div className="flex justify-end lg:block">
+                    <Button
+                      isLoading={isEndingConsultation}
+                      disabled={isEndingConsultation}
+                      onClick={() => endConsultation()}
+                      child="End Consultation"
+                      variant="destructive"
+                      className="w-full text-sm sm:w-auto"
+                    />
+                  </div>
                 )}
               </div>
               {getStage()}

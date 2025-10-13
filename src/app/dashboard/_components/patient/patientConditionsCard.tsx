@@ -143,7 +143,7 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
               {watch('name') && (
                 <>
                   <div className="mt-8 text-center text-sm text-gray-500">
-                    Add drugs you took for this condition
+                    Add drugs to take for this diagnosis
                   </div>
                   <div className="space-y-4">
                     <Input
@@ -154,7 +154,7 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
                       onChange={handleAddMedicineChange}
                     />
                     <Input
-                      labelName="Dose Taken"
+                      labelName="Dose"
                       placeholder="eg: 10mg once daily"
                       name="dose"
                       value={addMedicine.dose}
