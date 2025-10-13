@@ -28,24 +28,22 @@ const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
   const router = useRouter();
   const { getQueryParam } = useQueryParam();
 
-  const handleVerificationSuccess = useCallback(
-    (payload: string) => {
-      setSuccessMessage(payload);
-      const interval = setInterval(() => {
-        setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-      }, 1000);
+  const handleVerificationSuccess = useCallback((payload: string) => {
+    router.prefetch(redirectUrl);
+    setSuccessMessage(payload);
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
 
-      const timeout = setTimeout(() => {
-        router.push(redirectUrl);
-      }, 600000);
+    const timeout = setTimeout(() => {
+      router.push(redirectUrl);
+    }, 6000);
 
-      return (): void => {
-        clearInterval(interval);
-        clearTimeout(timeout);
-      };
-    },
-    [router],
-  );
+    return (): void => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []);
 
   const submitVerification = useCallback(async () => {
     setIsLoading(true);
@@ -68,7 +66,7 @@ const Verifications = ({ type = 'email' }: VerificationsProps): JSX.Element => {
       setErrorMessage(message);
     }
     setIsLoading(false);
-  }, [dispatch, token, handleVerificationSuccess]);
+  }, [token, dispatch, type, getQueryParam, handleVerificationSuccess]);
 
   useEffect(() => {
     void submitVerification();

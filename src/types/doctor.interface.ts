@@ -35,10 +35,12 @@ export interface IDoctor extends IExtraBase {
   signaturePath: string;
   noOfConsultations?: number;
   ratings: number;
-  fee: {
+  fee?: {
     lengthOfSession: string;
     amount: number;
   };
+  hasDefaultPayment: boolean;
+  hasSlot: boolean;
 }
 
 export type DoctorPersonalInfo = Pick<
@@ -48,7 +50,6 @@ export type DoctorPersonalInfo = Pick<
   | 'contact'
   | 'experience'
   | 'languages'
-  | 'awards'
   | 'specializations'
   | 'bio'
   | 'education'

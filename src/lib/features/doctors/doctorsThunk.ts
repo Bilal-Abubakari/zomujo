@@ -95,10 +95,7 @@ export const uploadDoctorId = createAsyncThunk(
 
 export const updateDoctorProfile = createAsyncThunk(
   'doctors/profile',
-  async (
-    doctorInfo: DoctorPersonalInfo | NotificationInfo,
-    { dispatch },
-  ): Promise<Toast | IResponse<IDoctor>> => {
+  async (doctorInfo: DoctorPersonalInfo | NotificationInfo, { dispatch }): Promise<Toast> => {
     try {
       const { data } = await axios.patch<IResponse<IDoctor>>(`doctors/me`, doctorInfo);
       dispatch(updateExtra(data.data));

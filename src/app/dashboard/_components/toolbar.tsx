@@ -13,15 +13,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AvatarComp } from '@/components/ui/avatar';
-import { selectUserName } from '@/lib/features/auth/authSelector';
+import { selectUserName, selectDoctorStatus } from '@/lib/features/auth/authSelector';
 import { logout } from '@/lib/features/auth/authThunk';
 import { useRouter } from 'next/navigation';
+import { AcceptDeclineStatus } from '@/types/shared.enum';
 
 const Toolbar = (): JSX.Element => {
   const [notificationPage, setNotificationPage] = useState(1);
   const dispatch = useAppDispatch();
   const unreadNotifications = useAppSelector(selectUnReadNotificationCount);
   const userName = useAppSelector(selectUserName);
+  const doctorStatus = useAppSelector(selectDoctorStatus);
   const router = useRouter();
 
   const logoutHandler = async (): Promise<void> => {
@@ -33,10 +35,28 @@ const Toolbar = (): JSX.Element => {
     dispatch(previousNotifications(notificationPage));
   }, [notificationPage]);
 
+  const getStatusBadge = (status: AcceptDeclineStatus): JSX.Element | null => {
+    const baseClasses = 'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium';
+
+    switch (status) {
+      case AcceptDeclineStatus.Pending:
+        return (
+          <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>Pending Approval</span>
+        );
+      case AcceptDeclineStatus.Accepted:
+        return <span className={`${baseClasses} bg-green-100 text-green-800`}>Verified</span>;
+      case AcceptDeclineStatus.Declined:
+        return <span className={`${baseClasses} bg-red-100 text-red-800`}>Declined</span>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex items-center justify-end gap-y-4 py-5">
       <SidebarTrigger className="me:hidden mr-auto" child={<Menu />} />
       <div className="flex items-center gap-x-3">
+        {doctorStatus && <div className="flex-shrink-0">{getStatusBadge(doctorStatus)}</div>}
         <Popover>
           <PopoverTrigger className="outline-hidden">
             <div className="relative cursor-pointer rounded-full border border-gray-200 bg-white p-2">
@@ -48,7 +68,7 @@ const Toolbar = (): JSX.Element => {
               )}
             </div>
           </PopoverTrigger>
-          <PopoverContent className="z-1000 w-full">
+          <PopoverContent className="z-1000 w-full max-w-2xl">
             <Notifications
               page={notificationPage}
               loadMore={() => setNotificationPage((prev) => prev + 1)}

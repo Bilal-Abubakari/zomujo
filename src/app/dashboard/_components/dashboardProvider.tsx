@@ -1,24 +1,23 @@
 'use client';
 
-import { selectExtra, selectUser } from '@/lib/features/auth/authSelector';
+import { selectDoctorMustCompleteOnboarding, selectUser } from '@/lib/features/auth/authSelector';
 import { useAppSelector } from '@/lib/hooks';
 import { useRouter } from 'next/navigation';
 import { JSX, ReactNode, useEffect } from 'react';
-import { Role } from '@/types/shared.enum';
 
 export function DashboardProvider({ children }: { children: ReactNode }): JSX.Element {
   const user = useAppSelector(selectUser);
-  const extra = useAppSelector(selectExtra);
+  const mustCompleteOnboarding = useAppSelector(selectDoctorMustCompleteOnboarding);
   const router = useRouter();
 
   useEffect(() => {
     if (!user) {
       router.push('/login');
     }
-    if (user?.role === Role.Doctor && !extra) {
+    if (mustCompleteOnboarding) {
       router.push('/onboarding');
     }
-  }, [user, extra]);
+  }, [user, mustCompleteOnboarding]);
 
   return <>{children}</>;
 }

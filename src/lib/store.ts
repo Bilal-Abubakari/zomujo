@@ -12,7 +12,7 @@ import storage from 'redux-persist/lib/storage';
 const authPersistConfig = {
   key: 'user',
   storage,
-  whitelist: ['user', 'extra', 'loggedInAt'],
+  whitelist: ['user', 'extra', 'loggedInAt', 'hideOnboardingModal'],
 };
 
 const rootReducer = combineReducers({

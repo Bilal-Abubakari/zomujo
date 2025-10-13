@@ -13,7 +13,7 @@ import { updatePatient } from '@/lib/features/patients/patientsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 
 const patientMandatorySchema = z.object({
-  gender: z.nativeEnum(Gender),
+  gender: z.enum(Gender),
   dob: z.string().transform((value) => new Date(value).toISOString()),
 });
 

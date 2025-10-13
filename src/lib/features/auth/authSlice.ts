@@ -22,6 +22,7 @@ interface AuthenticationState {
   user: IUser | undefined;
   extra: IDoctor | IAdmin | IPatient | undefined;
   loggedInAt: undefined | string;
+  hideOnboardingModal: boolean;
 }
 
 const initialState: AuthenticationState = {
@@ -33,6 +34,7 @@ const initialState: AuthenticationState = {
   user: undefined,
   extra: undefined,
   loggedInAt: undefined,
+  hideOnboardingModal: false,
 };
 
 const authSlice = createSlice({
@@ -77,6 +79,9 @@ const authSlice = createSlice({
           signaturePath: payload,
         };
       }
+    },
+    dismissOnboardingModal: (state) => {
+      state.hideOnboardingModal = true;
     },
   },
   extraReducers: (builder) => {
@@ -149,5 +154,6 @@ export const {
   updateStatus,
   resetAuthentication,
   updateDoctorSignature,
+  dismissOnboardingModal,
 } = authSlice.actions;
 export default authSlice.reducer;

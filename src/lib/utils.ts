@@ -85,7 +85,7 @@ export const downloadFileWithUrl = (url: string, filename: string): void => {
   link.download = filename;
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  link.remove();
 };
 
 /**
@@ -94,7 +94,7 @@ export const downloadFileWithUrl = (url: string, filename: string): void => {
  * @returns The capitalized string or sentence
  */
 export const capitalize = (text: string): string =>
-  text.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+  text.toLowerCase().replaceAll(/\b\w/g, (char) => char.toUpperCase());
 
 /**
  * Opens external urls in a new tab
@@ -138,7 +138,7 @@ export const getDynamicParamFromUrl = (precedingString?: string): string => {
     }
   }
 
-  return urlParts[urlParts.length - 1];
+  return urlParts.at(-1) as string;
 };
 
 /**
@@ -162,8 +162,8 @@ export const removeNullishValues = <T extends Record<string, unknown> = Record<s
  * @returns {string} A randomly generated UUID.
  */
 export const generateUUID = (): string =>
-  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (char) {
-    const random = (Math.random() * 16) | 0;
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/g, (char) => {
+    const random = Math.trunc(Math.random() * 16);
     const value = char === 'x' ? random : (random & 0x3) | 0x8;
     return value.toString(16);
   });
@@ -183,7 +183,7 @@ export const dataURLtoBlob = (dataUrl: string): Blob => {
   let n = bstr.length;
   const u8arr = new Uint8Array(n);
   while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
+    u8arr[n] = bstr.codePointAt(n) as number;
   }
   return new Blob([u8arr], { type: mime });
 };
@@ -196,4 +196,72 @@ export const dataURLtoBlob = (dataUrl: string): Blob => {
  * @returns The resulting File object.
  */
 export const blobToFile = (theBlob: Blob, fileName: string): File =>
-  new File([theBlob], fileName, { lastModified: new Date().getTime(), type: theBlob.type });
+  new File([theBlob], fileName, { lastModified: Date.now(), type: theBlob.type });
+
+/**
+ * Generates a toast message prompting the user to complete a specific step.
+ * Used for onboarding flows such as profile, payment method, or pricing setup.
+ *
+ * @param type - The type of completion required (`'profile'`, `'paymentMethod'`, or `'pricing'`).
+ * @returns A `Toast` object with the appropriate description for the step.
+ */
+export const dataCompletionToast = (
+  type: 'profile' | 'paymentMethod' | 'pricing' | 'availability',
+): Toast => {
+  const baseToast: Toast = {
+    title: 'Next Step',
+    duration: 10000,
+    variant: 'default',
+  };
+  switch (type) {
+    case 'profile':
+      return {
+        ...baseToast,
+        description: 'Kindly complete your profile to start seeing patients',
+      };
+    case 'paymentMethod':
+      return {
+        ...baseToast,
+        description: 'Kindly set up your payment method to start seeing patients',
+      };
+    case 'pricing':
+      return {
+        ...baseToast,
+        description: 'Kindly set up your pricing to start seeing patients',
+      };
+    case 'availability':
+      return {
+        ...baseToast,
+        description: 'Kindly set up your availability to start seeing patients',
+      };
+    default:
+      return baseToast;
+  }
+};
+
+/**
+ * Calculates the slider position based on the value and type.
+ * For 'amount', applies a fixed multiplier and offset.
+ * For 'sessionLength', uses different multipliers and offsets depending on the value.
+ *
+ * @param value - The numeric value to position the slider.
+ * @param type - The type of slider ('amount' or 'sessionLength').
+ * @returns The calculated slider position.
+ */
+export function sliderPosition(value: number, type: 'amount' | 'sessionLength'): number {
+  if (type === 'amount') {
+    const multiplier = 1.3;
+    const offset = -20;
+    return value * multiplier + offset;
+  }
+  let multiplier: number;
+  if (value < 60) {
+    multiplier = 1.3;
+  } else if (value < 80) {
+    multiplier = 2.4;
+  } else {
+    multiplier = 3;
+  }
+  const offset = value < 50 ? -30 : 0;
+  return value * multiplier + offset;
+}

@@ -6,12 +6,16 @@ export type CardProps = {
   number: string;
 };
 
-export interface IPaymentDetails {
+export interface ICreatePaymentDetails {
   reference: string;
   accountNumber: string;
   type: PaymentType;
   bankCode: string;
   isDefault: boolean;
+}
+
+export interface IPaymentDetails extends ICreatePaymentDetails {
+  id: string;
 }
 
 export interface IRate {

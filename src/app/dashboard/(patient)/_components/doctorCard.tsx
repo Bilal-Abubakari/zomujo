@@ -21,6 +21,7 @@ import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
 import { capitalize, showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { ICheckout } from '@/types/payment.interface';
+import { Role } from '@/types/shared.enum';
 
 export type DoctorCardProps = {
   doctor: IDoctor;
@@ -65,6 +66,13 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
   const bookAppointment = (): void => {
     const { slotId } = getValues();
     if (user) {
+      if (user.role !== Role.Patient) {
+        toast({
+          title: 'Please use a patient account',
+          description: 'Only patients can book appointments',
+          variant: 'default',
+        });
+      }
       void onSubmit(slotId);
       return;
     }
@@ -214,10 +222,10 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
             <div className="flex w-1/2 items-center gap-2 pr-2">
               <Clock size={16} className="text-primary-500" />
               <p
-                title={`${fee.lengthOfSession} session`}
+                title={`${fee?.lengthOfSession} session`}
                 className="truncate text-xs text-gray-700 md:text-sm"
               >
-                {fee.lengthOfSession} session
+                {fee?.lengthOfSession} session
               </p>
             </div>
 

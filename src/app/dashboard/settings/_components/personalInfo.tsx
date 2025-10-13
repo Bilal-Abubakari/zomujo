@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MODE, specialties } from '@/constants/constants';
-import { toast } from '@/hooks/use-toast';
+import { Toast, toast } from '@/hooks/use-toast';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { updateDoctorProfile } from '@/lib/features/doctors/doctorsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -20,11 +20,15 @@ import { DoctorPersonalInfo, IDoctor } from '@/types/doctor.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import React, { JSX, useState } from 'react';
+import React, { JSX, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
 import { MultiSelect } from '@/components/ui/multiSelect';
+import { isEqual } from 'lodash';
+import { useRouter } from 'next/navigation';
+import { PaymentTab } from '@/hooks/useQueryParam';
+import { dataCompletionToast } from '@/lib/utils';
 
 const PersonalDetailsSchema = z.object({
   firstName: nameSchema,
@@ -34,15 +38,37 @@ const PersonalDetailsSchema = z.object({
     degree: nameSchema,
   }),
   languages: nameArraySchema,
-  awards: nameArraySchema,
   bio: textAreaSchema,
   experience: positiveNumberSchema,
-  specializations: nameArraySchema,
+  specializations: z.array(nameSchema).max(3, 'You can select up to 3 specializations'),
   contact: phoneNumberSchema,
 });
 
 const PersonalInfo = (): JSX.Element => {
+  const router = useRouter();
   const personalDetails = useAppSelector(selectExtra) as IDoctor;
+
+  const getFormDataFromPersonalDetails = (
+    details: IDoctor | null,
+  ): DoctorPersonalInfo & Pick<IDoctor, 'profilePicture'> => ({
+    firstName: details?.firstName || '',
+    lastName: details?.lastName || '',
+    education: {
+      school: details?.education?.school || '',
+      degree: details?.education?.degree || '',
+    },
+    languages: details?.languages || [],
+    bio: details?.bio || '',
+    experience: details?.experience || 0,
+    specializations: details?.specializations || [],
+    contact: details?.contact || '',
+    profilePicture: details?.profilePicture || '',
+  });
+
+  const defaultFormData = useMemo(
+    () => getFormDataFromPersonalDetails(personalDetails),
+    [personalDetails],
+  );
 
   const {
     register,
@@ -53,7 +79,7 @@ const PersonalInfo = (): JSX.Element => {
   } = useForm<DoctorPersonalInfo>({
     resolver: zodResolver(PersonalDetailsSchema),
     mode: MODE.ON_TOUCH,
-    defaultValues: personalDetails,
+    defaultValues: defaultFormData,
   });
 
   const {
@@ -69,11 +95,44 @@ const PersonalInfo = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
+  const currentFormData = watch();
+  const currentFormDataWithImage = useMemo(
+    () => ({
+      ...currentFormData,
+      experience: Number(currentFormData.experience),
+      profilePicture: userProfilePicture || '',
+    }),
+    [currentFormData, userProfilePicture],
+  );
+
+  const hasChanges = useMemo(
+    () => !isEqual(defaultFormData, currentFormDataWithImage),
+    [defaultFormData, currentFormDataWithImage],
+  );
+
   async function onSubmit(doctorPersonalInfo: DoctorPersonalInfo): Promise<void> {
     setIsLoading(true);
     const { payload } = await dispatch(updateDoctorProfile(doctorPersonalInfo));
     if (payload) {
-      toast(payload);
+      const toastData = payload as Toast;
+      toast(toastData);
+      if (toastData.variant === 'success') {
+        if (!personalDetails?.fee) {
+          router.push(`/dashboard/settings/payment?tab=${PaymentTab.Pricing}`);
+          toast(dataCompletionToast('pricing'));
+          return;
+        }
+        if (!personalDetails?.hasDefaultPayment) {
+          router.push(`/dashboard/settings/payment?tab=${PaymentTab.PaymentMethod}`);
+          toast(dataCompletionToast('paymentMethod'));
+          return;
+        }
+        if (!personalDetails?.hasSlot) {
+          router.push('/dashboard/availability');
+          toast(dataCompletionToast('availability'));
+          return;
+        }
+      }
     }
     setIsLoading(false);
   }
@@ -119,7 +178,7 @@ const PersonalInfo = (): JSX.Element => {
         </div>
       </section>
       <hr className="my-[30px]" />
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form className="pb-20" onSubmit={handleSubmit(onSubmit)}>
         <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <Input
             labelName="First name"
@@ -177,16 +236,6 @@ const PersonalInfo = (): JSX.Element => {
         </div>
         <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <div className="w-full max-w-[384px]">
-            <MultiInputField
-              ref={register('awards').ref}
-              handleValueChange={(value) => handleMultiInputChange('awards', value)}
-              error={errors.awards?.message || ''}
-              label="Awards"
-              placeholder="Best Doctor"
-              defaultValues={watch('awards')}
-            />
-          </div>
-          <div className="w-full max-w-[384px]">
             <MultiSelect
               labelName="Specialization"
               options={specialties}
@@ -211,7 +260,7 @@ const PersonalInfo = (): JSX.Element => {
         </div>
         <div className="mt-8 max-w-[384px] items-baseline">
           <Textarea
-            labelName=" Bio (something your patients will love about you)"
+            labelName=" Bio (This is what your patients will see)"
             className="w-full resize-none bg-transparent"
             error={errors.bio?.message || ''}
             {...register('bio')}
@@ -221,7 +270,7 @@ const PersonalInfo = (): JSX.Element => {
           child="Save Changes"
           className="me:mb-0 my-[15px] mb-24 ml-auto flex"
           isLoading={isLoading}
-          disabled={!isValid || isLoading}
+          disabled={!isValid || isLoading || !hasChanges}
         />
       </form>
     </>
