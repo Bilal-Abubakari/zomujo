@@ -79,11 +79,8 @@ const PatientInfo = (): JSX.Element => {
   );
   async function onSubmit(patientInfo: PatientPersonalInfo): Promise<void> {
     setIsLoading(true);
-    const { payload } = await dispatch(updatePatient(patientInfo));
-    if (payload) {
-      const toastData = payload as Toast;
-      toast(toastData);
-    }
+    const payload = await dispatch(updatePatient(patientInfo)).unwrap();
+      toast(payload);
     setIsLoading(false);
   }
   return (
