@@ -18,7 +18,6 @@ import {
   Bell,
   CreditCard,
   EarthLock,
-  CalendarCheck2,
   BetweenHorizontalStart,
   Smile,
 } from 'lucide-react';
@@ -80,7 +79,7 @@ export const PATIENT_SIDE_BAR: ISidebar = {
         },
         {
           title: 'Settings',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/settings`,
           Icon: Settings,
         },
       ],
@@ -300,27 +299,17 @@ export const PATIENT_SETTINGS_SIDEBAR: ISidebar = {
       menu: [
         {
           title: 'Personal',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}`,
           Icon: User,
         },
         {
           title: 'Security',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/security`,
           Icon: ShieldCheck,
         },
         {
           title: 'Notification',
-          url: '#',
-          Icon: Bell,
-        },
-        {
-          title: 'Security',
-          url: '#',
-          Icon: ShieldCheck,
-        },
-        {
-          title: 'Notification',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/notification`,
           Icon: Bell,
         },
       ],
@@ -334,11 +323,6 @@ export const PATIENT_SETTINGS_SIDEBAR: ISidebar = {
           url: '#',
           Icon: EarthLock,
           phoneTitle: 'Help',
-        },
-        {
-          title: 'Appointments',
-          url: '#',
-          Icon: CalendarCheck2,
         },
       ],
     },

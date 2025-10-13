@@ -38,7 +38,7 @@ export const patientsStats = createAsyncThunk(
 
 export const updatePatient = createAsyncThunk(
   'patients/update',
-  async (patientInfo: Partial<IPatient>, { dispatch }): Promise<Toast | IDoctorCountResponse> => {
+  async (patientInfo: Partial<IPatient>, { dispatch }): Promise<Toast> => {
     try {
       const {
         data: { message },
