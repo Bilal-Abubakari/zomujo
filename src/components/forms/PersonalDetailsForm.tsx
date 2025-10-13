@@ -6,7 +6,7 @@ import { MultiSelect } from '@/components/ui/multiSelect';
 import MultiInputField from '@/components/multi-input-field/multiInputField';
 import { specialties } from '@/constants/constants';
 import React, { JSX } from 'react';
-import { FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, UseFormWatch } from 'react-hook-form';
 interface PatientFormData {
   firstName: string;
   lastName: string;
