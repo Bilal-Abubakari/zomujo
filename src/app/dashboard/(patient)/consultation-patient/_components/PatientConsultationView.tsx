@@ -83,7 +83,10 @@ const PatientConsultationView = (): JSX.Element => {
 
   on(NotificationEvent.NewNotification, (data: unknown) => {
     const { payload } = data as INotification;
-    if (payload.topic === NotificationTopic.LabRequest) {
+    if (
+      payload.topic === NotificationTopic.LabRequest ||
+      payload.topic === NotificationTopic.PrescriptionGenerated
+    ) {
       void fetchConsultation(true);
     }
   });
