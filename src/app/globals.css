@@ -293,9 +293,9 @@
 }
 
 @media (max-width: 640px) {
-[data-radix-popper-content-wrapper] {
+  [data-radix-popper-content-wrapper] {
     min-width: 0 !important;
     max-width: 100% !important;
     width: 100% !important;
-}
+  }
 }

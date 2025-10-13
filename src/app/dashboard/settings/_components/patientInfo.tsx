@@ -1,4 +1,3 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,10 +8,7 @@ import { selectExtra } from '@/lib/features/auth/authSelector';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
 import { updatePatient } from '@/lib/features/patients/patientsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import {
-  nameSchema,
-  phoneNumberSchema,
-} from '@/schemas/zod.schemas';
+import { nameSchema, phoneNumberSchema } from '@/schemas/zod.schemas';
 import { IPatient } from '@/types/patient.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
@@ -43,9 +39,7 @@ const PatientInfo = (): JSX.Element => {
   const personalDetails = useAppSelector(selectExtra) as IPatient;
   const recordId = useAppSelector(selectRecordId);
 
-  const getFormDataFromPersonalDetails = (
-    details: IPatient | null,
-  ): PatientPersonalInfo => ({
+  const getFormDataFromPersonalDetails = (details: IPatient | null): PatientPersonalInfo => ({
     firstName: details?.firstName || '',
     lastName: details?.lastName || '',
     contact: details?.contact || '',
@@ -108,11 +102,15 @@ const PatientInfo = (): JSX.Element => {
 
   return (
     <Tabs defaultValue="personal-details" className="w-full">
-      <TabsList className="grid w-1/2 grid-cols-2 mx-auto rounded-2xl">
-        <TabsTrigger value="personal-details" className="rounded-2xl">Personal Details</TabsTrigger>
-        <TabsTrigger value="records"  className="rounded-2xl">Records</TabsTrigger>
+      <TabsList className="mx-auto grid w-1/2 grid-cols-2 rounded-2xl">
+        <TabsTrigger value="personal-details" className="rounded-2xl">
+          Personal Details
+        </TabsTrigger>
+        <TabsTrigger value="records" className="rounded-2xl">
+          Records
+        </TabsTrigger>
       </TabsList>
-      
+
       <TabsContent value="personal-details">
         <section>
           <div>
@@ -184,10 +182,10 @@ const PatientInfo = (): JSX.Element => {
           />
         </form>
       </TabsContent>
-      
+
       <TabsContent value="records">
         <div className="py-8">
-          <h2 className="text-2xl font-bold mb-6">Medical Records</h2>
+          <h2 className="mb-6 text-2xl font-bold">Medical Records</h2>
           <div className="grid grid-cols-1 gap-4 justify-self-center md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
             <div className="space-y-4">
               <PatientCard />

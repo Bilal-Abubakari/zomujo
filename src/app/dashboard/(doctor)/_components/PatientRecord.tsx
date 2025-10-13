@@ -82,6 +82,6 @@ const PatientOverview = (): JSX.Element => {
       </div>
     </div>
   );
-}; 
+};
 
 export default PatientOverview;
