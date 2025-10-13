@@ -142,7 +142,6 @@ const PersonalInfo = (): JSX.Element => {
         isValid={isValid}
         hasChanges={hasChanges}
         onSubmit={handleSubmit(onSubmit)}
-        formType="doctor"
         handleMultiInputChange={handleMultiInputChange}
       />
     </>

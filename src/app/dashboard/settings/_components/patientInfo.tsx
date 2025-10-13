@@ -91,7 +91,7 @@ const PatientInfo = (): JSX.Element => {
   }
   return (
     <Tabs defaultValue="personal-details" className="w-full">
-      <TabsList className="mx-auto grid w-2/5 grid-cols-2 rounded-2xl">
+      <TabsList className="mx-auto grid w-1/2 grid-cols-2 rounded-2xl">
         <TabsTrigger value="personal-details" className="rounded-2xl">
           Personal Details
         </TabsTrigger>
@@ -117,8 +117,7 @@ const PatientInfo = (): JSX.Element => {
           isValid={isValid}
           hasChanges={hasChanges}
           onSubmit={handleSubmit(onSubmit)}
-          formType="patient"
-        /> 
+        />
       </TabsContent>
 
       <TabsContent value="records">
