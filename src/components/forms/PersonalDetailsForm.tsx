@@ -209,32 +209,26 @@ const DoctorFields = ({
 const PatientPersonalDetailsForm = ({
   register,
   errors,
-  watch,
-  setValue,
   isLoading,
   isValid,
   hasChanges,
   onSubmit,
-}: PatientFormProps): JSX.Element => {
-  return (
+}: PatientFormProps): JSX.Element => (
     <form className="pb-20" onSubmit={onSubmit}>
       <PatientBasicFields register={register} errors={errors} />
       <SaveButton isLoading={isLoading} isValid={isValid} hasChanges={hasChanges} />
     </form>
   );
-};
 const DoctorPersonalDetailsForm = ({
   register,
   errors,
   watch,
-  setValue,
   isLoading,
   isValid,
   hasChanges,
   onSubmit,
   handleMultiInputChange,
-}: DoctorFormProps): JSX.Element => {
-  return (
+}: DoctorFormProps): JSX.Element => (
     <form className="pb-20" onSubmit={onSubmit}>
       <DoctorBasicFields register={register} errors={errors} />
       <DoctorFields
@@ -246,7 +240,6 @@ const DoctorPersonalDetailsForm = ({
       <SaveButton isLoading={isLoading} isValid={isValid} hasChanges={hasChanges} />
     </form>
   );
-};
 // Function overloads for type-safe usage
 function PersonalDetailsForm(props: PatientFormProps): JSX.Element;
 function PersonalDetailsForm(props: DoctorFormProps): JSX.Element;

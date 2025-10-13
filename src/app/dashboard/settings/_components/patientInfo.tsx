@@ -1,5 +1,4 @@
 'use client';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MODE } from '@/constants/constants';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -10,8 +9,6 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { nameSchema, phoneNumberSchema } from '@/schemas/zod.schemas';
 import { IPatient } from '@/types/patient.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Trash2 } from 'lucide-react';
-import Image from 'next/image';
 import React, { JSX, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';

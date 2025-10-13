@@ -14,8 +14,7 @@ const ProfilePictureUpload = ({
   imageRef,
   handleImageChange,
   resetImage,
-}: ProfilePictureUploadProps): JSX.Element => {
-  return (
+}: ProfilePictureUploadProps): JSX.Element => (
     <section>
       <div>
         <h2 className="text-2xl font-bold">Personal Details</h2>
@@ -57,5 +56,4 @@ const ProfilePictureUpload = ({
       </div>
     </section>
   );
-};
 export default ProfilePictureUpload;

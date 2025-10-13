@@ -18,7 +18,6 @@ import {
   Bell,
   CreditCard,
   EarthLock,
-  CalendarCheck2,
   BetweenHorizontalStart,
   Smile,
 } from 'lucide-react';

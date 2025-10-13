@@ -1,6 +1,5 @@
 'use client';
-import { Button } from '@/components/ui/button';
-import { MODE, specialties } from '@/constants/constants';
+import { MODE } from '@/constants/constants';
 import { Toast, toast } from '@/hooks/use-toast';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { updateDoctorProfile } from '@/lib/features/doctors/doctorsThunk';
