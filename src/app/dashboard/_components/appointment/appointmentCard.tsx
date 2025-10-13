@@ -118,6 +118,7 @@ const AppointmentDetails = ({
     [AppointmentStatus.Accepted]: 'border-green-300 bg-green-100',
     [AppointmentStatus.Declined]: 'border-error-300 bg-error-100',
     [AppointmentStatus.Completed]: 'border-green-300 bg-green-100',
+    [AppointmentStatus.Progress]: 'border-yellow-300 bg-yellow-100',
   };
 
   const user = useAppSelector(selectUser);

@@ -39,6 +39,7 @@ export enum AcceptDeclineStatus {
 
 export enum AppointmentStatus {
   Completed = 'completed',
+  Progress = 'progress',
   Accepted = 'accepted',
   Declined = 'declined',
   Pending = 'pending',

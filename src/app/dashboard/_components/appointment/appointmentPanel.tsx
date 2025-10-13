@@ -133,6 +133,7 @@ const statusStyles: Record<AppointmentStatus, string> = {
   [AppointmentStatus.Accepted]: 'text-green-300',
   [AppointmentStatus.Declined]: 'text-red-400',
   [AppointmentStatus.Completed]: 'text-green-400',
+  [AppointmentStatus.Progress]: 'text-yellow-400',
 };
 
 const StatusBadge: React.FC<StatusProps> = ({ status }) => (
