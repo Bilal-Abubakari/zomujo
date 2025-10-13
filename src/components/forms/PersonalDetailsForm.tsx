@@ -34,8 +34,8 @@ interface BaseFormProps {
 interface PatientFormProps extends BaseFormProps {
   register: UseFormRegister<PatientFormData>;
   errors: FieldErrors<PatientFormData>;
-  watch: UseFormWatch<PatientFormData>;
-  setValue: UseFormSetValue<PatientFormData>;
+  watch?: UseFormWatch<PatientFormData>;
+  setValue?: UseFormSetValue<PatientFormData>;
 }
 interface DoctorFormProps extends BaseFormProps {
   register: UseFormRegister<DoctorFormData>;
@@ -55,10 +55,10 @@ function BasicFields(props: {
 function BasicFields({
   register,
   errors,
-}: {
+}: Readonly<{
   register: UseFormRegister<PatientFormData> | UseFormRegister<DoctorFormData>;
   errors: FieldErrors<PatientFormData> | FieldErrors<DoctorFormData>;
-}): JSX.Element {
+}>): JSX.Element {
   const isPatientForm =
     'firstName' in errors && !('experience' in (errors as Record<string, unknown>));
 
