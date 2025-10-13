@@ -95,40 +95,39 @@ function BasicFields({
         </div>
       </>
     );
-  } 
-    const doctorRegister = register as UseFormRegister<DoctorFormData>;
-    const doctorErrors = errors as FieldErrors<DoctorFormData>;
+  }
+  const doctorRegister = register as UseFormRegister<DoctorFormData>;
+  const doctorErrors = errors as FieldErrors<DoctorFormData>;
 
-    return (
-      <>
-        <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-          <Input
-            labelName="First name"
-            className="bg-transparent"
-            placeholder="John"
-            error={doctorErrors.firstName?.message || ''}
-            {...doctorRegister('firstName')}
-          />
-          <Input
-            labelName="Last name"
-            className="bg-transparent"
-            placeholder="Doe"
-            error={doctorErrors.lastName?.message || ''}
-            {...doctorRegister('lastName')}
-          />
-        </div>
-        <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-          <Input
-            labelName="Phone Number"
-            className="bg-transparent"
-            placeholder="0208880000"
-            error={doctorErrors.contact?.message || ''}
-            {...doctorRegister('contact')}
-          />
-        </div>
-      </>
-    );
-  
+  return (
+    <>
+      <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
+        <Input
+          labelName="First name"
+          className="bg-transparent"
+          placeholder="John"
+          error={doctorErrors.firstName?.message || ''}
+          {...doctorRegister('firstName')}
+        />
+        <Input
+          labelName="Last name"
+          className="bg-transparent"
+          placeholder="Doe"
+          error={doctorErrors.lastName?.message || ''}
+          {...doctorRegister('lastName')}
+        />
+      </div>
+      <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
+        <Input
+          labelName="Phone Number"
+          className="bg-transparent"
+          placeholder="0208880000"
+          error={doctorErrors.contact?.message || ''}
+          {...doctorRegister('contact')}
+        />
+      </div>
+    </>
+  );
 }
 interface SaveButtonProps {
   isLoading: boolean;
