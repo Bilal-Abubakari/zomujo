@@ -1,7 +1,7 @@
 'use client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MODE } from '@/constants/constants';
-import { Toast, toast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
 import { updatePatient } from '@/lib/features/patients/patientsThunk';
@@ -80,7 +80,7 @@ const PatientInfo = (): JSX.Element => {
   async function onSubmit(patientInfo: PatientPersonalInfo): Promise<void> {
     setIsLoading(true);
     const payload = await dispatch(updatePatient(patientInfo)).unwrap();
-      toast(payload);
+    toast(payload);
     setIsLoading(false);
   }
   return (
