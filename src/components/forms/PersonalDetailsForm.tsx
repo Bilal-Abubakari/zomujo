@@ -34,14 +34,11 @@ interface BaseFormProps {
 interface PatientFormProps extends BaseFormProps {
   register: UseFormRegister<PatientFormData>;
   errors: FieldErrors<PatientFormData>;
-  watch?: UseFormWatch<PatientFormData>;
-  setValue?: UseFormSetValue<PatientFormData>;
 }
 interface DoctorFormProps extends BaseFormProps {
   register: UseFormRegister<DoctorFormData>;
   errors: FieldErrors<DoctorFormData>;
   watch: UseFormWatch<DoctorFormData>;
-  setValue: UseFormSetValue<DoctorFormData>;
   handleMultiInputChange: (key: keyof DoctorFormData, value: string[]) => void;
 }
 function BasicFields(props: {

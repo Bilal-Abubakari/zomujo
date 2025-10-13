@@ -108,8 +108,6 @@ const PatientInfo = (): JSX.Element => {
         <PersonalDetailsForm
           register={register}
           errors={errors}
-          watch={watch}
-          setValue={setValue}
           isLoading={isLoading}
           isValid={isValid}
           hasChanges={hasChanges}
