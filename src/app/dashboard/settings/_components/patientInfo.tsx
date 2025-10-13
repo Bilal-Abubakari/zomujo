@@ -1,6 +1,5 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MODE } from '@/constants/constants';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -25,32 +24,28 @@ import PatientSurgeriesCard from '@/app/dashboard/_components/patient/patientSur
 import PatientFamilyMembersCard from '@/app/dashboard/_components/patient/PatientFamilyMembersCard';
 import PatientLifestyleCard from '@/app/dashboard/_components/patient/patientLifestyleCard';
 import PatientAllergiesCard from '@/app/dashboard/_components/patient/patientAllergiesCard';
-
+import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
+import PersonalDetailsForm from '@/components/forms/PersonalDetailsForm';
 const PatientPersonalInfoSchema = z.object({
   firstName: nameSchema,
   lastName: nameSchema,
   contact: phoneNumberSchema,
   profilePicture: z.string().optional(),
 });
-
 type PatientPersonalInfo = z.infer<typeof PatientPersonalInfoSchema>;
-
 const PatientInfo = (): JSX.Element => {
   const personalDetails = useAppSelector(selectExtra) as IPatient;
   const recordId = useAppSelector(selectRecordId);
-
   const getFormDataFromPersonalDetails = (details: IPatient | null): PatientPersonalInfo => ({
     firstName: details?.firstName || '',
     lastName: details?.lastName || '',
     contact: details?.contact || '',
     profilePicture: details?.profilePicture || '',
   });
-
   const defaultFormData = useMemo(
     () => getFormDataFromPersonalDetails(personalDetails),
     [personalDetails],
   );
-
   const {
     register,
     setValue,
@@ -62,7 +57,6 @@ const PatientInfo = (): JSX.Element => {
     mode: MODE.ON_TOUCH,
     defaultValues: defaultFormData,
   });
-
   const {
     imageRef,
     imageUrl: userProfilePicture,
@@ -72,10 +66,8 @@ const PatientInfo = (): JSX.Element => {
     setValue,
     defaultImageUrl: personalDetails?.profilePicture,
   });
-
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
-
   const currentFormData = watch();
   const currentFormDataWithImage = useMemo(
     () => ({
@@ -84,12 +76,10 @@ const PatientInfo = (): JSX.Element => {
     }),
     [currentFormData, userProfilePicture],
   );
-
   const hasChanges = useMemo(
     () => !isEqual(defaultFormData, currentFormDataWithImage),
     [defaultFormData, currentFormDataWithImage],
   );
-
   async function onSubmit(patientInfo: PatientPersonalInfo): Promise<void> {
     setIsLoading(true);
     const { payload } = await dispatch(updatePatient(patientInfo));
@@ -99,10 +89,9 @@ const PatientInfo = (): JSX.Element => {
     }
     setIsLoading(false);
   }
-
   return (
     <Tabs defaultValue="personal-details" className="w-full">
-      <TabsList className="mx-auto grid w-1/2 grid-cols-2 rounded-2xl">
+      <TabsList className="mx-auto grid w-2/5 grid-cols-2 rounded-2xl">
         <TabsTrigger value="personal-details" className="rounded-2xl">
           Personal Details
         </TabsTrigger>
@@ -112,75 +101,24 @@ const PatientInfo = (): JSX.Element => {
       </TabsList>
 
       <TabsContent value="personal-details">
-        <section>
-          <div>
-            <h2 className="text-2xl font-bold">Personal Details</h2>
-            <p className="text-gray-500">Update your profile</p>
-          </div>
-          <hr className="my-7 gap-4" />
-          <p className="my-4 font-medium">Upload profile</p>
-          <div className="flex items-center justify-start gap-2">
-            <div>
-              {userProfilePicture ? (
-                <Image
-                  className="h-[79px] w-[79px] rounded-full bg-gray-600 object-fill"
-                  src={userProfilePicture}
-                  alt="Profile Picture"
-                  width={79}
-                  height={79}
-                />
-              ) : (
-                <div className="flex h-[79px] w-[79px] items-center justify-center rounded-full bg-gray-200">
-                  <span className="text-gray-500">No Image</span>
-                </div>
-              )}
-              <input className="hidden" ref={imageRef} type="file" onChange={handleImageChange} />
-            </div>
-            <Button
-              child={'Upload new profile'}
-              variant={'outline'}
-              className="bg-transparent"
-              onClick={() => imageRef.current?.click()}
-            />
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100">
-              <Trash2 size={16} onClick={resetImage} />
-            </div>
-          </div>
-        </section>
+        <ProfilePictureUpload
+          userProfilePicture={userProfilePicture}
+          imageRef={imageRef as React.RefObject<HTMLInputElement | null>}
+          handleImageChange={handleImageChange}
+          resetImage={resetImage}
+        />
         <hr className="my-[30px]" />
-        <form className="pb-20" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-            <Input
-              labelName="First name"
-              className="bg-transparent"
-              placeholder="John"
-              error={errors.firstName?.message || ''}
-              {...register('firstName')}
-            />
-            <Input
-              labelName="Last name"
-              className="bg-transparent"
-              placeholder="Doe"
-              error={errors.lastName?.message || ''}
-              {...register('lastName')}
-            />
-          </div>
-          <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-            <Input
-              labelName="Phone Number"
-              className="bg-transparent"
-              placeholder="0208880000"
-              {...register('contact')}
-              error={errors.contact?.message || ''}
-            />
-          </div>
-          <Button
-            child="Save Changes"
-            className="me:mb-0 my-[15px] mb-24 ml-auto flex"
-            isLoading={isLoading}
-            disabled={!isValid || isLoading || !hasChanges}
-          />
-        </form>
+        <PersonalDetailsForm
+          register={register}
+          errors={errors}
+          watch={watch}
+          setValue={setValue}
+          isLoading={isLoading}
+          isValid={isValid}
+          hasChanges={hasChanges}
+          onSubmit={handleSubmit(onSubmit)}
+          formType="patient"
+        />
       </TabsContent>
 
       <TabsContent value="records">
@@ -206,5 +144,4 @@ const PatientInfo = (): JSX.Element => {
     </Tabs>
   );
 };
-
 export default PatientInfo;
