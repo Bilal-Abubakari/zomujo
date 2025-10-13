@@ -26,3 +26,9 @@ export enum NotificationEvent {
   NewRequest = 'newRequest',
   RecordRequest = 'recordRequest',
 }
+
+export enum NotificationTopic {
+  LabRequest = 'Lab Test Requests',
+  LabUpload = 'Lab Picture Upload',
+  DoctorApproved = 'Doctor Approved',
+}

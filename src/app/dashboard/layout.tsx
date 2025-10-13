@@ -11,7 +11,7 @@ import {
   selectExtra,
 } from '@/lib/features/auth/authSelector';
 import { dismissOnboardingModal } from '@/lib/features/auth/authSlice';
-import { DashboardProvider } from '@/app/dashboard/_components/dashboardProvider';
+import { DashboardProvider } from '@/app/dashboard/_components/providers/dashboardProvider';
 import { Modal } from '@/components/ui/dialog';
 import UpdatePassword from '@/app/dashboard/_components/updatePassword';
 import NotificationActions from '@/app/dashboard/_components/notificationActions';

@@ -53,8 +53,7 @@ export const textAreaSchema = z
   .string()
   .nonempty('Field is required')
   .min(10, 'Field should have at least 10 characters')
-  .max(500, 'Field should not exceed 500 characters')
-  .regex(/^[A-Za-z0-9\s.,!?'"-]+$/, 'Field contains invalid characters');
+  .max(500, 'Field should not exceed 500 characters');
 
 export const positiveNumberSchema = z.coerce
   .number()

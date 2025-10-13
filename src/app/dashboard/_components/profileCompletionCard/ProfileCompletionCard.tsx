@@ -95,7 +95,7 @@ const ProfileCompletionCard = (): JSX.Element => {
 
     // Stage 4 check: Slot pattern
     if (!extra.hasSlot) {
-      router.push('/dashboard/availability');
+      router.push('/dashboard/settings/availability');
     }
   };
 

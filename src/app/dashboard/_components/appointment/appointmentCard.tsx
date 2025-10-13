@@ -107,9 +107,7 @@ const AppointmentDetails = ({
   day,
   hour,
   status,
-  reason,
   meetingLink,
-  additionalInfo,
   patient: { firstName, id: patientId },
   id,
   slot: { date },
@@ -124,9 +122,14 @@ const AppointmentDetails = ({
 
   const user = useAppSelector(selectUser);
   const isDoctor = user?.role === Role.Doctor;
+  const isPatient = user?.role === Role.Patient;
   const router = useRouter();
   const redirectToPatient = (): void => {
     router.push(`/dashboard/patients/${patientId}?appointmentId=${id}`);
+  };
+
+  const redirectToConsultation = (): void => {
+    router.push(`/dashboard/consultation-patient/${id}`);
   };
 
   return (
@@ -157,19 +160,20 @@ const AppointmentDetails = ({
         <span className="text-sm">{moment(date).format('dddd, LL')}</span>
       </div>
 
-      <div className="mt-4">
-        <p className="font-semibold">Reason for Visit:</p>
-        <div className={`bg-opacity-50 mt-2 rounded-lg border p-2 text-sm ${statusStyles[status]}`}>
-          <p>{reason}</p>
-        </div>
-      </div>
+      {/*TODO: We revisit this feature later*/}
+      {/*<div className="mt-4">*/}
+      {/*  <p className="font-semibold">Reason for Visit:</p>*/}
+      {/*  <div className={`bg-opacity-50 mt-2 rounded-lg border p-2 text-sm ${statusStyles[status]}`}>*/}
+      {/*    <p>{reason}</p>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
 
-      {additionalInfo && (
-        <div className="mt-4">
-          <p className="font-semibold">Additional Notes</p>
-          <p className="mt-2 text-sm">{additionalInfo}</p>
-        </div>
-      )}
+      {/*{additionalInfo && (*/}
+      {/*  <div className="mt-4">*/}
+      {/*    <p className="font-semibold">Additional Notes</p>*/}
+      {/*    <p className="mt-2 text-sm">{additionalInfo}</p>*/}
+      {/*  </div>*/}
+      {/*)}*/}
 
       <div className="mt-4 flex justify-center">
         {isDoctor && (
@@ -177,6 +181,13 @@ const AppointmentDetails = ({
             child={'Start Consultation'}
             className="rounded-full border-2 border-black bg-black px-6 py-2 text-white transition duration-300 hover:bg-green-700"
             onClick={() => redirectToPatient()}
+          />
+        )}
+        {isPatient && (
+          <Button
+            child={'View Consultation'}
+            className="rounded-full border-2 border-black bg-black px-6 py-2 text-white transition duration-300 hover:bg-green-700"
+            onClick={() => redirectToConsultation()}
           />
         )}
       </div>

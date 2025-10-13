@@ -112,7 +112,7 @@ const CreateTimeSlots = (): JSX.Element => {
   );
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 p-6">
+    <div className="mx-auto w-full space-y-6 sm:p-6">
       {frequency && (
         <Confirmation
           description={generateSlotDescription(getSlotPattern(), frequency, selectedWeekDays)}
@@ -125,10 +125,10 @@ const CreateTimeSlots = (): JSX.Element => {
         />
       )}
       <Card>
-        <CardHeader>
-          <CardTitle>Create A Time Slot Pattern</CardTitle>
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-lg sm:text-xl">Create A Time Slot Pattern</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <div className="space-y-6">
             <div>
               {getLabel(
@@ -139,9 +139,15 @@ const CreateTimeSlots = (): JSX.Element => {
                 onValueChange={(days: IWeekDays[]) => setSelectedWeekDays(days)}
                 value={selectedWeekDays}
                 type="multiple"
+                className="mt-2 flex-wrap justify-start gap-2"
               >
                 {shortDaysOfTheWeek.map((day, index) => (
-                  <ToggleGroupItem key={day} value={weekDays[index]} aria-label="Toggle bold">
+                  <ToggleGroupItem
+                    key={day}
+                    value={weekDays[index]}
+                    aria-label="Toggle bold"
+                    className="hover:bg-primary/10 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground cursor-pointer border border-gray-300 px-3 py-2 text-sm transition-colors duration-150 sm:px-4"
+                  >
                     {day}
                   </ToggleGroupItem>
                 ))}
@@ -156,9 +162,15 @@ const CreateTimeSlots = (): JSX.Element => {
                 onValueChange={(frequency: IFrequency) => setFrequency(frequency)}
                 value={frequency}
                 type="single"
+                className="mt-2 flex-wrap justify-start gap-2"
               >
                 {frequencies.map((frequency) => (
-                  <ToggleGroupItem key={frequency} value={frequency} aria-label="Toggle bold">
+                  <ToggleGroupItem
+                    key={frequency}
+                    value={frequency}
+                    aria-label="Toggle bold"
+                    className="hover:bg-primary/10 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground min-w-[80px] cursor-pointer border border-gray-300 px-3 py-2 text-sm transition-colors duration-150 sm:min-w-[100px] sm:px-4"
+                  >
                     {capitalize(frequency)}
                   </ToggleGroupItem>
                 ))}
@@ -176,23 +188,25 @@ const CreateTimeSlots = (): JSX.Element => {
                       id="date"
                       variant={'outline'}
                       className={cn(
-                        'w-[300px] justify-start text-left font-normal',
+                        'w-full justify-start text-left text-xs font-normal sm:w-[300px] sm:text-sm',
                         !date && 'text-muted-foreground',
                       )}
                       child={
                         <>
-                          <CalendarIcon />
-                          {date?.from ? (
-                            date.to ? (
-                              <>
-                                {moment(date.from).format('LL')} - {moment(date.to).format('LL')}
-                              </>
+                          <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">
+                            {date?.from ? (
+                              date.to ? (
+                                <>
+                                  {moment(date.from).format('LL')} - {moment(date.to).format('LL')}
+                                </>
+                              ) : (
+                                moment(date.from).format('LL')
+                              )
                             ) : (
-                              moment(date.from).format('LL')
-                            )
-                          ) : (
-                            <span>Pick a date</span>
-                          )}{' '}
+                              <span>Pick a date</span>
+                            )}
+                          </span>
                         </>
                       }
                     />
@@ -207,12 +221,24 @@ const CreateTimeSlots = (): JSX.Element => {
                       selected={date}
                       onSelect={setDate}
                       numberOfMonths={2}
+                      className="hidden sm:block"
+                    />
+                    <Calendar
+                      autoFocus
+                      mode="range"
+                      defaultMonth={date?.from}
+                      startMonth={new Date()}
+                      hidden={[{ before: new Date() }]}
+                      selected={date}
+                      onSelect={setDate}
+                      numberOfMonths={1}
+                      className="block sm:hidden"
                     />
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 {getLabel(
                   'Start Time:',
@@ -234,7 +260,7 @@ const CreateTimeSlots = (): JSX.Element => {
                       });
                     }
                   }}
-                  className="w-full rounded-md border px-3 py-2"
+                  className="w-full rounded-md border px-3 py-2 text-sm sm:text-base"
                 />
               </div>
               <div className="space-y-2">
@@ -258,18 +284,18 @@ const CreateTimeSlots = (): JSX.Element => {
                       });
                     }
                   }}
-                  className="w-full rounded-md border px-3 py-2"
+                  className="w-full rounded-md border px-3 py-2 text-sm sm:text-base"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Slot Duration (minutes)</Label>
+              <Label className="text-sm sm:text-base">Slot Duration (minutes)</Label>
               <Select
                 value={slotDuration.toString()}
                 onValueChange={(v) => setSlotDuration(parseInt(v))}
                 disabled={true}
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-sm sm:text-base">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -285,7 +311,7 @@ const CreateTimeSlots = (): JSX.Element => {
             <Button
               child="Generate Time Slots"
               onClick={() => canGenerateSlot() && setConfirmation(true)}
-              className="w-full"
+              className="w-full text-sm sm:text-base"
             />
           </div>
         </CardContent>

@@ -73,8 +73,8 @@ const PatientView = ({
     <div className="relative -ml-6">
       {isLoading && <LoadingOverlay />}
       {!isLoading && status === ApproveDeclineStatus.Idle && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#EDEDED80] backdrop-blur-[3px]">
-          <div className="relative flex w-full max-w-lg flex-col items-center gap-6 rounded-3xl bg-white p-10 text-center shadow-lg">
+        <div className="absolute inset-0 z-50 flex flex-col items-center bg-[#EDEDED80] backdrop-blur-[3px]">
+          <div className="relative mt-16 flex w-full max-w-lg flex-col items-center gap-6 rounded-3xl bg-white p-10 text-center shadow-lg">
             <div className="max-w-sm text-2xl font-bold">Request access to patient records</div>
             <p className="max-w-sm text-gray-500">
               Send a request to the selected patient to access their medical records.

@@ -47,20 +47,23 @@ const DoctorIdentification = (): JSX.Element => {
   return (
     <form className="flex w-full flex-col gap-10" onSubmit={($event) => onSubmit($event)}>
       <div className="flex flex-col gap-1.5">
-        <p className="flex flex-row items-center gap-1 text-[32px] leading-8 font-bold">
-          Upload doctor’s ID
+        <p className="flex flex-row items-center gap-1 text-2xl leading-8 font-bold sm:text-[32px]">
+          Upload doctor&#39;s ID
           <span>
             <InfoIcon size={16} />
           </span>
         </p>
-        <p className="text-grayscale-medium leading-6">We require both sides of ID Card</p>
+        <p className="text-grayscale-medium text-sm leading-6 sm:text-base">
+          We require both sides of ID Card
+        </p>
       </div>
       <div className="flex flex-col justify-between gap-4">
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-between sm:gap-2">
           <SingleImageDropzone
             height={280}
             width={300}
             label="Front"
+            className="w-full sm:w-auto"
             value={watch('front')}
             {...register('front')}
             onChange={(file) => setValue('front', file!, { shouldValidate: true })}
@@ -69,6 +72,7 @@ const DoctorIdentification = (): JSX.Element => {
             height={280}
             width={300}
             label="Back"
+            className="w-full sm:w-auto"
             value={watch('back')}
             {...register('back')}
             onChange={(file) => setValue('back', file!, { shouldValidate: true })}
@@ -77,14 +81,14 @@ const DoctorIdentification = (): JSX.Element => {
         <div className="flex flex-row">
           <Checkbox
             name="confirm"
-            labelClassName="text-gray-500"
+            labelClassName="text-gray-500 text-sm sm:text-base"
             checked={confirm}
             onCheckedChange={(checked) => setConfirm(Boolean(checked))}
             labelName="I confirm that the ID provided is a valid  government issued doctor ID. This ID includes my name, ID number and expiry date"
           />
         </div>
       </div>
-      <div className="flex w-full items-center justify-center gap-8">
+      <div className="flex w-full max-w-sm flex-col items-center justify-center gap-4 self-center sm:max-w-none sm:flex-row sm:gap-8">
         <Button
           onClick={() => dispatch(updateCurrentStep(1))}
           variant="secondary"

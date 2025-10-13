@@ -44,21 +44,24 @@ const DoctorPhotoUpload = (): JSX.Element => {
   return (
     <form className="flex w-full flex-col gap-10" onSubmit={(event) => onSubmit(event)}>
       <Modal open={openModal} content={<OnboardingSuccessful />} />
-      <div className="flex flex-col gap-1.5">
-        <p className="flex flex-row items-center gap-1 text-[32px] leading-8 font-bold">
+      <div className="flex w-full flex-col gap-1.5">
+        <p className="flex flex-row items-center gap-1 text-2xl leading-8 font-bold sm:text-[32px]">
           Upload Photo
           <span>
             <InfoIcon size={16} />
           </span>
         </p>
-        <p className="text-grayscale-medium leading-6">Upload a photo for verification purposes.</p>
+        <p className="text-grayscale-medium text-sm leading-6 sm:text-base">
+          Upload a photo for verification purposes.
+        </p>
       </div>
-      <div className="flex flex-col justify-between gap-4">
-        <div className="flex flex-row justify-between">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-row items-center justify-center">
           <SingleImageDropzone
             height={200}
-            width={610}
+            width={300}
             label="Passport Photo"
+            className="w-full sm:w-auto"
             value={watch('profilePicture')}
             {...register('profilePicture')}
             onChange={(file) => setValue('profilePicture', file!, { shouldValidate: true })}
@@ -67,14 +70,14 @@ const DoctorPhotoUpload = (): JSX.Element => {
         <div className="flex flex-row">
           <Checkbox
             name="confirm"
-            labelClassName="text-gray-500"
+            labelClassName="text-gray-500 text-sm sm:text-base"
             checked={confirm}
             onCheckedChange={(checked) => setConfirm(Boolean(checked))}
-            labelName="I confirm that the photo provided is my face and no one else’s face"
+            labelName="I confirm that the photo provided is my face and no one else's face"
           />
         </div>
       </div>
-      <div className="flex w-full items-center justify-center gap-8">
+      <div className="flex w-full max-w-sm flex-col items-center justify-center gap-4 self-center sm:flex-row sm:gap-8">
         <Button
           onClick={() => dispatch(updateCurrentStep(2))}
           variant="secondary"
@@ -100,15 +103,15 @@ export default DoctorPhotoUpload;
 const OnboardingSuccessful = (): JSX.Element => {
   const router = useRouter();
   return (
-    <div className="relative flex flex-col items-center gap-12 p-8 pt-16">
-      <div className="absolute top-0 left-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gray-50">
-        <div className="from-primary-light-base to-primary-dark flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-b">
-          <Check size={32} strokeWidth={3} className="text-white" />
+    <div className="relative flex flex-col items-center gap-8 p-6 pt-16">
+      <div className="absolute top-0 left-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gray-50">
+        <div className="from-primary-light-base to-primary-dark flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-b sm:h-16 sm:w-16">
+          <Check size={28} strokeWidth={3} className="text-white sm:size-8" />
         </div>
       </div>
-      <div className="flex flex-col items-center gap-4">
-        <p className="text-2xl leading-6 font-bold">Submission Received!</p>
-        <p className="text-center leading-4 text-gray-500">
+      <div className="flex flex-col items-center gap-3 sm:gap-4">
+        <p className="text-xl leading-6 font-bold sm:text-2xl">Submission Received!</p>
+        <p className="text-center text-sm leading-5 text-gray-500 sm:text-base sm:leading-6">
           Thank you for submitting your information! Our admin team will review and verify your
           details shortly. You will gain access to the features once the verification process is
           complete.

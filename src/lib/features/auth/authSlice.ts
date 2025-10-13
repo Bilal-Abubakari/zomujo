@@ -72,7 +72,7 @@ const authSlice = createSlice({
       state.extra = initialState.extra;
     },
     updateDoctorSignature: (state, { payload }) => {
-      if (state.extra && 'signaturePath' in state.extra) {
+      if (state.extra) {
         const doctor = state.extra as IDoctor;
         state.extra = {
           ...doctor,
