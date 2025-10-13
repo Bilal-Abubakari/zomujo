@@ -44,76 +44,92 @@ interface DoctorFormProps extends BaseFormProps {
   setValue: UseFormSetValue<DoctorFormData>;
   handleMultiInputChange: (key: keyof DoctorFormData, value: string[]) => void;
 }
-const PatientBasicFields = ({
-  register,
-  errors,
-}: {
+function BasicFields(props: {
   register: UseFormRegister<PatientFormData>;
   errors: FieldErrors<PatientFormData>;
-}): JSX.Element => (
-  <>
-    <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-      <Input
-        labelName="First name"
-        className="bg-transparent"
-        placeholder="John"
-        error={errors.firstName?.message || ''}
-        {...register('firstName')}
-      />
-      <Input
-        labelName="Last name"
-        className="bg-transparent"
-        placeholder="Doe"
-        error={errors.lastName?.message || ''}
-        {...register('lastName')}
-      />
-    </div>
-    <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-      <Input
-        labelName="Phone Number"
-        className="bg-transparent"
-        placeholder="0208880000"
-        error={errors.contact?.message || ''}
-        {...register('contact')}
-      />
-    </div>
-  </>
-);
-const DoctorBasicFields = ({
+}): JSX.Element;
+function BasicFields(props: {
+  register: UseFormRegister<DoctorFormData>;
+  errors: FieldErrors<DoctorFormData>;
+}): JSX.Element;
+function BasicFields({
   register,
   errors,
 }: {
-  register: UseFormRegister<DoctorFormData>;
-  errors: FieldErrors<DoctorFormData>;
-}): JSX.Element => (
-  <>
-    <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-      <Input
-        labelName="First name"
-        className="bg-transparent"
-        placeholder="John"
-        error={errors.firstName?.message || ''}
-        {...register('firstName')}
-      />
-      <Input
-        labelName="Last name"
-        className="bg-transparent"
-        placeholder="Doe"
-        error={errors.lastName?.message || ''}
-        {...register('lastName')}
-      />
-    </div>
-    <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-      <Input
-        labelName="Phone Number"
-        className="bg-transparent"
-        placeholder="0208880000"
-        error={errors.contact?.message || ''}
-        {...register('contact')}
-      />
-    </div>
-  </>
-);
+  register: UseFormRegister<PatientFormData> | UseFormRegister<DoctorFormData>;
+  errors: FieldErrors<PatientFormData> | FieldErrors<DoctorFormData>;
+}): JSX.Element {
+  const isPatientForm =
+    'firstName' in errors && !('experience' in (errors as Record<string, unknown>));
+
+  if (isPatientForm) {
+    const patientRegister = register as UseFormRegister<PatientFormData>;
+    const patientErrors = errors as FieldErrors<PatientFormData>;
+
+    return (
+      <>
+        <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
+          <Input
+            labelName="First name"
+            className="bg-transparent"
+            placeholder="John"
+            error={patientErrors.firstName?.message || ''}
+            {...patientRegister('firstName')}
+          />
+          <Input
+            labelName="Last name"
+            className="bg-transparent"
+            placeholder="Doe"
+            error={patientErrors.lastName?.message || ''}
+            {...patientRegister('lastName')}
+          />
+        </div>
+        <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
+          <Input
+            labelName="Phone Number"
+            className="bg-transparent"
+            placeholder="0208880000"
+            error={patientErrors.contact?.message || ''}
+            {...patientRegister('contact')}
+          />
+        </div>
+      </>
+    );
+  } 
+    const doctorRegister = register as UseFormRegister<DoctorFormData>;
+    const doctorErrors = errors as FieldErrors<DoctorFormData>;
+
+    return (
+      <>
+        <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
+          <Input
+            labelName="First name"
+            className="bg-transparent"
+            placeholder="John"
+            error={doctorErrors.firstName?.message || ''}
+            {...doctorRegister('firstName')}
+          />
+          <Input
+            labelName="Last name"
+            className="bg-transparent"
+            placeholder="Doe"
+            error={doctorErrors.lastName?.message || ''}
+            {...doctorRegister('lastName')}
+          />
+        </div>
+        <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
+          <Input
+            labelName="Phone Number"
+            className="bg-transparent"
+            placeholder="0208880000"
+            error={doctorErrors.contact?.message || ''}
+            {...doctorRegister('contact')}
+          />
+        </div>
+      </>
+    );
+  
+}
 interface SaveButtonProps {
   isLoading: boolean;
   isValid: boolean;
@@ -214,11 +230,11 @@ const PatientPersonalDetailsForm = ({
   hasChanges,
   onSubmit,
 }: PatientFormProps): JSX.Element => (
-    <form className="pb-20" onSubmit={onSubmit}>
-      <PatientBasicFields register={register} errors={errors} />
-      <SaveButton isLoading={isLoading} isValid={isValid} hasChanges={hasChanges} />
-    </form>
-  );
+  <form className="pb-20" onSubmit={onSubmit}>
+    <BasicFields register={register} errors={errors} />
+    <SaveButton isLoading={isLoading} isValid={isValid} hasChanges={hasChanges} />
+  </form>
+);
 const DoctorPersonalDetailsForm = ({
   register,
   errors,
@@ -229,18 +245,17 @@ const DoctorPersonalDetailsForm = ({
   onSubmit,
   handleMultiInputChange,
 }: DoctorFormProps): JSX.Element => (
-    <form className="pb-20" onSubmit={onSubmit}>
-      <DoctorBasicFields register={register} errors={errors} />
-      <DoctorFields
-        register={register}
-        errors={errors}
-        watch={watch}
-        handleMultiInputChange={handleMultiInputChange}
-      />
-      <SaveButton isLoading={isLoading} isValid={isValid} hasChanges={hasChanges} />
-    </form>
-  );
-// Function overloads for type-safe usage
+  <form className="pb-20" onSubmit={onSubmit}>
+    <BasicFields register={register} errors={errors} />
+    <DoctorFields
+      register={register}
+      errors={errors}
+      watch={watch}
+      handleMultiInputChange={handleMultiInputChange}
+    />
+    <SaveButton isLoading={isLoading} isValid={isValid} hasChanges={hasChanges} />
+  </form>
+);
 function PersonalDetailsForm(props: PatientFormProps): JSX.Element;
 function PersonalDetailsForm(props: DoctorFormProps): JSX.Element;
 function PersonalDetailsForm(props: PatientFormProps | DoctorFormProps): JSX.Element {
