@@ -145,14 +145,15 @@ const NotificationActions = (): JSX.Element => {
                   </div>
                 </>
               )}
-              <div className="mb-4">
-                <div className="text-muted-foreground text-sm">Reason for Request:</div>
-                <div>{appointment?.reason}</div>
-              </div>
-              <div className="mb-4">
-                <div className="text-muted-foreground text-sm">Additional Information:</div>
-                <div>{appointment?.additionalInfo}</div>
-              </div>
+              {/*TODO: We are not implementing this now*/}
+              {/*<div className="mb-4">*/}
+              {/*  <div className="text-muted-foreground text-sm">Reason for Request:</div>*/}
+              {/*  <div>{appointment?.reason}</div>*/}
+              {/*</div>*/}
+              {/*<div className="mb-4">*/}
+              {/*  <div className="text-muted-foreground text-sm">Additional Information:</div>*/}
+              {/*  <div>{appointment?.additionalInfo}</div>*/}
+              {/*</div>*/}
             </div>
             <DrawerFooter className="flex justify-between">
               {appointment && appointment.status === AppointmentStatus.Pending ? (

@@ -94,6 +94,7 @@ export enum ConsultationStatus {
   Pending = 'pending',
   Completed = 'completed',
   Progress = 'progress',
+  Cancelled = 'cancelled',
 }
 
 export interface ConsultationStatusRequest {
