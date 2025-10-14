@@ -13,7 +13,7 @@ import { useAppDispatch } from '@/lib/hooks';
 type DoctorDetailsProps = {
   showBookmark?: boolean;
   doctorId: string;
-  bookAppointmentHandler: () => void;
+  bookAppointmentHandler?: () => void;
 };
 
 const DoctorDetails = ({
@@ -55,7 +55,7 @@ const DoctorDetails = ({
   }
 
   const bookAppointment = (): void => {
-    bookAppointmentHandler();
+    bookAppointmentHandler?.();
   };
 
   return (
