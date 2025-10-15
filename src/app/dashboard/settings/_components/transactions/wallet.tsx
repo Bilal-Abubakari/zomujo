@@ -64,7 +64,7 @@ const Wallet = (): JSX.Element => {
           content={
             <WithdrawModal
               walletAmount={walletAmount}
-              userId={userId!}
+              userId={userId ?? ''}
               onSuccess={handleWithdrawSuccess}
               onClose={() => setIsWithdrawModalOpen(false)}
             />
