@@ -17,8 +17,12 @@ import { selectUser } from '@/lib/features/auth/authSelector';
 import { AcceptDecline, IPagination } from '@/types/shared.interface';
 import { Toast, toast } from '@/hooks/use-toast';
 import SkeletonAcceptDeclineRequestCard from '@/components/skeleton/skeletonAcceptDeclineRequestCard';
+import { INotification, NotificationEvent } from '@/types/notification.interface';
+import useWebSocket from '@/hooks/useWebSocket';
+import { Calendar } from 'lucide-react';
 
 const AppointmentRequestPanel = (): JSX.Element => {
+  const { on } = useWebSocket();
   const [requests, setRequests] = useState<IAppointment[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<{
@@ -30,6 +34,14 @@ const AppointmentRequestPanel = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
 
+  on(NotificationEvent.NewRequest, (data: unknown) => {
+    const notification = data as INotification;
+    setRequests((prev) => [
+      notification.payload.appointment,
+      ...prev.filter((req) => req.id !== notification.payload.appointment.id),
+    ]);
+  });
+
   useEffect(() => {
     void getAppointmentRequests();
   }, []);
@@ -37,9 +49,9 @@ const AppointmentRequestPanel = (): JSX.Element => {
   const suggestSmallScreen = useMemo(
     () => (
       <Carousel>
-        <CarouselContent className="m-auto">
+        <CarouselContent className="m-auto w-full">
           {requests.map((request) => (
-            <CarouselItem key={request.id}>
+            <CarouselItem className="w-full" key={request.id}>
               <AppointmentRequestCard
                 request={request}
                 approveRequest={() => handleAppointmentAction(request, 'accept')}
@@ -50,7 +62,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
         </CarouselContent>
       </Carousel>
     ),
-    [],
+    [requests],
   );
 
   function handleAppointmentAction(request: IAppointment, action: AcceptDecline): void {
@@ -123,24 +135,43 @@ const AppointmentRequestPanel = (): JSX.Element => {
         acceptCommand={() => acceptDeclineRequest(selectedRequest!.action)}
         rejectCommand={() => setOpenModal && setOpenModal(false)}
       />
-      <div className="h-[calc(100vh-203px)] w-full overflow-y-scroll rounded-2xl border bg-white pt-6 max-md:h-[380px]">
-        <div className="flex flex-row items-center justify-center gap-2">
-          <p className="text-xl font-bold">Appointment Requests</p>
+      <div className="h-[calc(100vh-203px)] w-full overflow-y-scroll rounded-2xl border bg-gray-50 pt-6 max-md:h-[380px]">
+        <div className="flex flex-row items-center justify-center gap-2 px-4">
+          <p className="text-lg font-bold text-gray-900 md:text-xl">Appointment Requests</p>
           <Badge variant={'brown'}>{requests?.length}</Badge>
         </div>
-        <hr className="mx-6 mt-6 border border-gray-200" />
+        <hr className="mx-4 mt-4 border border-gray-200" />
 
         {!isLoadingAppointments ? (
-          <div className="hidden md:block">
-            {requests?.map((request) => (
-              <AppointmentRequestCard
-                key={request.id}
-                request={request}
-                approveRequest={() => handleAppointmentAction(request, 'accept')}
-                rejectRequest={() => handleAppointmentAction(request, 'decline')}
-              />
-            ))}
-          </div>
+          <>
+            {requests.length > 0 ? (
+              <>
+                <div className="mx-4 my-2 hidden md:block">
+                  {requests?.map((request) => (
+                    <AppointmentRequestCard
+                      key={request.id}
+                      request={request}
+                      approveRequest={() => handleAppointmentAction(request, 'accept')}
+                      rejectRequest={() => handleAppointmentAction(request, 'decline')}
+                    />
+                  ))}
+                </div>
+                <div className="mx-4 my-2 md:hidden">{suggestSmallScreen}</div>
+              </>
+            ) : (
+              <div className="flex h-[300px] flex-col items-center justify-center gap-3 px-4 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                  <Calendar className="h-8 w-8 text-gray-400" />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">No Appointment Requests</p>
+                  <p className="mt-1.5 text-sm text-gray-500">
+                    There are currently no requests to accept or decline.
+                  </p>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div>
             {Array.from({ length: 3 }).map((_, index) => (
@@ -148,7 +179,6 @@ const AppointmentRequestPanel = (): JSX.Element => {
             ))}
           </div>
         )}
-        <div className="mx-2 md:hidden">{suggestSmallScreen}</div>
       </div>
     </>
   );

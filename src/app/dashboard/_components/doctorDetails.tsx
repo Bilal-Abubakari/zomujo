@@ -5,13 +5,10 @@ import { GraduationCap } from 'lucide-react';
 import { IDoctor } from '@/types/doctor.interface';
 import { JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
-import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
 import { showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectUser } from '@/lib/features/auth/authSelector';
+import { useAppDispatch } from '@/lib/hooks';
 
 type DoctorDetailsProps = {
   showBookmark?: boolean;
@@ -25,7 +22,6 @@ const DoctorDetails = ({
   bookAppointmentHandler,
 }: DoctorDetailsProps): JSX.Element | null => {
   const dispatch = useAppDispatch();
-  const user = useAppSelector(selectUser);
   const [isLoading, setIsLoading] = useState(false);
   const [doctor, setDoctor] = useState<IDoctor | null>(null);
 
@@ -49,7 +45,6 @@ const DoctorDetails = ({
       setDoctor(null);
     }
   }, [dispatch, doctorId]);
-  const router = useRouter();
 
   if (isLoading) {
     return <p>Loading doctor&apos;s details...</p>;
@@ -60,15 +55,7 @@ const DoctorDetails = ({
   }
 
   const bookAppointment = (): void => {
-    if (user) {
-      router.push(
-        `/dashboard/book-appointment/${doctor.id}?appointmentType=${MedicalAppointmentType.Doctor}`,
-      );
-      return;
-    }
-    if (bookAppointmentHandler) {
-      bookAppointmentHandler();
-    }
+    bookAppointmentHandler?.();
   };
 
   return (

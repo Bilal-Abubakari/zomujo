@@ -134,7 +134,11 @@ const AppointmentRequests = (): JSX.Element => {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row: { original } }): JSX.Element => (
-        <StatusBadge status={original.status} approvedTitle="Accepted" />
+        <StatusBadge
+          status={original.status}
+          approvedTitle="Accepted"
+          destructiveTitle="Cancelled"
+        />
       ),
     },
     {
