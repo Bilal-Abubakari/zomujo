@@ -7,6 +7,8 @@ import {
   IRate,
   IPaymentDetails,
   ICreatePaymentDetails,
+  IWallet,
+  IWithdrawRequest,
 } from '@/types/payment.interface';
 import { IResponse } from '@/types/shared.interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
@@ -147,6 +149,32 @@ export const updateOrganizationsDetails = createAsyncThunk(
       const {
         data: { message },
       } = await axios.patchForm<IResponse>(`orgs`, { regularFee });
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getWalletAmount = createAsyncThunk(
+  'payment/getWalletAmount',
+  async (): Promise<IWallet | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IWallet>>('payments/amount-in-wallet');
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const withdrawFunds = createAsyncThunk(
+  'payment/withdrawFunds',
+  async (withdrawData: IWithdrawRequest): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>('payments/withdraw', withdrawData);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
