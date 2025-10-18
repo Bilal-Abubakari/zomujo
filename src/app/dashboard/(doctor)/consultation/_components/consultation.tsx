@@ -9,7 +9,7 @@ import DiagnosePrescribe from '@/app/dashboard/(doctor)/consultation/_components
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   getConsultationAppointment,
-  setConsultationStatus,
+  endConsultation as endConsultationRequest,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -23,7 +23,6 @@ import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import ReviewConsultation from '@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation';
 import { Button } from '@/components/ui/button';
-import { ConsultationStatus } from '@/types/consultation.interface';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
 import ConsultationHistory from '@/app/dashboard/(doctor)/consultation/_components/ConsultationHistory';
@@ -70,13 +69,8 @@ const Consultation = (): JSX.Element => {
 
   const endConsultation = async (): Promise<void> => {
     setIsEndingConsultation(true);
-    const { payload } = await dispatch(
-      setConsultationStatus({
-        appointmentId: String(params.appointmentId),
-        status: ConsultationStatus.Completed,
-      }),
-    );
-    toast(payload as Toast);
+    const payload = await dispatch(endConsultationRequest(String(params.appointmentId))).unwrap();
+    toast(payload);
     setIsEndingConsultation(false);
     router.push('/dashboard');
   };

@@ -123,6 +123,6 @@ export const selectShouldShowDoctorOnboardingModal = createSelector(
       return true;
     }
 
-    return status === AcceptDeclineStatus.Accepted && !isProfileIncomplete;
+    return !(status === AcceptDeclineStatus.Accepted && !isProfileIncomplete);
   },
 );

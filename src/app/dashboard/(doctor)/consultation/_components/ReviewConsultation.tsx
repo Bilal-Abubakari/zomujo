@@ -28,7 +28,13 @@ import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
 
-const ReviewConsultation = (): JSX.Element => {
+interface ReviewConsultationProps {
+  isPastConsultation?: boolean;
+}
+
+const ReviewConsultation = ({
+  isPastConsultation = false,
+}: ReviewConsultationProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const params = useParams();
   const doctorSignature = useAppSelector(selectDoctorSignature);
@@ -75,36 +81,45 @@ const ReviewConsultation = (): JSX.Element => {
         {/* Header Section */}
         <div className="from-primary/10 to-primary/5 flex flex-col gap-4 rounded-lg bg-gradient-to-r p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Consultation Review</h1>
+            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+              {isPastConsultation ? 'Consultation Summary' : 'Consultation Review'}
+            </h1>
             <p className="mt-1 text-xs text-gray-600 sm:text-sm">
-              Review all consultation details before finalizing
+              {isPastConsultation
+                ? 'Summary of completed consultation'
+                : 'Review all consultation details before finalizing'}
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:gap-4">
-            <div className="flex items-center justify-between space-x-2 rounded-md border bg-white px-3 py-2 sm:justify-start sm:px-4">
-              <Label htmlFor="signature" className="cursor-pointer text-xs font-medium sm:text-sm">
-                Digital Signature
-              </Label>
-              <Switch
-                checked={addSignature}
-                id="signature"
-                onCheckedChange={() => setAddSignature((prev) => !prev)}
+          {!isPastConsultation && (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:gap-4">
+              <div className="flex items-center justify-between space-x-2 rounded-md border bg-white px-3 py-2 sm:justify-start sm:px-4">
+                <Label
+                  htmlFor="signature"
+                  className="cursor-pointer text-xs font-medium sm:text-sm"
+                >
+                  Digital Signature
+                </Label>
+                <Switch
+                  checked={addSignature}
+                  id="signature"
+                  onCheckedChange={() => setAddSignature((prev) => !prev)}
+                />
+              </div>
+              <Button
+                variant="default"
+                onClick={() => sendPrescription()}
+                isLoading={isSendingPrescription}
+                disabled={isSendingPrescription}
+                className="w-full sm:w-auto"
+                child={
+                  <>
+                    <MailCheck className="mr-2 h-4 w-4" />
+                    <span>Send Prescription</span>
+                  </>
+                }
               />
             </div>
-            <Button
-              variant="default"
-              onClick={() => sendPrescription()}
-              isLoading={isSendingPrescription}
-              disabled={isSendingPrescription}
-              className="w-full sm:w-auto"
-              child={
-                <>
-                  <MailCheck className="mr-2 h-4 w-4" />
-                  <span>Send Prescription</span>
-                </>
-              }
-            />
-          </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

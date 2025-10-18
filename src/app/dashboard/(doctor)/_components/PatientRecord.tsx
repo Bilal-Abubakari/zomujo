@@ -12,11 +12,11 @@ import PatientLifestyleCard from '@/app/dashboard/_components/patient/patientLif
 import PatientAllergiesCard from '@/app/dashboard/_components/patient/patientAllergiesCard';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryParam } from '@/hooks/useQueryParam';
-import { setConsultationStatus } from '@/lib/features/appointments/consultation/consultationThunk';
-import { ConsultationStatus } from '@/types/consultation.interface';
+import { startConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
-import { useToast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
+import ExpiredConsultationView from './ExpiredConsultationView';
+import { FileText } from 'lucide-react';
 
 const PatientOverview = (): JSX.Element => {
   const recordId = useAppSelector(selectRecordId);
@@ -25,8 +25,8 @@ const PatientOverview = (): JSX.Element => {
   const patientId = params.id as string;
   const { getQueryParam } = useQueryParam();
   const dispatch = useAppDispatch();
-  const { toast } = useToast();
   const [isStartingConsultation, setIsStartingConsultation] = useState(false);
+  const [consultationExpired, setConsultationExpired] = useState(false);
 
   const redirectToConsultation = async (): Promise<void> => {
     const appointmentId = getQueryParam('appointmentId');
@@ -35,18 +35,34 @@ const PatientOverview = (): JSX.Element => {
     }
 
     setIsStartingConsultation(true);
-    const result = await dispatch(
-      setConsultationStatus({
-        appointmentId,
-        status: ConsultationStatus.Progress,
-      }),
-    ).unwrap();
-
+    const result = await dispatch(startConsultation(appointmentId)).unwrap();
     if (!showErrorToast(result)) {
       router.push(`/dashboard/consultation/${patientId}/${appointmentId}`);
+      return;
     }
-    toast(result);
+    setConsultationExpired(true);
   };
+
+  const handleViewPastConsultation = (): void => {
+    const appointmentId = getQueryParam('appointmentId');
+    if (appointmentId) {
+      router.push(`/dashboard/consultation/review?appointmentId=${appointmentId}`);
+    }
+  };
+
+  const handleGoBack = (): void => {
+    setConsultationExpired(false);
+    router.push('/dashboard/appointments');
+  };
+
+  if (consultationExpired) {
+    return (
+      <ExpiredConsultationView
+        onViewPastConsultation={handleViewPastConsultation}
+        onGoBack={handleGoBack}
+      />
+    );
+  }
 
   return (
     <div className="relative">
@@ -55,8 +71,19 @@ const PatientOverview = (): JSX.Element => {
       <div className="mb-6 flex flex-wrap gap-8 sm:justify-between">
         <span className="self-center text-xl font-bold">Patient Overview</span>
         {getQueryParam('appointmentId') && (
-          <div className="space-x-3">
-            <Button child="Refer to Specialist" variant="secondary" />
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={handleViewPastConsultation}
+              variant="outline"
+              child={
+                <>
+                  <FileText className="mr-2 h-4 w-4" />
+                  View Consultation
+                </>
+              }
+            />
+            {/*TODO: Not planned for the MVP*/}
+            {/*<Button child="Refer to Specialist" variant="secondary" />*/}
             <Button
               onClick={redirectToConsultation}
               child="Start Consultation"

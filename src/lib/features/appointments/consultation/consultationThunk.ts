@@ -5,7 +5,6 @@ import { IResponse } from '@/types/shared.interface';
 import { fetchSystemSymptoms } from './fetchSystemSymptoms';
 import { generateSuccessToast } from '@/lib/utils';
 import {
-  ConsultationStatusRequest,
   IConsultationDetails,
   IConsultationSymptoms,
   IDiagnosisRequest,
@@ -132,13 +131,27 @@ export const generatePrescription = createAsyncThunk(
   },
 );
 
-export const setConsultationStatus = createAsyncThunk(
-  'consultation/set-status',
-  async (consultationStatusRequest: ConsultationStatusRequest): Promise<Toast> => {
+export const startConsultation = createAsyncThunk(
+  'consultation/start-consultation',
+  async (id: string): Promise<Toast> => {
     try {
       const {
         data: { message },
-      } = await axios.patch<IResponse>(`consultation/set-status`, consultationStatusRequest);
+      } = await axios.patch<IResponse>(`consultation/start/${id}`);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const endConsultation = createAsyncThunk(
+  'consultation/end-consultation',
+  async (id: string): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.patch<IResponse>(`consultation/end-consultation/${id}`);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
