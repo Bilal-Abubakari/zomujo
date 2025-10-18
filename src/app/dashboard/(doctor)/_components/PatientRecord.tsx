@@ -12,8 +12,7 @@ import PatientLifestyleCard from '@/app/dashboard/_components/patient/patientLif
 import PatientAllergiesCard from '@/app/dashboard/_components/patient/patientAllergiesCard';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryParam } from '@/hooks/useQueryParam';
-import { setConsultationStatus } from '@/lib/features/appointments/consultation/consultationThunk';
-import { ConsultationStatus } from '@/types/consultation.interface';
+import { startConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { useToast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
@@ -35,13 +34,7 @@ const PatientOverview = (): JSX.Element => {
     }
 
     setIsStartingConsultation(true);
-    const result = await dispatch(
-      setConsultationStatus({
-        appointmentId,
-        status: ConsultationStatus.Progress,
-      }),
-    ).unwrap();
-
+    const result = await dispatch(startConsultation(appointmentId)).unwrap();
     if (!showErrorToast(result)) {
       router.push(`/dashboard/consultation/${patientId}/${appointmentId}`);
     }
