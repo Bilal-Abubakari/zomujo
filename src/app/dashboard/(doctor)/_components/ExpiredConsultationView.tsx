@@ -15,19 +15,16 @@ const ExpiredConsultationView = ({
   <div className="flex min-h-[600px] items-center justify-center p-6">
     <div className="w-full max-w-2xl">
       <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-800 dark:bg-gray-900">
-        {/* Icon */}
         <div className="mb-6 flex justify-center">
           <div className="rounded-full bg-amber-100 p-6 dark:bg-amber-900/30">
             <ClockIcon className="h-16 w-16 text-amber-600 dark:text-amber-400" />
           </div>
         </div>
 
-        {/* Heading */}
         <h2 className="mb-4 text-center text-3xl font-bold text-gray-900 dark:text-white">
           Consultation Session Expired
         </h2>
 
-        {/* Description */}
         <div className="mb-8 space-y-3 text-center">
           <p className="text-lg text-gray-700 dark:text-gray-300">
             It looks like this consultation session may have expired or already been completed.
@@ -49,17 +46,14 @@ const ExpiredConsultationView = ({
           </ul>
         </div>
 
-        {/* Divider */}
         <div className="mb-8 border-t border-gray-200 dark:border-gray-700"></div>
 
-        {/* Action Section */}
         <div className="space-y-4">
           <p className="text-center text-sm font-medium text-gray-900 dark:text-white">
             What would you like to do?
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            {/* View Past Consultation */}
             <Button
               onClick={onViewPastConsultation}
               className="flex-1 gap-2"
@@ -72,7 +66,6 @@ const ExpiredConsultationView = ({
               }
             />
 
-            {/* Go Back */}
             <Button
               onClick={onGoBack}
               variant="outline"
@@ -88,7 +81,6 @@ const ExpiredConsultationView = ({
           </div>
         </div>
 
-        {/* Help Text */}
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
           If you believe this is an error, please contact support or try refreshing the page.
         </p>
