@@ -75,7 +75,7 @@ const Doctors = (): JSX.Element => {
         ...filterInputs,
         page: 1,
       }));
-    }, 500);
+    }, 1000);
 
     return (): void => clearTimeout(timeoutId);
   }, [filterInputs]);
