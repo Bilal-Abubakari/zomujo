@@ -39,6 +39,16 @@ const Doctors = (): JSX.Element => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  const [filterInputs, setFilterInputs] = useState({
+    priceMin: '',
+    priceMax: getQueryParam('priceMax') || '',
+    experienceMin: '',
+    experienceMax: '',
+    rateMin: '',
+    rateMax: '',
+  });
+
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus>>({
     page: 1,
     orderDirection: OrderDirection.Descending,
@@ -56,6 +66,19 @@ const Doctors = (): JSX.Element => {
     rateMax: '',
     booking: true,
   });
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDoctors([]);
+      setQueryParameters((prev) => ({
+        ...prev,
+        ...filterInputs,
+        page: 1,
+      }));
+    }, 500);
+
+    return (): void => clearTimeout(timeoutId);
+  }, [filterInputs]);
 
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -133,13 +156,12 @@ const Doctors = (): JSX.Element => {
 
   function handleValueChange(event: ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
-    setDoctors([]);
-    setQueryParameters((prev) => ({
+    setFilterInputs((prev) => ({
       ...prev,
       [name]: value,
-      page: 1,
     }));
   }
+
   return (
     <>
       <div className="bg-grayscale-100 z-20 mb-6 flex w-full flex-col flex-wrap gap-2 rounded-md p-5 lg:sticky lg:top-0">
@@ -177,6 +199,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="priceMin"
+            value={filterInputs.priceMin}
             onChange={handleValueChange}
           />
           <Input
@@ -186,6 +209,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="priceMax"
+            value={filterInputs.priceMax}
             onChange={handleValueChange}
           />
           <Input
@@ -195,6 +219,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="rateMin"
+            value={filterInputs.rateMin}
             onChange={handleValueChange}
           />
           <Input
@@ -204,6 +229,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="rateMax"
+            value={filterInputs.rateMax}
             onChange={handleValueChange}
           />
           <Input
@@ -213,6 +239,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="experienceMin"
+            value={filterInputs.experienceMin}
             onChange={handleValueChange}
           />
           <Input
@@ -222,10 +249,14 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="experienceMax"
+            value={filterInputs.experienceMax}
             onChange={handleValueChange}
           />
           <Combobox
-            onChange={(value) => setQueryParameters((prev) => ({ ...prev, specialty: value }))}
+            onChange={(value) => {
+              setDoctors([]);
+              setQueryParameters((prev) => ({ ...prev, specialty: value, page: 1 }));
+            }}
             label="Specialty"
             options={[{ value: '', label: 'All' }, ...specialties]}
             value={queryParameters?.specialty ?? ''}
