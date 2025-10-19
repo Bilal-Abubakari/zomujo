@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
 import { AvatarGreetings } from '@/app/dashboard/_components/avatarGreetings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { JSX, useEffect, useMemo, useState, lazy, Suspense } from 'react';
+import { JSX, useEffect, useMemo, useState } from 'react';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { IDoctor } from '@/types/doctor.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -15,16 +16,22 @@ import { Suggested } from './_component/suggested';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 
-const SearchDoctorsCard = lazy(
+const SearchDoctorsCard = dynamic(
   () => import('@/app/dashboard/_components/patientHome/_component/searchDoctorCard'),
+  { loading: () => <LoadingCard />, ssr: false },
 );
-const UpcomingAppointmentCard = lazy(
+const UpcomingAppointmentCard = dynamic(
   () => import('@/app/dashboard/_components/patientHome/_component/upcomingAppointments'),
+  { loading: () => <LoadingCard />, ssr: false },
 );
-const PatientVitalsCard = lazy(
+const PatientVitalsCard = dynamic(
   () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
+  { loading: () => <LoadingCard />, ssr: false },
 );
-const DoctorCard = lazy(() => import('@/app/dashboard/(patient)/_components/doctorCard'));
+const DoctorCard = dynamic(() => import('@/app/dashboard/(patient)/_components/doctorCard'), {
+  loading: () => <LoadingCard />,
+  ssr: false,
+});
 
 const LoadingCard = (): JSX.Element => (
   <div className="flex items-center justify-center p-8">
@@ -71,11 +78,9 @@ const PatientHome = (): JSX.Element => {
     () => (
       <div className="mt-4">
         <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
-          <Suspense fallback={<LoadingCard />}>
-            {doctors.map((doctor) => (
-              <DoctorCard key={doctor.id} doctor={doctor} />
-            ))}
-          </Suspense>
+          {doctors.map((doctor) => (
+            <DoctorCard key={doctor.id} doctor={doctor} />
+          ))}
         </Suggested>
         {doctorSuggestions}
       </div>
@@ -88,13 +93,11 @@ const PatientHome = (): JSX.Element => {
       <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
         <Carousel className="w-full">
           <CarouselContent>
-            <Suspense fallback={<LoadingCard />}>
-              {doctors.map((doctor) => (
-                <CarouselItem key={doctor.id}>
-                  <DoctorCard key={doctor.id} doctor={doctor} />
-                </CarouselItem>
-              ))}
-            </Suspense>
+            {doctors.map((doctor) => (
+              <CarouselItem key={doctor.id}>
+                <DoctorCard key={doctor.id} doctor={doctor} />
+              </CarouselItem>
+            ))}
           </CarouselContent>
         </Carousel>
         {doctorSuggestions}
@@ -106,12 +109,8 @@ const PatientHome = (): JSX.Element => {
   const upcomingAppointments = useMemo(
     () => (
       <div className="space-y-6">
-        <Suspense fallback={<LoadingCard />}>
-          <UpcomingAppointmentCard />
-        </Suspense>
-        <Suspense fallback={<LoadingCard />}>
-          <PatientVitalsCard />
-        </Suspense>
+        <UpcomingAppointmentCard />
+        <PatientVitalsCard />
       </div>
     ),
     [],
@@ -166,9 +165,7 @@ const PatientHome = (): JSX.Element => {
       <AvatarGreetings />
       <div className="mt-[27px] w-full gap-6 md:flex">
         <div className="grow space-y-12">
-          <Suspense fallback={<LoadingCard />}>
-            <SearchDoctorsCard />
-          </Suspense>
+          <SearchDoctorsCard />
           <div className="flex w-full items-center justify-center md:hidden">
             <Tabs defaultValue="home" className="w-full text-center text-sm md:hidden">
               <TabsList>

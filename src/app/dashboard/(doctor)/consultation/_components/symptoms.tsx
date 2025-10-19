@@ -1,4 +1,5 @@
-import React, { JSX, useEffect, useMemo, useState, lazy, Suspense, useCallback } from 'react';
+import React, { JSX, useEffect, useMemo, useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   addConsultationSymptom,
@@ -29,11 +30,13 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-const SelectSymptoms = lazy(
+const SelectSymptoms = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/selectSymptoms'),
+  { loading: () => <LoadingFallback />, ssr: false },
 );
-const MedicationTaken = lazy(
+const MedicationTaken = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/medicationTaken'),
+  { loading: () => <LoadingFallback />, ssr: false },
 );
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -391,15 +394,13 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                 </AccordionTrigger>
                 <AccordionContent>
                   {expandedSections.includes(id) && (
-                    <Suspense fallback={<LoadingFallback />}>
-                      <SelectSymptoms
-                        symptoms={symptoms}
-                        id={id}
-                        control={control}
-                        setValue={setValue}
-                        selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
-                      />
-                    </Suspense>
+                    <SelectSymptoms
+                      symptoms={symptoms}
+                      id={id}
+                      control={control}
+                      setValue={setValue}
+                      selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
+                    />
                   )}
                 </AccordionContent>
               </AccordionItem>
@@ -407,9 +408,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           </Accordion>
         )}
         <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
-        <Suspense fallback={<LoadingFallback />}>
-          <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
-        </Suspense>
+        <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
         <div className="mt-20"></div>
         <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
           <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Go to Labs" />

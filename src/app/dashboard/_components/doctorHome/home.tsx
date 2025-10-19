@@ -1,11 +1,21 @@
-import React, { JSX, lazy, Suspense } from 'react';
+import React, { JSX } from 'react';
+import dynamic from 'next/dynamic';
 import { AvatarGreetings } from '../avatarGreetings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 
-const AppointmentPanel = lazy(() => import('../appointment/appointmentPanel'));
-const AppointmentRequestPanel = lazy(() => import('../appointment/appointmentRequestPanel'));
-const ManagedClientsPanel = lazy(() => import('../appointment/managedClientsPanel'));
+const AppointmentPanel = dynamic(() => import('../appointment/appointmentPanel'), {
+  loading: () => <LoadingFallback />,
+  ssr: false,
+});
+const AppointmentRequestPanel = dynamic(() => import('../appointment/appointmentRequestPanel'), {
+  loading: () => <LoadingFallback />,
+  ssr: false,
+});
+const ManagedClientsPanel = dynamic(() => import('../appointment/managedClientsPanel'), {
+  loading: () => <LoadingFallback />,
+  ssr: false,
+});
 
 const LoadingFallback = (): JSX.Element => (
   <div className="flex items-center justify-center p-8">
@@ -23,28 +33,18 @@ const DoctorHome = (): JSX.Element => (
           <TabsTrigger value="upcomingAppointments">Appointment Request</TabsTrigger>
         </TabsList>
         <TabsContent className="mt-6" value="appointment">
-          <Suspense fallback={<LoadingFallback />}>
-            <AppointmentPanel />
-          </Suspense>
+          <AppointmentPanel />
         </TabsContent>
         <TabsContent className="mt-6" value="upcomingAppointments">
-          <Suspense fallback={<LoadingFallback />}>
-            <AppointmentRequestPanel />
-          </Suspense>
+          <AppointmentRequestPanel />
         </TabsContent>
       </Tabs>
     </div>
     <div className="hidden w-full flex-row gap-4 md:flex">
-      <Suspense fallback={<LoadingFallback />}>
-        <AppointmentPanel />
-      </Suspense>
-      <Suspense fallback={<LoadingFallback />}>
-        <AppointmentRequestPanel />
-      </Suspense>
+      <AppointmentPanel />
+      <AppointmentRequestPanel />
     </div>
-    <Suspense fallback={<LoadingFallback />}>
-      <ManagedClientsPanel />
-    </Suspense>
+    <ManagedClientsPanel />
   </div>
 );
 

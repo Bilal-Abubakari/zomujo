@@ -1,5 +1,6 @@
 'use client';
-import { JSX, lazy, Suspense } from 'react';
+import { JSX } from 'react';
+import dynamic from 'next/dynamic';
 import Hero from '@/components/home/hero';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { useRouter } from 'next/navigation';
@@ -7,14 +8,38 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navigation } from '@/components/home/navigation';
 
-const Doctors = lazy(() => import('@/app/dashboard/(patient)/find-doctor/_components/doctors'));
-const Footer = lazy(() => import('@/components/home/footer'));
-const Statistics = lazy(() => import('./statistics'));
-const AvailableFeatures = lazy(() => import('./availableFeatures'));
-const SolutionsOffered = lazy(() => import('./solutionsOffered'));
-const HowItWorks = lazy(() => import('./howItWorks'));
-const Faq = lazy(() => import('./faq'));
-const InterestedProvider = lazy(() => import('./interestedProviders'));
+const Doctors = dynamic(() => import('@/app/dashboard/(patient)/find-doctor/_components/doctors'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const Footer = dynamic(() => import('@/components/home/footer'), {
+  loading: () => <MinimalFallback />,
+  ssr: false,
+});
+const Statistics = dynamic(() => import('./statistics'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const AvailableFeatures = dynamic(() => import('./availableFeatures'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const SolutionsOffered = dynamic(() => import('./solutionsOffered'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const HowItWorks = dynamic(() => import('./howItWorks'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const Faq = dynamic(() => import('./faq'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const InterestedProvider = dynamic(() => import('./interestedProviders'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
 
 const SectionFallback = (): JSX.Element => (
   <div className="flex items-center justify-center py-20">
@@ -52,36 +77,20 @@ export default function Home(): JSX.Element {
             />
             <Navigation />
           </div>
-          <Suspense fallback={<SectionFallback />}>
-            <Doctors />
-          </Suspense>
+          <Doctors />
         </div>
       ) : (
         <>
           <Hero />
-          <Suspense fallback={<SectionFallback />}>
-            <Statistics />
-          </Suspense>
-          <Suspense fallback={<SectionFallback />}>
-            <AvailableFeatures />
-          </Suspense>
-          <Suspense fallback={<SectionFallback />}>
-            <SolutionsOffered />
-          </Suspense>
-          <Suspense fallback={<SectionFallback />}>
-            <HowItWorks />
-          </Suspense>
-          <Suspense fallback={<SectionFallback />}>
-            <Faq />
-          </Suspense>
-          <Suspense fallback={<SectionFallback />}>
-            <InterestedProvider />
-          </Suspense>
+          <Statistics />
+          <AvailableFeatures />
+          <SolutionsOffered />
+          <HowItWorks />
+          <Faq />
+          <InterestedProvider />
         </>
       )}
-      <Suspense fallback={<MinimalFallback />}>
-        <Footer />
-      </Suspense>
+      <Footer />
     </div>
   );
 }

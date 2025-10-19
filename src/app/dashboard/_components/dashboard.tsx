@@ -3,11 +3,28 @@
 import { useAppSelector } from '@/lib/hooks';
 import { selectUserRole } from '@/lib/features/auth/authSelector';
 import { Role } from '@/types/shared.enum';
-import { JSX, lazy, Suspense } from 'react';
+import { JSX } from 'react';
+import dynamic from 'next/dynamic';
+import { Loader2 } from 'lucide-react';
 
-const PatientHome = lazy(() => import('@/app/dashboard/_components/patientHome/home'));
-const DoctorHome = lazy(() => import('@/app/dashboard/_components/doctorHome/home'));
-const AdminHome = lazy(() => import('@/app/dashboard/_components/adminHome/home'));
+const PatientHome = dynamic(() => import('@/app/dashboard/_components/patientHome/home'), {
+  loading: () => <DashboardFallback />,
+  ssr: false,
+});
+const DoctorHome = dynamic(() => import('@/app/dashboard/_components/doctorHome/home'), {
+  loading: () => <DashboardFallback />,
+  ssr: false,
+});
+const AdminHome = dynamic(() => import('@/app/dashboard/_components/adminHome/home'), {
+  loading: () => <DashboardFallback />,
+  ssr: false,
+});
+
+const DashboardFallback = (): JSX.Element => (
+  <div className="flex min-h-screen items-center justify-center">
+    <Loader2 className="animate-spin" size={32} />
+  </div>
+);
 
 const Dashboard = (): JSX.Element => {
   const role = useAppSelector(selectUserRole);
@@ -19,13 +36,7 @@ const Dashboard = (): JSX.Element => {
     [Role.SuperAdmin]: <AdminHome />,
   };
 
-  return (
-    <Suspense
-      fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}
-    >
-      {home[role!]}
-    </Suspense>
-  );
+  return home[role!];
 };
 
 export default Dashboard;

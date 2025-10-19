@@ -1,5 +1,6 @@
 'use client';
-import React, { JSX, useEffect, useState, lazy, Suspense } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Badge } from '@/components/ui/badge';
 import { ClockFading, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
@@ -22,16 +23,25 @@ import { Button } from '@/components/ui/button';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
 
-const Symptoms = lazy(() => import('@/app/dashboard/(doctor)/consultation/_components/symptoms'));
-const Labs = lazy(() => import('@/app/dashboard/(doctor)/consultation/_components/labs'));
-const DiagnosePrescribe = lazy(
+const Symptoms = dynamic(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/symptoms'),
+  { loading: () => <StageFallback />, ssr: false },
+);
+const Labs = dynamic(() => import('@/app/dashboard/(doctor)/consultation/_components/labs'), {
+  loading: () => <StageFallback />,
+  ssr: false,
+});
+const DiagnosePrescribe = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/diagnosePrescribe'),
+  { loading: () => <StageFallback />, ssr: false },
 );
-const ReviewConsultation = lazy(
+const ReviewConsultation = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation'),
+  { loading: () => <StageFallback />, ssr: false },
 );
-const ConsultationHistory = lazy(
+const ConsultationHistory = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/ConsultationHistory'),
+  { loading: () => <StageFallback />, ssr: false },
 );
 
 const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'];
@@ -92,36 +102,24 @@ const Consultation = (): JSX.Element => {
     switch (currentStage) {
       case 'labs':
         return (
-          <Suspense fallback={<StageFallback />}>
-            <Labs
-              goToDiagnoseAndPrescribe={() => setCurrentStage(stages[2])}
-              updateLabs={update}
-              setUpdateLabs={setUpdate}
-            />
-          </Suspense>
+          <Labs
+            goToDiagnoseAndPrescribe={() => setCurrentStage(stages[2])}
+            updateLabs={update}
+            setUpdateLabs={setUpdate}
+          />
         );
       case 'diagnose & prescribe':
         return (
-          <Suspense fallback={<StageFallback />}>
-            <DiagnosePrescribe
-              goToReview={() => setCurrentStage(stages[3])}
-              updateDiagnosis={update}
-              setUpdateDiagnosis={setUpdate}
-            />
-          </Suspense>
+          <DiagnosePrescribe
+            goToReview={() => setCurrentStage(stages[3])}
+            updateDiagnosis={update}
+            setUpdateDiagnosis={setUpdate}
+          />
         );
       case 'review':
-        return (
-          <Suspense fallback={<StageFallback />}>
-            <ReviewConsultation />
-          </Suspense>
-        );
+        return <ReviewConsultation />;
       default:
-        return (
-          <Suspense fallback={<StageFallback />}>
-            <Symptoms goToLabs={() => setCurrentStage(stages[1])} />
-          </Suspense>
-        );
+        return <Symptoms goToLabs={() => setCurrentStage(stages[1])} />;
     }
   };
 
@@ -170,9 +168,7 @@ const Consultation = (): JSX.Element => {
           </div>
           {hasEnded ? (
             <div className="mt-8">
-              <Suspense fallback={<StageFallback />}>
-                <ConsultationHistory />
-              </Suspense>
+              <ConsultationHistory />
             </div>
           ) : (
             <>

@@ -1,5 +1,6 @@
 'use client';
-import { JSX, useState, lazy, Suspense } from 'react';
+import { JSX, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
@@ -11,24 +12,33 @@ import { showErrorToast } from '@/lib/utils';
 import ExpiredConsultationView from './ExpiredConsultationView';
 import { FileText, Loader2 } from 'lucide-react';
 
-const PatientCard = lazy(() => import('@/app/dashboard/_components/patient/patientCard'));
-const PatientVitalsCard = lazy(
+const PatientCard = dynamic(() => import('@/app/dashboard/_components/patient/patientCard'), {
+  loading: () => <CardFallback />,
+  ssr: false,
+});
+const PatientVitalsCard = dynamic(
   () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
+  { loading: () => <CardFallback />, ssr: false },
 );
-const PatientConditionsCard = lazy(
+const PatientConditionsCard = dynamic(
   () => import('@/app/dashboard/_components/patient/patientConditionsCard'),
+  { loading: () => <CardFallback />, ssr: false },
 );
-const PatientSurgeriesCard = lazy(
+const PatientSurgeriesCard = dynamic(
   () => import('@/app/dashboard/_components/patient/patientSurgeriesCard'),
+  { loading: () => <CardFallback />, ssr: false },
 );
-const PatientFamilyMembersCard = lazy(
+const PatientFamilyMembersCard = dynamic(
   () => import('@/app/dashboard/_components/patient/PatientFamilyMembersCard'),
+  { loading: () => <CardFallback />, ssr: false },
 );
-const PatientLifestyleCard = lazy(
+const PatientLifestyleCard = dynamic(
   () => import('@/app/dashboard/_components/patient/patientLifestyleCard'),
+  { loading: () => <CardFallback />, ssr: false },
 );
-const PatientAllergiesCard = lazy(
+const PatientAllergiesCard = dynamic(
   () => import('@/app/dashboard/_components/patient/patientAllergiesCard'),
+  { loading: () => <CardFallback />, ssr: false },
 );
 
 const CardFallback = (): JSX.Element => (
@@ -113,31 +123,17 @@ const PatientOverview = (): JSX.Element => {
       </div>
       <div className="grid grid-cols-1 gap-4 justify-self-center md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
         <div className="space-y-4">
-          <Suspense fallback={<CardFallback />}>
-            <PatientCard />
-          </Suspense>
-          <Suspense fallback={<CardFallback />}>
-            <PatientSurgeriesCard recordId={recordId} />
-          </Suspense>
-          <Suspense fallback={<CardFallback />}>
-            <PatientAllergiesCard recordId={recordId} />
-          </Suspense>
+          <PatientCard />
+          <PatientSurgeriesCard recordId={recordId} />
+          <PatientAllergiesCard recordId={recordId} />
         </div>
         <div className="space-y-4">
-          <Suspense fallback={<CardFallback />}>
-            <PatientVitalsCard />
-          </Suspense>
-          <Suspense fallback={<CardFallback />}>
-            <PatientFamilyMembersCard recordId={recordId} />
-          </Suspense>
+          <PatientVitalsCard />
+          <PatientFamilyMembersCard recordId={recordId} />
         </div>
         <div className="space-y-4">
-          <Suspense fallback={<CardFallback />}>
-            <PatientConditionsCard recordId={recordId} />
-          </Suspense>
-          <Suspense fallback={<CardFallback />}>
-            <PatientLifestyleCard />
-          </Suspense>
+          <PatientConditionsCard recordId={recordId} />
+          <PatientLifestyleCard />
         </div>
       </div>
     </div>
