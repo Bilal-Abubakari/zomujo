@@ -69,40 +69,36 @@ const PatientHome = (): JSX.Element => {
 
   const suggest = useMemo(
     () => (
-      <>
-        <div className="mt-4">
-          <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
-            <Suspense fallback={<LoadingCard />}>
-              {doctors.map((doctor) => (
-                <DoctorCard key={doctor.id} doctor={doctor} />
-              ))}
-            </Suspense>
-          </Suggested>
-          {doctorSuggestions}
-        </div>
-      </>
+      <div className="mt-4">
+        <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
+          <Suspense fallback={<LoadingCard />}>
+            {doctors.map((doctor) => (
+              <DoctorCard key={doctor.id} doctor={doctor} />
+            ))}
+          </Suspense>
+        </Suggested>
+        {doctorSuggestions}
+      </div>
     ),
     [doctors, doctorSuggestions, findDoctorsLink],
   );
 
   const suggestSmallerScreen = useMemo(
     () => (
-      <>
-        <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
-          <Carousel className="w-full">
-            <CarouselContent>
-              <Suspense fallback={<LoadingCard />}>
-                {doctors.map((doctor) => (
-                  <CarouselItem key={doctor.id}>
-                    <DoctorCard key={doctor.id} doctor={doctor} />
-                  </CarouselItem>
-                ))}
-              </Suspense>
-            </CarouselContent>
-          </Carousel>
-          {doctorSuggestions}
-        </Suggested>
-      </>
+      <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
+        <Carousel className="w-full">
+          <CarouselContent>
+            <Suspense fallback={<LoadingCard />}>
+              {doctors.map((doctor) => (
+                <CarouselItem key={doctor.id}>
+                  <DoctorCard key={doctor.id} doctor={doctor} />
+                </CarouselItem>
+              ))}
+            </Suspense>
+          </CarouselContent>
+        </Carousel>
+        {doctorSuggestions}
+      </Suggested>
     ),
     [doctors, doctorSuggestions, findDoctorsLink],
   );
