@@ -1,9 +1,27 @@
 import React, { JSX } from 'react';
-import AppointmentPanel from '../appointment/appointmentPanel';
-import AppointmentRequestPanel from '../appointment/appointmentRequestPanel';
-import ManagedClientsPanel from '../appointment/managedClientsPanel';
+import dynamic from 'next/dynamic';
 import { AvatarGreetings } from '../avatarGreetings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2 } from 'lucide-react';
+
+const AppointmentPanel = dynamic(() => import('../appointment/appointmentPanel'), {
+  loading: () => <LoadingFallback />,
+  ssr: false,
+});
+const AppointmentRequestPanel = dynamic(() => import('../appointment/appointmentRequestPanel'), {
+  loading: () => <LoadingFallback />,
+  ssr: false,
+});
+const ManagedClientsPanel = dynamic(() => import('../appointment/managedClientsPanel'), {
+  loading: () => <LoadingFallback />,
+  ssr: false,
+});
+
+const LoadingFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center p-8">
+    <Loader2 className="animate-spin" size={24} />
+  </div>
+);
 
 const DoctorHome = (): JSX.Element => (
   <div>

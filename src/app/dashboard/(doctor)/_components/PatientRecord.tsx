@@ -1,22 +1,51 @@
 'use client';
 import { JSX, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import PatientCard from '@/app/dashboard/_components/patient/patientCard';
-import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
-import PatientConditionsCard from '@/app/dashboard/_components/patient/patientConditionsCard';
-import PatientSurgeriesCard from '@/app/dashboard/_components/patient/patientSurgeriesCard';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
-import PatientFamilyMembersCard from '@/app/dashboard/_components/patient/PatientFamilyMembersCard';
-import PatientLifestyleCard from '@/app/dashboard/_components/patient/patientLifestyleCard';
-import PatientAllergiesCard from '@/app/dashboard/_components/patient/patientAllergiesCard';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { startConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { showErrorToast } from '@/lib/utils';
 import ExpiredConsultationView from './ExpiredConsultationView';
-import { FileText } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
+
+const PatientCard = dynamic(() => import('@/app/dashboard/_components/patient/patientCard'), {
+  loading: () => <CardFallback />,
+  ssr: false,
+});
+const PatientVitalsCard = dynamic(
+  () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
+  { loading: () => <CardFallback />, ssr: false },
+);
+const PatientConditionsCard = dynamic(
+  () => import('@/app/dashboard/_components/patient/patientConditionsCard'),
+  { loading: () => <CardFallback />, ssr: false },
+);
+const PatientSurgeriesCard = dynamic(
+  () => import('@/app/dashboard/_components/patient/patientSurgeriesCard'),
+  { loading: () => <CardFallback />, ssr: false },
+);
+const PatientFamilyMembersCard = dynamic(
+  () => import('@/app/dashboard/_components/patient/PatientFamilyMembersCard'),
+  { loading: () => <CardFallback />, ssr: false },
+);
+const PatientLifestyleCard = dynamic(
+  () => import('@/app/dashboard/_components/patient/patientLifestyleCard'),
+  { loading: () => <CardFallback />, ssr: false },
+);
+const PatientAllergiesCard = dynamic(
+  () => import('@/app/dashboard/_components/patient/patientAllergiesCard'),
+  { loading: () => <CardFallback />, ssr: false },
+);
+
+const CardFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center rounded-lg border border-gray-200 p-8">
+    <Loader2 className="animate-spin" size={24} />
+  </div>
+);
 
 const PatientOverview = (): JSX.Element => {
   const recordId = useAppSelector(selectRecordId);

@@ -151,7 +151,6 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         footer={
           <div className="mt-4 ml-auto flex justify-end gap-x-4">
             <Button
-              isLoading={isInitiatingPayment}
               onClick={() => setShowSlots(false)}
               variant="outline"
               className="mr-3"

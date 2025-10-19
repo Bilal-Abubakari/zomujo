@@ -1,19 +1,57 @@
 'use client';
 import { JSX } from 'react';
+import dynamic from 'next/dynamic';
 import Hero from '@/components/home/hero';
-import Footer from '@/components/home/footer';
 import { useQueryParam } from '@/hooks/useQueryParam';
-import Doctors from '@/app/dashboard/(patient)/find-doctor/_components/doctors';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navigation } from '@/components/home/navigation';
-import Statistics from './statistics';
-import AvailableFeatures from './availableFeatures';
-import SolutionsOffered from './solutionsOffered';
-import HowItWorks from './howItWorks';
-import Faq from './faq';
-import InterestedProvider from './interestedProviders';
+
+const Doctors = dynamic(() => import('@/app/dashboard/(patient)/find-doctor/_components/doctors'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const Footer = dynamic(() => import('@/components/home/footer'), {
+  loading: () => <MinimalFallback />,
+  ssr: false,
+});
+const Statistics = dynamic(() => import('./statistics'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const AvailableFeatures = dynamic(() => import('./availableFeatures'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const SolutionsOffered = dynamic(() => import('./solutionsOffered'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const HowItWorks = dynamic(() => import('./howItWorks'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const Faq = dynamic(() => import('./faq'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+const InterestedProvider = dynamic(() => import('./interestedProviders'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
+
+const SectionFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center py-20">
+    <Loader2 className="animate-spin" size={32} />
+  </div>
+);
+
+const MinimalFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center py-4">
+    <Loader2 className="animate-spin" size={24} />
+  </div>
+);
 
 export default function Home(): JSX.Element {
   const { hasSearchParams } = useQueryParam();
@@ -43,7 +81,6 @@ export default function Home(): JSX.Element {
         </div>
       ) : (
         <>
-          {' '}
           <Hero />
           <Statistics />
           <AvailableFeatures />

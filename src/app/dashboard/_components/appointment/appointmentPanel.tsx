@@ -14,6 +14,8 @@ import { toast } from '@/hooks/use-toast';
 import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { AppointmentDate, useQueryParam } from '@/hooks/useQueryParam';
+import { INotification, NotificationEvent } from '@/types/notification.interface';
+import useWebSocket from '@/hooks/useWebSocket';
 
 type AppointmentProps = {
   customClass?: string;
@@ -24,6 +26,7 @@ type StatusProps = {
 };
 
 const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
+  const { on } = useWebSocket();
   const [loading, setLoading] = useState(false);
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
@@ -46,6 +49,14 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
     pageSize: 100,
   });
   const [upcomingAppointment, setUpcomingAppointment] = useState<IAppointment[]>([]);
+
+  on(NotificationEvent.NewRequest, (data: unknown) => {
+    const notification = data as INotification;
+    setUpcomingAppointment((prev) => [
+      notification.payload.appointment,
+      ...prev.filter((req) => req.id !== notification.payload.appointment.id),
+    ]);
+  });
 
   useEffect(() => {
     async function getUpcomingAppointments(): Promise<void> {

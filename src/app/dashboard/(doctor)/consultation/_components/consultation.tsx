@@ -1,11 +1,9 @@
 'use client';
 import React, { JSX, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Badge } from '@/components/ui/badge';
-import { ClockFading, CheckCircle, Clock } from 'lucide-react';
+import { ClockFading, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
-import Symptoms from '@/app/dashboard/(doctor)/consultation/_components/symptoms';
-import Labs from '@/app/dashboard/(doctor)/consultation/_components/labs';
-import DiagnosePrescribe from '@/app/dashboard/(doctor)/consultation/_components/diagnosePrescribe';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   getConsultationAppointment,
@@ -21,11 +19,30 @@ import {
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
-import ReviewConsultation from '@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation';
 import { Button } from '@/components/ui/button';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
-import ConsultationHistory from '@/app/dashboard/(doctor)/consultation/_components/ConsultationHistory';
+
+const Symptoms = dynamic(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/symptoms'),
+  { loading: () => <StageFallback />, ssr: false },
+);
+const Labs = dynamic(() => import('@/app/dashboard/(doctor)/consultation/_components/labs'), {
+  loading: () => <StageFallback />,
+  ssr: false,
+});
+const DiagnosePrescribe = dynamic(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/diagnosePrescribe'),
+  { loading: () => <StageFallback />, ssr: false },
+);
+const ReviewConsultation = dynamic(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation'),
+  { loading: () => <StageFallback />, ssr: false },
+);
+const ConsultationHistory = dynamic(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/ConsultationHistory'),
+  { loading: () => <StageFallback />, ssr: false },
+);
 
 const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'];
 
@@ -52,6 +69,12 @@ const getStatusIcon = (status: string | undefined): JSX.Element => {
       return <Clock className="mr-1" />;
   }
 };
+
+const StageFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center p-12">
+    <Loader2 className="animate-spin" size={32} />
+  </div>
+);
 
 const Consultation = (): JSX.Element => {
   const [isLoadingConsultation, setIsLoadingConsultation] = useState(true);
