@@ -137,7 +137,7 @@ const CreateTimeSlots = (): JSX.Element => {
                 <Lightbulb size={16} className="mt-0.5 flex-shrink-0 text-amber-600" />
                 <div className="space-y-1">
                   {tips.map((tip, idx) => (
-                    <p key={idx} className="text-xs text-gray-600">
+                    <p key={`${idx}-${tip}`} className="text-xs text-gray-600">
                       {tip}
                     </p>
                   ))}

@@ -69,67 +69,94 @@ const Doctors = (): JSX.Element => {
     booking: true,
   });
 
+  const validateAndCorrectPrice = (
+    field: 'priceMin' | 'priceMax',
+    value: string,
+    currentFilters: typeof filterInputs,
+  ): { corrected: typeof filterInputs; needsCorrection: boolean } => {
+    if (!value) {
+      return { corrected: currentFilters, needsCorrection: false };
+    }
+
+    const numValue = Number.parseFloat(value);
+    if (Number.isNaN(numValue)) {
+      return { corrected: currentFilters, needsCorrection: false };
+    }
+
+    const fieldLabel = field === 'priceMin' ? 'minimum' : 'maximum';
+
+    if (numValue < MIN_AMOUNT) {
+      toast({
+        title: 'Price Auto-Corrected',
+        description: `The ${fieldLabel} price cannot be less than GHS ${MIN_AMOUNT}.`,
+        variant: 'default',
+      });
+      return {
+        corrected: { ...currentFilters, [field]: MIN_AMOUNT.toString() },
+        needsCorrection: true,
+      };
+    }
+
+    if (numValue > MAX_AMOUNT) {
+      toast({
+        title: 'Price Auto-Corrected',
+        description: `The ${fieldLabel} price cannot exceed GHS ${MAX_AMOUNT}.`,
+        variant: 'default',
+      });
+      return {
+        corrected: { ...currentFilters, [field]: MAX_AMOUNT.toString() },
+        needsCorrection: true,
+      };
+    }
+
+    return { corrected: currentFilters, needsCorrection: false };
+  };
+
+  const validateAllPrices = (
+    filters: typeof filterInputs,
+  ): { correctedFilters: typeof filterInputs; needsCorrection: boolean } => {
+    let correctedFilters = { ...filters };
+    let needsCorrection = false;
+
+    for (const field of ['priceMin', 'priceMax'] as const) {
+      const result = validateAndCorrectPrice(field, filters[field], correctedFilters);
+      correctedFilters = result.corrected;
+      needsCorrection = needsCorrection || result.needsCorrection;
+    }
+
+    return { correctedFilters, needsCorrection };
+  };
+
+  const hasFiltersChanged = (newFilters: typeof filterInputs): boolean =>
+    Object.keys(newFilters).some(
+      (key) => newFilters[key as keyof typeof newFilters] !== previousFiltersRef.current[key],
+    );
+
+  const applyFilterChanges = (correctedFilters: typeof filterInputs): void => {
+    previousFiltersRef.current = { ...correctedFilters };
+    setDoctors([]);
+    setQueryParameters((prev) => ({
+      ...prev,
+      ...correctedFilters,
+      page: 1,
+    }));
+  };
+
   useEffect(() => {
     if (validationTimeoutRef.current) {
       clearTimeout(validationTimeoutRef.current);
     }
 
     validationTimeoutRef.current = setTimeout(() => {
-      let correctedFilters = { ...filterInputs };
-      let needsCorrection = false;
-
-      for (const field of ['priceMin', 'priceMax']) {
-        const value = correctedFilters[field as keyof typeof filterInputs];
-        if (value) {
-          const numValue = Number.parseFloat(value);
-
-          if (!Number.isNaN(numValue)) {
-            if (numValue < MIN_AMOUNT) {
-              correctedFilters = {
-                ...correctedFilters,
-                [field]: MIN_AMOUNT.toString(),
-              };
-              needsCorrection = true;
-              toast({
-                title: 'Price Auto-Corrected',
-                description: `The ${field === 'priceMin' ? 'minimum' : 'maximum'} price cannot be less than GHS ${MIN_AMOUNT}.`,
-                variant: 'default',
-              });
-            } else if (numValue > MAX_AMOUNT) {
-              correctedFilters = {
-                ...correctedFilters,
-                [field]: MAX_AMOUNT.toString(),
-              };
-              needsCorrection = true;
-              toast({
-                title: 'Price Auto-Corrected',
-                description: `The ${field === 'priceMin' ? 'minimum' : 'maximum'} price cannot exceed GHS ${MAX_AMOUNT}.`,
-                variant: 'default',
-              });
-            }
-          }
-        }
-      }
+      const { correctedFilters, needsCorrection } = validateAllPrices(filterInputs);
 
       if (needsCorrection) {
         setFilterInputs(correctedFilters);
         return;
       }
 
-      const hasChanged = Object.keys(correctedFilters).some(
-        (key) =>
-          correctedFilters[key as keyof typeof correctedFilters] !==
-          previousFiltersRef.current[key],
-      );
-
-      if (hasChanged) {
-        previousFiltersRef.current = { ...correctedFilters };
-        setDoctors([]);
-        setQueryParameters((prev) => ({
-          ...prev,
-          ...correctedFilters,
-          page: 1,
-        }));
+      if (hasFiltersChanged(correctedFilters)) {
+        applyFilterChanges(correctedFilters);
       }
     }, 1000);
 
@@ -140,21 +167,26 @@ const Doctors = (): JSX.Element => {
     };
   }, [filterInputs]);
 
+  const canLoadMorePages = (): boolean => {
+    if (!queryParameters?.page || !paginationData) {
+      return false;
+    }
+    return queryParameters.page < paginationData.totalPages;
+  };
+
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       const target = entries[0];
-      if (queryParameters?.page) {
-        const hasMorePages = paginationData && queryParameters.page < paginationData?.totalPages;
-        const canLoadMore = target.isIntersecting && hasMorePages && !isLoading;
-        if (canLoadMore) {
-          setQueryParameters((prev) => ({
-            ...prev,
-            page: (prev.page ?? 0) + 1,
-          }));
-        }
+      const canLoadMore = target.isIntersecting && canLoadMorePages() && !isLoading;
+
+      if (canLoadMore) {
+        setQueryParameters((prev) => ({
+          ...prev,
+          page: (prev.page ?? 0) + 1,
+        }));
       }
     },
-    [paginationData, queryParameters],
+    [paginationData, queryParameters, isLoading],
   );
 
   useEffect(() => {
