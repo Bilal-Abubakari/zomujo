@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/select';
-import { specialties } from '@/constants/constants';
+import { MAX_AMOUNT, MIN_AMOUNT, specialties } from '@/constants/constants';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 
@@ -59,14 +59,14 @@ const SearchDoctorsCard = (): JSX.Element => {
             onValueChange={(value) =>
               setParams((prev) => ({ ...prev, priceMax: String(value[0]) }))
             }
-            min={80}
-            max={10000}
+            min={MIN_AMOUNT}
+            max={MAX_AMOUNT}
             step={10}
             className="mt-4"
           />
           <div className="absolute mt-2 flex h-5 items-center justify-center rounded-full bg-gray-500 px-2.5">
             <p className="text-xs font-medium text-black">
-              GHS {Number(params.priceMax || 80).toLocaleString()}{' '}
+              GHS {Number(params.priceMax || MIN_AMOUNT).toLocaleString()}{' '}
             </p>
           </div>
         </div>

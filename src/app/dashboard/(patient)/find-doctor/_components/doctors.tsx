@@ -24,7 +24,7 @@ import React, {
   useState,
 } from 'react';
 import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
-import { genderOptions, specialties } from '@/constants/constants';
+import { genderOptions, MAX_AMOUNT, MIN_AMOUNT, specialties } from '@/constants/constants';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
 import { Combobox } from '@/components/ui/select';
@@ -39,6 +39,8 @@ const Doctors = (): JSX.Element => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const previousFiltersRef = useRef<Record<string, string>>({});
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [filterInputs, setFilterInputs] = useState({
     priceMin: '',
@@ -68,16 +70,74 @@ const Doctors = (): JSX.Element => {
   });
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setDoctors([]);
-      setQueryParameters((prev) => ({
-        ...prev,
-        ...filterInputs,
-        page: 1,
-      }));
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+
+    validationTimeoutRef.current = setTimeout(() => {
+      let correctedFilters = { ...filterInputs };
+      let needsCorrection = false;
+
+      ['priceMin', 'priceMax'].forEach((field) => {
+        const value = correctedFilters[field as keyof typeof filterInputs];
+        if (value) {
+          const numValue = parseFloat(value);
+
+          if (!isNaN(numValue)) {
+            if (numValue < MIN_AMOUNT) {
+              correctedFilters = {
+                ...correctedFilters,
+                [field]: MIN_AMOUNT.toString(),
+              };
+              needsCorrection = true;
+              toast({
+                title: 'Price Auto-Corrected',
+                description: `The ${field === 'priceMin' ? 'minimum' : 'maximum'} price cannot be less than GHS ${MIN_AMOUNT}.`,
+                variant: 'default',
+              });
+            } else if (numValue > MAX_AMOUNT) {
+              correctedFilters = {
+                ...correctedFilters,
+                [field]: MAX_AMOUNT.toString(),
+              };
+              needsCorrection = true;
+              toast({
+                title: 'Price Auto-Corrected',
+                description: `The ${field === 'priceMin' ? 'minimum' : 'maximum'} price cannot exceed GHS ${MAX_AMOUNT}.`,
+                variant: 'default',
+              });
+            }
+          }
+        }
+      });
+
+      if (needsCorrection) {
+        setFilterInputs(correctedFilters);
+        return;
+      }
+
+      const hasChanged = Object.keys(correctedFilters).some(
+        (key) =>
+          correctedFilters[key as keyof typeof correctedFilters] !==
+          previousFiltersRef.current[key],
+      );
+
+      if (hasChanged) {
+        previousFiltersRef.current = { ...correctedFilters };
+        setDoctors([]);
+        setQueryParameters((prev) => ({
+          ...prev,
+          ...correctedFilters,
+          page: 1,
+        }));
+      }
     }, 1000);
 
-    return (): void => clearTimeout(timeoutId);
+    return (): void => {
+      if (validationTimeoutRef.current) {
+        clearTimeout(validationTimeoutRef.current);
+      }
+    };
   }, [filterInputs]);
 
   const observerCallback = useCallback(
@@ -156,6 +216,7 @@ const Doctors = (): JSX.Element => {
 
   function handleValueChange(event: ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
+
     setFilterInputs((prev) => ({
       ...prev,
       [name]: value,
@@ -194,21 +255,25 @@ const Doctors = (): JSX.Element => {
         <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-wrap gap-4 lg:flex`}>
           <Input
             labelName="Min Price"
-            placeholder="GHS 100"
+            placeholder={`GHS ${MIN_AMOUNT}`}
             wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="priceMin"
+            min={MIN_AMOUNT}
+            max={MAX_AMOUNT}
             value={filterInputs.priceMin}
             onChange={handleValueChange}
           />
           <Input
             labelName="Max Price"
-            placeholder="GHS 1000"
+            placeholder={`GHS ${MAX_AMOUNT}`}
             wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="priceMax"
+            min={MIN_AMOUNT}
+            max={MAX_AMOUNT}
             value={filterInputs.priceMax}
             onChange={handleValueChange}
           />

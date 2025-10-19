@@ -23,6 +23,8 @@ export const PIXELS_PER_HOUR = 60;
 export const TWELVE_HOUR_SYSTEM = 12;
 export const METERS_TO_KM_FACTOR = 1000;
 export const MAX_RADIUS_IN_KM = 30;
+export const MIN_AMOUNT = 70;
+export const MAX_AMOUNT = 400;
 
 export const DAYS_OF_WEEK = [
   'Monday',

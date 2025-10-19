@@ -13,12 +13,11 @@ import { AsyncThunkAction } from '@reduxjs/toolkit';
 import { useRouter } from 'next/navigation';
 import { dataCompletionToast, sliderPosition } from '@/lib/utils';
 import { PaymentTab } from '@/hooks/useQueryParam';
+import { MAX_AMOUNT, MIN_AMOUNT } from '@/constants/constants';
 
 const Pricing = (): JSX.Element => {
   const router = useRouter();
   const doctorInfo = useAppSelector(selectExtra) as IDoctor;
-  const MIN_AMOUNT = 20;
-  const MAX_AMOUNT = 10000;
 
   const MIN_SESSION = 30;
   const MAX_SESSION = 120;
