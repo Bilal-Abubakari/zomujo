@@ -3,10 +3,11 @@
 import { useAppSelector } from '@/lib/hooks';
 import { selectUserRole } from '@/lib/features/auth/authSelector';
 import { Role } from '@/types/shared.enum';
-import PatientHome from '@/app/dashboard/_components/patientHome/home';
-import { JSX } from 'react';
-import DoctorHome from '@/app/dashboard/_components/doctorHome/home';
-import AdminHome from '@/app/dashboard/_components/adminHome/home';
+import { JSX, lazy, Suspense } from 'react';
+
+const PatientHome = lazy(() => import('@/app/dashboard/_components/patientHome/home'));
+const DoctorHome = lazy(() => import('@/app/dashboard/_components/doctorHome/home'));
+const AdminHome = lazy(() => import('@/app/dashboard/_components/adminHome/home'));
 
 const Dashboard = (): JSX.Element => {
   const role = useAppSelector(selectUserRole);
@@ -18,7 +19,11 @@ const Dashboard = (): JSX.Element => {
     [Role.SuperAdmin]: <AdminHome />,
   };
 
-  return <>{home[role!]}</>;
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      {home[role!]}
+    </Suspense>
+  );
 };
 
 export default Dashboard;

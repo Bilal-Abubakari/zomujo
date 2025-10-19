@@ -1,19 +1,32 @@
 'use client';
-import { JSX } from 'react';
+import { JSX, lazy, Suspense } from 'react';
 import Hero from '@/components/home/hero';
-import Footer from '@/components/home/footer';
 import { useQueryParam } from '@/hooks/useQueryParam';
-import Doctors from '@/app/dashboard/(patient)/find-doctor/_components/doctors';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navigation } from '@/components/home/navigation';
-import Statistics from './statistics';
-import AvailableFeatures from './availableFeatures';
-import SolutionsOffered from './solutionsOffered';
-import HowItWorks from './howItWorks';
-import Faq from './faq';
-import InterestedProvider from './interestedProviders';
+
+const Doctors = lazy(() => import('@/app/dashboard/(patient)/find-doctor/_components/doctors'));
+const Footer = lazy(() => import('@/components/home/footer'));
+const Statistics = lazy(() => import('./statistics'));
+const AvailableFeatures = lazy(() => import('./availableFeatures'));
+const SolutionsOffered = lazy(() => import('./solutionsOffered'));
+const HowItWorks = lazy(() => import('./howItWorks'));
+const Faq = lazy(() => import('./faq'));
+const InterestedProvider = lazy(() => import('./interestedProviders'));
+
+const SectionFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center py-20">
+    <Loader2 className="animate-spin" size={32} />
+  </div>
+);
+
+const MinimalFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center py-4">
+    <Loader2 className="animate-spin" size={24} />
+  </div>
+);
 
 export default function Home(): JSX.Element {
   const { hasSearchParams } = useQueryParam();
@@ -39,21 +52,36 @@ export default function Home(): JSX.Element {
             />
             <Navigation />
           </div>
-          <Doctors />
+          <Suspense fallback={<SectionFallback />}>
+            <Doctors />
+          </Suspense>
         </div>
       ) : (
         <>
-          {' '}
           <Hero />
-          <Statistics />
-          <AvailableFeatures />
-          <SolutionsOffered />
-          <HowItWorks />
-          <Faq />
-          <InterestedProvider />
+          <Suspense fallback={<SectionFallback />}>
+            <Statistics />
+          </Suspense>
+          <Suspense fallback={<SectionFallback />}>
+            <AvailableFeatures />
+          </Suspense>
+          <Suspense fallback={<SectionFallback />}>
+            <SolutionsOffered />
+          </Suspense>
+          <Suspense fallback={<SectionFallback />}>
+            <HowItWorks />
+          </Suspense>
+          <Suspense fallback={<SectionFallback />}>
+            <Faq />
+          </Suspense>
+          <Suspense fallback={<SectionFallback />}>
+            <InterestedProvider />
+          </Suspense>
         </>
       )}
-      <Footer />
+      <Suspense fallback={<MinimalFallback />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

@@ -1,22 +1,41 @@
 'use client';
-import { JSX, useState } from 'react';
+import { JSX, useState, lazy, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import PatientCard from '@/app/dashboard/_components/patient/patientCard';
-import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
-import PatientConditionsCard from '@/app/dashboard/_components/patient/patientConditionsCard';
-import PatientSurgeriesCard from '@/app/dashboard/_components/patient/patientSurgeriesCard';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
-import PatientFamilyMembersCard from '@/app/dashboard/_components/patient/PatientFamilyMembersCard';
-import PatientLifestyleCard from '@/app/dashboard/_components/patient/patientLifestyleCard';
-import PatientAllergiesCard from '@/app/dashboard/_components/patient/patientAllergiesCard';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { startConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { showErrorToast } from '@/lib/utils';
 import ExpiredConsultationView from './ExpiredConsultationView';
-import { FileText } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
+
+const PatientCard = lazy(() => import('@/app/dashboard/_components/patient/patientCard'));
+const PatientVitalsCard = lazy(
+  () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
+);
+const PatientConditionsCard = lazy(
+  () => import('@/app/dashboard/_components/patient/patientConditionsCard'),
+);
+const PatientSurgeriesCard = lazy(
+  () => import('@/app/dashboard/_components/patient/patientSurgeriesCard'),
+);
+const PatientFamilyMembersCard = lazy(
+  () => import('@/app/dashboard/_components/patient/PatientFamilyMembersCard'),
+);
+const PatientLifestyleCard = lazy(
+  () => import('@/app/dashboard/_components/patient/patientLifestyleCard'),
+);
+const PatientAllergiesCard = lazy(
+  () => import('@/app/dashboard/_components/patient/patientAllergiesCard'),
+);
+
+const CardFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center rounded-lg border border-gray-200 p-8">
+    <Loader2 className="animate-spin" size={24} />
+  </div>
+);
 
 const PatientOverview = (): JSX.Element => {
   const recordId = useAppSelector(selectRecordId);
@@ -94,17 +113,31 @@ const PatientOverview = (): JSX.Element => {
       </div>
       <div className="grid grid-cols-1 gap-4 justify-self-center md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
         <div className="space-y-4">
-          <PatientCard />
-          <PatientSurgeriesCard recordId={recordId} />
-          <PatientAllergiesCard recordId={recordId} />
+          <Suspense fallback={<CardFallback />}>
+            <PatientCard />
+          </Suspense>
+          <Suspense fallback={<CardFallback />}>
+            <PatientSurgeriesCard recordId={recordId} />
+          </Suspense>
+          <Suspense fallback={<CardFallback />}>
+            <PatientAllergiesCard recordId={recordId} />
+          </Suspense>
         </div>
         <div className="space-y-4">
-          <PatientVitalsCard />
-          <PatientFamilyMembersCard recordId={recordId} />
+          <Suspense fallback={<CardFallback />}>
+            <PatientVitalsCard />
+          </Suspense>
+          <Suspense fallback={<CardFallback />}>
+            <PatientFamilyMembersCard recordId={recordId} />
+          </Suspense>
         </div>
         <div className="space-y-4">
-          <PatientConditionsCard recordId={recordId} />
-          <PatientLifestyleCard />
+          <Suspense fallback={<CardFallback />}>
+            <PatientConditionsCard recordId={recordId} />
+          </Suspense>
+          <Suspense fallback={<CardFallback />}>
+            <PatientLifestyleCard />
+          </Suspense>
         </div>
       </div>
     </div>

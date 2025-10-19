@@ -1,11 +1,8 @@
 'use client';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect, useState, lazy, Suspense } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { ClockFading, CheckCircle, Clock } from 'lucide-react';
+import { ClockFading, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
-import Symptoms from '@/app/dashboard/(doctor)/consultation/_components/symptoms';
-import Labs from '@/app/dashboard/(doctor)/consultation/_components/labs';
-import DiagnosePrescribe from '@/app/dashboard/(doctor)/consultation/_components/diagnosePrescribe';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   getConsultationAppointment,
@@ -21,11 +18,21 @@ import {
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
-import ReviewConsultation from '@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation';
 import { Button } from '@/components/ui/button';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
-import ConsultationHistory from '@/app/dashboard/(doctor)/consultation/_components/ConsultationHistory';
+
+const Symptoms = lazy(() => import('@/app/dashboard/(doctor)/consultation/_components/symptoms'));
+const Labs = lazy(() => import('@/app/dashboard/(doctor)/consultation/_components/labs'));
+const DiagnosePrescribe = lazy(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/diagnosePrescribe'),
+);
+const ReviewConsultation = lazy(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation'),
+);
+const ConsultationHistory = lazy(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/ConsultationHistory'),
+);
 
 const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'];
 
@@ -53,6 +60,12 @@ const getStatusIcon = (status: string | undefined): JSX.Element => {
   }
 };
 
+const StageFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center p-12">
+    <Loader2 className="animate-spin" size={32} />
+  </div>
+);
+
 const Consultation = (): JSX.Element => {
   const [isLoadingConsultation, setIsLoadingConsultation] = useState(true);
   const router = useRouter();
@@ -79,24 +92,36 @@ const Consultation = (): JSX.Element => {
     switch (currentStage) {
       case 'labs':
         return (
-          <Labs
-            goToDiagnoseAndPrescribe={() => setCurrentStage(stages[2])}
-            updateLabs={update}
-            setUpdateLabs={setUpdate}
-          />
+          <Suspense fallback={<StageFallback />}>
+            <Labs
+              goToDiagnoseAndPrescribe={() => setCurrentStage(stages[2])}
+              updateLabs={update}
+              setUpdateLabs={setUpdate}
+            />
+          </Suspense>
         );
       case 'diagnose & prescribe':
         return (
-          <DiagnosePrescribe
-            goToReview={() => setCurrentStage(stages[3])}
-            updateDiagnosis={update}
-            setUpdateDiagnosis={setUpdate}
-          />
+          <Suspense fallback={<StageFallback />}>
+            <DiagnosePrescribe
+              goToReview={() => setCurrentStage(stages[3])}
+              updateDiagnosis={update}
+              setUpdateDiagnosis={setUpdate}
+            />
+          </Suspense>
         );
       case 'review':
-        return <ReviewConsultation />;
+        return (
+          <Suspense fallback={<StageFallback />}>
+            <ReviewConsultation />
+          </Suspense>
+        );
       default:
-        return <Symptoms goToLabs={() => setCurrentStage(stages[1])} />;
+        return (
+          <Suspense fallback={<StageFallback />}>
+            <Symptoms goToLabs={() => setCurrentStage(stages[1])} />
+          </Suspense>
+        );
     }
   };
 
@@ -145,7 +170,9 @@ const Consultation = (): JSX.Element => {
           </div>
           {hasEnded ? (
             <div className="mt-8">
-              <ConsultationHistory />
+              <Suspense fallback={<StageFallback />}>
+                <ConsultationHistory />
+              </Suspense>
             </div>
           ) : (
             <>

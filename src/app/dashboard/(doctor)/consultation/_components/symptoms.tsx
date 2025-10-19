@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useMemo, useState } from 'react';
+import React, { JSX, useEffect, useMemo, useState, lazy, Suspense, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   addConsultationSymptom,
@@ -15,18 +15,33 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import {
   IConsultationSymptomsHFC,
   IConsultationSymptomsRequest,
+  IPatientSymptom,
   ISymptomMap,
   SymptomsType,
 } from '@/types/consultation.interface';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
-import SelectSymptoms from '@/app/dashboard/(doctor)/consultation/_components/selectSymptoms';
+import { Loader2 } from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+
+const SelectSymptoms = lazy(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/selectSymptoms'),
+);
+const MedicationTaken = lazy(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/medicationTaken'),
+);
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DurationType } from '@/types/shared.enum';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
 import Loading from '@/components/loadingOverlay/loading';
-import MedicationTaken from '@/app/dashboard/(doctor)/consultation/_components/medicationTaken';
+
 import { useParams } from 'next/navigation';
 import { selectSymptoms } from '@/lib/features/appointments/appointmentSelector';
 import _ from 'lodash';
@@ -100,6 +115,12 @@ type SymptomsProps = {
   goToLabs: () => void;
 };
 
+const LoadingFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center p-8">
+    <Loader2 className="animate-spin" size={24} />
+  </div>
+);
+
 const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
   const [isLoading, setIsLoading] = useState(false);
@@ -124,6 +145,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const [complaintSuggestions, setComplaintSuggestions] = useState<string[]>([]);
   const [otherComplaint, setOtherComplaint] = useState<string>('');
   const [systemSymptoms, setSystemSymptoms] = useState<ISymptomMap>();
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const params = useParams();
   const complaintsHFC = watch('complaints');
 
@@ -211,6 +233,32 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     void handleComplaintSuggestions();
   }, []);
 
+  const systemSymptomsEntries = useMemo(
+    () => Object.entries(systemSymptoms ?? {}),
+    [systemSymptoms],
+  );
+
+  const getSystemTitle = useCallback((id: string): string => {
+    const titles: Record<string, string> = {
+      [SymptomsType.Neurological]: 'Neurological Symptoms',
+      [SymptomsType.Cardiovascular]: 'Cardiovascular Symptoms',
+      [SymptomsType.Gastrointestinal]: 'Gastrointestinal Symptoms',
+      [SymptomsType.Genitourinary]: 'Genitourinary Symptoms',
+      [SymptomsType.Musculoskeletal]: 'Musculoskeletal Symptoms',
+      [SymptomsType.Integumentary]: 'Integumentary Symptoms',
+      [SymptomsType.Endocrine]: 'Endocrine Symptoms',
+    };
+    return titles[id] || id;
+  }, []);
+
+  const hasSelectedSymptoms = useCallback(
+    (id: string): boolean => {
+      const selectedSymptoms = watch(`symptoms.${id as SymptomsType}`) as IPatientSymptom[];
+      return selectedSymptoms && selectedSymptoms.length > 0;
+    },
+    [watch],
+  );
+
   useEffect(() => {
     if (symptoms) {
       const { medicinesTaken, duration, complaints, symptoms: patientSymptoms } = symptoms;
@@ -234,10 +282,17 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       if (systemSymptoms) {
         setValue('symptoms', patientSymptoms);
         let symptomsMap = _.cloneDeep(systemSymptoms);
+        const sectionsWithSymptoms: string[] = [];
+
         Object.entries(systemSymptoms).forEach(([id, symptoms]) => {
           const formattedPatientSymptoms = (patientSymptoms[id as SymptomsType] ?? []).map(
             ({ name }) => name,
           );
+
+          if (formattedPatientSymptoms.length > 0) {
+            sectionsWithSymptoms.push(id);
+          }
+
           const updatedSystemSymptoms = symptoms.filter(
             ({ name }) => !formattedPatientSymptoms.includes(name),
           );
@@ -246,6 +301,9 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
             [id]: updatedSystemSymptoms,
           };
         });
+
+        setExpandedSections(sectionsWithSymptoms);
+
         if (!_.isEqual(systemSymptoms, symptomsMap)) {
           setSystemSymptoms(symptomsMap);
         }
@@ -312,19 +370,46 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         {isLoadingSymptoms ? (
           <Loading message="Please wait. Loading System Symptoms.." />
         ) : (
-          Object.entries(systemSymptoms ?? {}).map(([id, symptoms]) => (
-            <SelectSymptoms
-              key={`${id}-${JSON.stringify(symptoms)}`}
-              symptoms={symptoms}
-              id={id}
-              control={control}
-              setValue={setValue}
-              selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
-            />
-          ))
+          <Accordion
+            type="multiple"
+            value={expandedSections}
+            onValueChange={setExpandedSections}
+            className="mt-4"
+          >
+            {systemSymptomsEntries.map(([id, symptoms]) => (
+              <AccordionItem key={id} value={id} className="border-b">
+                <AccordionTrigger className="cursor-pointer text-left transition-colors hover:bg-gray-50 hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{getSystemTitle(id)}</span>
+                    {hasSelectedSymptoms(id) && (
+                      <span className="bg-primary rounded-full px-2 py-0.5 text-xs text-white">
+                        {(watch(`symptoms.${id as SymptomsType}`) as IPatientSymptom[])?.length ||
+                          0}
+                      </span>
+                    )}
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {expandedSections.includes(id) && (
+                    <Suspense fallback={<LoadingFallback />}>
+                      <SelectSymptoms
+                        symptoms={symptoms}
+                        id={id}
+                        control={control}
+                        setValue={setValue}
+                        selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
+                      />
+                    </Suspense>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         )}
         <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
-        <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
+        <Suspense fallback={<LoadingFallback />}>
+          <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
+        </Suspense>
         <div className="mt-20"></div>
         <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
           <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Go to Labs" />

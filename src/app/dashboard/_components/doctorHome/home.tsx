@@ -1,9 +1,17 @@
-import React, { JSX } from 'react';
-import AppointmentPanel from '../appointment/appointmentPanel';
-import AppointmentRequestPanel from '../appointment/appointmentRequestPanel';
-import ManagedClientsPanel from '../appointment/managedClientsPanel';
+import React, { JSX, lazy, Suspense } from 'react';
 import { AvatarGreetings } from '../avatarGreetings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2 } from 'lucide-react';
+
+const AppointmentPanel = lazy(() => import('../appointment/appointmentPanel'));
+const AppointmentRequestPanel = lazy(() => import('../appointment/appointmentRequestPanel'));
+const ManagedClientsPanel = lazy(() => import('../appointment/managedClientsPanel'));
+
+const LoadingFallback = (): JSX.Element => (
+  <div className="flex items-center justify-center p-8">
+    <Loader2 className="animate-spin" size={24} />
+  </div>
+);
 
 const DoctorHome = (): JSX.Element => (
   <div>
@@ -15,18 +23,28 @@ const DoctorHome = (): JSX.Element => (
           <TabsTrigger value="upcomingAppointments">Appointment Request</TabsTrigger>
         </TabsList>
         <TabsContent className="mt-6" value="appointment">
-          <AppointmentPanel />
+          <Suspense fallback={<LoadingFallback />}>
+            <AppointmentPanel />
+          </Suspense>
         </TabsContent>
         <TabsContent className="mt-6" value="upcomingAppointments">
-          <AppointmentRequestPanel />
+          <Suspense fallback={<LoadingFallback />}>
+            <AppointmentRequestPanel />
+          </Suspense>
         </TabsContent>
       </Tabs>
     </div>
     <div className="hidden w-full flex-row gap-4 md:flex">
-      <AppointmentPanel />
-      <AppointmentRequestPanel />
+      <Suspense fallback={<LoadingFallback />}>
+        <AppointmentPanel />
+      </Suspense>
+      <Suspense fallback={<LoadingFallback />}>
+        <AppointmentRequestPanel />
+      </Suspense>
     </div>
-    <ManagedClientsPanel />
+    <Suspense fallback={<LoadingFallback />}>
+      <ManagedClientsPanel />
+    </Suspense>
   </div>
 );
 
