@@ -78,12 +78,12 @@ const Doctors = (): JSX.Element => {
       let correctedFilters = { ...filterInputs };
       let needsCorrection = false;
 
-      ['priceMin', 'priceMax'].forEach((field) => {
+      for (const field of ['priceMin', 'priceMax']) {
         const value = correctedFilters[field as keyof typeof filterInputs];
         if (value) {
-          const numValue = parseFloat(value);
+          const numValue = Number.parseFloat(value);
 
-          if (!isNaN(numValue)) {
+          if (!Number.isNaN(numValue)) {
             if (numValue < MIN_AMOUNT) {
               correctedFilters = {
                 ...correctedFilters,
@@ -109,7 +109,7 @@ const Doctors = (): JSX.Element => {
             }
           }
         }
-      });
+      }
 
       if (needsCorrection) {
         setFilterInputs(correctedFilters);
