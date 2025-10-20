@@ -36,7 +36,7 @@ const Appointment = (): JSX.Element => {
                   className="rounded-2xl"
                   onClick={() => updateQuery('appointmentView', AppointmentView.Requests)}
                 >
-                  Request
+                  Requests
                 </TabsTrigger>
               </TabsList>
             </div>

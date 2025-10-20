@@ -55,7 +55,6 @@ export default function Layout({
   } => {
     const hasProfileInfo =
       !!doctorExtra.experience &&
-      doctorExtra.education &&
       doctorExtra.specializations?.length > 0 &&
       doctorExtra.languages?.length > 0 &&
       !!doctorExtra.bio;

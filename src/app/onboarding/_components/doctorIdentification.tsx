@@ -48,13 +48,18 @@ const DoctorIdentification = (): JSX.Element => {
     <form className="flex w-full flex-col gap-10" onSubmit={($event) => onSubmit($event)}>
       <div className="flex flex-col gap-1.5">
         <p className="flex flex-row items-center gap-1 text-2xl leading-8 font-bold sm:text-[32px]">
-          Upload doctor&#39;s ID
+          Upload National ID
           <span>
             <InfoIcon size={16} />
           </span>
         </p>
         <p className="text-grayscale-medium text-sm leading-6 sm:text-base">
-          We require both sides of ID Card
+          We require both sides of your National ID Card
+        </p>
+        <p className="text-grayscale-medium mt-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-xs leading-5 sm:text-sm">
+          <strong>Why we need this:</strong> Your National ID is required for mandatory regulatory
+          verification, to build patient trust, and to ensure financial compliance with healthcare
+          regulations.
         </p>
       </div>
       <div className="flex flex-col justify-between gap-4">
@@ -84,7 +89,7 @@ const DoctorIdentification = (): JSX.Element => {
             labelClassName="text-gray-500 text-sm sm:text-base"
             checked={confirm}
             onCheckedChange={(checked) => setConfirm(Boolean(checked))}
-            labelName="I confirm that the ID provided is a valid  government issued doctor ID. This ID includes my name, ID number and expiry date"
+            labelName="I confirm that the ID provided is a valid government-issued National ID. This ID includes my name, ID number, and expiry date"
           />
         </div>
       </div>

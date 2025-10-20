@@ -23,6 +23,8 @@ export const PIXELS_PER_HOUR = 60;
 export const TWELVE_HOUR_SYSTEM = 12;
 export const METERS_TO_KM_FACTOR = 1000;
 export const MAX_RADIUS_IN_KM = 30;
+export const MIN_AMOUNT = 70;
+export const MAX_AMOUNT = 400;
 
 export const DAYS_OF_WEEK = [
   'Monday',
@@ -104,6 +106,28 @@ export const specialties = [
   { value: 'emergency-medicine', label: 'Emergency Medicine' },
   { value: 'anesthesiology', label: 'Anesthesiology' },
   { value: 'infectious-disease', label: 'Infectious Disease' },
+  { value: 'allergy-immunology', label: 'Allergy and Immunology' },
+  { value: 'geriatrics', label: 'Geriatrics' },
+  { value: 'sports-medicine', label: 'Sports Medicine' },
+  { value: 'palliative-medicine', label: 'Palliative Medicine' },
+  { value: 'pain-medicine', label: 'Pain Medicine' },
+  { value: 'general-surgery', label: 'General Surgery' },
+  { value: 'plastic-surgery', label: 'Plastic Surgery' },
+  { value: 'vascular-surgery', label: 'Vascular Surgery' },
+  { value: 'thoracic-surgery', label: 'Thoracic Surgery' },
+  { value: 'neurosurgery', label: 'Neurosurgery' },
+  { value: 'cardiothoracic-surgery', label: 'Cardiothoracic Surgery' },
+  { value: 'radiology', label: 'Radiology' },
+  { value: 'nuclear-medicine', label: 'Nuclear Medicine' },
+  { value: 'pathology', label: 'Pathology' },
+  { value: 'laboratory-medicine', label: 'Laboratory Medicine' },
+  { value: 'occupational-medicine', label: 'Occupational Medicine' },
+  { value: 'preventive-medicine', label: 'Preventive Medicine' },
+  { value: 'rehabilitation-medicine', label: 'Rehabilitation Medicine (Physiatry)' },
+  { value: 'family-medicine', label: 'Family Medicine' },
+  { value: 'public-health', label: 'Public Health' },
+  { value: 'obstetrics', label: 'Obstetrics' },
+  { value: 'neonatology', label: 'Neonatology' },
 ];
 
 export const healthInsurances = [

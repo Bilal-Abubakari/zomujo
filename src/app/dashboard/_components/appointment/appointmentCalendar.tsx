@@ -64,6 +64,7 @@ const AppointmentCalendar = ({
               }
             }}
             showDetails={selectedAppointmentId === appointment.id}
+            handleCloseDetails={(): void => setSelectedAppointmentId(null)}
           />
         ))}
       </AnimatePresence>

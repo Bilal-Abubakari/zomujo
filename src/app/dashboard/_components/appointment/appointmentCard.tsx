@@ -6,7 +6,7 @@ import {
 } from '@/constants/constants';
 import { cn } from '@/lib/utils';
 import { House, Video } from 'lucide-react';
-import React, { JSX } from 'react';
+import React, { JSX, useEffect, useRef } from 'react';
 import moment from 'moment';
 import { AppointmentStatus, Role } from '@/types/shared.enum';
 import { IAppointment } from '@/types/appointment.interface';
@@ -22,12 +22,14 @@ export type IAppointmentCardProps = {
   appointment: IAppointment;
   handleSelectedCard: () => void;
   showDetails: boolean;
+  handleCloseDetails: () => void;
 };
 const AppointmentCard = ({
   className,
   appointment,
   handleSelectedCard,
   showDetails,
+  handleCloseDetails,
 }: IAppointmentCardProps): JSX.Element => {
   const { role } = useAppSelector(selectUser)!;
   const { status, slot, type, patient, doctor } = appointment;
@@ -92,7 +94,9 @@ const AppointmentCard = ({
           {getName()}
         </div>
       </div>
-      {showDetails && <AppointmentDetails {...{ ...appointment, day, hour }} />}
+      {showDetails && (
+        <AppointmentDetails {...{ ...appointment, day, hour, handleClose: handleCloseDetails }} />
+      )}
     </>
   );
 };
@@ -102,6 +106,7 @@ export default AppointmentCard;
 type AppointmentDetails = IAppointment & {
   day: number;
   hour: number;
+  handleClose: () => void;
 };
 const AppointmentDetails = ({
   day,
@@ -111,8 +116,10 @@ const AppointmentDetails = ({
   patient: { firstName, id: patientId },
   id,
   slot: { date },
+  handleClose,
 }: AppointmentDetails): JSX.Element => {
   const position = day > 4 ? -300 : 350;
+  const detailsRef = useRef<HTMLDivElement>(null);
   const statusStyles: Record<AppointmentStatus, string> = {
     [AppointmentStatus.Pending]: 'border-[#93C4F0] bg-[#E0EFFE]',
     [AppointmentStatus.Accepted]: 'border-green-300 bg-green-100',
@@ -133,8 +140,37 @@ const AppointmentDetails = ({
     router.push(`/dashboard/consultation-patient/${id}`);
   };
 
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent): void => {
+      if (detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return (): void => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [handleClose]);
+
+  // Handle Escape key
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    return (): void => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [handleClose]);
+
   return (
     <div
+      ref={detailsRef}
       style={{
         top: 40 + hour * 80,
         left: position + 260 * day,

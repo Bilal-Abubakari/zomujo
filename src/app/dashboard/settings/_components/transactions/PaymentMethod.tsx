@@ -165,7 +165,7 @@ const PaymentMethod = ({ closeModal, paymentDetails }: PaymentMethodProps): JSX.
           />
         </div>
         <div className="flex justify-end">
-          <Button child="Save" disabled={!isValid} isLoading={isLoading} />
+          <Button child="Save" disabled={!isValid || isLoading} isLoading={isLoading} />
         </div>
       </form>
     </div>

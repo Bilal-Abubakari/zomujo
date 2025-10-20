@@ -27,7 +27,7 @@ const ExpiredConsultationView = ({
 
         <div className="mb-8 space-y-3 text-center">
           <p className="text-lg text-gray-700 dark:text-gray-300">
-            It looks like this consultation session may have expired or already been completed.
+            It looks like this consultation session may have expired or has already been completed.
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400">This typically happens when:</p>
           <ul className="mx-auto max-w-md space-y-2 text-left text-sm text-gray-600 dark:text-gray-400">
