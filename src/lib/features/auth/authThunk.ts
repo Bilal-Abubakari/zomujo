@@ -262,7 +262,10 @@ export const initiateGoogleOAuth = createAsyncThunk(
       const queryString = params.toString();
 
       // Directly redirect the browser to the OAuth endpoint
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/${authPath}oauth${queryString ? `?${queryString}` : ''}`;
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const path = `/${authPath}oauth`;
+
+      window.location.href = queryString ? `${baseUrl}${path}?${queryString}` : `${baseUrl}${path}`;
       return true;
     } catch (error) {
       console.error('OAuth initiation error:', error);
