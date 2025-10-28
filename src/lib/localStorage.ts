@@ -59,9 +59,7 @@ export class LocalStorageManager {
    * Remove an item from localStorage
    * @param key - The key to remove
    */
-  static removeItem<K extends LocalStorageKey>(
-    key: (typeof LocalStorageManager.KEYS)[K],
-  ): void {
+  static removeItem<K extends LocalStorageKey>(key: (typeof LocalStorageManager.KEYS)[K]): void {
     try {
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(key);
@@ -120,4 +118,3 @@ export class LocalStorageManager {
     this.removeItem(this.KEYS.OAUTH_SLOT_ID);
   }
 }
-
