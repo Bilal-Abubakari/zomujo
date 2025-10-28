@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { MODE } from '@/constants/constants';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { AlertMessage } from '@/components/ui/alert';
-import { login } from '@/lib/features/auth/authThunk';
+import { login, initiateGoogleOAuth } from '@/lib/features/auth/authThunk';
 import React, { JSX, useEffect, useMemo, useState } from 'react';
 import { selectThunkState } from '@/lib/features/auth/authSelector';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -23,6 +23,7 @@ import { useBookingInfo } from '@/hooks/useBookingInfo';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import AuthPopIn from './authPopIn';
 import BookingInfoCard from './BookingInfoCard';
+import GoogleOAuthButton from '@/components/ui/googleOAuthButton';
 
 const loginSchema = z.object({
   email: emailSchema,
@@ -67,6 +68,10 @@ const LoginForm = (): JSX.Element => {
       }
       router.push('/dashboard');
     }
+  };
+
+  const handleGoogleLogin = async (): Promise<void> => {
+    await dispatch(initiateGoogleOAuth({ doctorId, slotId }));
   };
 
   const signUpLink = useMemo(() => {
@@ -143,6 +148,15 @@ const LoginForm = (): JSX.Element => {
           disabled={!isValid || isAuthLoading}
           className="w-full max-w-sm"
         />
+
+        <div className="flex w-full max-w-sm items-center gap-4">
+          <div className="h-px flex-1 bg-gray-300"></div>
+          <span className="text-sm text-gray-500">OR</span>
+          <div className="h-px flex-1 bg-gray-300"></div>
+        </div>
+
+        <GoogleOAuthButton onClick={handleGoogleLogin} isLoading={isAuthLoading} />
+
         <div className="flex w-full max-w-sm items-center justify-between text-sm sm:text-base">
           <Checkbox
             name="remember"

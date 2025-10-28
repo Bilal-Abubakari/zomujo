@@ -242,3 +242,73 @@ export const logout = createAsyncThunk(
     }
   },
 );
+
+export const initiateGoogleOAuth = createAsyncThunk(
+  'authentication/googleOAuth',
+  async ({ doctorId, slotId }: { doctorId?: string; slotId?: string } = {}) => {
+    try {
+      // Save booking data to localStorage before redirecting
+      const { LocalStorageManager } = await import('@/lib/localStorage');
+      LocalStorageManager.saveOAuthBookingData(doctorId, slotId);
+
+      const params = new URLSearchParams();
+      if (doctorId) {
+        params.append('doctorId', doctorId);
+      }
+      if (slotId) {
+        params.append('slotId', slotId);
+      }
+
+      const queryString = params.toString();
+
+      // Directly redirect the browser to the OAuth endpoint
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const path = `/${authPath}oauth`;
+
+      window.location.href = queryString ? `${baseUrl}${path}?${queryString}` : `${baseUrl}${path}`;
+      return true;
+    } catch (error) {
+      console.error('OAuth initiation error:', error);
+      return false;
+    }
+  },
+);
+
+export const handleOAuthCallback = createAsyncThunk(
+  'authentication/oauthCallback',
+  async (
+    {
+      queryParams,
+      doctorId,
+      slotId,
+    }: { queryParams: URLSearchParams; doctorId?: string; slotId?: string },
+    { dispatch },
+  ): Promise<ICustomResponse<ICheckout>> => {
+    try {
+      // Add booking data to the existing query params
+      if (doctorId) {
+        queryParams.append('doctorId', doctorId);
+      }
+      if (slotId) {
+        queryParams.append('slotId', slotId);
+      }
+
+      const {
+        data: { data, message },
+      } = await axios.get<IResponse<ILoginResponse>>(
+        `${authPath}callback?${queryParams.toString()}`,
+      );
+      dispatch(setUserInfo(data));
+      return {
+        success: true,
+        message,
+        data: data.paystack,
+      };
+    } catch (error) {
+      return {
+        message: axiosErrorHandler(error) as string,
+        success: false,
+      };
+    }
+  },
+);
