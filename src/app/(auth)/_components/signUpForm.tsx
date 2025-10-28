@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { AlertMessage } from '@/components/ui/alert';
 import { IOrganizationRequest, IUserSignUp } from '@/types/auth.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { requestOrganization, signUp } from '@/lib/features/auth/authThunk';
+import { requestOrganization, signUp, initiateGoogleOAuth } from '@/lib/features/auth/authThunk';
 import { selectThunkState } from '@/lib/features/auth/authSelector';
 import { Role } from '@/types/shared.enum';
 import { ImageVariant, Modal } from '@/components/ui/dialog';
@@ -19,6 +19,7 @@ import Location from '@/components/location/location';
 import { Option } from 'react-google-places-autocomplete/build/types';
 import { ISelected } from '@/components/ui/dropdown-menu';
 import UserSignUp, { UserSignUpMethods } from '@/app/(auth)/_components/userSignUp';
+import GoogleOAuthButton from '@/components/ui/googleOAuthButton';
 
 const roleOptions: ISelected[] = [
   {
@@ -117,6 +118,10 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
   const handleRoleChange = ({ target }: ChangeEvent<HTMLInputElement>): void =>
     setRole(target.value as Role);
 
+  const handleGoogleSignUp = async (): Promise<void> => {
+    await dispatch(initiateGoogleOAuth({ doctorId, slotId }));
+  };
+
   return (
     <div className="mx-auto w-full max-w-sm overflow-y-auto">
       <div className="mt-4">
@@ -157,13 +162,25 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
         </div>
       )}
       {role !== Role.Admin && (
-        <UserSignUp
-          ref={userSignUpRef}
-          role={role}
-          isLoading={isLoading}
-          submit={onSubmit}
-          hasBookingInfo={hasBookingInfo}
-        />
+        <>
+          <GoogleOAuthButton
+            onClick={handleGoogleSignUp}
+            isLoading={isLoading}
+            text="Sign up with Google"
+          />
+          <div className="my-6 flex items-center gap-4">
+            <div className="h-px flex-1 bg-gray-300"></div>
+            <span className="text-sm text-gray-500">OR</span>
+            <div className="h-px flex-1 bg-gray-300"></div>
+          </div>
+          <UserSignUp
+            ref={userSignUpRef}
+            role={role}
+            isLoading={isLoading}
+            submit={onSubmit}
+            hasBookingInfo={hasBookingInfo}
+          />
+        </>
       )}
       {role === Role.Admin && (
         <>
