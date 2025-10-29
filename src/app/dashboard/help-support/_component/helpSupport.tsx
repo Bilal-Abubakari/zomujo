@@ -157,13 +157,15 @@ export default function HelpSupport(): JSX.Element {
               </div>
 
               <div>
-                <label htmlFor='comments' className="text-sm font-medium text-gray-700">Comment</label>
+                <label htmlFor="comments" className="text-sm font-medium text-gray-700">
+                  Comment
+                </label>
                 <Textarea
                   placeholder="Please describe in details ..."
                   className="mt-2 h-36 resize-none"
                   {...feedbackRegister('comment')}
                   error={feedbackErrors.comment?.message || ''}
-                  id='comments'
+                  id="comments"
                 />
               </div>
 
