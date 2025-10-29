@@ -37,13 +37,14 @@ const OAuthCallbackPage = (): JSX.Element | null => {
     }
 
     // Retrieve booking data from localStorage
-    const { doctorId, slotId } = LocalStorageManager.getOAuthBookingData();
+    const { doctorId, slotId, role } = LocalStorageManager.getOAuthBookingData();
 
     const response = await dispatch(
       handleOAuthCallback({
         queryParams,
         doctorId,
         slotId,
+        role,
       }),
     ).unwrap();
 

@@ -7,6 +7,7 @@
 type LocalStorageKeys = {
   OAUTH_DOCTOR_ID: string | null;
   OAUTH_SLOT_ID: string | null;
+  OAUTH_ROLE: string | null;
 };
 
 type LocalStorageKey = keyof LocalStorageKeys;
@@ -16,6 +17,7 @@ export class LocalStorageManager {
   static readonly KEYS = {
     OAUTH_DOCTOR_ID: 'oauth_doctor_id',
     OAUTH_SLOT_ID: 'oauth_slot_id',
+    OAUTH_ROLE: 'oauth_role',
   } as const;
 
   /**
@@ -86,27 +88,33 @@ export class LocalStorageManager {
    * Save OAuth booking data to localStorage
    * @param doctorId - The doctor ID
    * @param slotId - The slot ID
+   * @param role - The user role
    */
-  static saveOAuthBookingData(doctorId?: string, slotId?: string): void {
+  static saveOAuthBookingData(doctorId?: string, slotId?: string, role?: string): void {
     if (doctorId) {
       this.setItem(this.KEYS.OAUTH_DOCTOR_ID, doctorId);
     }
     if (slotId) {
       this.setItem(this.KEYS.OAUTH_SLOT_ID, slotId);
     }
+    if (role) {
+      this.setItem(this.KEYS.OAUTH_ROLE, role);
+    }
   }
 
   /**
    * Get OAuth booking data from localStorage
-   * @returns Object containing doctorId and slotId if they exist
+   * @returns Object containing doctorId, slotId, and role if they exist
    */
-  static getOAuthBookingData(): { doctorId?: string; slotId?: string } {
+  static getOAuthBookingData(): { doctorId?: string; slotId?: string; role?: string } {
     const doctorId = this.getItem(this.KEYS.OAUTH_DOCTOR_ID);
     const slotId = this.getItem(this.KEYS.OAUTH_SLOT_ID);
+    const role = this.getItem(this.KEYS.OAUTH_ROLE);
 
     return {
       ...(doctorId && { doctorId }),
       ...(slotId && { slotId }),
+      ...(role && { role }),
     };
   }
 
@@ -116,5 +124,6 @@ export class LocalStorageManager {
   static clearOAuthBookingData(): void {
     this.removeItem(this.KEYS.OAUTH_DOCTOR_ID);
     this.removeItem(this.KEYS.OAUTH_SLOT_ID);
+    this.removeItem(this.KEYS.OAUTH_ROLE);
   }
 }

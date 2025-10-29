@@ -245,11 +245,15 @@ export const logout = createAsyncThunk(
 
 export const initiateGoogleOAuth = createAsyncThunk(
   'authentication/googleOAuth',
-  async ({ doctorId, slotId }: { doctorId?: string; slotId?: string } = {}) => {
+  async ({
+    doctorId,
+    slotId,
+    role,
+  }: { doctorId?: string; slotId?: string; role?: string } = {}) => {
     try {
-      // Save booking data to localStorage before redirecting
+      // Save booking data and role to localStorage before redirecting
       const { LocalStorageManager } = await import('@/lib/localStorage');
-      LocalStorageManager.saveOAuthBookingData(doctorId, slotId);
+      LocalStorageManager.saveOAuthBookingData(doctorId, slotId, role);
 
       const params = new URLSearchParams();
       if (doctorId) {
@@ -257,6 +261,9 @@ export const initiateGoogleOAuth = createAsyncThunk(
       }
       if (slotId) {
         params.append('slotId', slotId);
+      }
+      if (role) {
+        params.append('role', role);
       }
 
       const queryString = params.toString();
@@ -281,16 +288,20 @@ export const handleOAuthCallback = createAsyncThunk(
       queryParams,
       doctorId,
       slotId,
-    }: { queryParams: URLSearchParams; doctorId?: string; slotId?: string },
+      role,
+    }: { queryParams: URLSearchParams; doctorId?: string; slotId?: string; role?: string },
     { dispatch },
   ): Promise<ICustomResponse<ICheckout>> => {
     try {
-      // Add booking data to the existing query params
+      // Add booking data and role to the existing query params
       if (doctorId) {
         queryParams.append('doctorId', doctorId);
       }
       if (slotId) {
         queryParams.append('slotId', slotId);
+      }
+      if (role) {
+        queryParams.append('role', role);
       }
 
       const {

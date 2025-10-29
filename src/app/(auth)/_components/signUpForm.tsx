@@ -119,7 +119,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     setRole(target.value as Role);
 
   const handleGoogleSignUp = async (): Promise<void> => {
-    await dispatch(initiateGoogleOAuth({ doctorId, slotId }));
+    await dispatch(initiateGoogleOAuth({ doctorId, slotId, role }));
   };
 
   return (
@@ -146,19 +146,49 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
         )}
       </div>
       {!hasBookingInfo && (
-        <div className="mt-4 mb-5 flex justify-center space-x-6">
-          {roleOptions.map(({ label, value }) => (
-            <label key={value} className="flex items-center space-x-2">
-              <input
-                type="radio"
-                value={value}
-                className="accent-primary h-4 w-4"
-                checked={role === value}
-                onChange={handleRoleChange}
-              />
-              <span>{label}</span>
-            </label>
-          ))}
+        <div className="mb-6">
+          <h3 className="mb-3 text-center text-lg font-semibold text-gray-900">
+            I want to sign up as a:
+          </h3>
+          <div className="space-y-3">
+            {roleOptions.map(({ label, value }) => (
+              <label
+                key={value}
+                className={`hover:border-primary hover:bg-primary/5 flex cursor-pointer items-center justify-between rounded-lg border-2 p-4 transition-all ${
+                  role === value ? 'border-primary bg-primary/10' : 'border-gray-200 bg-white'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="radio"
+                    value={value}
+                    className="accent-primary h-5 w-5"
+                    checked={role === value}
+                    onChange={handleRoleChange}
+                  />
+                  <div>
+                    <span className="block font-medium text-gray-900">{label}</span>
+                    <span className="text-sm text-gray-500">
+                      {value === Role.Patient
+                        ? 'Book appointments and manage your health'
+                        : value === Role.Doctor
+                          ? 'Provide healthcare services and manage patients'
+                          : 'Manage your healthcare organization'}
+                    </span>
+                  </div>
+                </div>
+                {role === value && (
+                  <svg className="text-primary h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </label>
+            ))}
+          </div>
         </div>
       )}
       {role !== Role.Admin && (
