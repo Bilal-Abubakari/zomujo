@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import React, { useEffect, useState, useRef, JSX } from 'react';
 import styles from './home.module.css';
 import { Button } from '@/components/ui/button';
-import { specialties } from '@/constants/constants';
+import { MAX_AMOUNT, MIN_AMOUNT, specialties } from '@/constants/constants';
 import { IQueryParams } from '@/types/shared.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { useQueryParam } from '@/hooks/useQueryParam';
@@ -90,14 +90,14 @@ const Hero = (): JSX.Element => {
               onValueChange={(value) =>
                 setQueryParameters((prev) => ({ ...prev, priceMax: String(value[0]) }))
               }
-              min={80}
-              max={10000}
+              min={MIN_AMOUNT}
+              max={MAX_AMOUNT}
               step={10}
               className="mt-4"
             />
             <div className="absolute mt-2 flex h-8 items-center justify-center rounded-full bg-gray-500 px-2.5">
               <p className="text-sm font-medium text-black">
-                GHS {Number(queryParameters?.priceMax || 80).toLocaleString()}{' '}
+                GHS {Number(queryParameters?.priceMax || MIN_AMOUNT).toLocaleString()}{' '}
               </p>
             </div>
           </div>

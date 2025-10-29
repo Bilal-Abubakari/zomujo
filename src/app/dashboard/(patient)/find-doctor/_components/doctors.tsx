@@ -24,7 +24,7 @@ import React, {
   useState,
 } from 'react';
 import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
-import { genderOptions, specialties } from '@/constants/constants';
+import { genderOptions, MAX_AMOUNT, MIN_AMOUNT, specialties } from '@/constants/constants';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
 import { Combobox } from '@/components/ui/select';
@@ -39,6 +39,18 @@ const Doctors = (): JSX.Element => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const previousFiltersRef = useRef<Record<string, string>>({});
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [filterInputs, setFilterInputs] = useState({
+    priceMin: '',
+    priceMax: getQueryParam('priceMax') || '',
+    experienceMin: '',
+    experienceMax: '',
+    rateMin: '',
+    rateMax: '',
+  });
+
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus>>({
     page: 1,
     orderDirection: OrderDirection.Descending,
@@ -57,21 +69,124 @@ const Doctors = (): JSX.Element => {
     booking: true,
   });
 
+  const validateAndCorrectPrice = (
+    field: 'priceMin' | 'priceMax',
+    value: string,
+    currentFilters: typeof filterInputs,
+  ): { corrected: typeof filterInputs; needsCorrection: boolean } => {
+    if (!value) {
+      return { corrected: currentFilters, needsCorrection: false };
+    }
+
+    const numValue = Number.parseFloat(value);
+    if (Number.isNaN(numValue)) {
+      return { corrected: currentFilters, needsCorrection: false };
+    }
+
+    const fieldLabel = field === 'priceMin' ? 'minimum' : 'maximum';
+
+    if (numValue < MIN_AMOUNT) {
+      toast({
+        title: 'Price Auto-Corrected',
+        description: `The ${fieldLabel} price cannot be less than GHS ${MIN_AMOUNT}.`,
+        variant: 'default',
+      });
+      return {
+        corrected: { ...currentFilters, [field]: MIN_AMOUNT.toString() },
+        needsCorrection: true,
+      };
+    }
+
+    if (numValue > MAX_AMOUNT) {
+      toast({
+        title: 'Price Auto-Corrected',
+        description: `The ${fieldLabel} price cannot exceed GHS ${MAX_AMOUNT}.`,
+        variant: 'default',
+      });
+      return {
+        corrected: { ...currentFilters, [field]: MAX_AMOUNT.toString() },
+        needsCorrection: true,
+      };
+    }
+
+    return { corrected: currentFilters, needsCorrection: false };
+  };
+
+  const validateAllPrices = (
+    filters: typeof filterInputs,
+  ): { correctedFilters: typeof filterInputs; needsCorrection: boolean } => {
+    let correctedFilters = { ...filters };
+    let needsCorrection = false;
+
+    for (const field of ['priceMin', 'priceMax'] as const) {
+      const result = validateAndCorrectPrice(field, filters[field], correctedFilters);
+      correctedFilters = result.corrected;
+      needsCorrection = needsCorrection || result.needsCorrection;
+    }
+
+    return { correctedFilters, needsCorrection };
+  };
+
+  const hasFiltersChanged = (newFilters: typeof filterInputs): boolean =>
+    Object.keys(newFilters).some(
+      (key) => newFilters[key as keyof typeof newFilters] !== previousFiltersRef.current[key],
+    );
+
+  const applyFilterChanges = (correctedFilters: typeof filterInputs): void => {
+    previousFiltersRef.current = { ...correctedFilters };
+    setDoctors([]);
+    setQueryParameters((prev) => ({
+      ...prev,
+      ...correctedFilters,
+      page: 1,
+    }));
+  };
+
+  useEffect(() => {
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+
+    validationTimeoutRef.current = setTimeout(() => {
+      const { correctedFilters, needsCorrection } = validateAllPrices(filterInputs);
+
+      if (needsCorrection) {
+        setFilterInputs(correctedFilters);
+        return;
+      }
+
+      if (hasFiltersChanged(correctedFilters)) {
+        applyFilterChanges(correctedFilters);
+      }
+    }, 1000);
+
+    return (): void => {
+      if (validationTimeoutRef.current) {
+        clearTimeout(validationTimeoutRef.current);
+      }
+    };
+  }, [filterInputs]);
+
+  const canLoadMorePages = (): boolean => {
+    if (!queryParameters?.page || !paginationData) {
+      return false;
+    }
+    return queryParameters.page < paginationData.totalPages;
+  };
+
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       const target = entries[0];
-      if (queryParameters?.page) {
-        const hasMorePages = paginationData && queryParameters.page < paginationData?.totalPages;
-        const canLoadMore = target.isIntersecting && hasMorePages && !isLoading;
-        if (canLoadMore) {
-          setQueryParameters((prev) => ({
-            ...prev,
-            page: (prev.page ?? 0) + 1,
-          }));
-        }
+      const canLoadMore = target.isIntersecting && canLoadMorePages() && !isLoading;
+
+      if (canLoadMore) {
+        setQueryParameters((prev) => ({
+          ...prev,
+          page: (prev.page ?? 0) + 1,
+        }));
       }
     },
-    [paginationData, queryParameters],
+    [paginationData, queryParameters, isLoading],
   );
 
   useEffect(() => {
@@ -133,13 +248,13 @@ const Doctors = (): JSX.Element => {
 
   function handleValueChange(event: ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
-    setDoctors([]);
-    setQueryParameters((prev) => ({
+
+    setFilterInputs((prev) => ({
       ...prev,
       [name]: value,
-      page: 1,
     }));
   }
+
   return (
     <>
       <div className="bg-grayscale-100 z-20 mb-6 flex w-full flex-col flex-wrap gap-2 rounded-md p-5 lg:sticky lg:top-0">
@@ -172,20 +287,26 @@ const Doctors = (): JSX.Element => {
         <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-wrap gap-4 lg:flex`}>
           <Input
             labelName="Min Price"
-            placeholder="GHS 100"
+            placeholder={`GHS ${MIN_AMOUNT}`}
             wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="priceMin"
+            min={MIN_AMOUNT}
+            max={MAX_AMOUNT}
+            value={filterInputs.priceMin}
             onChange={handleValueChange}
           />
           <Input
             labelName="Max Price"
-            placeholder="GHS 1000"
+            placeholder={`GHS ${MAX_AMOUNT}`}
             wrapperClassName="max-w-52  max-h-[62px]"
             defaultMaxWidth={false}
             type="number"
             name="priceMax"
+            min={MIN_AMOUNT}
+            max={MAX_AMOUNT}
+            value={filterInputs.priceMax}
             onChange={handleValueChange}
           />
           <Input
@@ -195,6 +316,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="rateMin"
+            value={filterInputs.rateMin}
             onChange={handleValueChange}
           />
           <Input
@@ -204,6 +326,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="rateMax"
+            value={filterInputs.rateMax}
             onChange={handleValueChange}
           />
           <Input
@@ -213,6 +336,7 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="experienceMin"
+            value={filterInputs.experienceMin}
             onChange={handleValueChange}
           />
           <Input
@@ -222,10 +346,14 @@ const Doctors = (): JSX.Element => {
             defaultMaxWidth={false}
             type="number"
             name="experienceMax"
+            value={filterInputs.experienceMax}
             onChange={handleValueChange}
           />
           <Combobox
-            onChange={(value) => setQueryParameters((prev) => ({ ...prev, specialty: value }))}
+            onChange={(value) => {
+              setDoctors([]);
+              setQueryParameters((prev) => ({ ...prev, specialty: value, page: 1 }));
+            }}
             label="Specialty"
             options={[{ value: '', label: 'All' }, ...specialties]}
             value={queryParameters?.specialty ?? ''}

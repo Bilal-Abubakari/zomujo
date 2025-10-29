@@ -20,12 +20,14 @@ type StatusBadgeProps = {
   approvedTitle?: string;
   declinedTitle?: string;
   defaultTitle?: string;
+  destructiveTitle?: string;
 };
 const StatusBadge = ({
   status,
   approvedTitle,
   declinedTitle,
   defaultTitle,
+  destructiveTitle,
 }: StatusBadgeProps): JSX.Element => {
   switch (status) {
     case AcceptDeclineStatus.Accepted:
@@ -38,7 +40,8 @@ const StatusBadge = ({
     case ConditionStatus.Active:
       return <Badge variant="destructive">{declinedTitle ?? 'Declined'}</Badge>;
     case AcceptDeclineStatus.Deactivated:
-      return <Badge variant="destructive">Deactivated</Badge>;
+    case ConsultationStatus.Cancelled:
+      return <Badge variant="destructive">{destructiveTitle ?? 'Deactivated'}</Badge>;
     case ConditionStatus.Controlled:
       return <Badge variant="gray">Chronic</Badge>;
     case ConsultationStatus.Progress:

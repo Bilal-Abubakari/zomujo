@@ -5,26 +5,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { MultiSelect } from '@/components/ui/multiSelect';
 import MultiInputField from '@/components/multi-input-field/multiInputField';
 import { specialties } from '@/constants/constants';
-import React, { JSX } from 'react';
+import React, { JSX, ReactNode } from 'react';
 import { FieldErrors, UseFormRegister, UseFormWatch } from 'react-hook-form';
+import { DoctorPersonalInfo } from '@/types/doctor.interface';
 interface PatientFormData {
   firstName: string;
   lastName: string;
   contact: string;
 }
-interface DoctorFormData {
-  firstName: string;
-  lastName: string;
-  contact: string;
-  experience: number;
-  education: {
-    school: string;
-    degree: string;
-  };
-  specializations: string[];
-  languages: string[];
-  bio: string;
-}
+
 interface BaseFormProps {
   isLoading: boolean;
   isValid: boolean;
@@ -36,25 +25,29 @@ interface PatientFormProps extends BaseFormProps {
   errors: FieldErrors<PatientFormData>;
 }
 interface DoctorFormProps extends BaseFormProps {
-  register: UseFormRegister<DoctorFormData>;
-  errors: FieldErrors<DoctorFormData>;
-  watch: UseFormWatch<DoctorFormData>;
-  handleMultiInputChange: (key: keyof DoctorFormData, value: string[]) => void;
+  register: UseFormRegister<DoctorPersonalInfo>;
+  errors: FieldErrors<DoctorPersonalInfo>;
+  watch: UseFormWatch<DoctorPersonalInfo>;
+  handleMultiInputChange: (key: keyof DoctorPersonalInfo, value: string[]) => void;
 }
 function BasicFields(props: {
   register: UseFormRegister<PatientFormData>;
   errors: FieldErrors<PatientFormData>;
+  children?: ReactNode;
 }): JSX.Element;
 function BasicFields(props: {
-  register: UseFormRegister<DoctorFormData>;
-  errors: FieldErrors<DoctorFormData>;
+  register: UseFormRegister<DoctorPersonalInfo>;
+  errors: FieldErrors<DoctorPersonalInfo>;
+  children?: ReactNode;
 }): JSX.Element;
 function BasicFields({
   register,
   errors,
+  children,
 }: Readonly<{
-  register: UseFormRegister<PatientFormData> | UseFormRegister<DoctorFormData>;
-  errors: FieldErrors<PatientFormData> | FieldErrors<DoctorFormData>;
+  register: UseFormRegister<PatientFormData> | UseFormRegister<DoctorPersonalInfo>;
+  errors: FieldErrors<PatientFormData> | FieldErrors<DoctorPersonalInfo>;
+  children?: ReactNode;
 }>): JSX.Element {
   const isPatientForm =
     'firstName' in errors && !('experience' in (errors as Record<string, unknown>));
@@ -89,12 +82,13 @@ function BasicFields({
             error={patientErrors.contact?.message || ''}
             {...patientRegister('contact')}
           />
+          {children}
         </div>
       </>
     );
   }
-  const doctorRegister = register as UseFormRegister<DoctorFormData>;
-  const doctorErrors = errors as FieldErrors<DoctorFormData>;
+  const doctorRegister = register as UseFormRegister<DoctorPersonalInfo>;
+  const doctorErrors = errors as FieldErrors<DoctorPersonalInfo>;
 
   return (
     <>
@@ -122,6 +116,7 @@ function BasicFields({
           error={doctorErrors.contact?.message || ''}
           {...doctorRegister('contact')}
         />
+        {children}
       </div>
     </>
   );
@@ -140,10 +135,10 @@ const SaveButton = ({ isLoading, isValid, hasChanges }: SaveButtonProps): JSX.El
   />
 );
 interface DoctorFieldsProps {
-  register: UseFormRegister<DoctorFormData>;
-  errors: FieldErrors<DoctorFormData>;
-  watch: UseFormWatch<DoctorFormData>;
-  handleMultiInputChange: (key: keyof DoctorFormData, value: string[]) => void;
+  register: UseFormRegister<DoctorPersonalInfo>;
+  errors: FieldErrors<DoctorPersonalInfo>;
+  watch: UseFormWatch<DoctorPersonalInfo>;
+  handleMultiInputChange: (key: keyof DoctorPersonalInfo, value: string[]) => void;
 }
 const DoctorFields = ({
   register,
@@ -152,38 +147,29 @@ const DoctorFields = ({
   handleMultiInputChange,
 }: DoctorFieldsProps): JSX.Element => (
   <>
-    <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-      <Input
-        labelName="Experience"
-        className="bg-transparent"
-        placeholder="5"
-        error={errors.experience?.message || ''}
-        type="number"
-        {...register('experience')}
-      />
-    </div>
-    <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-      <div className="w-full max-w-[384px]">
-        <Input
-          labelName="School attended"
-          className="bg-transparent"
-          placeholder="University of Ghana"
-          error={errors.education?.school?.message || ''}
-          type="text"
-          {...register('education.school')}
-        />
-      </div>
-      <div className="w-full max-w-[384px]">
-        <Input
-          labelName="Certificate acquired"
-          className="bg-transparent"
-          placeholder="Bachelor of Medicine and Bachelor of Surgery"
-          error={errors.education?.degree?.message || ''}
-          type="text"
-          {...register('education.degree')}
-        />
-      </div>
-    </div>
+    {/*TODO: Removing education for now*/}
+    {/*<div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">*/}
+    {/*  <div className="w-full max-w-[384px]">*/}
+    {/*    <Input*/}
+    {/*      labelName="School attended"*/}
+    {/*      className="bg-transparent"*/}
+    {/*      placeholder="University of Ghana"*/}
+    {/*      error={errors.education?.school?.message || ''}*/}
+    {/*      type="text"*/}
+    {/*      {...register('education.school')}*/}
+    {/*    />*/}
+    {/*  </div>*/}
+    {/*  <div className="w-full max-w-[384px]">*/}
+    {/*    <Input*/}
+    {/*      labelName="Certificate acquired"*/}
+    {/*      className="bg-transparent"*/}
+    {/*      placeholder="Bachelor of Medicine and Bachelor of Surgery"*/}
+    {/*      error={errors.education?.degree?.message || ''}*/}
+    {/*      type="text"*/}
+    {/*      {...register('education.degree')}*/}
+    {/*    />*/}
+    {/*  </div>*/}
+    {/*</div>*/}
     <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
       <div className="w-full max-w-[384px]">
         <MultiSelect
@@ -197,16 +183,16 @@ const DoctorFields = ({
           error={errors.specializations?.message || ''}
         />
       </div>
-    </div>
-    <div className="mt-2 w-full max-w-[384px]">
-      <MultiInputField
-        ref={register('languages').ref}
-        handleValueChange={(value) => handleMultiInputChange('languages', value)}
-        error={errors.languages?.message || ''}
-        label="Languages"
-        placeholder="English"
-        defaultValues={watch('languages')}
-      />
+      <div className="mt-2 w-full max-w-[384px]">
+        <MultiInputField
+          ref={register('languages').ref}
+          handleValueChange={(value) => handleMultiInputChange('languages', value)}
+          error={errors.languages?.message || ''}
+          label="Languages"
+          placeholder="English"
+          defaultValues={watch('languages')}
+        />
+      </div>
     </div>
     <div className="mt-8 max-w-[384px] items-baseline">
       <Textarea
@@ -242,7 +228,16 @@ const DoctorPersonalDetailsForm = ({
   handleMultiInputChange,
 }: DoctorFormProps): JSX.Element => (
   <form className="pb-20" onSubmit={onSubmit}>
-    <BasicFields register={register} errors={errors} />
+    <BasicFields register={register} errors={errors}>
+      <Input
+        labelName="Experience"
+        className="bg-transparent"
+        placeholder="5"
+        error={errors.experience?.message || ''}
+        type="number"
+        {...register('experience')}
+      />
+    </BasicFields>
     <DoctorFields
       register={register}
       errors={errors}

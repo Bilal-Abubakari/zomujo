@@ -28,7 +28,7 @@ const Payment = (): JSX.Element => {
 
   return (
     <div>
-      <div>
+      <div className="max-sm:pl-5">
         <h2 className="text-2xl font-bold">Payment</h2>
         <p className="text-gray-500"> Monitor your payment transactions efficiently.</p>
         <hr className="my-7 gap-4" />

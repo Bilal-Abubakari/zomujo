@@ -1,5 +1,15 @@
 type PaymentType = 'mobile_money' | 'ghipss';
 
+export interface IWallet {
+  gross: number;
+  net: number;
+}
+
+export interface IWithdrawRequest {
+  methodId: string;
+  amount: number;
+}
+
 export type CardProps = {
   type: PaymentType;
   name: string;

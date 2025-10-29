@@ -1,4 +1,4 @@
-import React, { JSX, useState, ReactElement, useMemo } from 'react';
+import React, { JSX, useState, ReactElement, useMemo, memo } from 'react';
 import {
   IConsultationSymptomsHFC,
   IPatientSymptom,
@@ -21,40 +21,43 @@ type SelectSymptomsProps = {
   selectedSymptoms: IPatientSymptom[];
 };
 
-const SelectSymptoms = ({
-  symptoms,
-  id,
-  setValue,
-  control,
-  selectedSymptoms,
-}: SelectSymptomsProps): JSX.Element => {
-  const [systemSymptoms, setSystemSymptoms] = useState<ISymptom[]>(symptoms);
+const SelectSymptoms = memo(
+  ({ symptoms, id, setValue, control, selectedSymptoms }: SelectSymptomsProps): JSX.Element => {
+    const [systemSymptoms, setSystemSymptoms] = useState<ISymptom[]>(symptoms);
 
-  return (
-    <div className="mt-6 flex flex-row items-center gap-4">
-      <SymptomsContainer
-        isLoading={false}
-        id={id}
-        symptoms={systemSymptoms}
-        selectedSymptoms={selectedSymptoms}
-        setSystemSymptoms={setSystemSymptoms}
-        setValue={setValue}
-        control={control}
-      />
-      <ChevronsRight className="h-6 w-6 text-gray-400" />
-      <SymptomsContainer
-        isLoading={false}
-        patientSymptoms
-        id={id}
-        symptoms={systemSymptoms}
-        setSystemSymptoms={setSystemSymptoms}
-        selectedSymptoms={selectedSymptoms}
-        setValue={setValue}
-        control={control}
-      />
-    </div>
-  );
-};
+    return (
+      <div className="mt-6 flex flex-row items-center gap-4">
+        <SymptomsContainer
+          isLoading={false}
+          id={id}
+          symptoms={systemSymptoms}
+          selectedSymptoms={selectedSymptoms}
+          setSystemSymptoms={setSystemSymptoms}
+          setValue={setValue}
+          control={control}
+        />
+        <ChevronsRight className="h-6 w-6 text-gray-400" />
+        <SymptomsContainer
+          isLoading={false}
+          patientSymptoms
+          id={id}
+          symptoms={systemSymptoms}
+          setSystemSymptoms={setSystemSymptoms}
+          selectedSymptoms={selectedSymptoms}
+          setValue={setValue}
+          control={control}
+        />
+      </div>
+    );
+  },
+  (prevProps, nextProps) =>
+    // Custom comparison function to prevent unnecessary re-renders
+    prevProps.id === nextProps.id &&
+    JSON.stringify(prevProps.symptoms) === JSON.stringify(nextProps.symptoms) &&
+    JSON.stringify(prevProps.selectedSymptoms) === JSON.stringify(nextProps.selectedSymptoms),
+);
+
+SelectSymptoms.displayName = 'SelectSymptoms';
 
 type SymptomsContainerProps = {
   isLoading: boolean;

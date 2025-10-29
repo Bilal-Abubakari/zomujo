@@ -1,14 +1,11 @@
-import SearchDoctorsCard from '@/app/dashboard/_components/patientHome/_component/searchDoctorCard';
-import UpcomingAppointmentCard from '@/app/dashboard/_components/patientHome/_component/upcomingAppointments';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
-import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
 import { AvatarGreetings } from '@/app/dashboard/_components/avatarGreetings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JSX, useEffect, useMemo, useState } from 'react';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { IDoctor } from '@/types/doctor.interface';
-import DoctorCard from '@/app/dashboard/(patient)/_components/doctorCard';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { suggestedDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { getCoordinates } from '@/lib/location';
@@ -19,12 +16,36 @@ import { Suggested } from './_component/suggested';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 
+const SearchDoctorsCard = dynamic(
+  () => import('@/app/dashboard/_components/patientHome/_component/searchDoctorCard'),
+  { loading: () => <LoadingCard />, ssr: false },
+);
+const UpcomingAppointmentCard = dynamic(
+  () => import('@/app/dashboard/_components/patientHome/_component/upcomingAppointments'),
+  { loading: () => <LoadingCard />, ssr: false },
+);
+const PatientVitalsCard = dynamic(
+  () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
+  { loading: () => <LoadingCard />, ssr: false },
+);
+const DoctorCard = dynamic(() => import('@/app/dashboard/(patient)/_components/doctorCard'), {
+  loading: () => <LoadingCard />,
+  ssr: false,
+});
+
+const LoadingCard = (): JSX.Element => (
+  <div className="flex items-center justify-center p-8">
+    <Loader2 className="animate-spin" size={24} />
+  </div>
+);
+
 const PatientHome = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [doctors, setDoctors] = useState<IDoctor[]>([]);
   const extra = useAppSelector(selectExtra);
   const findDoctorsLink = '/dashboard/find-doctor?tab=doctors';
+
   const doctorSuggestions = useMemo(
     () => (
       <>
@@ -50,48 +71,39 @@ const PatientHome = (): JSX.Element => {
         )}
       </>
     ),
-    [],
+    [isLoading, doctors.length],
   );
+
   const suggest = useMemo(
     () => (
-      <>
-        {/*TODO: For the MVP we will deal with only doctors. Hospitals will come later*/}
-        {/*<div className="-mt-10">*/}
-        {/*  <Hospitals title="Suggested Hospitals" showViewAll={true} />*/}
-        {/*</div>*/}
-        <div className="mt-4">
-          <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
-            {doctors.map((doctor) => (
-              <DoctorCard key={doctor.id} doctor={doctor} />
-            ))}
-          </Suggested>
-          {doctorSuggestions}
-        </div>
-      </>
+      <div className="mt-4">
+        <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
+          {doctors.map((doctor) => (
+            <DoctorCard key={doctor.id} doctor={doctor} />
+          ))}
+        </Suggested>
+        {doctorSuggestions}
+      </div>
     ),
-    [],
+    [doctors, doctorSuggestions, findDoctorsLink],
   );
 
   const suggestSmallerScreen = useMemo(
     () => (
-      <>
-        {/*TODO: For the MVP we will deal with only doctors. Hospitals will come later*/}
-        {/*<Hospitals title="Suggested Hospitals" showViewAll={true} />*/}
-        <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
-          <Carousel className="w-full">
-            <CarouselContent>
-              {doctors.map((doctor) => (
-                <CarouselItem key={doctor.id}>
-                  <DoctorCard key={doctor.id} doctor={doctor} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-          {doctorSuggestions}
-        </Suggested>
-      </>
+      <Suggested title={'Suggested Doctors'} link={findDoctorsLink}>
+        <Carousel className="w-full">
+          <CarouselContent>
+            {doctors.map((doctor) => (
+              <CarouselItem key={doctor.id}>
+                <DoctorCard key={doctor.id} doctor={doctor} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+        {doctorSuggestions}
+      </Suggested>
     ),
-    [],
+    [doctors, doctorSuggestions, findDoctorsLink],
   );
 
   const upcomingAppointments = useMemo(
@@ -132,7 +144,7 @@ const PatientHome = (): JSX.Element => {
       }
     }
     void getSuggestedDoctors();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     async function getUserRecords(): Promise<void> {
@@ -146,7 +158,8 @@ const PatientHome = (): JSX.Element => {
     }
 
     void getUserRecords();
-  }, []);
+  }, [dispatch, extra]);
+
   return (
     <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-[80px] max-me:pt-4 w-full border px-4 md:px-6">
       <AvatarGreetings />

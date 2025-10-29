@@ -55,7 +55,6 @@ export default function Layout({
   } => {
     const hasProfileInfo =
       !!doctorExtra.experience &&
-      doctorExtra.education &&
       doctorExtra.specializations?.length > 0 &&
       doctorExtra.languages?.length > 0 &&
       !!doctorExtra.bio;
@@ -193,42 +192,43 @@ export default function Layout({
       );
     }
 
+    // TODO: Difficult to handle this third scenario hence will handle later
     // Scenario 3: Accepted doctor with complete profile
-    if (doctorStatus === AcceptDeclineStatus.Accepted && isComplete) {
-      return (
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-gray-900">🎉 You&#39;re All Set!</h2>
-            <p className="text-sm text-gray-600">
-              Congratulations! Your account is verified and your profile is complete.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <InfoCard
-              icon="✓"
-              title="Profile Complete & Approved"
-              description="Excellent! You have successfully completed your profile setup and your account has been approved by our admin team."
-              bgColor="border-green-200 bg-green-50"
-              textColor="text-green-800"
-            />
-            <InfoCard
-              icon="⏳"
-              title="Setting Up Your Availability"
-              description="We are currently setting up your appointment slots based on the availability pattern you provided. This process will be completed shortly, and you should expect to receive patient bookings soon."
-              bgColor="border-blue-200 bg-blue-50"
-              textColor="text-blue-800"
-            />
-          </div>
-
-          <ActionButtons
-            showCompleteProfile={false}
-            handleDismissOnboarding={() => handleDismissOnboarding(true)}
-            handleCompleteProfileClick={handleCompleteProfileClick}
-          />
-        </div>
-      );
-    }
+    // if (doctorStatus === AcceptDeclineStatus.Accepted && isComplete) {
+    //   return (
+    //     <div className="space-y-6">
+    //       <div className="space-y-2">
+    //         <h2 className="text-xl font-semibold text-gray-900">🎉 You&#39;re All Set!</h2>
+    //         <p className="text-sm text-gray-600">
+    //           Congratulations! Your account is verified and your profile is complete.
+    //         </p>
+    //       </div>
+    //
+    //       <div className="space-y-4">
+    //         <InfoCard
+    //           icon="✓"
+    //           title="Profile Complete & Approved"
+    //           description="Excellent! You have successfully completed your profile setup and your account has been approved by our admin team."
+    //           bgColor="border-green-200 bg-green-50"
+    //           textColor="text-green-800"
+    //         />
+    //         <InfoCard
+    //           icon="⏳"
+    //           title="Setting Up Your Availability"
+    //           description="We are currently setting up your appointment slots based on the availability pattern you provided. This process will be completed shortly, and you should expect to receive patient bookings soon."
+    //           bgColor="border-blue-200 bg-blue-50"
+    //           textColor="text-blue-800"
+    //         />
+    //       </div>
+    //
+    //       <ActionButtons
+    //         showCompleteProfile={false}
+    //         handleDismissOnboarding={() => handleDismissOnboarding(true)}
+    //         handleCompleteProfileClick={handleCompleteProfileClick}
+    //       />
+    //     </div>
+    //   );
+    // }
 
     return <div></div>;
   };

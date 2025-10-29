@@ -27,10 +27,12 @@ import PersonalDetailsForm from '@/components/forms/PersonalDetailsForm';
 const PersonalDetailsSchema = z.object({
   firstName: nameSchema,
   lastName: nameSchema,
-  education: z.object({
-    school: requiredStringSchema(),
-    degree: nameSchema,
-  }),
+  education: z
+    .object({
+      school: requiredStringSchema(),
+      degree: nameSchema,
+    })
+    .optional(),
   languages: nameArraySchema,
   bio: textAreaSchema,
   experience: positiveNumberSchema,
@@ -45,10 +47,6 @@ const PersonalInfo = (): JSX.Element => {
   ): DoctorPersonalInfo & Pick<IDoctor, 'profilePicture'> => ({
     firstName: details?.firstName || '',
     lastName: details?.lastName || '',
-    education: {
-      school: details?.education?.school || '',
-      degree: details?.education?.degree || '',
-    },
     languages: details?.languages || [],
     bio: details?.bio || '',
     experience: details?.experience || 0,
