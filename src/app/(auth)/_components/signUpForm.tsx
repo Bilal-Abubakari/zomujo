@@ -122,6 +122,19 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     await dispatch(initiateGoogleOAuth({ doctorId, slotId, role }));
   };
 
+  const getRoleDescription = (roleValue: Role): string => {
+    switch (roleValue) {
+      case Role.Patient:
+        return 'Book appointments and manage your health';
+      case Role.Doctor:
+        return 'Provide healthcare services and manage patients';
+      case Role.Admin:
+        return 'Manage your healthcare organization';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="mx-auto w-full max-w-sm overflow-y-auto">
       <div className="mt-4">
@@ -169,11 +182,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
                   <div>
                     <span className="block font-medium text-gray-900">{label}</span>
                     <span className="text-sm text-gray-500">
-                      {value === Role.Patient
-                        ? 'Book appointments and manage your health'
-                        : value === Role.Doctor
-                          ? 'Provide healthcare services and manage patients'
-                          : 'Manage your healthcare organization'}
+                      {getRoleDescription(value as Role)}
                     </span>
                   </div>
                 </div>
