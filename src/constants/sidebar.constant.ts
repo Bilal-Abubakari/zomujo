@@ -73,7 +73,7 @@ export const PATIENT_SIDE_BAR: ISidebar = {
       menu: [
         {
           title: 'Help & Support',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/help-support`,
           Icon: CircleHelp,
           phoneTitle: 'Help',
         },
@@ -120,7 +120,7 @@ export const DOCTOR_SIDE_BAR: ISidebar = {
       menu: [
         {
           title: 'Help & Support',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/help-support`,
           Icon: CircleHelp,
           phoneTitle: 'Help',
         },
