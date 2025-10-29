@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { SelectInput, SelectOption } from '@/components/ui/select';
@@ -17,7 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { selectUserId, selectUserName } from '@/lib/features/auth/authSelector';
 import { ToastStatus } from '@/types/shared.enum';
 
-export default function HelpSupport() {
+export default function HelpSupport(): JSX.Element {
   const [activeTab, setActiveTab] = useState<'issue' | 'feedback'>('issue');
   const [isIssueLoading, setIsIssueLoading] = useState(false);
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
@@ -35,7 +35,7 @@ export default function HelpSupport() {
     handleSubmit,
     formState: { errors, isValid },
     reset,
-  } = useForm<Omit<ISupport, 'name'> & { name: string }>({
+  } = useForm<Required<ISupport>>({
     defaultValues: { doctorId: userId, patientId: userId, name: userName },
     resolver: zodResolver(supportSchema),
     mode: MODE.ON_TOUCH,
@@ -157,12 +157,13 @@ export default function HelpSupport() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700">Comment</label>
+                <label htmlFor='comments' className="text-sm font-medium text-gray-700">Comment</label>
                 <Textarea
                   placeholder="Please describe in details ..."
                   className="mt-2 h-36 resize-none"
                   {...feedbackRegister('comment')}
                   error={feedbackErrors.comment?.message || ''}
+                  id='comments'
                 />
               </div>
 

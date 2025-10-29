@@ -1,5 +1,5 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import HelpSupport from './_component/helpSupport';
 
-const page = () => <HelpSupport />;
+const page = (): JSX.Element => <HelpSupport />;
 export default page;
