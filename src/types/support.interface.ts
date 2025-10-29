@@ -2,10 +2,13 @@
 
 
 export interface ISupport{
-    message: string;
-    id: string;
+    description: string;
+    name?: string;
+    doctorId: string;
+    patientId: string;
 }
 
-export interface IFeedback extends ISupport{
-    feedbackType: string;
+export interface IFeedback {
+    type: string;
+    comment:string;
 }

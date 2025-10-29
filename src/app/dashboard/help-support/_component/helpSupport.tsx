@@ -3,13 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
+import { SelectInput, SelectOption } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
@@ -20,45 +14,70 @@ import { IFeedback, ISupport } from '@/types/support.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { provideFeedback, reportIssue } from '@/lib/features/support/supportThunk';
 import { toast } from '@/hooks/use-toast';
-import { selectUserId } from '@/lib/features/auth/authSelector';
+import { selectUserId, selectUserName } from '@/lib/features/auth/authSelector';
+import { ToastStatus } from '@/types/shared.enum';
 
 export default function HelpSupport() {
-    const [activeTab, setActiveTab] = useState<'issue' | 'feedback'>('issue');
+  const [activeTab, setActiveTab] = useState<'issue' | 'feedback'>('issue');
+  const [isIssueLoading, setIsIssueLoading] = useState(false);
+  const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
   const userId = useAppSelector(selectUserId)
+  const userName = useAppSelector(selectUserName)
   const supportSchema = z.object({
-      message: requiredStringSchema(),
-      id: requiredStringSchema(),
+    description: requiredStringSchema(),
+    doctorId: requiredStringSchema(false),
+    patientId: requiredStringSchema(),
+    name: requiredStringSchema()
   });
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<ISupport>({defaultValues:{id: userId}, resolver: zodResolver(supportSchema), mode: MODE.ON_TOUCH });
+    reset
+  } = useForm<Omit<ISupport, 'name'> & { name: string }>({ defaultValues: { doctorId:userId, patientId: userId, name: userName }, resolver: zodResolver(supportSchema), mode: MODE.ON_TOUCH });
 
   const dispatch = useAppDispatch();
 
   const onSubmit = async (support: ISupport): Promise<void> => {
-    const payload = await dispatch(reportIssue(support)).unwrap();
-    toast(payload);
+      setIsIssueLoading(true);
+      const payload = await dispatch(reportIssue(support)).unwrap();
+      toast(payload);
+      if(payload.title === ToastStatus.Success){
+        reset();
+      }
+      setIsIssueLoading(false);
   };
 
   const feedbackSchema = z.object({
-    feedbackType: requiredStringSchema(),
-      message: requiredStringSchema(),
-    id:requiredStringSchema()
+    type: requiredStringSchema(),
+    comment: requiredStringSchema(),
   });
 
   const {
     register: feedbackRegister,
     handleSubmit: feedbackHandleSubmit,
+    control: feedbackControl,
+    reset: feedbackReset,
     formState: { errors: feedbackErrors, isValid: feedbackIsValid },
-  } = useForm<IFeedback>({ defaultValues: {id: userId},resolver: zodResolver(feedbackSchema), mode: MODE.ON_TOUCH });
+  } = useForm<IFeedback>({ resolver: zodResolver(feedbackSchema), mode: MODE.ON_TOUCH });
 
   const onFeedbackSubmit = async (feedback: IFeedback): Promise<void> => {
-    const payload = await dispatch(provideFeedback(feedback)).unwrap();
-    toast(payload);
+      setIsFeedbackLoading(true);
+      const payload = await dispatch(provideFeedback(feedback)).unwrap();
+      toast(payload);
+      if(payload.title === ToastStatus.Success){
+        feedbackReset();
+      }
+      setIsFeedbackLoading(false);
+    
   };
+
+  const feedbackTypeOptions: SelectOption[] = [
+    { label: 'UI Feedback', value: 'ui' },
+    { label: 'Feature Request', value: 'feature' },
+    { label: 'Bug Report', value: 'bug' },
+  ];
 
   return (
     <div className="bg-gray-50">
@@ -98,8 +117,8 @@ export default function HelpSupport() {
                   className="mt-2 h-36 resize-none"
                   labelName="                   What issue are you experiencing?
 "
-                  error={errors.message?.message || ''}
-                  {...register('message')}
+                  error={errors.description?.message || ''}
+                  {...register('description')}
                 />
               </div>
 
@@ -114,26 +133,24 @@ export default function HelpSupport() {
                   type="submit"
                   className="w-full sm:w-1/2"
                   child={'Submit issue'}
-                  disabled={!isValid}
+                  disabled={!isValid || isIssueLoading}
+                  isLoading={isIssueLoading}
                 />
               </div>
             </form>
           ) : (
             <form className="space-y-5" onSubmit={feedbackHandleSubmit(onFeedbackSubmit)}>
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  What kind of feedback is it?
-                </label>
-                <Select>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Select option" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ui">UI Feedback</SelectItem>
-                    <SelectItem value="feature">Feature Request</SelectItem>
-                    <SelectItem value="bug">Bug Report</SelectItem>
-                  </SelectContent>
-                </Select>
+                <SelectInput
+                  ref={feedbackRegister('type').ref}
+                  control={feedbackControl}
+                  options={feedbackTypeOptions}
+                  label="What kind of feedback is it?"
+                  error={feedbackErrors.type?.message}
+                  name="type"
+                  placeholder="Select option"
+                  className="mt-2 w-full max-w-none"
+                />
               </div>
 
               <div>
@@ -141,8 +158,8 @@ export default function HelpSupport() {
                 <Textarea
                   placeholder="Please describe in details ..."
                   className="mt-2 h-36 resize-none"
-                  {...feedbackRegister('message')}
-                  error={feedbackErrors.message?.message || ''}
+                  {...feedbackRegister('comment')}
+                  error={feedbackErrors.comment?.message || ''}
                 />
               </div>
 
@@ -156,8 +173,9 @@ export default function HelpSupport() {
                 <Button
                   type="submit"
                   className="w-full sm:w-1/2"
-                  child={'Submit issue'}
-                  disabled={feedbackIsValid}
+                  child={'Submit Feedback'}
+                  disabled={!feedbackIsValid || isFeedbackLoading}
+                  isLoading={isFeedbackLoading}
                 />
               </div>
             </form>
