@@ -21,32 +21,36 @@ export default function HelpSupport() {
   const [activeTab, setActiveTab] = useState<'issue' | 'feedback'>('issue');
   const [isIssueLoading, setIsIssueLoading] = useState(false);
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
-  const userId = useAppSelector(selectUserId)
-  const userName = useAppSelector(selectUserName)
+  const userId = useAppSelector(selectUserId);
+  const userName = useAppSelector(selectUserName);
   const supportSchema = z.object({
     description: requiredStringSchema(),
     doctorId: requiredStringSchema(false),
     patientId: requiredStringSchema(),
-    name: requiredStringSchema()
+    name: requiredStringSchema(),
   });
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
-    reset
-  } = useForm<Omit<ISupport, 'name'> & { name: string }>({ defaultValues: { doctorId:userId, patientId: userId, name: userName }, resolver: zodResolver(supportSchema), mode: MODE.ON_TOUCH });
+    reset,
+  } = useForm<Omit<ISupport, 'name'> & { name: string }>({
+    defaultValues: { doctorId: userId, patientId: userId, name: userName },
+    resolver: zodResolver(supportSchema),
+    mode: MODE.ON_TOUCH,
+  });
 
   const dispatch = useAppDispatch();
 
   const onSubmit = async (support: ISupport): Promise<void> => {
-      setIsIssueLoading(true);
-      const payload = await dispatch(reportIssue(support)).unwrap();
-      toast(payload);
-      if(payload.title === ToastStatus.Success){
-        reset();
-      }
-      setIsIssueLoading(false);
+    setIsIssueLoading(true);
+    const payload = await dispatch(reportIssue(support)).unwrap();
+    toast(payload);
+    if (payload.title === ToastStatus.Success) {
+      reset();
+    }
+    setIsIssueLoading(false);
   };
 
   const feedbackSchema = z.object({
@@ -63,14 +67,13 @@ export default function HelpSupport() {
   } = useForm<IFeedback>({ resolver: zodResolver(feedbackSchema), mode: MODE.ON_TOUCH });
 
   const onFeedbackSubmit = async (feedback: IFeedback): Promise<void> => {
-      setIsFeedbackLoading(true);
-      const payload = await dispatch(provideFeedback(feedback)).unwrap();
-      toast(payload);
-      if(payload.title === ToastStatus.Success){
-        feedbackReset();
-      }
-      setIsFeedbackLoading(false);
-    
+    setIsFeedbackLoading(true);
+    const payload = await dispatch(provideFeedback(feedback)).unwrap();
+    toast(payload);
+    if (payload.title === ToastStatus.Success) {
+      feedbackReset();
+    }
+    setIsFeedbackLoading(false);
   };
 
   const feedbackTypeOptions: SelectOption[] = [
