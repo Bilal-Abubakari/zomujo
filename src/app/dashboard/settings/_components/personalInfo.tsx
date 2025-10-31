@@ -127,7 +127,7 @@ const PersonalInfo = (): JSX.Element => {
     setValue(key, value, { shouldTouch: true, shouldValidate: true });
 
   return (
-    <>
+    <div className="max-sm:ml-5">
       <ProfilePictureUpload
         userProfilePicture={userProfilePicture}
         imageRef={imageRef}
@@ -145,7 +145,7 @@ const PersonalInfo = (): JSX.Element => {
         onSubmit={handleSubmit(onSubmit)}
         handleMultiInputChange={handleMultiInputChange}
       />
-    </>
+    </div>
   );
 };
 export default PersonalInfo;
