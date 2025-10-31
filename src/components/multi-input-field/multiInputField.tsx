@@ -66,6 +66,7 @@ const MultiInputField = ({
           >
             <span>{item}</span>
             <button
+              type="button"
               onClick={() => handleRemoveValue(index)}
               className="ml-2 text-red-500 hover:text-red-700"
             >

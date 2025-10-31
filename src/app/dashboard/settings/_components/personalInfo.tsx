@@ -14,7 +14,7 @@ import {
 } from '@/schemas/zod.schemas';
 import { DoctorPersonalInfo, IDoctor } from '@/types/doctor.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { JSX, useState, useMemo } from 'react';
+import React, { JSX, useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
@@ -24,6 +24,7 @@ import { PaymentTab } from '@/hooks/useQueryParam';
 import { dataCompletionToast } from '@/lib/utils';
 import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
 import PersonalDetailsForm from '@/components/forms/PersonalDetailsForm';
+
 const PersonalDetailsSchema = z.object({
   firstName: nameSchema,
   lastName: nameSchema,
@@ -39,6 +40,7 @@ const PersonalDetailsSchema = z.object({
   specializations: z.array(nameSchema).max(3, 'You can select up to 3 specializations'),
   contact: phoneNumberSchema,
 });
+
 const PersonalInfo = (): JSX.Element => {
   const router = useRouter();
   const personalDetails = useAppSelector(selectExtra) as IDoctor;
@@ -93,6 +95,7 @@ const PersonalInfo = (): JSX.Element => {
     () => !isEqual(defaultFormData, currentFormDataWithImage),
     [defaultFormData, currentFormDataWithImage],
   );
+
   async function onSubmit(doctorPersonalInfo: DoctorPersonalInfo): Promise<void> {
     setIsLoading(true);
     const { payload } = await dispatch(updateDoctorProfile(doctorPersonalInfo));
@@ -119,8 +122,16 @@ const PersonalInfo = (): JSX.Element => {
     }
     setIsLoading(false);
   }
+  const test = watch();
+  useEffect(() => {
+    console.log('Is Valid', isValid);
+    console.log('Test', test);
+    console.log('Errors', errors);
+  }, [isValid, errors, test]);
+
   const handleMultiInputChange = (key: keyof DoctorPersonalInfo, value: string[]): void =>
     setValue(key, value, { shouldTouch: true, shouldValidate: true });
+
   return (
     <>
       <ProfilePictureUpload
