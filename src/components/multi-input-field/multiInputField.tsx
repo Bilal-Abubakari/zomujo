@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 type MultiInputProps = {
   label?: string;
   name?: string;
-  errors?: Merge<FieldError, (FieldError | undefined)[]> | undefined;
+  errors?: Merge<FieldError, (FieldError | undefined)[]>;
   placeholder?: string;
   ref?: Ref<HTMLInputElement>;
   handleValueChange: (values: string[]) => void;
@@ -89,7 +89,7 @@ const MultiInputField = ({
       </div>
       <div className="mt-2 flex flex-wrap gap-2">
         {values.map((item: string, index: number) => {
-          const hasError = errorDetails && errorDetails.position === index;
+          const hasError = errorDetails?.position === index;
           return (
             <div
               key={index}

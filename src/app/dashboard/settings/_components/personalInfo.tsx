@@ -14,7 +14,7 @@ import {
 } from '@/schemas/zod.schemas';
 import { DoctorPersonalInfo, IDoctor } from '@/types/doctor.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { JSX, useState, useMemo, useEffect } from 'react';
+import React, { JSX, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
@@ -122,12 +122,6 @@ const PersonalInfo = (): JSX.Element => {
     }
     setIsLoading(false);
   }
-  const test = watch();
-  useEffect(() => {
-    console.log('Is Valid', isValid);
-    console.log('Test', test);
-    console.log('Errors', errors);
-  }, [isValid, errors, test]);
 
   const handleMultiInputChange = (key: keyof DoctorPersonalInfo, value: string[]): void =>
     setValue(key, value, { shouldTouch: true, shouldValidate: true });
