@@ -25,7 +25,7 @@ export const fileSchema = z.instanceof(File);
 export const nameSchema = z
   .string()
   .nonempty('Field is required')
-  .min(2, 'Field should be more than 2 characters')
+  .min(2, 'Input should be more than 2 characters')
   .regex(/^[A-Za-z\s-]+$/, 'Field should only contain alphabets');
 
 export const nameArraySchema = z.array(nameSchema).min(1, 'Must have at least one entry');

@@ -190,7 +190,7 @@ const DoctorFields = ({
         <MultiInputField
           ref={register('languages').ref}
           handleValueChange={(value) => handleMultiInputChange('languages', value)}
-          error={errors.languages?.message || ''}
+          errors={errors.languages}
           label="Languages"
           placeholder="English"
           defaultValues={watch('languages')}
