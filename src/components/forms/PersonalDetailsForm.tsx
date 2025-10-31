@@ -8,6 +8,7 @@ import { specialties } from '@/constants/constants';
 import React, { JSX, ReactNode } from 'react';
 import { FieldErrors, UseFormRegister, UseFormWatch } from 'react-hook-form';
 import { DoctorPersonalInfo } from '@/types/doctor.interface';
+
 interface PatientFormData {
   firstName: string;
   lastName: string;
@@ -121,6 +122,7 @@ function BasicFields({
     </>
   );
 }
+
 interface SaveButtonProps {
   isLoading: boolean;
   isValid: boolean;
@@ -134,6 +136,7 @@ const SaveButton = ({ isLoading, isValid, hasChanges }: SaveButtonProps): JSX.El
     disabled={!isValid || isLoading || !hasChanges}
   />
 );
+
 interface DoctorFieldsProps {
   register: UseFormRegister<DoctorPersonalInfo>;
   errors: FieldErrors<DoctorPersonalInfo>;
@@ -187,7 +190,7 @@ const DoctorFields = ({
         <MultiInputField
           ref={register('languages').ref}
           handleValueChange={(value) => handleMultiInputChange('languages', value)}
-          error={errors.languages?.message || ''}
+          errors={errors.languages}
           label="Languages"
           placeholder="English"
           defaultValues={watch('languages')}
@@ -204,6 +207,7 @@ const DoctorFields = ({
     </div>
   </>
 );
+
 const PatientPersonalDetailsForm = ({
   register,
   errors,
@@ -217,6 +221,7 @@ const PatientPersonalDetailsForm = ({
     <SaveButton isLoading={isLoading} isValid={isValid} hasChanges={hasChanges} />
   </form>
 );
+
 const DoctorPersonalDetailsForm = ({
   register,
   errors,
@@ -247,6 +252,7 @@ const DoctorPersonalDetailsForm = ({
     <SaveButton isLoading={isLoading} isValid={isValid} hasChanges={hasChanges} />
   </form>
 );
+
 function PersonalDetailsForm(props: PatientFormProps): JSX.Element;
 function PersonalDetailsForm(props: DoctorFormProps): JSX.Element;
 function PersonalDetailsForm(props: PatientFormProps | DoctorFormProps): JSX.Element {
@@ -255,4 +261,5 @@ function PersonalDetailsForm(props: PatientFormProps | DoctorFormProps): JSX.Ele
   }
   return <PatientPersonalDetailsForm {...props} />;
 }
+
 export default PersonalDetailsForm;

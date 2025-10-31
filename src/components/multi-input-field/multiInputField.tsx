@@ -3,11 +3,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { Label } from '../ui/label';
+import { FieldError, Merge } from 'react-hook-form';
+import { cn } from '@/lib/utils';
 
 type MultiInputProps = {
   label?: string;
   name?: string;
-  error?: string;
+  errors?: Merge<FieldError, (FieldError | undefined)[]>;
   placeholder?: string;
   ref?: Ref<HTMLInputElement>;
   handleValueChange: (values: string[]) => void;
@@ -19,7 +21,7 @@ const MultiInputField = ({
   label,
   name,
   placeholder,
-  error,
+  errors,
   ref,
   handleValueChange,
   onBlur,
@@ -27,6 +29,34 @@ const MultiInputField = ({
 }: MultiInputProps): JSX.Element => {
   const [inputValue, setInputValue] = useState<string>('');
   const [values, setValues] = useState<string[]>(defaultValues);
+
+  // Get error details (position and message) from errors array
+  const getErrorDetails = (): { position: number; message: string } | null => {
+    if (!errors) {
+      return null;
+    }
+
+    if (Array.isArray(errors)) {
+      // Find the first error in the array
+      const errorIndex = errors.findIndex((err) => err !== undefined && err !== null);
+      if (errorIndex !== -1 && errors[errorIndex]) {
+        return {
+          position: errorIndex,
+          message: errors[errorIndex]?.message || 'Invalid value',
+        };
+      }
+    } else if (errors.message) {
+      // Single error object
+      return {
+        position: 0,
+        message: errors.message,
+      };
+    }
+
+    return null;
+  };
+
+  const errorDetails = getErrorDetails();
 
   const handleAddValue = (): void => {
     if (inputValue.trim() && !values.includes(inputValue)) {
@@ -54,26 +84,37 @@ const MultiInputField = ({
           id={name}
           ref={ref}
           onBlur={onBlur}
-          error={error}
         />
         <Button onClick={handleAddValue} child={'Add'} type="button" />
       </div>
       <div className="mt-2 flex flex-wrap gap-2">
-        {values.map((item: string, index: number) => (
-          <div
-            key={index}
-            className="flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm shadow-sm"
-          >
-            <span>{item}</span>
-            <button
-              onClick={() => handleRemoveValue(index)}
-              className="ml-2 text-red-500 hover:text-red-700"
+        {values.map((item: string, index: number) => {
+          const hasError = errorDetails?.position === index;
+          return (
+            <div
+              key={index}
+              className={cn(
+                'flex items-center rounded-full px-3 py-1 text-sm shadow-sm',
+                hasError ? 'border border-red-300 bg-red-50' : 'bg-gray-100',
+              )}
             >
-              <X size={12} />
-            </button>
-          </div>
-        ))}
+              <span className={hasError ? 'text-red-700' : ''}>{item}</span>
+              <button
+                type="button"
+                onClick={() => handleRemoveValue(index)}
+                className="ml-2 text-red-500 hover:text-red-700"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          );
+        })}
       </div>
+      {errorDetails && values[errorDetails.position] && (
+        <small className="text-xs font-medium text-red-500">
+          {values[errorDetails.position]}: {errorDetails.message}
+        </small>
+      )}
     </div>
   );
 };
