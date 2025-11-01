@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { MODE } from '@/constants/constants';
 import { emailSchema, nameSchema, requiredStringSchema } from '@/schemas/zod.schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { ChangeEvent, JSX, useRef, useState } from 'react';
+import React, { ChangeEvent, JSX, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,7 @@ import { Option } from 'react-google-places-autocomplete/build/types';
 import { ISelected } from '@/components/ui/dropdown-menu';
 import UserSignUp, { UserSignUpMethods } from '@/app/(auth)/_components/userSignUp';
 import GoogleOAuthButton from '@/components/ui/googleOAuthButton';
+import { useSearchParams } from 'next/navigation';
 
 const roleOptions: ISelected[] = [
   {
@@ -46,6 +47,9 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     lat: z.number(),
     gpsLink: requiredStringSchema(),
   });
+
+  const searchParams = useSearchParams();
+  const roleParam = searchParams.get('role');
 
   const {
     register,
@@ -134,6 +138,12 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
         return '';
     }
   };
+
+  useEffect(() => {
+    if (roleParam) {
+      setRole(roleParam as Role);
+    }
+  }, [roleParam]);
 
   return (
     <div className="mx-auto w-full max-w-sm overflow-y-auto">

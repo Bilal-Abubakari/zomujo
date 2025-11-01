@@ -1,6 +1,5 @@
 import { JSX, useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 const Faq = (): JSX.Element => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -68,8 +67,8 @@ const Faq = (): JSX.Element => {
             </div>
           ))}
         </div>
-
-        <div className="mt-12 text-center">
+        {/*  Implemet this when we do the chat the system */}
+        {/* <div className="mt-12 text-center">
           <div className="mb-4 flex items-center justify-center space-x-4">
             <div className="flex -space-x-2">
               <div className="bg-primary h-10 w-10 rounded-full border-2 border-white"></div>
@@ -82,7 +81,7 @@ const Faq = (): JSX.Element => {
             Can&apos;t find the answer you&apos;re looking for? Please chat to our friendly team.
           </p>
           <Button size="lg" className="bg-primary hover:bg-primary/90" child={'Get in touch'} />
-        </div>
+        </div> */}
       </div>
     </section>
   );
