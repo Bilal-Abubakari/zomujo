@@ -139,7 +139,6 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     }
   };
 
-
   useEffect(() => {
     if (roleParam) {
       setRole(roleParam as Role);

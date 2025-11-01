@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { ProviderDashboard } from '@/assets/images';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
@@ -12,7 +12,6 @@ const InterestedProvider = (): JSX.Element => {
     'Fill last-minute openings in your schedule',
     'Strengthen your online reputation with verified reviews',
   ];
-
 
   const router = useRouter();
   return (
@@ -35,7 +34,12 @@ const InterestedProvider = (): JSX.Element => {
               ))}
             </div>
 
-            <Button size="lg" className="bg-primary hover:bg-primary/90" child={'Get started'}  onClick={() => router.push('/sign-up?role=doctor')}/>
+            <Button
+              size="lg"
+              className="bg-primary hover:bg-primary/90"
+              child={'Get started'}
+              onClick={() => router.push('/sign-up?role=doctor')}
+            />
           </div>
 
           <div className="lg:w-1/2">

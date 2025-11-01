@@ -1,6 +1,5 @@
 import { JSX, useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 const Faq = (): JSX.Element => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -68,7 +67,7 @@ const Faq = (): JSX.Element => {
             </div>
           ))}
         </div>
-       {/*  Implemet this when we do the chat the system */}
+        {/*  Implemet this when we do the chat the system */}
         {/* <div className="mt-12 text-center">
           <div className="mb-4 flex items-center justify-center space-x-4">
             <div className="flex -space-x-2">
