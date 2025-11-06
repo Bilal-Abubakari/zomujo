@@ -18,11 +18,7 @@ import ListView from './listView';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { AppointmentDate, AppointmentSlots, SlotStatus } from '@/types/slots.interface';
 
-const AvailableDates = ({
-  setValue,
-  watch,
-  doctorId,
-}: AvailabilityProps): JSX.Element => {
+const AvailableDates = ({ setValue, watch, doctorId }: AvailabilityProps): JSX.Element => {
   const date = watch('date');
   const selectedTime = watch('time');
   const dispatch = useAppDispatch();
