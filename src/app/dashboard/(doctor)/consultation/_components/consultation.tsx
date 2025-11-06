@@ -95,7 +95,9 @@ const Consultation = (): JSX.Element => {
     const payload = await dispatch(endConsultationRequest(String(params.appointmentId))).unwrap();
     toast(payload);
     setIsEndingConsultation(false);
-    router.push('/dashboard');
+    if (!showErrorToast(payload)) {
+      router.push('/dashboard');
+    }
   };
 
   const getStage = (): JSX.Element => {

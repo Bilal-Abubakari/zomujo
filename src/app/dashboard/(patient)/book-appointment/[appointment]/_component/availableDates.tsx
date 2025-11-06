@@ -1,10 +1,9 @@
 'use client';
-import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { cn, showErrorToast } from '@/lib/utils';
 import { JSX, useEffect, useState } from 'react';
 import { useAppDispatch } from '@/lib/hooks';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
 import { extractGMTTime } from '@/lib/date';
@@ -19,17 +18,11 @@ import ListView from './listView';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { AppointmentDate, AppointmentSlots, SlotStatus } from '@/types/slots.interface';
 
-const AvailableDates = ({
-  setValue,
-  setCurrentStep,
-  watch,
-  doctorId,
-}: AvailabilityProps): JSX.Element => {
+const AvailableDates = ({ setValue, watch, doctorId }: AvailabilityProps): JSX.Element => {
   const date = watch('date');
   const selectedTime = watch('time');
   const dispatch = useAppDispatch();
   const params = useParams();
-  const pathname = usePathname();
   const id = params.appointment as string;
   const { getQueryParam } = useQueryParam();
   const appointmentType = getQueryParam('appointmentType');
@@ -201,16 +194,6 @@ const AvailableDates = ({
           <ListView setValue={setValue} watch={watch} doctorId={doctorId} />
         </TabsContent>
       </Tabs>
-
-      {pathname !== '/' && (
-        <div className="mt-11 ml-auto flex justify-end">
-          <Button
-            child="Continue"
-            disabled={!(date && selectedTime)}
-            onClick={() => setCurrentStep?.(2)}
-          />
-        </div>
-      )}
     </div>
   );
 };

@@ -53,6 +53,15 @@ export default function Layout({
     hasSlots: boolean;
     isComplete: boolean;
   } => {
+    if (!doctorExtra) {
+      return {
+        hasProfileInfo: false,
+        hasFee: false,
+        hasPayment: false,
+        hasSlots: false,
+        isComplete: false,
+      };
+    }
     const hasProfileInfo =
       !!doctorExtra.experience &&
       doctorExtra.specializations?.length > 0 &&
@@ -68,6 +77,15 @@ export default function Layout({
         hasProfileInfo && !!doctorExtra.fee && doctorExtra.hasDefaultPayment && doctorExtra.hasSlot,
     };
   };
+
+  useEffect(() => {
+    if (
+      extra?.status === AcceptDeclineStatus.Pending &&
+      !getProfileCompletionStatus(extra).isComplete
+    ) {
+      setModalOpen(true);
+    }
+  }, [extra?.status]);
 
   const handleDismissOnboarding = (dismiss?: boolean): void => {
     if (dontShowAgain || dismiss) {
