@@ -85,7 +85,7 @@ export default function Layout({
     ) {
       setModalOpen(true);
     }
-  }, [extra, extra?.status]);
+  }, [extra?.status]);
 
   const handleDismissOnboarding = (dismiss?: boolean): void => {
     if (dontShowAgain || dismiss) {
