@@ -151,7 +151,7 @@ export const endConsultation = createAsyncThunk(
     try {
       const {
         data: { message },
-      } = await axios.patch<IResponse>(`consultation/end-consultation/${id}`);
+      } = await axios.patch<IResponse>(`consultation/end/${id}`);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

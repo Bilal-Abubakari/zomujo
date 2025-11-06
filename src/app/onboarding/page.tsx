@@ -4,14 +4,30 @@ import React, { JSX } from 'react';
 import { Logo } from '@/assets/images';
 import { cn } from '@/lib/utils';
 import PersonalDetails from '@/app/onboarding/_components/personalDetails';
-import { useAppSelector } from '@/lib/hooks';
+import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import DoctorIdentification from '@/app/onboarding/_components/doctorIdentification';
 import DoctorPhotoUpload from '@/app/onboarding/_components/doctorPhotoUpload';
 import { AlertMessage } from '@/components/ui/alert';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { AvatarComp } from '@/components/ui/avatar';
+import { selectUserName } from '@/lib/features/auth/authSelector';
+import { logout } from '@/lib/features/auth/authThunk';
 
 const DoctorOnboarding = (): JSX.Element => {
+  const dispatch = useAppDispatch();
   const currentStep = useAppSelector(({ authentication }) => authentication.currentStep);
   const errorMessage = useAppSelector(({ authentication }) => authentication.errorMessage);
+  const userName = useAppSelector(selectUserName);
+
+  const logoutHandler = async (): Promise<void> => {
+    await dispatch(logout());
+    window.location.reload();
+  };
 
   const currentView = {
     1: <PersonalDetails />,
@@ -27,6 +43,23 @@ const DoctorOnboarding = (): JSX.Element => {
           className="absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 sm:h-11 sm:w-11"
           alt="Zyptyk Logo"
         />
+        <div className="flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="flex cursor-pointer items-center justify-center">
+                <AvatarComp name={userName} />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="bottom" align="end">
+              <DropdownMenuItem>
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => logoutHandler()}>
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </header>
       <div className="mt-8 flex w-full max-w-[610px] flex-col gap-8 px-4 pb-8 sm:mt-12 sm:gap-10 sm:px-6 md:mt-16 md:gap-12 md:px-8 lg:mt-[70px] lg:px-0">
         <div className="flex flex-col gap-3">
