@@ -7,13 +7,12 @@ import { ApproveDeclineStatus } from '@/types/shared.enum';
 import { IRecordRequest } from '@/types/appointment.interface';
 import {
   IAllergyRequest,
-  IConditionWithoutId,
   IFamilyMemberRequest,
   IPatient,
   IPatientDataCombined,
   IPatientWithRecord,
-  ISurgeryWithoutId,
 } from '@/types/patient.interface';
+import { IConditionWithoutId, ISurgeryWithoutId } from '@/types/medical.interface';
 import {
   updateAllergies,
   updateConditions,
