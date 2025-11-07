@@ -8,8 +8,12 @@ import { Toast, toast } from '@/hooks/use-toast';
 
 type SignatureProps = {
   signatureAdded: () => void;
+  hasExistingSignature?: boolean;
 };
-const Signature = ({ signatureAdded }: SignatureProps): JSX.Element => {
+const Signature = ({
+  signatureAdded,
+  hasExistingSignature = false,
+}: SignatureProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const signatureRef = useRef<SignaturePad>(null);
   const [savingSignature, setSavingSignature] = useState(false);
@@ -30,8 +34,10 @@ const Signature = ({ signatureAdded }: SignatureProps): JSX.Element => {
       return;
     }
     toast({
-      title: 'Signature Added',
-      description: 'Your signature has been successfully added.',
+      title: hasExistingSignature ? 'Signature Updated' : 'Signature Added',
+      description: hasExistingSignature
+        ? 'Your signature has been successfully updated.'
+        : 'Your signature has been successfully added.',
       variant: 'success',
     });
     setSavingSignature(false);
@@ -40,9 +46,11 @@ const Signature = ({ signatureAdded }: SignatureProps): JSX.Element => {
 
   return (
     <div>
-      <span className="font-bold">Add Signature</span>
+      <span className="font-bold">{hasExistingSignature ? 'Edit Signature' : 'Add Signature'}</span>
       <p className="text-sm text-gray-500">
-        We did not find any signature in your records, please add your signature by signing below.
+        {hasExistingSignature
+          ? 'Update your signature by signing below. This will replace your current signature.'
+          : 'We did not find any signature in your records, please add your signature by signing below.'}
       </p>
       <SignaturePad width={500} height={500} ref={signatureRef} />
       <div className="space-x-2">

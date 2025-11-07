@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JSX, useEffect } from 'react';
 import { RecordsTab, useQueryParam } from '@/hooks/useQueryParam';
 import RecordRequests from '@/app/dashboard/(patient)/records/_component/RecordRequests';
+import MyMedicalRecord from '@/app/dashboard/(patient)/records/_component/MyMedicalRecord';
 
 const RecordsView = (): JSX.Element => {
   const { updateQuery, getQueryParam } = useQueryParam();
@@ -47,7 +48,7 @@ const RecordsView = (): JSX.Element => {
               forceMount={true}
               hidden={getQueryParam('recordsTab') !== RecordsTab.MyRecord}
             >
-              <div>My records yet to be implemented</div>
+              <MyMedicalRecord />
             </TabsContent>
           )}
           {getQueryParam('recordsTab') === RecordsTab.Requests && (

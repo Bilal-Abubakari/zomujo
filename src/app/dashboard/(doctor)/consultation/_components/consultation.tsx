@@ -1,5 +1,5 @@
 'use client';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Badge } from '@/components/ui/badge';
 import { ClockFading, CheckCircle, Clock, Loader2 } from 'lucide-react';
@@ -15,6 +15,9 @@ import {
   consultationStatus,
   isConsultationInProgress,
   hasConsultationEnded,
+  selectSymptoms,
+  selectRequestedLabs,
+  selectDiagnoses,
 } from '@/lib/features/appointments/appointmentSelector';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
@@ -44,7 +47,7 @@ const ConsultationHistory = dynamic(
   { loading: () => <StageFallback />, ssr: false },
 );
 
-const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'];
+const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'] as const;
 
 type StageType = (typeof stages)[number];
 
@@ -89,6 +92,35 @@ const Consultation = (): JSX.Element => {
   const hasEnded = useAppSelector(hasConsultationEnded);
   const params = useParams();
   const [isEndingConsultation, setIsEndingConsultation] = useState(false);
+  const symptoms = useAppSelector(selectSymptoms);
+  const [hasSavedSymptoms, setHasSavedSymptoms] = useState(false);
+  const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
+  const [hasSavedLabs, setHasSavedLabs] = useState(false);
+  const savedDiagnoses = useAppSelector(selectDiagnoses);
+  const [hasSavedDiagnosis, setHasSavedDiagnosis] = useState(false);
+
+  const canJumpToStage = useCallback(
+    (stage: StageType): boolean => {
+      if (stage === 'symptoms' || stage === 'diagnose & prescribe') {
+        return !!symptoms || hasSavedSymptoms;
+      }
+      if (stage === 'labs') {
+        return !!requestedAppointmentLabs || hasSavedLabs;
+      }
+      if (stage === 'review') {
+        return hasSavedDiagnosis || savedDiagnoses.length > 0;
+      }
+      return false;
+    },
+    [
+      symptoms,
+      requestedAppointmentLabs,
+      hasSavedSymptoms,
+      hasSavedLabs,
+      hasSavedDiagnosis,
+      savedDiagnoses,
+    ],
+  );
 
   const endConsultation = async (): Promise<void> => {
     setIsEndingConsultation(true);
@@ -105,7 +137,10 @@ const Consultation = (): JSX.Element => {
       case 'labs':
         return (
           <Labs
-            goToDiagnoseAndPrescribe={() => setCurrentStage(stages[2])}
+            goToDiagnoseAndPrescribe={() => {
+              setHasSavedLabs(true);
+              setCurrentStage(stages[2]);
+            }}
             updateLabs={update}
             setUpdateLabs={setUpdate}
           />
@@ -113,7 +148,10 @@ const Consultation = (): JSX.Element => {
       case 'diagnose & prescribe':
         return (
           <DiagnosePrescribe
-            goToReview={() => setCurrentStage(stages[3])}
+            goToReview={() => {
+              setHasSavedDiagnosis(true);
+              setCurrentStage(stages[3]);
+            }}
             updateDiagnosis={update}
             setUpdateDiagnosis={setUpdate}
           />
@@ -121,7 +159,14 @@ const Consultation = (): JSX.Element => {
       case 'review':
         return <ReviewConsultation />;
       default:
-        return <Symptoms goToLabs={() => setCurrentStage(stages[1])} />;
+        return (
+          <Symptoms
+            goToLabs={() => {
+              setHasSavedSymptoms(true);
+              setCurrentStage(stages[1]);
+            }}
+          />
+        );
     }
   };
 
@@ -188,11 +233,12 @@ const Consultation = (): JSX.Element => {
                     <button
                       onClick={() => setCurrentStage(stage)}
                       key={stage}
+                      disabled={!canJumpToStage(stage)}
                       className={cn(
                         index === 0 || index === stages.length - 1 ? '' : 'in-between',
                         index === stages.length - 1 && 'last-crumb rounded-r-2xl sm:rounded-r-4xl',
                         index === 0 && 'first-crumb rounded-l-2xl sm:rounded-l-4xl',
-                        'cursor-pointer',
+                        canJumpToStage(stage) ? 'cursor-pointer' : 'cursor-not-allowed',
                         currentStage === stage ||
                           stages.indexOf(currentStage) > stages.indexOf(stage)
                           ? 'bg-primary-light text-primary'

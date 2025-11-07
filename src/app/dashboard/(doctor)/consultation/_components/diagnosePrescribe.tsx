@@ -26,7 +26,7 @@ import {
   DiagnosesList,
   ConditionsList,
 } from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
-import { IDiagnosis, IPrescription } from '@/types/consultation.interface';
+import { IDiagnosis, IPrescription } from '@/types/medical.interface';
 import { selectUserName } from '@/lib/features/auth/authSelector';
 import { addDiagnosisAndPrescription } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams } from 'next/navigation';
@@ -49,7 +49,7 @@ const conditionsSchema = z.object({
     )
     .min(1),
   notes: z.string().optional(),
-  status: z.nativeEnum(ConditionStatus),
+  status: z.enum(ConditionStatus),
   diagnosedAt: z.string(),
 });
 
@@ -306,7 +306,7 @@ const DiagnosePrescribe = ({
         <Button
           onClick={() => onSubmit()}
           isLoading={isLoading}
-          disabled={isLoading}
+          disabled={isLoading || combinedDiagnoses.length === 0}
           child="Review"
         />
       </div>

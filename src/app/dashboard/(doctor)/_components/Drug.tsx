@@ -1,5 +1,5 @@
 import { Drugs } from '@/assets/images';
-import { IMedicineWithoutId } from '@/types/patient.interface';
+import { IMedicineWithoutId } from '@/types/medical.interface';
 import { JSX } from 'react';
 import { Trash2 } from 'lucide-react';
 import Image from 'next/image';

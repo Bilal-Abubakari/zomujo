@@ -252,16 +252,16 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   };
 
   useEffect(() => {
-    if (addSignature && !doctorSignature) {
+    if (addSignature) {
       setOpenAddSignature(true);
     }
-  }, [addSignature, doctorSignature]);
+  }, [addSignature]);
 
   useEffect(() => {
-    if (!openAddSignature && !doctorSignature) {
+    if (!openAddSignature) {
       setAddSignature(false);
     }
-  }, [openAddSignature, doctorSignature]);
+  }, [openAddSignature]);
 
   const renderLabsContent = (): JSX.Element => {
     if (isLoadingLabs) {
@@ -298,7 +298,12 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
       <Modal
         setState={setOpenAddSignature}
         open={openAddSignature}
-        content={<Signature signatureAdded={() => setOpenAddSignature(false)} />}
+        content={
+          <Signature
+            signatureAdded={() => setOpenAddSignature(false)}
+            hasExistingSignature={!!doctorSignature}
+          />
+        }
         showClose={true}
       />
       <div>
@@ -334,27 +339,24 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
         )}
         <h2 className="mt-10 flex items-center font-bold">Request Lab</h2>
 
-        {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 &&
-          !doctorSignature && (
-            <Alert
-              id="signature-alert"
-              variant="info"
-              className="my-4 border-amber-500 bg-amber-50"
-            >
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="flex items-center justify-between">
-                <span className="text-amber-800">
-                  Lab requests require your digital signature before proceeding.
-                </span>
-                <button
-                  onClick={() => setOpenAddSignature(true)}
-                  className="ml-4 text-sm font-semibold text-amber-700 underline hover:text-amber-900"
-                >
-                  Add now
-                </button>
-              </AlertDescription>
-            </Alert>
-          )}
+        {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 && (
+          <Alert id="signature-alert" variant="info" className="my-4 border-amber-500 bg-amber-50">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="flex items-center justify-between">
+              <span className="text-amber-800">
+                {!doctorSignature
+                  ? 'Lab requests require your digital signature before proceeding.'
+                  : 'You can edit your digital signature if needed.'}
+              </span>
+              <button
+                onClick={() => setOpenAddSignature(true)}
+                className="ml-4 text-sm font-semibold text-amber-700 underline hover:text-amber-900"
+              >
+                {!doctorSignature ? 'Add now' : 'Edit signature'}
+              </button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="mt-5 mb-20 flex flex-wrap gap-5">
           <AddCardButton onClick={() => setUpdateLabs(true)} />
@@ -362,7 +364,9 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
         </div>
         {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 && (
           <div className="fixed right-4 bottom-16 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
-            <Label htmlFor="signature-labs">Add digital Signature</Label>
+            <Label htmlFor="signature-labs">
+              {!doctorSignature ? 'Add digital Signature' : 'Edit digital Signature'}
+            </Label>
             <Switch
               checked={addSignature}
               id="signature-labs"

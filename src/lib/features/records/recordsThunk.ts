@@ -55,7 +55,7 @@ export const requestStatus = createAsyncThunk(
 
 export const getPatientRecords = createAsyncThunk(
   'records/patient',
-  async (id: string, { dispatch }) => {
+  async (id: string, { dispatch }): Promise<IPatientWithRecord | Toast> => {
     try {
       const {
         data: { data },

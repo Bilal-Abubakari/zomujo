@@ -8,7 +8,7 @@ import {
 import { ChevronsRight, CornerDownRight, GripVertical, Loader2, Search } from 'lucide-react';
 import { useDrag, useDrop } from 'react-dnd';
 import { capitalize, cn } from '@/lib/utils';
-import { Control, useFieldArray, UseFormSetValue } from 'react-hook-form';
+import { Control, FieldPath, TriggerConfig, useFieldArray, UseFormSetValue } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,11 +18,22 @@ type SelectSymptomsProps = {
   id: string;
   control: Control<IConsultationSymptomsHFC>;
   setValue: UseFormSetValue<IConsultationSymptomsHFC>;
+  trigger: (
+    name?: FieldPath<IConsultationSymptomsHFC> | FieldPath<IConsultationSymptomsHFC>[],
+    options?: TriggerConfig,
+  ) => Promise<boolean>;
   selectedSymptoms: IPatientSymptom[];
 };
 
 const SelectSymptoms = memo(
-  ({ symptoms, id, setValue, control, selectedSymptoms }: SelectSymptomsProps): JSX.Element => {
+  ({
+    symptoms,
+    id,
+    setValue,
+    control,
+    selectedSymptoms,
+    trigger,
+  }: SelectSymptomsProps): JSX.Element => {
     const [systemSymptoms, setSystemSymptoms] = useState<ISymptom[]>(symptoms);
 
     return (
@@ -35,6 +46,7 @@ const SelectSymptoms = memo(
           setSystemSymptoms={setSystemSymptoms}
           setValue={setValue}
           control={control}
+          trigger={trigger}
         />
         <ChevronsRight className="h-6 w-6 text-gray-400" />
         <SymptomsContainer
@@ -46,6 +58,7 @@ const SelectSymptoms = memo(
           selectedSymptoms={selectedSymptoms}
           setValue={setValue}
           control={control}
+          trigger={trigger}
         />
       </div>
     );
@@ -67,6 +80,10 @@ type SymptomsContainerProps = {
   selectedSymptoms?: IPatientSymptom[];
   id: string;
   setValue: UseFormSetValue<IConsultationSymptomsHFC>;
+  trigger: (
+    name?: FieldPath<IConsultationSymptomsHFC> | FieldPath<IConsultationSymptomsHFC>[],
+    options?: TriggerConfig,
+  ) => Promise<boolean>;
   control: Control<IConsultationSymptomsHFC>;
 };
 
@@ -78,6 +95,7 @@ const SymptomsContainer = ({
   selectedSymptoms = [],
   control,
   setValue,
+  trigger,
   id,
 }: SymptomsContainerProps): ReactElement | null => {
   const [search, setSearch] = useState('');
@@ -105,6 +123,7 @@ const SymptomsContainer = ({
             ...item,
             notes: '',
           });
+          void trigger();
           return;
         }
         const alreadyInSymptoms = findSymptom(symptoms, item.id);
@@ -115,6 +134,7 @@ const SymptomsContainer = ({
         const differentSymptomIndex = selectedSymptoms?.findIndex(({ name }) => name === item.name);
         if (differentSymptomIndex !== -1) {
           remove(differentSymptomIndex);
+          void trigger();
           setSystemSymptoms((prev) => [item, ...prev]);
         }
       },
@@ -124,7 +144,7 @@ const SymptomsContainer = ({
         };
       },
     }),
-    [selectedSymptoms, symptoms],
+    [selectedSymptoms, symptoms, trigger],
   );
 
   const filterSymptoms = (symptoms: ISymptom[], symptomId: string): ISymptom[] =>
@@ -249,7 +269,9 @@ const SymptomItem = ({
             placeholder={`Add notes on ${item.name.toLowerCase()}`}
             className="mt-2"
             onChange={({ target }) =>
-              setValue(`symptoms.${id as SymptomsType}.${index}.notes`, target.value as never)
+              setValue(`symptoms.${id as SymptomsType}.${index}.notes`, target.value as never, {
+                shouldValidate: true,
+              })
             }
           />
         </div>
