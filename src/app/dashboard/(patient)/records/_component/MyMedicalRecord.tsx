@@ -412,10 +412,10 @@ const MyMedicalRecord = (): JSX.Element => {
       )}
 
       {/* Lab Results - Combined from both sources */}
-      {(() => {
+      {((): JSX.Element | null => {
         const allLabs = [...(record?.lab || []), ...(medicalHistory?.labResults || [])];
 
-        const renderLabItem = (lab: (typeof allLabs)[0]) => (
+        const renderLabItem = (lab: (typeof allLabs)[0]): JSX.Element => (
           <div key={lab.id} className="border-b pb-3 last:border-0">
             <div className="flex items-start justify-between">
               <div className="flex-1">
