@@ -19,7 +19,7 @@ const SkeletonMedicalRecord = (): JSX.Element => (
             <Skeleton className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-7 w-12 mb-1" />
+            <Skeleton className="mb-1 h-7 w-12" />
             <Skeleton className="h-3 w-32" />
           </CardContent>
         </Card>
@@ -52,4 +52,3 @@ const SkeletonMedicalRecord = (): JSX.Element => (
 );
 
 export default SkeletonMedicalRecord;
-

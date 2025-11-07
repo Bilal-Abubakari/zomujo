@@ -7,12 +7,7 @@ import {
   severityOptions,
 } from '@/constants/constants';
 import { ILab, IUploadLab } from '@/types/labs.interface';
-import {
-  IMedicine,
-  ICondition,
-  ISurgery,
-  IDiagnosis,
-} from '@/types/medical.interface';
+import { IMedicine, ICondition, ISurgery, IDiagnosis } from '@/types/medical.interface';
 
 export interface IPatient extends IExtraBase {
   lifestyle: unknown;
@@ -142,4 +137,3 @@ export interface IPatientMedicalHistory {
   labResults: ILab[];
   imagingReports: IUploadLab[];
 }
-
