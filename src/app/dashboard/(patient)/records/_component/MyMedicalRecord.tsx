@@ -412,78 +412,50 @@ const MyMedicalRecord = (): JSX.Element => {
       )}
 
       {/* Lab Results - Combined from both sources */}
-      {((record?.lab && record.lab.length > 0) ||
-        (medicalHistory?.labResults && medicalHistory.labResults.length > 0)) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TestTube className="h-5 w-5" />
-              Lab Results
-              <Badge className="ml-2">
-                {(record?.lab?.length || 0) + (medicalHistory?.labResults?.length || 0)}
+      {(() => {
+        const allLabs = [...(record?.lab || []), ...(medicalHistory?.labResults || [])];
+
+        const renderLabItem = (lab: (typeof allLabs)[0]) => (
+          <div key={lab.id} className="border-b pb-3 last:border-0">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="font-medium">{lab.testName}</p>
+                <p className="text-sm text-gray-500">Category: {lab.category}</p>
+                {lab.notes && <p className="mt-1 text-sm text-gray-500">{lab.notes}</p>}
+                {lab.fileUrl && (
+                  <a
+                    href={lab.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 text-sm text-blue-600 hover:underline"
+                  >
+                    View Report
+                  </a>
+                )}
+              </div>
+              <Badge variant={lab.status === RequestStatus.Completed ? 'default' : 'secondary'}>
+                {lab.status}
               </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {record?.lab?.map((lab) => (
-                <div key={lab.id} className="border-b pb-3 last:border-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="font-medium">{lab.testName}</p>
-                      <p className="text-sm text-gray-500">Category: {lab.category}</p>
-                      {lab.notes && <p className="mt-1 text-sm text-gray-500">{lab.notes}</p>}
-                      {lab.fileUrl && (
-                        <a
-                          href={lab.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-1 text-sm text-blue-600 hover:underline"
-                        >
-                          View Report
-                        </a>
-                      )}
-                    </div>
-                    <Badge
-                      variant={lab.status === RequestStatus.Completed ? 'default' : 'secondary'}
-                    >
-                      {lab.status}
-                    </Badge>
-                  </div>
-                  <p className="mt-2 text-xs text-gray-400">{moment(lab.createdAt).format('LL')}</p>
-                </div>
-              ))}
-              {medicalHistory?.labResults?.map((lab) => (
-                <div key={lab.id} className="border-b pb-3 last:border-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="font-medium">{lab.testName}</p>
-                      <p className="text-sm text-gray-500">Category: {lab.category}</p>
-                      {lab.notes && <p className="mt-1 text-sm text-gray-500">{lab.notes}</p>}
-                      {lab.fileUrl && (
-                        <a
-                          href={lab.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-1 text-sm text-blue-600 hover:underline"
-                        >
-                          View Report
-                        </a>
-                      )}
-                    </div>
-                    <Badge
-                      variant={lab.status === RequestStatus.Completed ? 'default' : 'secondary'}
-                    >
-                      {lab.status}
-                    </Badge>
-                  </div>
-                  <p className="mt-2 text-xs text-gray-400">{moment(lab.createdAt).format('LL')}</p>
-                </div>
-              ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <p className="mt-2 text-xs text-gray-400">{moment(lab.createdAt).format('LL')}</p>
+          </div>
+        );
+
+        return allLabs.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TestTube className="h-5 w-5" />
+                Lab Results
+                <Badge className="ml-2">{allLabs.length}</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">{allLabs.map(renderLabItem)}</div>
+            </CardContent>
+          </Card>
+        ) : null;
+      })()}
 
       {/* Imaging Reports */}
       {medicalHistory?.imagingReports && medicalHistory.imagingReports.length > 0 && (
