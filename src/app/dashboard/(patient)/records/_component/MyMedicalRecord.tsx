@@ -396,8 +396,11 @@ const MyMedicalRecord = (): JSX.Element => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {record.familyMembers.map((member, index) => (
-                <div key={index} className="flex items-start gap-4 border-b pb-3 last:border-0">
+              {record.familyMembers.map((member) => (
+                <div
+                  key={`${member.firstName}-${member.lastName}-${member.relation}`}
+                  className="flex items-start gap-4 border-b pb-3 last:border-0"
+                >
                   <div className="flex-1">
                     <p className="font-medium">{`${member.firstName} ${member.lastName}`}</p>
                     <p className="text-sm text-gray-500">Relation: {member.relation}</p>
@@ -559,8 +562,8 @@ const MyMedicalRecord = (): JSX.Element => {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {record.symptoms.map((symptom, index) => (
-                <Badge key={index} variant="outline">
+              {record.symptoms.map((symptom) => (
+                <Badge key={symptom} variant="outline">
                   {symptom}
                 </Badge>
               ))}
@@ -595,8 +598,8 @@ const MyMedicalRecord = (): JSX.Element => {
           </CardHeader>
           <CardContent>
             <ul className="list-inside list-disc space-y-2">
-              {record.examination.map((note, index) => (
-                <li key={index} className="text-gray-700">
+              {record.examination.map((note) => (
+                <li key={note} className="text-gray-700">
                   {note}
                 </li>
               ))}

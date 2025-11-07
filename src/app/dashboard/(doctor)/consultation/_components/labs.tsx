@@ -102,6 +102,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
   const previousLabs = useAppSelector(selectPreviousLabs);
   const doctorSignature = useAppSelector(selectDoctorSignature);
+  const hasSignature = !!doctorSignature;
   const [showPreviousLabs, setShowPreviousLabs] = useState(false);
   const params = useParams();
   const category = watch('category');
@@ -171,7 +172,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     setUpdateLabs(false);
 
     // Show signature alert if no signature exists
-    if (!doctorSignature) {
+    if (!hasSignature) {
       setTimeout(() => {
         const alertElement = document.getElementById('signature-alert');
         if (alertElement) {
@@ -226,7 +227,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     const totalLabRequests = [...(requestedAppointmentLabs ?? []), ...currentRequestedLabs];
 
     // Check if there are lab requests and signature is required but not added
-    if (totalLabRequests.length > 0 && !doctorSignature) {
+    if (totalLabRequests.length > 0 && !hasSignature) {
       setOpenAddSignature(true);
       setIsLoading(false);
       return;
@@ -301,7 +302,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
         content={
           <Signature
             signatureAdded={() => setOpenAddSignature(false)}
-            hasExistingSignature={!!doctorSignature}
+            hasExistingSignature={hasSignature}
           />
         }
         showClose={true}
@@ -344,15 +345,15 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
             <AlertCircle className="h-4 w-4 text-amber-600" />
             <AlertDescription className="flex items-center justify-between">
               <span className="text-amber-800">
-                {!doctorSignature
-                  ? 'Lab requests require your digital signature before proceeding.'
-                  : 'You can edit your digital signature if needed.'}
+                {hasSignature
+                  ? 'You can edit your digital signature if needed.'
+                  : 'Lab requests require your digital signature before proceeding.'}
               </span>
               <button
                 onClick={() => setOpenAddSignature(true)}
                 className="ml-4 text-sm font-semibold text-amber-700 underline hover:text-amber-900"
               >
-                {!doctorSignature ? 'Add now' : 'Edit signature'}
+                {hasSignature ? 'Edit signature' : 'Add now'}
               </button>
             </AlertDescription>
           </Alert>
@@ -365,7 +366,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
         {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 && (
           <div className="fixed right-4 bottom-16 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
             <Label htmlFor="signature-labs">
-              {!doctorSignature ? 'Add digital Signature' : 'Edit digital Signature'}
+              {hasSignature ? 'Edit digital Signature' : 'Add digital Signature'}
             </Label>
             <Switch
               checked={addSignature}

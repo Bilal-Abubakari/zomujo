@@ -58,6 +58,8 @@ const ReviewConsultation = ({
   const [addSignature, setAddSignature] = useState(false);
   const [isSendingPrescription, setIsSendingPrescription] = useState(false);
 
+  const hasSignature = !!doctorSignature;
+
   const sendPrescription = async (): Promise<void> => {
     setIsSendingPrescription(true);
     const result = await dispatch(generatePrescription(String(params.appointmentId))).unwrap();
@@ -85,7 +87,7 @@ const ReviewConsultation = ({
         content={
           <Signature
             signatureAdded={() => setOpenAddSignature(false)}
-            hasExistingSignature={!!doctorSignature}
+            hasExistingSignature={hasSignature}
           />
         }
         showClose={true}
@@ -111,7 +113,7 @@ const ReviewConsultation = ({
                   htmlFor="signature"
                   className="cursor-pointer text-xs font-medium sm:text-sm"
                 >
-                  {!doctorSignature ? 'Add Digital Signature' : 'Edit Digital Signature'}
+                  {hasSignature ? 'Edit Digital Signature' : 'Add Digital Signature'}
                 </Label>
                 <Switch
                   checked={addSignature}
@@ -123,7 +125,7 @@ const ReviewConsultation = ({
                 variant="default"
                 onClick={() => sendPrescription()}
                 isLoading={isSendingPrescription}
-                disabled={isSendingPrescription || !doctorSignature}
+                disabled={isSendingPrescription || !hasSignature}
                 className="w-full sm:w-auto"
                 child={
                   <>
@@ -140,24 +142,22 @@ const ReviewConsultation = ({
         {!isPastConsultation && (
           <Alert
             variant="info"
-            className={
-              !doctorSignature ? 'border-amber-500 bg-amber-50' : 'border-blue-500 bg-blue-50'
-            }
+            className={hasSignature ? 'border-blue-500 bg-blue-50' : 'border-amber-500 bg-amber-50'}
           >
             <AlertCircle
-              className={`h-4 w-4 ${!doctorSignature ? 'text-amber-600' : 'text-blue-600'}`}
+              className={`h-4 w-4 ${hasSignature ? 'text-blue-600' : 'text-amber-600'}`}
             />
             <AlertDescription className="flex items-center justify-between">
-              <span className={!doctorSignature ? 'text-amber-800' : 'text-blue-800'}>
-                {!doctorSignature
-                  ? 'A digital signature is required before sending the prescription.'
-                  : 'Your digital signature will be included in the prescription. You can edit it if needed.'}
+              <span className={hasSignature ? 'text-blue-800' : 'text-amber-800'}>
+                {hasSignature
+                  ? 'Your digital signature will be included in the prescription. You can edit it if needed.'
+                  : 'A digital signature is required before sending the prescription.'}
               </span>
               <button
                 onClick={() => setOpenAddSignature(true)}
-                className={`ml-4 text-sm font-semibold underline ${!doctorSignature ? 'text-amber-700 hover:text-amber-900' : 'text-blue-700 hover:text-blue-900'}`}
+                className={`ml-4 text-sm font-semibold underline ${hasSignature ? 'text-blue-700 hover:text-blue-900' : 'text-amber-700 hover:text-amber-900'}`}
               >
-                {!doctorSignature ? 'Add now' : 'Edit signature'}
+                {hasSignature ? 'Edit signature' : 'Add now'}
               </button>
             </AlertDescription>
           </Alert>

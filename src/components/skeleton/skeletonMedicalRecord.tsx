@@ -12,7 +12,7 @@ const SkeletonMedicalRecord = (): JSX.Element => (
 
     {/* Summary Cards Skeleton */}
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {[...Array(4)].map((_, i) => (
+      {[...new Array(4)].map((_, i) => (
         <Card key={i}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <Skeleton className="h-4 w-24" />
@@ -28,7 +28,7 @@ const SkeletonMedicalRecord = (): JSX.Element => (
 
     {/* Main Content Sections Skeleton */}
     <div className="space-y-4">
-      {[...Array(4)].map((_, i) => (
+      {[...new Array(4)].map((_, i) => (
         <Card key={i}>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -37,7 +37,7 @@ const SkeletonMedicalRecord = (): JSX.Element => (
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[...Array(2)].map((_, j) => (
+            {[...new Array(2)].map((_, j) => (
               <div key={j} className="space-y-2">
                 <Skeleton className="h-5 w-full" />
                 <Skeleton className="h-4 w-3/4" />
