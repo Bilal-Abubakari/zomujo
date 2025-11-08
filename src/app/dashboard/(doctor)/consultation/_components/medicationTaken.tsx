@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import React, { JSX } from 'react';
-import { IMedicineWithoutId } from '@/types/patient.interface';
+import { IMedicineWithoutId } from '@/types/medical.interface';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';

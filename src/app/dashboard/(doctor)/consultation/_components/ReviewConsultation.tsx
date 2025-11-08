@@ -12,7 +12,15 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Info, MailCheck, TestTubeDiagonal, Pill, Stethoscope, ActivitySquare } from 'lucide-react';
+import {
+  Info,
+  MailCheck,
+  TestTubeDiagonal,
+  Pill,
+  Stethoscope,
+  ActivitySquare,
+  AlertCircle,
+} from 'lucide-react';
 import { DiagnosesList } from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
 import { selectUserName } from '@/lib/features/auth/authSelector';
 import { SymptomsType } from '@/types/consultation.interface';
@@ -27,6 +35,7 @@ import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
@@ -49,6 +58,8 @@ const ReviewConsultation = ({
   const [addSignature, setAddSignature] = useState(false);
   const [isSendingPrescription, setIsSendingPrescription] = useState(false);
 
+  const hasSignature = !!doctorSignature;
+
   const sendPrescription = async (): Promise<void> => {
     setIsSendingPrescription(true);
     const result = await dispatch(generatePrescription(String(params.appointmentId))).unwrap();
@@ -57,23 +68,28 @@ const ReviewConsultation = ({
   };
 
   useEffect(() => {
-    if (addSignature && !doctorSignature) {
+    if (addSignature) {
       setOpenAddSignature(true);
     }
-  }, [addSignature, doctorSignature]);
+  }, [addSignature]);
 
   useEffect(() => {
-    if (!openAddSignature && !doctorSignature) {
+    if (!openAddSignature) {
       setAddSignature(false);
     }
-  }, [openAddSignature, doctorSignature]);
+  }, [openAddSignature]);
 
   return (
     <>
       <Modal
         setState={setOpenAddSignature}
         open={openAddSignature}
-        content={<Signature signatureAdded={() => setOpenAddSignature(false)} />}
+        content={
+          <Signature
+            signatureAdded={() => setOpenAddSignature(false)}
+            hasExistingSignature={hasSignature}
+          />
+        }
         showClose={true}
       />
 
@@ -97,7 +113,7 @@ const ReviewConsultation = ({
                   htmlFor="signature"
                   className="cursor-pointer text-xs font-medium sm:text-sm"
                 >
-                  Digital Signature
+                  {hasSignature ? 'Edit Digital Signature' : 'Add Digital Signature'}
                 </Label>
                 <Switch
                   checked={addSignature}
@@ -109,7 +125,7 @@ const ReviewConsultation = ({
                 variant="default"
                 onClick={() => sendPrescription()}
                 isLoading={isSendingPrescription}
-                disabled={isSendingPrescription}
+                disabled={isSendingPrescription || !hasSignature}
                 className="w-full sm:w-auto"
                 child={
                   <>
@@ -121,6 +137,31 @@ const ReviewConsultation = ({
             </div>
           )}
         </div>
+
+        {/* Signature Alert */}
+        {!isPastConsultation && (
+          <Alert
+            variant="info"
+            className={hasSignature ? 'border-blue-500 bg-blue-50' : 'border-amber-500 bg-amber-50'}
+          >
+            <AlertCircle
+              className={`h-4 w-4 ${hasSignature ? 'text-blue-600' : 'text-amber-600'}`}
+            />
+            <AlertDescription className="flex items-center justify-between">
+              <span className={hasSignature ? 'text-blue-800' : 'text-amber-800'}>
+                {hasSignature
+                  ? 'Your digital signature will be included in the prescription. You can edit it if needed.'
+                  : 'A digital signature is required before sending the prescription.'}
+              </span>
+              <button
+                onClick={() => setOpenAddSignature(true)}
+                className={`ml-4 text-sm font-semibold underline ${hasSignature ? 'text-blue-700 hover:text-blue-900' : 'text-amber-700 hover:text-amber-900'}`}
+              >
+                {hasSignature ? 'Edit signature' : 'Add now'}
+              </button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="space-y-6">

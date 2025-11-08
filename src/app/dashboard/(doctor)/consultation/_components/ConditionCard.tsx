@@ -5,10 +5,9 @@ import Drug from '@/app/dashboard/(doctor)/_components/Drug';
 import { getFormattedDate } from '@/lib/date';
 import React, { JSX, ReactNode, useState } from 'react';
 import { ConditionStatus } from '@/types/shared.enum';
-import { IDiagnosis, IPrescription } from '@/types/consultation.interface';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
-import { ICondition, IMedicine } from '@/types/patient.interface';
+import { ICondition, IMedicine, IDiagnosis, IPrescription } from '@/types/medical.interface';
 import { cn } from '@/lib/utils';
 
 type DiagnosisConditionCommonProps = {

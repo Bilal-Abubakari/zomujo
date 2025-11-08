@@ -3,7 +3,7 @@ import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
-import { IPatient } from '@/types/patient.interface';
+import { IPatient, IPatientMedicalHistory } from '@/types/patient.interface';
 import { IDoctorCountResponse } from '@/types/stats.interface';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { updateExtra } from '@/lib/features/auth/authSlice';
@@ -45,6 +45,20 @@ export const updatePatient = createAsyncThunk(
       } = await axios.patch<IResponse<IDoctorCountResponse>>(`${patientsPath}/me`, patientInfo);
       dispatch(updateExtra(patientInfo));
       return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getPatientMedicalHistory = createAsyncThunk(
+  'patients/medicalHistory',
+  async (): Promise<Toast | IPatientMedicalHistory> => {
+    try {
+      const { data } = await axios.get<IResponse<IPatientMedicalHistory>>(
+        `${patientsPath}/medical-history`,
+      );
+      return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

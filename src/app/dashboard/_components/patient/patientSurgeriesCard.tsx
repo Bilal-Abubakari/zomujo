@@ -10,7 +10,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { useForm } from 'react-hook-form';
-import { ISurgeryWithoutId } from '@/types/patient.interface';
+import { ISurgeryWithoutId } from '@/types/medical.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
 import { z } from 'zod';

@@ -11,7 +11,7 @@ import { toast, Toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { SelectInput } from '@/components/ui/select';
-import { durationTypes, MODE } from '@/constants/constants';
+import { durationTypes } from '@/constants/constants';
 import { useFieldArray, useForm } from 'react-hook-form';
 import {
   IConsultationSymptomsHFC,
@@ -50,69 +50,52 @@ import { selectSymptoms } from '@/lib/features/appointments/appointmentSelector'
 import _ from 'lodash';
 import { IAppointmentSymptoms } from '@/types/appointment.interface';
 
-const symptomsSchema = z.object({
-  complaints: z.array(
-    z.object({
-      name: requiredStringSchema(),
-    }),
-  ),
-  duration: z.object({
-    value: requiredStringSchema().refine((val) => Number(val) > 0, {
-      message: 'Duration must be a positive number',
-    }),
-    type: z.enum(DurationType),
-  }),
-  symptoms: z.object({
-    [SymptomsType.Neurological]: z.array(
-      z.object({
-        name: requiredStringSchema(),
-        notes: z.string().optional(),
-      }),
-    ),
-    [SymptomsType.Cardiovascular]: z.array(
-      z.object({
-        name: requiredStringSchema(),
-        notes: z.string().optional(),
-      }),
-    ),
-    [SymptomsType.Gastrointestinal]: z.array(
-      z.object({
-        name: requiredStringSchema(),
-        notes: z.string().optional(),
-      }),
-    ),
-    [SymptomsType.Genitourinary]: z.array(
-      z.object({
-        name: requiredStringSchema(),
-        notes: z.string().optional(),
-      }),
-    ),
-    [SymptomsType.Musculoskeletal]: z.array(
-      z.object({
-        name: requiredStringSchema(),
-        notes: z.string().optional(),
-      }),
-    ),
-    [SymptomsType.Integumentary]: z.array(
-      z.object({
-        name: requiredStringSchema(),
-        notes: z.string().optional(),
-      }),
-    ),
-    [SymptomsType.Endocrine]: z.array(
-      z.object({
-        name: requiredStringSchema(),
-        notes: z.string().optional(),
-      }),
-    ),
-  }),
-  medicinesTaken: z.array(
-    z.object({
-      name: requiredStringSchema(),
-      dose: z.string(),
-    }),
-  ),
+const symptomItemSchema = z.object({
+  name: requiredStringSchema(),
+  notes: z.string().optional(),
 });
+
+const symptomsSchema = z
+  .object({
+    complaints: z.array(
+      z.object({
+        name: requiredStringSchema(),
+      }),
+    ),
+    duration: z.object({
+      value: requiredStringSchema().refine((val) => Number(val) > 0, {
+        message: 'Duration must be a positive number',
+      }),
+      type: z.enum(DurationType),
+    }),
+    symptoms: z.object({
+      [SymptomsType.Neurological]: z.array(symptomItemSchema),
+      [SymptomsType.Cardiovascular]: z.array(symptomItemSchema),
+      [SymptomsType.Gastrointestinal]: z.array(symptomItemSchema),
+      [SymptomsType.Genitourinary]: z.array(symptomItemSchema),
+      [SymptomsType.Musculoskeletal]: z.array(symptomItemSchema),
+      [SymptomsType.Integumentary]: z.array(symptomItemSchema),
+      [SymptomsType.Endocrine]: z.array(symptomItemSchema),
+    }),
+    medicinesTaken: z.array(
+      z.object({
+        name: requiredStringSchema(),
+        dose: z.string(),
+      }),
+    ),
+  })
+  .superRefine((data, ctx) => {
+    const hasSymptoms = Object.values(data.symptoms).some(
+      (symptomArray) => symptomArray && symptomArray.length > 0,
+    );
+    if (!hasSymptoms) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'At least one system symptom must be added.',
+        path: ['symptoms'],
+      });
+    }
+  });
 
 type SymptomsProps = {
   goToLabs: () => void;
@@ -133,10 +116,22 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     register,
     watch,
     setValue,
+    trigger,
     handleSubmit,
   } = useForm<IConsultationSymptomsHFC>({
     resolver: zodResolver(symptomsSchema),
-    mode: MODE.ON_TOUCH,
+    mode: 'all',
+    defaultValues: {
+      symptoms: {
+        [SymptomsType.Neurological]: [],
+        [SymptomsType.Cardiovascular]: [],
+        [SymptomsType.Gastrointestinal]: [],
+        [SymptomsType.Genitourinary]: [],
+        [SymptomsType.Musculoskeletal]: [],
+        [SymptomsType.Integumentary]: [],
+        [SymptomsType.Endocrine]: [],
+      },
+    },
   });
   const { append, remove } = useFieldArray({
     control,
@@ -154,20 +149,23 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
 
   const selectedComplaints = useMemo(() => complaintsHFC?.map(({ name }) => name), [complaintsHFC]);
 
-  const handleSelectedComplaint = (suggestion: string, shouldRemove = true): void => {
-    if (!selectedComplaints.includes(suggestion)) {
-      append({
-        name: suggestion,
-      });
-    } else if (shouldRemove) {
-      const index = complaintsHFC.findIndex(({ name }) => name === suggestion);
-      if (index !== -1) {
-        remove(index);
+  const handleSelectedComplaint = useCallback(
+    (suggestion: string, shouldRemove = true): void => {
+      if (!selectedComplaints.includes(suggestion)) {
+        append({
+          name: suggestion,
+        });
+      } else if (shouldRemove) {
+        const index = complaintsHFC.findIndex(({ name }) => name === suggestion);
+        if (index !== -1) {
+          remove(index);
+        }
       }
-    }
-  };
+    },
+    [append, complaintsHFC, remove, selectedComplaints],
+  );
 
-  const addComplaint = (): void => {
+  const addComplaint = useCallback((): void => {
     if (!otherComplaint) {
       return;
     }
@@ -180,14 +178,14 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       });
       setOtherComplaint('');
     }
-  };
+  }, [append, complaintSuggestions, otherComplaint, selectedComplaints]);
 
-  const fetchSymptoms = async (): Promise<void> => {
+  const fetchSymptoms = useCallback(async (): Promise<void> => {
     setIsLoadingSymptoms(true);
     const { payload } = await dispatch(getSystemSymptoms());
     setSystemSymptoms(payload as ISymptomMap);
     setIsLoadingSymptoms(false);
-  };
+  }, [dispatch]);
 
   const handleSubmitAndGoToLabs = async (data: IConsultationSymptomsHFC): Promise<void> => {
     const appointmentId = String(params.appointmentId);
@@ -234,7 +232,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setIsLoadingComplaintSuggestions(false);
     };
     void handleComplaintSuggestions();
-  }, []);
+  }, [dispatch, fetchSymptoms]);
 
   const systemSymptomsEntries = useMemo(
     () => Object.entries(systemSymptoms ?? {}),
@@ -312,7 +310,15 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         }
       }
     }
-  }, [symptoms, systemSymptoms, isLoadingComplaintSuggestions]);
+  }, [
+    symptoms,
+    systemSymptoms,
+    isLoadingComplaintSuggestions,
+    setValue,
+    complaintSuggestions,
+    handleSelectedComplaint,
+    addComplaint,
+  ]);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -325,6 +331,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
             complaintSuggestions.map((suggestion) => (
               <button
                 key={suggestion}
+                type="button"
                 onClick={() => handleSelectedComplaint(suggestion)}
                 className={cn(
                   'cursor-pointer rounded-[100px] p-2.5',
@@ -399,6 +406,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                       id={id}
                       control={control}
                       setValue={setValue}
+                      trigger={trigger}
                       selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
                     />
                   )}
