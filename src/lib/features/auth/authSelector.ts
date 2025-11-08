@@ -107,7 +107,6 @@ export const selectShouldShowDoctorOnboardingModal = createSelector(
     // Check if profile is incomplete (same logic as ProfileCompletionCard)
     const hasProfileInfo =
       doctorExtra.experience &&
-      doctorExtra.education &&
       doctorExtra.specializations?.length > 0 &&
       doctorExtra.languages?.length > 0 &&
       doctorExtra.bio;
