@@ -41,12 +41,15 @@ import { Label } from '@/components/ui/label';
 import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { NotificationEvent } from '@/types/notification.interface';
+import useWebSocket from '@/hooks/useWebSocket';
 
 type SelectedAppointment = {
   date: Date;
   appointmentId: string;
 };
 const AppointmentRequests = (): JSX.Element => {
+  const { on } = useWebSocket();
   const router = useRouter();
   const user = useAppSelector(selectUser);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
@@ -61,16 +64,27 @@ const AppointmentRequests = (): JSX.Element => {
     appointmentId: '',
   });
 
-  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData, updatePage } =
-    useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
-      orderBy: 'createdAt',
-      orderDirection: OrderDirection.Descending,
-      doctorId: user?.role === Role.Doctor ? user?.id : undefined,
-      patientId: user?.role === Role.Patient ? user?.id : undefined,
-      page: 1,
-      search: '',
-      status: '',
-    });
+  const {
+    isLoading,
+    setQueryParameters,
+    paginationData,
+    queryParameters,
+    tableData,
+    updatePage,
+    refetch,
+  } = useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
+    orderBy: 'createdAt',
+    orderDirection: OrderDirection.Descending,
+    doctorId: user?.role === Role.Doctor ? user?.id : undefined,
+    patientId: user?.role === Role.Patient ? user?.id : undefined,
+    page: 1,
+    search: '',
+    status: '',
+  });
+
+  on(NotificationEvent.NewRequest, () => {
+    void refetch();
+  });
 
   const statusFilterOptions: ISelected[] = [
     {

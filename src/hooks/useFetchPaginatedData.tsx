@@ -34,6 +34,7 @@ export const useFetchPaginatedData = <
   setQueryParameters: Dispatch<React.SetStateAction<IQueryParams<U>>>;
   queryParameters: IQueryParams<U>;
   updatePage: (pageIndex: number) => void;
+  refetch: () => Promise<void>;
 } => {
   const [tableData, setTableData] = useState<T[]>([]);
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
@@ -41,24 +42,24 @@ export const useFetchPaginatedData = <
   const dispatch = useAppDispatch();
   const [queryParameters, setQueryParameters] = useState<IQueryParams<U>>(initialQuery);
 
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      setIsLoading(true);
-      const { payload } = await dispatch(fetchAction(queryParameters));
+  const fetchData = async (): Promise<void> => {
+    setIsLoading(true);
+    const { payload } = await dispatch(fetchAction(queryParameters));
 
-      if (payload && showErrorToast(payload)) {
-        toast(payload);
-        setIsLoading(false);
-        return;
-      }
-
-      const { rows, ...pagination } = payload as IPagination<T>;
-
-      setTableData(rows);
-      setPaginationData(pagination);
+    if (payload && showErrorToast(payload)) {
+      toast(payload);
       setIsLoading(false);
-    };
+      return;
+    }
 
+    const { rows, ...pagination } = payload as IPagination<T>;
+
+    setTableData(rows);
+    setPaginationData(pagination);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
     void fetchData();
   }, [queryParameters, fetchAction, dispatch]);
 
@@ -67,6 +68,10 @@ export const useFetchPaginatedData = <
       ...prev,
       page: pageIndex + 1,
     }));
+  };
+
+  const refetch = async (): Promise<void> => {
+    await fetchData();
   };
 
   return {
@@ -79,5 +84,6 @@ export const useFetchPaginatedData = <
     setQueryParameters,
     queryParameters,
     updatePage,
+    refetch,
   };
 };

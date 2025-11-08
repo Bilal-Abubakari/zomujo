@@ -8,7 +8,14 @@ import {
 import { ChevronsRight, CornerDownRight, GripVertical, Loader2, Search } from 'lucide-react';
 import { useDrag, useDrop } from 'react-dnd';
 import { capitalize, cn } from '@/lib/utils';
-import { Control, FieldPath, TriggerConfig, useFieldArray, UseFormSetValue } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldPath,
+  TriggerConfig,
+  useFieldArray,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,14 +33,7 @@ type SelectSymptomsProps = {
 };
 
 const SelectSymptoms = memo(
-  ({
-    symptoms,
-    id,
-    setValue,
-    control,
-    selectedSymptoms,
-    trigger,
-  }: SelectSymptomsProps): JSX.Element => {
+  ({ symptoms, id, control, selectedSymptoms, trigger }: SelectSymptomsProps): JSX.Element => {
     const [systemSymptoms, setSystemSymptoms] = useState<ISymptom[]>(symptoms);
 
     return (
@@ -44,7 +44,6 @@ const SelectSymptoms = memo(
           symptoms={systemSymptoms}
           selectedSymptoms={selectedSymptoms}
           setSystemSymptoms={setSystemSymptoms}
-          setValue={setValue}
           control={control}
           trigger={trigger}
         />
@@ -56,7 +55,6 @@ const SelectSymptoms = memo(
           symptoms={systemSymptoms}
           setSystemSymptoms={setSystemSymptoms}
           selectedSymptoms={selectedSymptoms}
-          setValue={setValue}
           control={control}
           trigger={trigger}
         />
@@ -79,7 +77,6 @@ type SymptomsContainerProps = {
   setSystemSymptoms: React.Dispatch<React.SetStateAction<ISymptom[]>>;
   selectedSymptoms?: IPatientSymptom[];
   id: string;
-  setValue: UseFormSetValue<IConsultationSymptomsHFC>;
   trigger: (
     name?: FieldPath<IConsultationSymptomsHFC> | FieldPath<IConsultationSymptomsHFC>[],
     options?: TriggerConfig,
@@ -94,7 +91,6 @@ const SymptomsContainer = ({
   setSystemSymptoms,
   selectedSymptoms = [],
   control,
-  setValue,
   trigger,
   id,
 }: SymptomsContainerProps): ReactElement | null => {
@@ -164,7 +160,7 @@ const SymptomsContainer = ({
 
   const systemSymptoms = searchedSymptoms.length
     ? searchedSymptoms.map((symptom, index) => (
-        <SymptomItem key={symptom.id} item={symptom} id={id} setValue={setValue} index={index} />
+        <SymptomItem key={symptom.id} item={symptom} id={id} index={index} control={control} />
       ))
     : emptyResults;
 
@@ -175,8 +171,8 @@ const SymptomsContainer = ({
           key={symptom.name}
           item={symptom}
           id={id}
-          setValue={setValue}
           index={index}
+          control={control}
         />
       ))
     : emptyResults;
@@ -220,16 +216,16 @@ type SymptomItemProps = {
   item: ISymptom | IPatientSymptom;
   id: string;
   patientSymptoms?: boolean;
-  setValue: UseFormSetValue<IConsultationSymptomsHFC>;
   index: number;
+  control: Control<IConsultationSymptomsHFC>;
 };
 
 const SymptomItem = ({
   item,
   id,
   patientSymptoms = false,
-  setValue,
   index,
+  control,
 }: SymptomItemProps): ReactElement | null => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: id,
@@ -264,15 +260,16 @@ const SymptomItem = ({
           )}
         >
           <CornerDownRight className="h-9 w-8 text-gray-400" />
-          <Textarea
-            value={item.notes}
-            placeholder={`Add notes on ${item.name.toLowerCase()}`}
-            className="mt-2"
-            onChange={({ target }) =>
-              setValue(`symptoms.${id as SymptomsType}.${index}.notes`, target.value as never, {
-                shouldValidate: true,
-              })
-            }
+          <Controller
+            name={`symptoms.${id as SymptomsType}.${index}.notes`}
+            control={control}
+            render={({ field }) => (
+              <Textarea
+                {...field}
+                placeholder={`Add notes on ${item.name.toLowerCase()}`}
+                className="mt-2"
+              />
+            )}
           />
         </div>
       )}

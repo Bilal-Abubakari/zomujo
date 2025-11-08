@@ -51,7 +51,7 @@ const MedicationTaken = ({ medicationsTaken, control }: MedicationTakenProps): J
           <Input labelName="Dose Taken" placeholder="eg: 10mg once daily" {...register('dose')} />
         </div>
       </div>
-      <div className="flex">
+      <div className="mt-4 flex">
         <Button
           type="button"
           disabled={!isValid}

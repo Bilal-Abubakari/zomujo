@@ -1,5 +1,5 @@
 'use client';
-import { JSX, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
@@ -11,6 +11,8 @@ import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { showErrorToast } from '@/lib/utils';
 import ExpiredConsultationView from './ExpiredConsultationView';
 import { FileText, Loader2 } from 'lucide-react';
+import { getPatientRecords } from '@/lib/features/records/recordsThunk';
+import { toast, Toast } from '@/hooks/use-toast';
 
 const PatientCard = dynamic(() => import('@/app/dashboard/_components/patient/patientCard'), {
   loading: () => <CardFallback />,
@@ -56,6 +58,7 @@ const PatientOverview = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isStartingConsultation, setIsStartingConsultation] = useState(false);
   const [consultationExpired, setConsultationExpired] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const redirectToConsultation = async (): Promise<void> => {
     const appointmentId = getQueryParam('appointmentId');
@@ -84,6 +87,28 @@ const PatientOverview = (): JSX.Element => {
     router.push('/dashboard/appointments');
   };
 
+  useEffect(() => {
+    const fetchRecords = async (): Promise<void> => {
+      if (!patientId) {
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const response = await dispatch(getPatientRecords(patientId)).unwrap();
+        if (showErrorToast(response)) {
+          toast(response as Toast);
+        }
+      } catch (error) {
+        console.error('Error fetching records:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void fetchRecords();
+  }, [dispatch, patientId]);
+
   if (consultationExpired) {
     return (
       <ExpiredConsultationView
@@ -96,6 +121,7 @@ const PatientOverview = (): JSX.Element => {
   return (
     <div className="relative">
       {isStartingConsultation && <LoadingOverlay message="Starting consultation..." />}
+      {isLoading && <LoadingOverlay message="Loading patient records..." />}
 
       <div className="mb-6 flex flex-wrap gap-8 sm:justify-between">
         <span className="self-center text-xl font-bold">Patient Overview</span>
