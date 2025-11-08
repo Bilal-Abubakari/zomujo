@@ -27,7 +27,6 @@ const ProfileCompletionCard = (): JSX.Element => {
       // Stage 1: Profile Info
       const hasProfileInfo =
         extra.experience &&
-        extra.education &&
         extra.specializations?.length > 0 &&
         extra.languages?.length > 0 &&
         extra.bio;
