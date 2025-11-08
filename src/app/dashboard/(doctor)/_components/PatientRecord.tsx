@@ -94,16 +94,11 @@ const PatientOverview = (): JSX.Element => {
       }
 
       setIsLoading(true);
-      try {
-        const response = await dispatch(getPatientRecords(patientId)).unwrap();
-        if (showErrorToast(response)) {
-          toast(response as Toast);
-        }
-      } catch (error) {
-        console.error('Error fetching records:', error);
-      } finally {
-        setIsLoading(false);
+      const response = await dispatch(getPatientRecords(patientId)).unwrap();
+      if (showErrorToast(response)) {
+        toast(response as Toast);
       }
+      setIsLoading(false);
     };
 
     void fetchRecords();
