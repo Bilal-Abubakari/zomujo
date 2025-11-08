@@ -309,12 +309,12 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
       />
       <div>
         <h1 className="text-xl font-bold">Patient&#39;s Labs</h1>
-        <h2 className="mt-10 flex items-center font-bold">
+        <h2 className="mt-10 flex items-center font-bold max-sm:text-sm">
           Requested Labs <Info className="ml-2" size={20} />
           {!!previousLabs?.length && (
             <button
               onClick={() => setShowPreviousLabs((prev) => !prev)}
-              className="hover:text-primary ml-5 cursor-pointer text-gray-500"
+              className="hover:text-primary ml-5 cursor-pointer text-gray-500 max-sm:ml-3"
             >
               {showPreviousLabs ? 'Click to hide previous labs' : 'Click to Show previous labs'}
             </button>

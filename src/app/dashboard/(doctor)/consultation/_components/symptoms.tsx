@@ -57,11 +57,13 @@ const symptomItemSchema = z.object({
 
 const symptomsSchema = z
   .object({
-    complaints: z.array(
-      z.object({
-        name: requiredStringSchema(),
-      }),
-    ),
+    complaints: z
+      .array(
+        z.object({
+          name: requiredStringSchema(),
+        }),
+      )
+      .min(1),
     duration: z.object({
       value: requiredStringSchema().refine((val) => Number(val) > 0, {
         message: 'Duration must be a positive number',
@@ -405,7 +407,6 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                       symptoms={symptoms}
                       id={id}
                       control={control}
-                      setValue={setValue}
                       trigger={trigger}
                       selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
                     />

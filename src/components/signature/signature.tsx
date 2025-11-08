@@ -47,12 +47,17 @@ const Signature = ({
   return (
     <div>
       <span className="font-bold">{hasExistingSignature ? 'Edit Signature' : 'Add Signature'}</span>
-      <p className="text-sm text-gray-500">
+      <div className="text-sm text-gray-500">
         {hasExistingSignature
           ? 'Update your signature by signing below. This will replace your current signature.'
           : 'We did not find any signature in your records, please add your signature by signing below.'}
-      </p>
-      <SignaturePad width={500} height={500} ref={signatureRef} />
+      </div>
+      <div
+        id="signature"
+        className="mt-4 mb-2 max-w-[450px] overflow-hidden border border-gray-300"
+      >
+        <SignaturePad width={500} height={500} ref={signatureRef} />
+      </div>
       <div className="space-x-2">
         <Button
           disabled={savingSignature}
