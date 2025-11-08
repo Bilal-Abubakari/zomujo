@@ -407,7 +407,6 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                       symptoms={symptoms}
                       id={id}
                       control={control}
-                      setValue={setValue}
                       trigger={trigger}
                       selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
                     />

@@ -8,14 +8,7 @@ import {
 import { ChevronsRight, CornerDownRight, GripVertical, Loader2, Search } from 'lucide-react';
 import { useDrag, useDrop } from 'react-dnd';
 import { capitalize, cn } from '@/lib/utils';
-import {
-  Control,
-  Controller,
-  FieldPath,
-  TriggerConfig,
-  useFieldArray,
-  UseFormSetValue,
-} from 'react-hook-form';
+import { Control, Controller, FieldPath, TriggerConfig, useFieldArray } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,7 +17,6 @@ type SelectSymptomsProps = {
   symptoms: ISymptom[];
   id: string;
   control: Control<IConsultationSymptomsHFC>;
-  setValue: UseFormSetValue<IConsultationSymptomsHFC>;
   trigger: (
     name?: FieldPath<IConsultationSymptomsHFC> | FieldPath<IConsultationSymptomsHFC>[],
     options?: TriggerConfig,

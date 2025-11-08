@@ -84,10 +84,10 @@ const ReviewConsultation = ({
     setIsStartingConsultation(true);
     const result = await dispatch(startConsultation(appointment.id)).unwrap();
 
-    if (!showErrorToast(result)) {
-      router.push(`/dashboard/consultation/${appointment.patient.id}/${appointment.id}`);
-    } else {
+    if (showErrorToast(result)) {
       toast(result);
+    } else {
+      router.push(`/dashboard/consultation/${appointment.patient.id}/${appointment.id}`);
     }
     setIsStartingConsultation(false);
   };
