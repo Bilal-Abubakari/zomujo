@@ -78,15 +78,6 @@ export default function Layout({
     };
   };
 
-  useEffect(() => {
-    if (
-      extra?.status === AcceptDeclineStatus.Pending &&
-      !getProfileCompletionStatus(extra).isComplete
-    ) {
-      setModalOpen(true);
-    }
-  }, [extra?.status]);
-
   const handleDismissOnboarding = (dismiss?: boolean): void => {
     if (dontShowAgain || dismiss) {
       dispatch(dismissOnboardingModal());
