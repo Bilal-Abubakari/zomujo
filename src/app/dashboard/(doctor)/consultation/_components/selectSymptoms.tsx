@@ -1,17 +1,24 @@
-import React, { JSX, useState, ReactElement, useMemo, memo } from 'react';
+import React, { JSX, useState, ReactElement, useMemo, memo, useRef, useEffect } from 'react';
 import {
   IConsultationSymptomsHFC,
   IPatientSymptom,
   ISymptom,
   SymptomsType,
 } from '@/types/consultation.interface';
-import { ChevronsRight, CornerDownRight, GripVertical, Loader2, Search } from 'lucide-react';
-import { useDrag, useDrop } from 'react-dnd';
+import { ArrowRight, CornerDownRight, Loader2, Search } from 'lucide-react';
 import { capitalize, cn } from '@/lib/utils';
 import { Control, Controller, FieldPath, TriggerConfig, useFieldArray } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import { Textarea } from '@/components/ui/textarea';
+
+type FlyingItemData = {
+  id: string;
+  name: string;
+  startRect: DOMRect;
+  endRect: DOMRect;
+  direction: 'toPatient' | 'toSystem';
+};
 
 type SelectSymptomsProps = {
   symptoms: ISymptom[];
@@ -27,29 +34,97 @@ type SelectSymptomsProps = {
 const SelectSymptoms = memo(
   ({ symptoms, id, control, selectedSymptoms, trigger }: SelectSymptomsProps): JSX.Element => {
     const [systemSymptoms, setSystemSymptoms] = useState<ISymptom[]>(symptoms);
+    const [flyingItem, setFlyingItem] = useState<FlyingItemData | null>(null);
+    const systemContainerRef = useRef<HTMLDivElement>(null);
+    const patientContainerRef = useRef<HTMLDivElement>(null);
+
+    // Move useFieldArray to component level
+    const { append, remove } = useFieldArray({
+      control,
+      name: `symptoms.${id as SymptomsType}`,
+    });
+
+    const handleSymptomClick = (
+      item: ISymptom | IPatientSymptom,
+      isFromPatient: boolean,
+      buttonElement: HTMLElement,
+    ): void => {
+      const startRect = buttonElement.getBoundingClientRect();
+      const targetContainer = isFromPatient
+        ? systemContainerRef.current
+        : patientContainerRef.current;
+
+      if (!targetContainer) {
+        return;
+      }
+
+      const endRect = targetContainer.getBoundingClientRect();
+
+      // Create flying animation
+      setFlyingItem({
+        id: 'id' in item ? item.id : item.name,
+        name: item.name,
+        startRect,
+        endRect,
+        direction: isFromPatient ? 'toSystem' : 'toPatient',
+      });
+
+      // Wait for animation to complete before updating state
+      setTimeout(() => {
+        if (isFromPatient) {
+          // Moving from patient to system
+          const symptomWithId: ISymptom = 'id' in item ? item : { ...item, id: item.name };
+          const alreadyInSymptoms = systemSymptoms.find((s) => s.id === symptomWithId.id);
+          if (!alreadyInSymptoms) {
+            const symptomIndex = selectedSymptoms.findIndex((s) => s.name === item.name);
+            if (symptomIndex !== -1) {
+              remove(symptomIndex);
+              void trigger();
+              setSystemSymptoms((prev) => [symptomWithId, ...prev]);
+            }
+          }
+        } else {
+          // Moving from system to patient
+          const alreadySelected = selectedSymptoms.find((s) => s.name === item.name);
+          if (!alreadySelected) {
+            const symptomItem = item as ISymptom;
+            setSystemSymptoms((prev) => prev.filter((s) => s.id !== symptomItem.id));
+            append({
+              ...symptomItem,
+              notes: '',
+            });
+            void trigger();
+          }
+        }
+        setFlyingItem(null);
+      }, 500);
+    };
 
     return (
-      <div className="mt-6 flex flex-row items-center gap-4">
+      <div className="relative mt-6 flex flex-col gap-4 lg:flex-row lg:items-center">
         <SymptomsContainer
+          ref={systemContainerRef}
           isLoading={false}
           id={id}
           symptoms={systemSymptoms}
           selectedSymptoms={selectedSymptoms}
-          setSystemSymptoms={setSystemSymptoms}
           control={control}
-          trigger={trigger}
+          onSymptomClick={handleSymptomClick}
         />
-        <ChevronsRight className="h-6 w-6 text-gray-400" />
+        <div className="flex items-center justify-center lg:block">
+          <ArrowRight className="h-6 w-6 rotate-90 text-gray-400 lg:rotate-0" />
+        </div>
         <SymptomsContainer
+          ref={patientContainerRef}
           isLoading={false}
           patientSymptoms
           id={id}
           symptoms={systemSymptoms}
-          setSystemSymptoms={setSystemSymptoms}
           selectedSymptoms={selectedSymptoms}
           control={control}
-          trigger={trigger}
+          onSymptomClick={handleSymptomClick}
         />
+        {flyingItem && <FlyingSymptom flyingItem={flyingItem} />}
       </div>
     );
   },
@@ -66,143 +141,112 @@ type SymptomsContainerProps = {
   isLoading: boolean;
   patientSymptoms?: boolean;
   symptoms?: ISymptom[];
-  setSystemSymptoms: React.Dispatch<React.SetStateAction<ISymptom[]>>;
   selectedSymptoms?: IPatientSymptom[];
   id: string;
-  trigger: (
-    name?: FieldPath<IConsultationSymptomsHFC> | FieldPath<IConsultationSymptomsHFC>[],
-    options?: TriggerConfig,
-  ) => Promise<boolean>;
   control: Control<IConsultationSymptomsHFC>;
+  onSymptomClick: (
+    item: ISymptom | IPatientSymptom,
+    isFromPatient: boolean,
+    element: HTMLElement,
+  ) => void;
 };
 
-const SymptomsContainer = ({
-  isLoading,
-  patientSymptoms = false,
-  symptoms = [],
-  setSystemSymptoms,
-  selectedSymptoms = [],
-  control,
-  trigger,
-  id,
-}: SymptomsContainerProps): ReactElement | null => {
-  const [search, setSearch] = useState('');
-  const [searchTerm] = useDebounce(search, 500);
-  const searchedSymptoms = useMemo(
-    () => symptoms.filter(({ name }) => name.toLowerCase().includes(searchTerm.toLowerCase())),
-    [searchTerm, symptoms],
-  );
-  const { append, remove } = useFieldArray({
-    control,
-    name: `symptoms.${id as SymptomsType}`,
-  });
-  const [{ isOver }, drop] = useDrop(
-    () => ({
-      accept: id,
-      drop: (item: ISymptom): void => {
-        if (patientSymptoms) {
-          const alreadySelected = findSymptom(selectedSymptoms, item.name, 'name');
-          if (alreadySelected) {
-            return;
-          }
+const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProps>(
+  (
+    {
+      isLoading,
+      patientSymptoms = false,
+      symptoms = [],
+      selectedSymptoms = [],
+      control,
+      id,
+      onSymptomClick,
+    },
+    ref,
+  ): ReactElement | null => {
+    const [search, setSearch] = useState('');
+    const [searchTerm] = useDebounce(search, 500);
+    const searchedSymptoms = useMemo(
+      () => symptoms.filter(({ name }) => name.toLowerCase().includes(searchTerm.toLowerCase())),
+      [searchTerm, symptoms],
+    );
 
-          setSystemSymptoms((prev) => filterSymptoms(prev, item.id));
-          append({
-            ...item,
-            notes: '',
-          });
-          void trigger();
-          return;
-        }
-        const alreadyInSymptoms = findSymptom(symptoms, item.id);
-        if (alreadyInSymptoms) {
-          return;
-        }
+    const emptyResults = (
+      <div className="flex h-[200px] items-center justify-center text-xs text-gray-400 sm:text-sm">
+        {patientSymptoms ? 'No symptoms selected so far' : 'No symptoms found'}
+      </div>
+    );
 
-        const differentSymptomIndex = selectedSymptoms?.findIndex(({ name }) => name === item.name);
-        if (differentSymptomIndex !== -1) {
-          remove(differentSymptomIndex);
-          void trigger();
-          setSystemSymptoms((prev) => [item, ...prev]);
-        }
-      },
-      collect(monitor): { isOver: boolean } {
-        return {
-          isOver: monitor.isOver(),
-        };
-      },
-    }),
-    [selectedSymptoms, symptoms, trigger],
-  );
+    const systemSymptomsList = searchedSymptoms.length
+      ? searchedSymptoms.map((symptom, index) => (
+          <SymptomItem
+            key={symptom.id}
+            item={symptom}
+            id={id}
+            index={index}
+            control={control}
+            onSymptomClick={onSymptomClick}
+            isFromPatient={false}
+          />
+        ))
+      : emptyResults;
 
-  const filterSymptoms = (symptoms: ISymptom[], symptomId: string): ISymptom[] =>
-    symptoms.filter(({ id }) => id !== symptomId);
+    const patientSelectedSymptoms = selectedSymptoms.length
+      ? selectedSymptoms.map((symptom, index) => (
+          <SymptomItem
+            patientSymptoms={patientSymptoms}
+            key={symptom.name}
+            item={symptom}
+            id={id}
+            index={index}
+            control={control}
+            onSymptomClick={onSymptomClick}
+            isFromPatient={true}
+          />
+        ))
+      : emptyResults;
 
-  const findSymptom = <T extends { id?: string; name?: string }>(
-    symptoms: T[],
-    value: string,
-    key: 'id' | 'name' = 'id',
-  ): T | undefined => symptoms.find((symptom) => symptom[key] === value);
-
-  const emptyResults = (
-    <div className="flex h-[250px] items-center justify-center text-sm text-gray-400">
-      {patientSymptoms ? 'No symptoms selected so far' : 'No symptoms founds'}
-    </div>
-  );
-
-  const systemSymptoms = searchedSymptoms.length
-    ? searchedSymptoms.map((symptom, index) => (
-        <SymptomItem key={symptom.id} item={symptom} id={id} index={index} control={control} />
-      ))
-    : emptyResults;
-
-  const patientSelectedSymptoms = selectedSymptoms.length
-    ? selectedSymptoms.map((symptom, index) => (
-        <SymptomItem
-          patientSymptoms={patientSymptoms}
-          key={symptom.name}
-          item={symptom}
-          id={id}
-          index={index}
-          control={control}
-        />
-      ))
-    : emptyResults;
-
-  return drop(
-    <div
-      className={cn(
-        'flex h-[350px] w-[370px] flex-col gap-4 rounded-lg border border-gray-300 p-4',
-        isOver && 'outline-primary outline',
-      )}
-    >
-      {isLoading ? (
-        <Loader2 className="animate-spin" />
-      ) : (
-        <>
-          <p className="text-sm leading-4 font-bold">
-            {patientSymptoms ? 'Patient Symptoms' : `${capitalize(id)} Symptoms`}
-          </p>
-          <div className={cn('flex flex-col gap-2.5', patientSymptoms && 'h-full justify-between')}>
-            <div className="relative flex h-[280px] flex-col gap-1 overflow-y-auto">
-              {!patientSymptoms && (
-                <div className="sticky top-0">
-                  <Input
-                    value={search}
-                    onChange={({ target }) => setSearch(target.value)}
-                    placeholder="Find symptoms"
-                    leftIcon={<Search color="#8C96A5" size="18" />}
-                  />
-                </div>
-              )}
-              {patientSymptoms ? patientSelectedSymptoms : systemSymptoms}
-            </div>
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'flex h-[350px] w-full flex-col gap-4 rounded-lg border border-gray-300 p-3 sm:p-4 lg:w-[370px]',
+        )}
+      >
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <Loader2 className="animate-spin" />
           </div>
-        </>
-      )}
-    </div>,
-  );
-};
+        ) : (
+          <>
+            <p className="text-sm leading-4 font-bold sm:text-base">
+              {patientSymptoms ? 'Patient Symptoms' : `${capitalize(id)} Symptoms`}
+            </p>
+            <div
+              className={cn('flex flex-col gap-2.5', patientSymptoms && 'h-full justify-between')}
+            >
+              <div className="relative flex h-[280px] flex-col gap-1 overflow-y-auto">
+                {!patientSymptoms && (
+                  <div className="sticky top-0 z-10 bg-white pb-2">
+                    <Input
+                      value={search}
+                      onChange={({ target }) => setSearch(target.value)}
+                      placeholder="Find symptoms"
+                      leftIcon={<Search color="#8C96A5" size="18" />}
+                    />
+                  </div>
+                )}
+                {patientSymptoms ? patientSelectedSymptoms : systemSymptomsList}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  },
+);
+
+SymptomsContainer.displayName = 'SymptomsContainer';
 
 type SymptomItemProps = {
   item: ISymptom | IPatientSymptom;
@@ -210,6 +254,12 @@ type SymptomItemProps = {
   patientSymptoms?: boolean;
   index: number;
   control: Control<IConsultationSymptomsHFC>;
+  onSymptomClick: (
+    item: ISymptom | IPatientSymptom,
+    isFromPatient: boolean,
+    element: HTMLElement,
+  ) => void;
+  isFromPatient: boolean;
 };
 
 const SymptomItem = ({
@@ -218,54 +268,118 @@ const SymptomItem = ({
   patientSymptoms = false,
   index,
   control,
+  onSymptomClick,
+  isFromPatient,
 }: SymptomItemProps): ReactElement | null => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: id,
-    item: item,
-    collect: (monitor): { isDragging: boolean } => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }));
   const [showNotes, setShowNotes] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  return drag(
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    // If clicking on patient symptom and notes are showing, toggle notes
+    if (patientSymptoms && e.detail === 2) {
+      setShowNotes((prev) => !prev);
+    } else {
+      // Single click moves the symptom
+      if (buttonRef.current) {
+        onSymptomClick(item, isFromPatient, buttonRef.current);
+      }
+    }
+  };
+
+  return (
     <div>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setShowNotes((prev) => !prev)}
+        onClick={handleClick}
         className={cn(
-          'flex w-full flex-row items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-2.5 duration-100',
-          isDragging && 'border-primaryLightBase',
+          'hover:border-primaryLightBase flex w-full flex-row items-center justify-between gap-2 rounded-md border border-gray-200 bg-white px-2 py-2 text-left duration-100 hover:bg-blue-50 active:scale-95 sm:px-3 sm:py-2.5',
         )}
       >
-        <GripVertical
-          size={20}
-          className={cn('text-gray-400 duration-100', isDragging && 'text-primaryLightBase')}
-        />
-        <p className="text-sm leading-[14px]">{item.name}</p>
+        <p className="text-xs leading-[14px] sm:text-sm">{item.name}</p>
+        {patientSymptoms && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowNotes((prev) => !prev);
+            }}
+            className="ml-auto text-gray-400 hover:text-gray-600"
+          >
+            <CornerDownRight
+              size={16}
+              className={cn('transition-transform', showNotes && 'rotate-90')}
+            />
+          </button>
+        )}
       </button>
       {patientSymptoms && showNotes && 'notes' in item && (
         <div
           className={cn(
-            'flex overflow-hidden transition-all duration-300',
+            'overflow-hidden transition-all duration-300',
             showNotes ? 'max-h-44 opacity-100' : 'max-h-0 opacity-0',
           )}
         >
-          <CornerDownRight className="h-9 w-8 text-gray-400" />
-          <Controller
-            name={`symptoms.${id as SymptomsType}.${index}.notes`}
-            control={control}
-            render={({ field }) => (
-              <Textarea
-                {...field}
-                placeholder={`Add notes on ${item.name.toLowerCase()}`}
-                className="mt-2"
-              />
-            )}
-          />
+          <div className="mt-2 ml-2 flex gap-2 sm:ml-4">
+            <div className="flex-shrink-0">
+              <CornerDownRight className="h-6 w-6 text-gray-400 sm:h-8 sm:w-8" />
+            </div>
+            <Controller
+              name={`symptoms.${id as SymptomsType}.${index}.notes`}
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  placeholder={`Add notes on ${item.name.toLowerCase()}`}
+                  className="min-h-[60px] text-xs sm:text-sm"
+                />
+              )}
+            />
+          </div>
         </div>
       )}
-    </div>,
+    </div>
+  );
+};
+
+type FlyingSymptomProps = {
+  flyingItem: FlyingItemData;
+};
+
+const FlyingSymptom = ({ flyingItem }: FlyingSymptomProps): ReactElement => {
+  const [position, setPosition] = useState({
+    left: flyingItem.startRect.left,
+    top: flyingItem.startRect.top,
+    width: flyingItem.startRect.width,
+    height: flyingItem.startRect.height,
+  });
+
+  useEffect(() => {
+    // Trigger animation after a brief delay
+    const timer = setTimeout(() => {
+      setPosition({
+        left:
+          flyingItem.endRect.left + flyingItem.endRect.width / 2 - flyingItem.startRect.width / 2,
+        top:
+          flyingItem.endRect.top + flyingItem.endRect.height / 2 - flyingItem.startRect.height / 2,
+        width: flyingItem.startRect.width,
+        height: flyingItem.startRect.height,
+      });
+    }, 10);
+
+    return (): void => clearTimeout(timer);
+  }, [flyingItem]);
+
+  return (
+    <div
+      className="border-primaryLightBase pointer-events-none fixed z-50 flex items-center gap-2 rounded-md border bg-blue-100 px-2 py-2 shadow-lg transition-all duration-500 ease-in-out sm:px-3 sm:py-2.5"
+      style={{
+        left: `${position.left}px`,
+        top: `${position.top}px`,
+        width: `${position.width}px`,
+        minHeight: `${position.height}px`,
+      }}
+    ></div>
   );
 };
 
