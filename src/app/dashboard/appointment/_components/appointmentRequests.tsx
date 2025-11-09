@@ -12,6 +12,7 @@ import {
   assignAppointment,
   declineAppointment,
   getAppointments,
+  rescheduleAppointment,
 } from '@/lib/features/appointments/appointmentsThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -43,15 +44,34 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { NotificationEvent } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { bookingSchema } from '@/schemas/booking.schema';
+import { IBookingForm } from '@/types/booking.interface';
+import { MODE } from '@/constants/constants';
+import { SlotSelectionModal } from '@/components/ui/slotSelectionModal';
+import { showErrorToast } from '@/lib/utils';
 
 type SelectedAppointment = {
   date: Date;
   appointmentId: string;
 };
+
+type RescheduleAppointment = {
+  appointmentId: string;
+  doctorId: string;
+  doctorName: string;
+  doctorProfilePicture: string;
+  specializations?: string[];
+  experience?: number;
+  noOfConsultations?: number;
+};
+
 const AppointmentRequests = (): JSX.Element => {
   const { on } = useWebSocket();
   const router = useRouter();
   const user = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -62,6 +82,15 @@ const AppointmentRequests = (): JSX.Element => {
   const [selectedAppointment, setSelectedAppointment] = useState<SelectedAppointment>({
     date: new Date(),
     appointmentId: '',
+  });
+  const [openRescheduleModal, setOpenRescheduleModal] = useState(false);
+  const [rescheduleAppointmentData, setRescheduleAppointmentData] =
+    useState<RescheduleAppointment | null>(null);
+  const [isRescheduling, setIsRescheduling] = useState(false);
+
+  const { register, setValue, getValues, watch, reset } = useForm<IBookingForm>({
+    resolver: zodResolver(bookingSchema),
+    mode: MODE.ON_TOUCH,
   });
 
   const {
@@ -103,7 +132,11 @@ const AppointmentRequests = (): JSX.Element => {
   const columns: ColumnDef<IAppointment>[] = [
     {
       accessorKey: 'patient',
-      header: () => <div className="flex cursor-pointer whitespace-nowrap">Patient Name</div>,
+      header: () => (
+        <div className="flex cursor-pointer whitespace-nowrap">
+          {user?.role === Role.Doctor ? 'Patient Name' : 'Doctor Name'}
+        </div>
+      ),
       cell: ({ row: { original } }): JSX.Element => {
         const { doctor, patient } = original;
         const isDoctor = user?.role === Role.Doctor;
@@ -161,7 +194,9 @@ const AppointmentRequests = (): JSX.Element => {
       cell: ({ row: { original } }): JSX.Element => {
         const { status, patient, doctor, id, createdAt } = original;
         const isPending = status === AppointmentStatus.Pending;
+        const isInProgress = status === AppointmentStatus.Progress;
         const isDone = status === AppointmentStatus.Completed;
+        const isCancelled = status === AppointmentStatus.Cancelled;
         const getName = (): string => {
           if (user?.role === Role.Patient) {
             return `${doctor.firstName} ${doctor.lastName}`;
@@ -203,7 +238,7 @@ const AppointmentRequests = (): JSX.Element => {
                     'Yes, decline',
                     'Cancel',
                   ),
-                visible: !isDone,
+                visible: !isDone && !isCancelled,
               },
               // TODO: Is a refund functionality feasible???
               {
@@ -212,13 +247,20 @@ const AppointmentRequests = (): JSX.Element => {
                     <RotateCcw /> Reschedule
                   </>
                 ),
-                clickCommand: () =>
-                  handleConfirmationOpen(
-                    'Reschedule',
-                    `reschedule ${getName()}'s request`,
-                    id,
-                    acceptAppointment,
-                  ),
+                clickCommand: (): void => {
+                  setRescheduleAppointmentData({
+                    appointmentId: id,
+                    doctorId: doctor.id,
+                    doctorName: `${doctor.firstName} ${doctor.lastName}`,
+                    doctorProfilePicture: doctor.profilePicture,
+                    specializations: doctor.specializations,
+                    experience: doctor.experience,
+                    noOfConsultations: doctor.noOfConsultations,
+                  });
+                  setOpenRescheduleModal(true);
+                  reset();
+                },
+                visible: !isDone && !isCancelled && !isInProgress,
               },
               {
                 title: (
@@ -272,6 +314,44 @@ const AppointmentRequests = (): JSX.Element => {
       search: search ?? searchTerm,
     }));
   }
+
+  const handleReschedule = async (): Promise<void> => {
+    if (!rescheduleAppointmentData) {
+      return;
+    }
+
+    const { slotId } = getValues();
+    if (!slotId) {
+      toast({
+        title: 'Error',
+        description: 'Please select a time slot',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsRescheduling(true);
+
+    const { payload } = await dispatch(
+      rescheduleAppointment({
+        slotId,
+        appointmentId: rescheduleAppointmentData.appointmentId,
+      }),
+    );
+
+    if (payload && showErrorToast(payload)) {
+      toast(payload);
+      setIsRescheduling(false);
+      return;
+    }
+
+    toast(payload as Toast);
+    setIsRescheduling(false);
+    setOpenRescheduleModal(false);
+    setRescheduleAppointmentData(null);
+    reset();
+    void refetch();
+  };
 
   return (
     <div>
@@ -330,6 +410,30 @@ const AppointmentRequests = (): JSX.Element => {
         showClose={true}
         setState={setOpenModal}
       />
+
+      {rescheduleAppointmentData && (
+        <SlotSelectionModal
+          open={openRescheduleModal}
+          onCloseAction={() => {
+            setOpenRescheduleModal(false);
+            setRescheduleAppointmentData(null);
+            reset();
+          }}
+          onConfirmAction={handleReschedule}
+          isLoading={isRescheduling}
+          doctorId={rescheduleAppointmentData.doctorId}
+          doctorName={rescheduleAppointmentData.doctorName}
+          doctorProfilePicture={rescheduleAppointmentData.doctorProfilePicture}
+          specializations={rescheduleAppointmentData.specializations}
+          experience={rescheduleAppointmentData.experience}
+          noOfConsultations={rescheduleAppointmentData.noOfConsultations}
+          registerAction={register}
+          setValueAction={setValue}
+          watch={watch}
+          title="Reschedule Appointment"
+          confirmButtonText="Reschedule"
+        />
+      )}
     </div>
   );
 };
