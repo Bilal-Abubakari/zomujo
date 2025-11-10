@@ -24,7 +24,6 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   status: AppointmentStatus;
   reason: string;
   additionalInfo: string;
-  meetingLink: string | null;
   symptoms: IAppointmentSymptoms;
   lab: ILab[];
   diagnosis: IDiagnosis[];
