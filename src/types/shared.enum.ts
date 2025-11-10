@@ -43,6 +43,7 @@ export enum AppointmentStatus {
   Accepted = 'accepted',
   Declined = 'declined',
   Pending = 'pending',
+  Cancelled = 'cancelled',
 }
 
 export enum Role {

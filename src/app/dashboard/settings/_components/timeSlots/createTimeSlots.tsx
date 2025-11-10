@@ -419,12 +419,14 @@ const CreateTimeSlots = (): JSX.Element => {
                     <p>When do you want appointments to begin each day?</p>
                     <ul className="ml-4 list-disc space-y-1">
                       <li>Must be earlier than end time</li>
-                      <li>Uses 24-hour format (e.g., 09:00 = 9 AM, 14:00 = 2 PM)</li>
+                      <li>
+                        Time format displays based on your system settings (12-hour or 24-hour)
+                      </li>
                       <li>This is the earliest time patients can book</li>
                       <li>Must be within the same calendar day as end time</li>
                     </ul>
                   </div>,
-                  ['Common start times: 08:00, 09:00, or 10:00'],
+                  ['Common start times: 8:00 AM / 08:00, 9:00 AM / 09:00, or 10:00 AM / 10:00'],
                 )}
                 <input
                   type="time"
@@ -453,12 +455,14 @@ const CreateTimeSlots = (): JSX.Element => {
                     <p>When should appointments end each day?</p>
                     <ul className="ml-4 list-disc space-y-1">
                       <li>Must be later than start time</li>
-                      <li>Uses 24-hour format</li>
+                      <li>
+                        Time format displays based on your system settings (12-hour or 24-hour)
+                      </li>
                       <li>Last appointment slot will start before this time</li>
                       <li>Cannot span overnight (must be same day)</li>
                     </ul>
                   </div>,
-                  ['Common end times: 17:00 (5 PM), 18:00 (6 PM)'],
+                  ['Common end times: 5:00 PM / 17:00, 6:00 PM / 18:00'],
                 )}
                 <input
                   type="time"
