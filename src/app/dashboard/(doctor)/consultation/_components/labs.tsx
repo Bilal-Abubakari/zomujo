@@ -1,31 +1,16 @@
 import React, { JSX, useEffect, useMemo, useState } from 'react';
-import { Info, TestTubeDiagonal, Trash2, AlertCircle } from 'lucide-react';
+import { Info, TestTubeDiagonal, Trash2, AlertCircle, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
 import { CategoryType, ILab, ILaboratoryRequest, LaboratoryTest } from '@/types/labs.interface';
 import { z } from 'zod';
-import { SelectInput } from '@/components/ui/select';
-import {
-  ChemicalPathologyCategory,
-  HaematologyCategory,
-  ImmunologyCategory,
-  LabTestSection,
-  MicrobiologyCategory,
-} from '@/types/labs.enum';
+import { LabTestSection } from '@/types/labs.enum';
 import { fetchLabs } from '@/lib/features/appointments/consultation/fetchLabs';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
-import { capitalize, showErrorToast } from '@/lib/utils';
-import { Textarea } from '@/components/ui/textarea';
+import { showErrorToast } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -53,18 +38,15 @@ import {
 import useWebSocket from '@/hooks/useWebSocket';
 
 const labsSchema = z.object({
-  category: z.enum(LabTestSection),
-  categoryType: z.union([
-    z.enum(ChemicalPathologyCategory),
-    z.enum(HaematologyCategory),
-    z.enum(ImmunologyCategory),
-    z.enum(MicrobiologyCategory),
-  ]),
-  testName: requiredStringSchema(),
-  notes: requiredStringSchema(),
-  fasting: z.boolean(),
   specimen: requiredStringSchema(),
+  fasting: z.boolean(),
+  testName: z.string().optional(),
+  notes: z.string().optional(),
+  category: z.string().optional(),
+  categoryType: z.string().optional(),
 });
+
+type LabFormData = z.infer<typeof labsSchema>;
 
 type LabsProps = {
   updateLabs: boolean;
@@ -80,16 +62,19 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   const [labs, setLabs] = useState<LaboratoryTest | null>(null);
   const [openAddSignature, setOpenAddSignature] = useState(false);
   const [addSignature, setAddSignature] = useState(false);
+  const [selectedTests, setSelectedTests] = useState<
+    Map<string, { category: string; categoryType: string }>
+  >(new Map());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categorySpecimens, setCategorySpecimens] = useState<Map<string, string>>(new Map());
   const {
     register,
-    control,
     watch,
-    resetField,
     setValue,
     handleSubmit,
     reset,
     formState: { errors, isValid },
-  } = useForm<ILaboratoryRequest>({
+  } = useForm<LabFormData>({
     resolver: zodResolver(labsSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
@@ -105,8 +90,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   const hasSignature = !!doctorSignature;
   const [showPreviousLabs, setShowPreviousLabs] = useState(false);
   const params = useParams();
-  const category = watch('category');
-  const categoryType = watch('categoryType');
 
   on(NotificationEvent.NewNotification, (data: unknown) => {
     const { payload } = data as INotification;
@@ -114,38 +97,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
       void fetchConsultationLabs();
     }
   });
-
-  const labTestSectionsOptions = useMemo(() => {
-    resetField('categoryType', { defaultValue: '' as CategoryType });
-    return Object.entries(labs ?? {}).map(([key]) => ({
-      label: key,
-      value: key,
-    }));
-  }, [labs, category]);
-
-  const categoryTypeOptions = useMemo(() => {
-    resetField('categoryType', { defaultValue: '' as CategoryType });
-    resetField('testName', { defaultValue: '' });
-    return Object.entries(labs?.[category] ?? {}).map(([key]) => ({
-      label: key,
-      value: key,
-    }));
-  }, [category, labs]);
-
-  const testNameOptions = useMemo(() => {
-    resetField('testName', {
-      defaultValue: '',
-    });
-    if (!labs || !category || !categoryType) {
-      return [];
-    }
-    const categoryMap = labs[category] as Record<CategoryType, string[]>;
-
-    return categoryMap[categoryType].map((value) => ({
-      label: value,
-      value: value,
-    }));
-  }, [categoryType, labs]);
 
   const getLabsData = async (): Promise<void> => {
     const response = await fetchLabs();
@@ -166,8 +117,37 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     setIsLoadingLabs(false);
   };
 
-  const addLabRequest = async (data: ILaboratoryRequest): Promise<void> => {
-    setCurrentRequestedLabs((prev) => [...prev, data]);
+  const addLabRequest = async (data: LabFormData): Promise<void> => {
+    // Create lab requests from all selected tests
+    const newLabRequests: ILaboratoryRequest[] = Array.from(selectedTests.entries()).map(
+      ([testName, meta]) => {
+        // Use category-specific specimen if available, otherwise use main specimen
+        const categoryKey = meta.category;
+        const specimenToUse = categorySpecimens.get(categoryKey) || data.specimen;
+
+        return {
+          testName,
+          category: meta.category as LabTestSection,
+          categoryType: meta.categoryType as CategoryType,
+          notes: '', // Notes removed as per requirement
+          fasting: data.fasting || false,
+          specimen: specimenToUse,
+        };
+      },
+    );
+
+    if (newLabRequests.length === 0) {
+      toast({
+        title: 'No tests selected',
+        description: 'Please select at least one laboratory test',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setCurrentRequestedLabs((prev) => [...prev, ...newLabRequests]);
+    setSelectedTests(new Map()); // Clear selections
+    setCategorySpecimens(new Map()); // Clear category specimens
     reset();
     setUpdateLabs(false);
 
@@ -182,6 +162,58 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     }
   };
 
+  const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
+    setSelectedTests((prev) => {
+      const newMap = new Map(prev);
+      if (newMap.has(testName)) {
+        newMap.delete(testName);
+      } else {
+        newMap.set(testName, { category, categoryType });
+      }
+      return newMap;
+    });
+  };
+
+  const filteredLabs = useMemo(() => {
+    if (!labs) {
+      return null;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) {
+      return labs;
+    }
+
+    const filtered: Partial<LaboratoryTest> = {};
+
+    Object.entries(labs).forEach(([mainCategory, subCategories]) => {
+      const filteredSubCategories: Record<string, string[]> = {};
+
+      Object.entries(subCategories).forEach(([subCategory, tests]) => {
+        const testsArray = tests as string[];
+        const filteredTests = testsArray.filter(
+          (test: string) =>
+            test.toLowerCase().includes(query) ||
+            subCategory.toLowerCase().includes(query) ||
+            mainCategory.toLowerCase().includes(query),
+        );
+
+        if (filteredTests.length > 0) {
+          filteredSubCategories[subCategory] = filteredTests;
+        }
+      });
+
+      if (Object.keys(filteredSubCategories).length > 0) {
+        filtered[mainCategory as LabTestSection] = filteredSubCategories as Record<
+          CategoryType,
+          string[]
+        >;
+      }
+    });
+
+    return filtered as LaboratoryTest;
+  }, [labs, searchQuery]);
+
   useEffect(() => {
     if (updateLabs && !labs) {
       void getLabsData();
@@ -190,6 +222,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
 
   useEffect(() => {
     void fetchConsultationLabs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const requestedLab = ({
@@ -384,89 +417,232 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
           />
         </div>
       </div>
-      <Drawer direction="right" open={updateLabs}>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-sm p-4">
-            <DrawerHeader className="flex items-center justify-between">
-              <div>
-                <DrawerTitle className="text-lg">Add Laboratory Request</DrawerTitle>
-                <DrawerDescription>
-                  Add a laboratory request for patient to send to the lab
-                </DrawerDescription>
+      <Modal
+        setState={(value) => setUpdateLabs(typeof value === 'function' ? value(updateLabs) : value)}
+        open={updateLabs}
+        showClose={true}
+        className="max-h-[80%] w-full max-w-[90%] overflow-y-auto p-5"
+        content={
+          <div className="w-full p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">Add Laboratory Request</h2>
+              <p className="mt-1 text-gray-600">
+                Select laboratory tests for the patient. You can select multiple tests.
+              </p>
+            </div>
+
+            <form className="space-y-6" onSubmit={handleSubmit(addLabRequest)}>
+              {/* Main Specimen Field - Always visible at top */}
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <Input
+                  labelName="Default Specimen (applies to all tests)"
+                  error={errors.specimen?.message}
+                  placeholder="Enter specimen to be used (e.g., Blood, Urine)"
+                  {...register('specimen')}
+                  className="bg-white"
+                />
+                <p className="mt-2 text-xs text-gray-600">
+                  This specimen will be used for all selected tests unless you specify a different
+                  one for a category below.
+                </p>
               </div>
-            </DrawerHeader>
-            <form className="space-y-4" onSubmit={handleSubmit(addLabRequest)}>
-              <SelectInput
-                ref={register('category').ref}
-                control={control}
-                options={labTestSectionsOptions}
-                name="category"
-                label="Laboratory Category"
-                placeholder="Select laboratory category"
-                className="bg-transparent"
-              />
-              {category && (
-                <SelectInput
-                  ref={register('categoryType').ref}
-                  control={control}
-                  options={categoryTypeOptions}
-                  name="categoryType"
-                  label={`${capitalize(category)} Category`}
-                  placeholder={`Select ${capitalize(category)} category`}
-                  className="bg-transparent"
-                />
-              )}
-              {categoryType && (
-                <SelectInput
-                  ref={register('testName').ref}
-                  control={control}
-                  options={testNameOptions}
-                  name="testName"
-                  label={`${capitalize(categoryType)} Test`}
-                  placeholder={`Select ${capitalize(categoryType)} test`}
-                  className="bg-transparent"
-                />
-              )}
-              <Textarea
-                labelName="Notes"
-                placeholder="Add short notes about laboratory test request"
-                {...register('notes')}
-                error={errors?.notes?.message}
-              />
-              <Input
-                labelName="Specimen"
-                error={errors.specimen?.message}
-                placeholder="Enter specimen to be used"
-                {...register('specimen')}
-              />
-              <div className="flex items-center space-x-2">
+
+              {/* Fasting Checkbox */}
+              <div className="flex items-center space-x-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
                 <Checkbox
                   name="fasting"
                   id="fasting"
                   checked={watch('fasting')}
                   onCheckedChange={(checked) => setValue('fasting', !!checked)}
                 />
-                <Label htmlFor="fasting">Fasting</Label>
+                <Label htmlFor="fasting" className="cursor-pointer">
+                  Fasting required for all tests
+                </Label>
               </div>
-              <div className="space-x-3">
-                <Button
-                  isLoading={isLoading}
-                  disabled={!isValid || isLoading}
-                  child="Save"
-                  type="submit"
+
+              {/* Search Bar */}
+              <div className="relative">
+                <Search
+                  className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-400"
+                  size={20}
                 />
+                <Input
+                  type="text"
+                  placeholder="Search for tests, categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pr-10 pl-10"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={20} />
+                  </button>
+                )}
+              </div>
+
+              {/* Selected Tests Summary */}
+              {selectedTests.size > 0 && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-blue-900">
+                      {selectedTests.size} test{selectedTests.size !== 1 ? 's' : ''} selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTests(new Map())}
+                      className="text-sm text-blue-600 underline hover:text-blue-800"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {Array.from(selectedTests.keys()).map((testName) => (
+                      <Badge key={testName} variant="secondary" className="px-3 py-1">
+                        {testName}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Lab Tests Grid */}
+              <div className="max-h-[50vh] overflow-y-auto rounded-lg border">
+                {filteredLabs && Object.entries(filteredLabs).length > 0 ? (
+                  Object.entries(filteredLabs).map(([mainCategory, subCategories]) => {
+                    const hasSelectedTestsInCategory = Array.from(selectedTests.values()).some(
+                      (meta) => meta.category === mainCategory,
+                    );
+
+                    return (
+                      <div key={mainCategory} className="border-b last:border-b-0">
+                        <div className="sticky top-0 z-10 bg-gray-50 px-4 py-3">
+                          <h3 className="text-lg font-bold text-gray-800">{mainCategory}</h3>
+                        </div>
+                        <div className="space-y-4 p-4">
+                          {/* Category-specific specimen field - only show if tests are selected in this category */}
+                          {hasSelectedTestsInCategory && (
+                            <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+                              <Input
+                                labelName={`Specify ${mainCategory} specimen (if different from default)`}
+                                placeholder="Leave blank to use default specimen"
+                                value={categorySpecimens.get(mainCategory) || ''}
+                                onChange={(e) => {
+                                  const newSpecimens = new Map(categorySpecimens);
+                                  if (e.target.value) {
+                                    newSpecimens.set(mainCategory, e.target.value);
+                                  } else {
+                                    newSpecimens.delete(mainCategory);
+                                  }
+                                  setCategorySpecimens(newSpecimens);
+                                }}
+                                className="bg-white"
+                              />
+                              <p className="mt-1 text-xs text-amber-700">
+                                Optional: Override the default specimen for all {mainCategory} tests
+                              </p>
+                            </div>
+                          )}
+
+                          {Object.entries(subCategories).map(([subCategory, tests]) => (
+                            <div key={subCategory} className="space-y-2">
+                              <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
+                              <div className="grid grid-cols-1 gap-3 pl-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                {(tests as string[]).map((test: string) => (
+                                  <div key={test} className="flex items-start space-x-2">
+                                    <Checkbox
+                                      id={`${mainCategory}-${subCategory}-${test}`}
+                                      checked={selectedTests.has(test)}
+                                      onCheckedChange={() =>
+                                        toggleTestSelection(test, mainCategory, subCategory)
+                                      }
+                                    />
+                                    <Label
+                                      htmlFor={`${mainCategory}-${subCategory}-${test}`}
+                                      className="cursor-pointer text-sm leading-tight"
+                                    >
+                                      {test}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="p-8 text-center text-gray-500">
+                    {searchQuery ? (
+                      <>
+                        <Search className="mx-auto mb-2 text-gray-400" size={40} />
+                        <p>No tests found matching &quot;{searchQuery}&quot;</p>
+                      </>
+                    ) : (
+                      <p>Loading laboratory tests...</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 border-t pt-4">
                 <Button
                   disabled={isLoading}
-                  onClick={() => setUpdateLabs(false)}
-                  child="Close"
+                  onClick={() => {
+                    setUpdateLabs(false);
+                    setSelectedTests(new Map());
+                    setCategorySpecimens(new Map());
+                    setSearchQuery('');
+                  }}
+                  child="Cancel"
                   type="button"
                   variant="secondary"
+                />
+                <Button
+                  isLoading={isLoading}
+                  disabled={selectedTests.size === 0 || !isValid || isLoading}
+                  child={
+                    selectedTests.size > 0
+                      ? `Add ${selectedTests.size} Test${selectedTests.size !== 1 ? 's' : ''}`
+                      : 'Add Tests'
+                  }
+                  type="submit"
                 />
               </div>
             </form>
           </div>
-        </DrawerContent>
-      </Drawer>
+        }
+        footer={
+          <div className="flex justify-end space-x-3 border-t pt-4">
+            <Button
+              disabled={isLoading}
+              onClick={() => {
+                setUpdateLabs(false);
+                setSelectedTests(new Map());
+                setSearchQuery('');
+              }}
+              child="Cancel"
+              type="button"
+              variant="secondary"
+            />
+            <Button
+              isLoading={isLoading}
+              disabled={selectedTests.size === 0 || !isValid || isLoading}
+              child={
+                selectedTests.size > 0
+                  ? `Add ${selectedTests.size} Test${selectedTests.size !== 1 ? 's' : ''}`
+                  : 'Add Tests'
+              }
+              type="submit"
+            />
+          </div>
+        }
+      />
     </>
   );
 };
