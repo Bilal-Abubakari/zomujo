@@ -14,6 +14,7 @@ import {
   getAppointments,
   rescheduleAppointment,
 } from '@/lib/features/appointments/appointmentsThunk';
+import { joinConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { IAppointment } from '@/types/appointment.interface';
@@ -24,11 +25,13 @@ import {
   Ban,
   House,
   ListFilter,
+  Loader2,
   Presentation,
   RotateCcw,
   Search,
   SendHorizontal,
   Signature,
+  Video,
   View,
   Waypoints,
 } from 'lucide-react';
@@ -87,6 +90,7 @@ const AppointmentRequests = (): JSX.Element => {
   const [rescheduleAppointmentData, setRescheduleAppointmentData] =
     useState<RescheduleAppointment | null>(null);
   const [isRescheduling, setIsRescheduling] = useState(false);
+  const [joiningAppointmentId, setJoiningAppointmentId] = useState<string | null>(null);
 
   const { register, setValue, getValues, watch, reset } = useForm<IBookingForm>({
     resolver: zodResolver(bookingSchema),
@@ -265,6 +269,20 @@ const AppointmentRequests = (): JSX.Element => {
               {
                 title: (
                   <>
+                    {joiningAppointmentId === id ? <Loader2 className="animate-spin" /> : <Video />}{' '}
+                    {joiningAppointmentId === id ? 'Joining...' : 'Join Meeting'}
+                  </>
+                ),
+                clickCommand: (): void => {
+                  if (!joiningAppointmentId) {
+                    void handleJoinMeeting(id);
+                  }
+                },
+                visible: !isDone && !isCancelled,
+              },
+              {
+                title: (
+                  <>
                     <View /> View Consultation
                   </>
                 ),
@@ -351,6 +369,26 @@ const AppointmentRequests = (): JSX.Element => {
     setRescheduleAppointmentData(null);
     reset();
     void refetch();
+  };
+
+  const handleJoinMeeting = async (appointmentId: string): Promise<void> => {
+    setJoiningAppointmentId(appointmentId);
+
+    const { payload } = await dispatch(joinConsultation(appointmentId));
+
+    if (payload && showErrorToast(payload)) {
+      toast(payload);
+      setJoiningAppointmentId(null);
+      return;
+    }
+
+    // Open meeting link in new tab
+    const meetingLink = payload as string;
+    if (meetingLink) {
+      window.open(meetingLink, '_blank', 'noopener,noreferrer');
+    }
+
+    setJoiningAppointmentId(null);
   };
 
   return (
