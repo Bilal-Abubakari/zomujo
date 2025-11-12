@@ -13,7 +13,7 @@ export interface INotification {
 }
 
 interface IPayload {
-  topic: string;
+  topic: NotificationTopic;
   requestId: string;
   scope: Role;
   message: string;
@@ -32,4 +32,7 @@ export enum NotificationTopic {
   LabUpload = 'Lab Picture Upload',
   DoctorApproved = 'Doctor Approval Status',
   PrescriptionGenerated = 'Prescription Generated',
+  ConsultationUpdate = 'Consultation Update',
+  ConsultationStarted = 'Consultation Started',
+  DiagnosisAdded = 'Diagnosis Added',
 }
