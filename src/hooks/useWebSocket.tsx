@@ -27,6 +27,39 @@ const useWebSocket = (): IWebSocketHook => {
   const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
   const dispatch = useAppDispatch();
 
+  const notificationHandler = (topic: NotificationTopic): void => {
+    if (topic === NotificationTopic.DoctorApproved) {
+      dispatch(
+        updateExtra({
+          status: AcceptDeclineStatus.Accepted,
+        }),
+      );
+    }
+  };
+
+  const updateNotificationsHandler = (data: INotification): void => {
+    dispatch(updateNotifications(data));
+    playNotificationSound();
+  };
+
+  const playNotificationSound = (): void => {
+    const audio = new Audio('/audio/zomujo-notification-sound.wav');
+    audio.load();
+    void audio.play().catch(() => console.error('Failed to play notification sound'));
+  };
+
+  const emit = useCallback((eventName: NotificationEvent, data: unknown) => {
+    if (socketRef.current) {
+      socketRef.current.emit(eventName, data);
+    }
+  }, []);
+
+  const on = useCallback((eventName: NotificationEvent, callback: (...args: unknown[]) => void) => {
+    if (socketRef.current) {
+      socketRef.current.on(eventName, callback);
+    }
+  }, []);
+
   const connect = useCallback(() => {
     try {
       const websocket = io(WS_URL, {
@@ -65,39 +98,6 @@ const useWebSocket = (): IWebSocketHook => {
       socketRef.current = websocket;
     } catch (error) {
       console.error('WebSocket connection error:', error);
-    }
-  }, []);
-
-  const notificationHandler = (topic: NotificationTopic): void => {
-    if (topic === NotificationTopic.DoctorApproved) {
-      dispatch(
-        updateExtra({
-          status: AcceptDeclineStatus.Accepted,
-        }),
-      );
-    }
-  };
-
-  const updateNotificationsHandler = (data: INotification): void => {
-    dispatch(updateNotifications(data));
-    playNotificationSound();
-  };
-
-  const playNotificationSound = (): void => {
-    const audio = new Audio('/audio/zomujo-notification-sound.wav');
-    audio.load();
-    void audio.play().catch(() => console.error('Failed to play notification sound'));
-  };
-
-  const emit = useCallback((eventName: NotificationEvent, data: unknown) => {
-    if (socketRef.current) {
-      socketRef.current.emit(eventName, data);
-    }
-  }, []);
-
-  const on = useCallback((eventName: NotificationEvent, callback: (...args: unknown[]) => void) => {
-    if (socketRef.current) {
-      socketRef.current.on(eventName, callback);
     }
   }, []);
 
