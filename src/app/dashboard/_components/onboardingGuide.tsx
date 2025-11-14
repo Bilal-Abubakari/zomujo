@@ -13,7 +13,7 @@ export const InfoCard = ({
   bgColor: string;
   textColor: string;
 }): JSX.Element => {
-  const isNotPendingColorClass = textColor.includes('green') ? 'bg-green-400' : 'bg-blue-400';
+  const isNotPendingColorClass = textColor.includes('green') ? 'bg-green-400' : 'bg-gray-400';
   const textColorClass = `${textColor.includes('yellow') ? 'bg-yellow-400' : isNotPendingColorClass}`;
   return (
     <div className={`rounded-lg border p-4 ${bgColor}`}>
@@ -55,7 +55,7 @@ export const ActionButtons = ({
         </button>
         <button
           onClick={handleCompleteProfileClick}
-          className="flex-1 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+          className="bg-primary flex-1 rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
         >
           Complete Profile
         </button>
