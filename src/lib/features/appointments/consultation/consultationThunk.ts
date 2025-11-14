@@ -180,3 +180,17 @@ export const addLabFile = createAsyncThunk(
     }
   },
 );
+
+export const joinConsultation = createAsyncThunk(
+  'consultation/join-consultation',
+  async (appointmentId: string): Promise<Toast | string> => {
+    try {
+      const {
+        data: { data },
+      } = await axios.get<IResponse<string>>(`consultation/join/${appointmentId}`);
+      return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);

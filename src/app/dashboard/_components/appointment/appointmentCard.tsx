@@ -4,18 +4,20 @@ import {
   MINUTES_IN_HOUR,
   SECONDS_IN_MINUTE,
 } from '@/constants/constants';
-import { cn } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
 import { House, Video } from 'lucide-react';
-import React, { JSX, useEffect, useRef } from 'react';
+import React, { JSX, useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import { AppointmentStatus, Role } from '@/types/shared.enum';
 import { IAppointment } from '@/types/appointment.interface';
 import { AppointmentType } from '@/types/slots.interface';
 import { mergeDateAndTime } from '@/lib/date';
-import { useAppSelector } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { joinConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
+import { toast } from '@/hooks/use-toast';
 
 export type IAppointmentCardProps = {
   className?: string;
@@ -112,7 +114,6 @@ const AppointmentDetails = ({
   day,
   hour,
   status,
-  meetingLink,
   patient: { firstName, id: patientId },
   id,
   slot: { date },
@@ -120,6 +121,8 @@ const AppointmentDetails = ({
 }: AppointmentDetails): JSX.Element => {
   const position = day > 4 ? -300 : 350;
   const detailsRef = useRef<HTMLDivElement>(null);
+  const [isJoining, setIsJoining] = useState(false);
+  const dispatch = useAppDispatch();
   const statusStyles: Record<AppointmentStatus, string> = {
     [AppointmentStatus.Pending]: 'border-[#93C4F0] bg-[#E0EFFE]',
     [AppointmentStatus.Accepted]: 'border-green-300 bg-green-100',
@@ -133,12 +136,33 @@ const AppointmentDetails = ({
   const isDoctor = user?.role === Role.Doctor;
   const isPatient = user?.role === Role.Patient;
   const router = useRouter();
+
   const redirectToPatient = (): void => {
     router.push(`/dashboard/patients/${patientId}?appointmentId=${id}`);
   };
 
   const redirectToConsultation = (): void => {
     router.push(`/dashboard/consultation-patient/${id}`);
+  };
+
+  const handleJoinMeeting = async (): Promise<void> => {
+    setIsJoining(true);
+
+    const { payload } = await dispatch(joinConsultation(id));
+
+    if (payload && showErrorToast(payload)) {
+      toast(payload);
+      setIsJoining(false);
+      return;
+    }
+
+    // Open meeting link in new tab
+    const meetingLink = payload as string;
+    if (meetingLink) {
+      window.open(meetingLink, '_blank', 'noopener,noreferrer');
+    }
+
+    setIsJoining(false);
   };
 
   // Handle click outside
@@ -181,15 +205,10 @@ const AppointmentDetails = ({
       <p className="mb-2 text-lg font-semibold">Meeting with {firstName}</p>
 
       <Button
-        child={
-          <a
-            href={meetingLink || '#'}
-            target={meetingLink ? '_blank' : '_self'}
-            rel="noopener noreferrer"
-          >
-            Join
-          </a>
-        }
+        child="Join Meeting"
+        onClick={handleJoinMeeting}
+        isLoading={isJoining}
+        disabled={isJoining}
         className={`rounded-full border border-black bg-black px-4 py-2 text-white transition duration-300 hover:bg-green-600 hover:text-white`}
       />
       <div className="my-4 border-t border-b border-current"></div>
