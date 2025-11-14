@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import React, { forwardRef, JSX, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
+import { capitalize } from '@/lib/utils';
 
 type UserSignUpProps = {
   role: Role;
@@ -51,7 +52,12 @@ const UserSignUp = forwardRef<UserSignUpMethods, UserSignUpProps>(
     }));
 
     const onSubmit = async (userCredentials: IUserSignUp): Promise<void> => {
-      submit(userCredentials);
+      const formattedCredentials = {
+        ...userCredentials,
+        firstName: capitalize(userCredentials.firstName.trim()),
+        lastName: capitalize(userCredentials.lastName.trim()),
+      };
+      submit(formattedCredentials);
     };
 
     const getFormTitle = (): string => {

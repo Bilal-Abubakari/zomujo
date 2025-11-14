@@ -62,7 +62,7 @@ function BasicFields({
         <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <Input
             labelName="First name"
-            className="bg-transparent"
+            className="bg-transparent capitalize"
             placeholder="John"
             error={patientErrors.firstName?.message || ''}
             {...patientRegister('firstName')}
@@ -96,14 +96,14 @@ function BasicFields({
       <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
         <Input
           labelName="First name"
-          className="bg-transparent"
+          className="bg-transparent capitalize"
           placeholder="John"
           error={doctorErrors.firstName?.message || ''}
           {...doctorRegister('firstName')}
         />
         <Input
           labelName="Last name"
-          className="bg-transparent"
+          className="bg-transparent capitalize"
           placeholder="Doe"
           error={doctorErrors.lastName?.message || ''}
           {...doctorRegister('lastName')}
