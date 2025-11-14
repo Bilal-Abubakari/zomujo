@@ -4,7 +4,7 @@ import { JSX, useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useAppDispatch } from '@/lib/hooks';
 import { useQueryParam, MedicalAppointmentType } from '@/hooks/useQueryParam';
-import { getAppointmentSlots } from '@/lib/features/appointments/appointmentsThunk';
+import { getAppointmentSlotsDates } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
 import { showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
@@ -69,7 +69,7 @@ const ListView = ({ setValue, watch, doctorId }: ListViewProps): JSX.Element => 
       endDate.setMonth(startDate.getMonth() + 3); // Fetch for next 3 months
 
       const { payload } = await dispatch(
-        getAppointmentSlots({
+        getAppointmentSlotsDates({
           startDate,
           endDate,
           doctorId: appointmentType === MedicalAppointmentType.Doctor ? id : doctorId || '',

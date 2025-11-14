@@ -44,6 +44,22 @@ export const getAppointmentSlots = createAsyncThunk(
   },
 );
 
+export const getAppointmentSlotsDates = createAsyncThunk(
+  'appointments/getSlotsDates',
+  async (
+    queryParams: IQueryParams<SlotStatus | ''>,
+  ): Promise<Toast | IPagination<AppointmentDate>> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<AppointmentDate>>>(
+        `appointments/slots-dates?${getValidQueryString(queryParams)}&orderDirection=asc`,
+      );
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const getAppointmentSlot = createAsyncThunk(
   'appointments/getSlot',
   async (id: string): Promise<Toast | AppointmentSlots> => {
