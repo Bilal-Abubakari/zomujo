@@ -235,7 +235,7 @@ const AppointmentDetails = ({
       <div className="mt-4 flex justify-center">
         {isDoctor && (
           <Button
-            child={'Start Consultation'}
+            child={'View Patient Record'}
             className="rounded-full border-2 border-black bg-black px-6 py-2 text-white transition duration-300 hover:bg-green-700"
             onClick={() => redirectToPatient()}
           />
