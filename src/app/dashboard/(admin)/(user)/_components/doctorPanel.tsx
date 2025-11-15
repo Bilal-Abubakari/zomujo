@@ -32,7 +32,7 @@ import {
 import React, { FormEvent, JSX, useEffect, useState } from 'react';
 import DoctorDetails from '../../../_components/doctorDetails';
 import { Toast, toast } from '@/hooks/use-toast';
-import { downloadFileWithUrl, showErrorToast } from '@/lib/utils';
+import { downloadFileWithUrl, showErrorToast, capitalize } from '@/lib/utils';
 import { useSearch } from '@/hooks/useSearch';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { activateUser, deactivateUser } from '@/lib/features/auth/authThunk';
@@ -196,9 +196,9 @@ const DoctorPanel = (): JSX.Element => {
   ];
 
   const processInviteDoctorRow = (row: string[]): IBaseUser => ({
-    firstName: row[0],
-    lastName: row[1],
-    email: row[2],
+    firstName: capitalize(row[0]?.trim() || ''),
+    lastName: capitalize(row[1]?.trim() || ''),
+    email: row[2]?.trim() || '',
   });
 
   const { readCSV, result, setResult } = useCSVReader<IBaseUser>(processInviteDoctorRow, 'email');

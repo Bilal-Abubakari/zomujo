@@ -40,7 +40,11 @@ const LoginForm = (): JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { isLoading: isAuthLoading, errorMessage } = useAppSelector(selectThunkState);
+  const {
+    isLoading: isAuthLoading,
+    isOAuthLoading,
+    errorMessage,
+  } = useAppSelector(selectThunkState);
 
   const { isLoading, appointmentSlot, doctor, hasBookingInfo, fullName, doctorId, slotId } =
     useBookingInfo();
@@ -155,7 +159,7 @@ const LoginForm = (): JSX.Element => {
           <div className="h-px flex-1 bg-gray-300"></div>
         </div>
 
-        <GoogleOAuthButton onClick={handleGoogleLogin} isLoading={isAuthLoading} />
+        <GoogleOAuthButton onClick={handleGoogleLogin} isLoading={isOAuthLoading} />
 
         <div className="flex w-full max-w-sm items-center justify-between text-sm sm:text-base">
           <Checkbox

@@ -34,6 +34,11 @@ export const selectErrorMessage = createSelector(
 
 export const selectIsLoading = createSelector(selectAuthentication, ({ isLoading }) => isLoading);
 
+export const selectIsOAuthLoading = createSelector(
+  selectAuthentication,
+  ({ isOAuthLoading }) => isOAuthLoading,
+);
+
 export const selectUserName = createSelector(
   selectAuthentication,
   ({ user }) => `${user?.firstName} ${user?.lastName}`,
@@ -53,8 +58,9 @@ export const selectMustUpdatePassword = createSelector(
 
 export const selectThunkState = createSelector(
   selectIsLoading,
+  selectIsOAuthLoading,
   selectErrorMessage,
-  (isLoading, errorMessage) => ({ isLoading, errorMessage }),
+  (isLoading, isOAuthLoading, errorMessage) => ({ isLoading, isOAuthLoading, errorMessage }),
 );
 
 export const selectExtra = createSelector(selectAuthentication, ({ extra }) => extra);

@@ -8,6 +8,7 @@ import React, { JSX } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { IBaseUser } from '@/types/auth.interface';
+import { capitalize } from '@/lib/utils';
 
 type InviteUserProps = {
   title: string;
@@ -31,9 +32,18 @@ const InviteUser = ({ isLoading, submit, title, buttonTitle }: InviteUserProps):
     mode: MODE.ON_TOUCH,
   });
 
+  const onSubmit = (userData: IBaseUser): void => {
+    const formattedUserData = {
+      ...userData,
+      firstName: capitalize(userData.firstName.trim()),
+      lastName: capitalize(userData.lastName.trim()),
+    };
+    submit(formattedUserData);
+  };
+
   return (
     <form
-      onSubmit={handleSubmit(submit)}
+      onSubmit={handleSubmit(onSubmit)}
       className="mx-5 flex flex-col items-center justify-center space-y-8"
     >
       <h2 className="text-center text-2xl font-bold">{title}</h2>
