@@ -15,6 +15,10 @@ import { INotification, NotificationTopic } from '@/types/notification.interface
 import { useRouter } from 'next/navigation';
 import { selectIsDoctor, selectIsPatient } from '@/lib/features/auth/authSelector';
 
+const notificationTopicsWithoutDetails: NotificationTopic[] = [
+  NotificationTopic.DoctorApproved,
+] as const;
+
 export type NotificationsProps = {
   loadMore: () => void;
   page: number;
@@ -150,7 +154,6 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                         </div>
                       </div>
 
-                      {/* Message content - Fixed responsiveness */}
                       <div className="mt-2 w-full sm:mt-3">
                         <div className="w-full max-w-full rounded-lg bg-gray-50 p-2 sm:p-3">
                           <p className="overflow-wrap-anywhere text-xs leading-relaxed break-words whitespace-pre-wrap text-gray-700 sm:text-sm">
@@ -169,13 +172,17 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                             <CheckCheck className="h-3 w-3 sm:h-4 sm:w-4" />
                             <span>Mark as Read</span>
                           </button>
-                          <button
-                            onClick={() => viewNotificationDetails(notification)}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-[#067458] px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-[#067458]/90 focus:ring-2 focus:ring-[#067458] sm:justify-start sm:text-sm"
-                          >
-                            <EyeIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>View Details</span>
-                          </button>
+                          {!notificationTopicsWithoutDetails.includes(
+                            notification.payload.topic,
+                          ) && (
+                            <button
+                              onClick={() => viewNotificationDetails(notification)}
+                              className="inline-flex items-center justify-center gap-1.5 rounded-md bg-[#067458] px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-[#067458]/90 focus:ring-2 focus:ring-[#067458] sm:justify-start sm:text-sm"
+                            >
+                              <EyeIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span>View Details</span>
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
