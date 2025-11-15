@@ -43,7 +43,7 @@ const useWebSocket = (): IWebSocketHook => {
   };
 
   const playNotificationSound = (): void => {
-    const audio = new Audio('/audio/zomujo-notification-sound.wav');
+    const audio = new Audio('/audio/fornix-link-notification-sound.wav');
     audio.load();
     void audio.play().catch(() => console.error('Failed to play notification sound'));
   };
