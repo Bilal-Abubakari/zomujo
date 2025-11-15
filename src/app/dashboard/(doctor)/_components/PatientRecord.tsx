@@ -18,10 +18,11 @@ const PatientCard = dynamic(() => import('@/app/dashboard/_components/patient/pa
   loading: () => <CardFallback />,
   ssr: false,
 });
-const PatientVitalsCard = dynamic(
-  () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
-  { loading: () => <CardFallback />, ssr: false },
-);
+// TODO: Telemedicine limitation - vitals measurement not supported yet. PatientVitalsCard disabled until remote vitals collection solution is implemented.
+// const PatientVitalsCard = dynamic(
+//   () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
+//   { loading: () => <CardFallback />, ssr: false },
+// );
 const PatientConditionsCard = dynamic(
   () => import('@/app/dashboard/_components/patient/patientConditionsCard'),
   { loading: () => <CardFallback />, ssr: false },
@@ -149,7 +150,7 @@ const PatientOverview = (): JSX.Element => {
           <PatientAllergiesCard recordId={recordId} />
         </div>
         <div className="space-y-4">
-          <PatientVitalsCard />
+          {/* TODO: Re-enable <PatientVitalsCard /> when remote vitals collection becomes available */}
           <PatientFamilyMembersCard recordId={recordId} />
         </div>
         <div className="space-y-4">

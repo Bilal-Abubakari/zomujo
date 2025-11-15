@@ -15,7 +15,8 @@ import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
 import { isEqual } from 'lodash';
 import PatientCard from '@/app/dashboard/_components/patient/patientCard';
-import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
+// TODO: Telemedicine limitation - vitals measurement not supported yet. PatientVitalsCard disabled until remote vitals collection is implemented.
+// import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
 import PatientConditionsCard from '@/app/dashboard/_components/patient/patientConditionsCard';
 import PatientSurgeriesCard from '@/app/dashboard/_components/patient/patientSurgeriesCard';
 import PatientFamilyMembersCard from '@/app/dashboard/_components/patient/PatientFamilyMembersCard';
@@ -129,7 +130,7 @@ const PatientInfo = (): JSX.Element => {
               <PatientAllergiesCard recordId={recordId} />
             </div>
             <div className="space-y-4">
-              <PatientVitalsCard />
+              {/* TODO: Re-enable <PatientVitalsCard /> when vitals data becomes available for telemedicine patients */}
               <PatientFamilyMembersCard recordId={recordId} />
             </div>
             <div className="space-y-4">

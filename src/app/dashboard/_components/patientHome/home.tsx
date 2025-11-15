@@ -24,10 +24,11 @@ const UpcomingAppointmentCard = dynamic(
   () => import('@/app/dashboard/_components/patientHome/_component/upcomingAppointments'),
   { loading: () => <LoadingCard />, ssr: false },
 );
-const PatientVitalsCard = dynamic(
-  () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
-  { loading: () => <LoadingCard />, ssr: false },
-);
+// TODO: Telemedicine limitation - vitals measurement not supported yet. PatientVitalsCard disabled until remote vitals integration.
+// const PatientVitalsCard = dynamic(
+//   () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
+//   { loading: () => <LoadingCard />, ssr: false },
+// );
 const DoctorCard = dynamic(() => import('@/app/dashboard/(patient)/_components/doctorCard'), {
   loading: () => <LoadingCard />,
   ssr: false,
@@ -54,7 +55,7 @@ const PatientHome = (): JSX.Element => {
           <div>
             <p className="text-sm">
               Doctor suggestions based on your location are currently not available.{' '}
-              <Link href="dashboard/find-doctor" className="text-primary underline">
+              <Link href="/dashboard/find-doctor" className="text-primary underline">
                 Find available doctors
               </Link>{' '}
               manually.
@@ -110,7 +111,8 @@ const PatientHome = (): JSX.Element => {
     () => (
       <div className="space-y-6">
         <UpcomingAppointmentCard />
-        <PatientVitalsCard />
+        {/* TODO: Re-enable <PatientVitalsCard /> when remote vitals collection becomes available */}
+        {/* <PatientVitalsCard /> */}
       </div>
     ),
     [],
