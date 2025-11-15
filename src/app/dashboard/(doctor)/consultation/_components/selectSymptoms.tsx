@@ -1,6 +1,6 @@
 import React, { JSX, useState, ReactElement, useMemo, memo, useRef, useEffect } from 'react';
 import {
-  IConsultationSymptomsHFC,
+  IConsultationSymptoms,
   IPatientSymptom,
   ISymptom,
   SymptomsType,
@@ -23,9 +23,9 @@ type FlyingItemData = {
 type SelectSymptomsProps = {
   symptoms: ISymptom[];
   id: string;
-  control: Control<IConsultationSymptomsHFC>;
+  control: Control<IConsultationSymptoms>;
   trigger: (
-    name?: FieldPath<IConsultationSymptomsHFC> | FieldPath<IConsultationSymptomsHFC>[],
+    name?: FieldPath<IConsultationSymptoms> | FieldPath<IConsultationSymptoms>[],
     options?: TriggerConfig,
   ) => Promise<boolean>;
   selectedSymptoms: IPatientSymptom[];
@@ -143,7 +143,7 @@ type SymptomsContainerProps = {
   symptoms?: ISymptom[];
   selectedSymptoms?: IPatientSymptom[];
   id: string;
-  control: Control<IConsultationSymptomsHFC>;
+  control: Control<IConsultationSymptoms>;
   onSymptomClick: (
     item: ISymptom | IPatientSymptom,
     isFromPatient: boolean,
@@ -253,7 +253,7 @@ type SymptomItemProps = {
   id: string;
   patientSymptoms?: boolean;
   index: number;
-  control: Control<IConsultationSymptomsHFC>;
+  control: Control<IConsultationSymptoms>;
   onSymptomClick: (
     item: ISymptom | IPatientSymptom,
     isFromPatient: boolean,
