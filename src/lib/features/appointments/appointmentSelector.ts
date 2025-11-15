@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
-import { AppointmentStatus, RequestStatus } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+import { RequestStatus } from '@/types/shared.enum';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const selectAppointments = ({ appointments }: RootState) => appointments;
@@ -35,7 +36,9 @@ export const selectPatientSymptoms = createSelector(
   (symptoms) => symptoms?.symptoms,
 );
 
-export const selectComplaints = createSelector(selectSymptoms, (symptoms) => symptoms?.complaints);
+export const selectComplaints = createSelector(selectSymptoms, (symptoms) =>
+  symptoms?.complaints?.map((c) => c.complaint),
+);
 
 export const selectAppointmentLabs = createSelector(
   selectAppointment,

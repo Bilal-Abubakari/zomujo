@@ -45,9 +45,13 @@ export interface IConsultationDetails {
   slot: ISlot;
 }
 
-export interface IConsultationSymptoms {
-  complaints: string[];
+export interface IComplaint {
+  complaint: string;
   duration: IDuration;
+}
+
+export interface IConsultationSymptoms {
+  complaints: IComplaint[];
   symptoms: IPatientSymptomMap;
   medicinesTaken: IMedicineWithoutId[];
 }
@@ -59,15 +63,6 @@ export interface IConsultationSymptomsRequest extends IConsultationSymptoms {
 export interface IDuration {
   value: string;
   type: DurationType;
-}
-
-/**
- * The interface used to ensure compatibility with react-hook-form.
- * React-Hook-Form's useFieldArray only supports arrays of objects (not flat arrays).
- * HFC = Hook Form Compatibility
- */
-export interface IConsultationSymptomsHFC extends Omit<IConsultationSymptoms, 'complaints'> {
-  complaints: IName[];
 }
 
 export interface IDiagnosisRequest {

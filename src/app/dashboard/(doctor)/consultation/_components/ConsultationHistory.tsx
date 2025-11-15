@@ -46,12 +46,18 @@ const ConsultationHistory = (): JSX.Element => {
       </section>
 
       {/* Duration Section */}
-      {appointment?.symptoms?.duration && (
+      {appointment?.symptoms?.complaints && appointment.symptoms.complaints.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold">Duration</h2>
-          <div className="text-gray-700">
-            <span className="font-semibold">{appointment.symptoms.duration.value}</span>{' '}
-            {appointment.symptoms.duration.type}
+          <h2 className="mb-4 text-xl font-bold">Complaint Durations</h2>
+          <div className="space-y-2">
+            {appointment.symptoms.complaints.map(({ complaint, duration }) => (
+              <div key={complaint} className="text-sm text-gray-700">
+                <span className="font-semibold">{complaint}:</span>{' '}
+                <span>
+                  {duration.value} {duration.type}
+                </span>
+              </div>
+            ))}
           </div>
         </section>
       )}

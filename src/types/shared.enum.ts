@@ -37,15 +37,6 @@ export enum AcceptDeclineStatus {
   Deactivated = 'deactivated',
 }
 
-export enum AppointmentStatus {
-  Completed = 'completed',
-  Progress = 'progress',
-  Accepted = 'accepted',
-  Declined = 'declined',
-  Pending = 'pending',
-  Cancelled = 'cancelled',
-}
-
 export enum Role {
   Admin = 'admin',
   SuperAdmin = 'superadmin',

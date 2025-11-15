@@ -40,7 +40,7 @@ import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AppointmentStatus } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
@@ -281,14 +281,18 @@ const ReviewConsultation = ({
                 ) : (
                   <p className="text-sm text-gray-500">No complaints recorded</p>
                 )}
-                {appointment?.symptoms?.duration && (
-                  <div className="mt-4 rounded-md bg-gray-50 p-3">
-                    <span className="text-sm font-medium text-gray-700">Duration: </span>
-                    <span className="text-sm text-gray-900">
-                      {appointment.symptoms.duration.value} {appointment.symptoms.duration.type}
-                    </span>
-                  </div>
-                )}
+                {appointment?.symptoms?.complaints &&
+                  appointment.symptoms.complaints.length > 0 && (
+                    <div className="mt-4 space-y-1 rounded-md bg-gray-50 p-3">
+                      <span className="text-sm font-medium text-gray-700">Durations:</span>
+                      {appointment.symptoms.complaints.map(({ complaint, duration }) => (
+                        <div key={complaint} className="text-xs text-gray-600">
+                          <span className="font-semibold">{complaint}:</span> {duration.value}{' '}
+                          {duration.type}
+                        </div>
+                      ))}
+                    </div>
+                  )}
               </CardContent>
             </Card>
 

@@ -19,10 +19,12 @@ import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { IAppointment } from '@/types/appointment.interface';
 import { AppointmentType } from '@/types/slots.interface';
-import { AcceptDeclineStatus, AppointmentStatus, OrderDirection, Role } from '@/types/shared.enum';
+import { AcceptDeclineStatus, OrderDirection, Role } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
+  Calendar as CalendarIcon,
   House,
   ListFilter,
   Loader2,
@@ -91,6 +93,8 @@ const AppointmentRequests = (): JSX.Element => {
     useState<RescheduleAppointment | null>(null);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [joiningAppointmentId, setJoiningAppointmentId] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   const { register, setValue, getValues, watch, reset } = useForm<IBookingForm>({
     resolver: zodResolver(bookingSchema),
@@ -120,18 +124,14 @@ const AppointmentRequests = (): JSX.Element => {
   });
 
   const statusFilterOptions: ISelected[] = [
-    {
-      value: '',
-      label: 'All',
-    },
-    {
-      value: AppointmentStatus.Accepted,
-      label: 'Accepted',
-    },
-    {
-      value: AppointmentStatus.Pending,
-      label: 'Pending',
-    },
+    { value: '', label: 'All' },
+    { value: AppointmentStatus.Pending, label: 'Pending' },
+    { value: AppointmentStatus.Accepted, label: 'Accepted' },
+    { value: AppointmentStatus.Progress, label: 'In Progress' },
+    { value: AppointmentStatus.Completed, label: 'Completed' },
+    { value: AppointmentStatus.Cancelled, label: 'Cancelled' },
+    { value: AppointmentStatus.Declined, label: 'Declined' },
+    { value: AppointmentStatus.Incomplete, label: 'Incomplete' },
   ];
   const columns: ColumnDef<IAppointment>[] = [
     {
@@ -391,6 +391,38 @@ const AppointmentRequests = (): JSX.Element => {
     setJoiningAppointmentId(null);
   };
 
+  const handleDateChange = (type: 'start' | 'end', value: string): void => {
+    const dateVal = value ? new Date(value) : null;
+    if (type === 'start') {
+      setStartDate(dateVal);
+      setQueryParameters((prev) => ({ ...prev, page: 1, startDate: dateVal || undefined }));
+      // Validate order
+      if (dateVal && endDate && dateVal > endDate) {
+        toast({
+          title: 'Error',
+          description: 'Start date cannot be after end date',
+          variant: 'destructive',
+        });
+      }
+    } else {
+      setEndDate(dateVal);
+      setQueryParameters((prev) => ({ ...prev, page: 1, endDate: dateVal || undefined }));
+      if (startDate && dateVal && startDate > dateVal) {
+        toast({
+          title: 'Error',
+          description: 'End date cannot be before start date',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
+  const clearDates = (): void => {
+    setStartDate(null);
+    setEndDate(null);
+    setQueryParameters((prev) => ({ ...prev, page: 1, startDate: undefined, endDate: undefined }));
+  };
+
   return (
     <div>
       <div className="flex justify-between">
@@ -405,20 +437,45 @@ const AppointmentRequests = (): JSX.Element => {
           />
           {searchTerm && <Button child={<SendHorizontal />} className="-ml-8" />}
         </form>
-        <OptionsMenu
-          options={statusFilterOptions}
-          Icon={ListFilter}
-          menuTrigger="Status"
-          selected={queryParameters.status}
-          setSelected={(value) =>
-            setQueryParameters((prev) => ({
-              ...prev,
-              page: 1,
-              status: value as AppointmentStatus,
-            }))
-          }
-          className="h-10 cursor-pointer bg-gray-50 sm:flex"
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <OptionsMenu
+            options={statusFilterOptions}
+            Icon={ListFilter}
+            menuTrigger="Status"
+            selected={queryParameters.status}
+            setSelected={(value) =>
+              setQueryParameters((prev) => ({
+                ...prev,
+                page: 1,
+                status: value as AppointmentStatus,
+              }))
+            }
+            className="h-10 cursor-pointer bg-gray-50 sm:flex"
+          />
+          <div className="flex items-center gap-2">
+            <Input
+              error=""
+              type="date"
+              className="w-[150px]"
+              placeholder="Start Date"
+              value={startDate ? moment(startDate).format('YYYY-MM-DD') : ''}
+              leftIcon={<CalendarIcon size={16} />}
+              onChange={(e) => handleDateChange('start', e.target.value)}
+            />
+            {/*Will activate maybe later*/}
+            {/*<Input*/}
+            {/*  error=""*/}
+            {/*  type="date"*/}
+            {/*  className="w-[150px]"*/}
+            {/*  value={endDate ? moment(endDate).format('YYYY-MM-DD') : ''}*/}
+            {/*  leftIcon={<CalendarIcon size={16} />}*/}
+            {/*  onChange={(e) => handleDateChange('end', e.target.value)}*/}
+            {/*/>*/}
+            {(startDate || endDate) && (
+              <Button variant="ghost" child="Clear" onClick={clearDates} />
+            )}
+          </div>
+        </div>
       </div>
       <div className="mt-5">
         <TableData

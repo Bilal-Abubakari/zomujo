@@ -3,7 +3,7 @@ import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { Toast } from '@/hooks/use-toast';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
-import { AppointmentStatus } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { IAppointment, IAppointmentDoctorId } from '@/types/appointment.interface';
 import {
   AppointmentDate,

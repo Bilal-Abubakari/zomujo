@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
 import { z } from 'zod';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
-import { IConsultationSymptomsHFC } from '@/types/consultation.interface';
+import { IConsultationSymptoms } from '@/types/consultation.interface';
 import Drug from '@/app/dashboard/(doctor)/_components/Drug';
 
 const medicationTakenSchema = z.object({
@@ -17,7 +17,7 @@ const medicationTakenSchema = z.object({
 
 type MedicationTakenProps = {
   medicationsTaken: IMedicineWithoutId[];
-  control: Control<IConsultationSymptomsHFC>;
+  control: Control<IConsultationSymptoms>;
 };
 
 const MedicationTaken = ({ medicationsTaken, control }: MedicationTakenProps): JSX.Element => {

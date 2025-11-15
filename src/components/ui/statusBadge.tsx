@@ -1,10 +1,10 @@
 import {
   AcceptDeclineStatus,
-  AppointmentStatus,
   ApproveDeclineStatus,
   ConditionStatus,
   RequestStatus,
 } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { Badge } from '@/components/ui/badge';
 import React, { JSX } from 'react';
 import { ConsultationStatus } from '@/types/consultation.interface';
@@ -30,6 +30,19 @@ const StatusBadge = ({
   destructiveTitle,
 }: StatusBadgeProps): JSX.Element => {
   switch (status) {
+    case AppointmentStatus.Accepted:
+      return <Badge variant="default">{approvedTitle ?? 'Accepted'}</Badge>;
+    case AppointmentStatus.Completed:
+      return <Badge variant="default">{'Completed'}</Badge>;
+    case AppointmentStatus.Progress:
+      return <Badge variant="blue">In Progress</Badge>;
+    case AppointmentStatus.Cancelled:
+      return <Badge variant="destructive">{destructiveTitle ?? 'Cancelled'}</Badge>;
+    case AppointmentStatus.Declined:
+      return <Badge variant="destructive">{declinedTitle ?? 'Declined'}</Badge>;
+    case AppointmentStatus.Incomplete:
+      return <Badge variant="gray">Incomplete</Badge>;
+    // Accept / Approve style statuses
     case AcceptDeclineStatus.Accepted:
     case ApproveDeclineStatus.Approved:
     case ConditionStatus.Inactive:
@@ -44,8 +57,6 @@ const StatusBadge = ({
       return <Badge variant="destructive">{destructiveTitle ?? 'Deactivated'}</Badge>;
     case ConditionStatus.Controlled:
       return <Badge variant="gray">Chronic</Badge>;
-    case ConsultationStatus.Progress:
-      return <Badge variant="blue">In Progress</Badge>;
     default:
       return <Badge variant="brown">{defaultTitle ?? 'Pending'}</Badge>;
   }
