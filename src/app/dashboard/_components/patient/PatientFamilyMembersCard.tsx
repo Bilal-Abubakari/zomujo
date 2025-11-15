@@ -21,7 +21,7 @@ import { SelectInput } from '@/components/ui/select';
 import Image from 'next/image';
 import useImageUpload from '@/hooks/useImageUpload';
 import { addFamilyMember } from '@/lib/features/records/recordsThunk';
-import { showErrorToast } from '@/lib/utils';
+import { showErrorToast, capitalize } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
 import CardFrame from '@/app/dashboard/_components/cardFrame';
 import { Trash2 } from 'lucide-react';
@@ -73,12 +73,13 @@ const PatientFamilyMembersCard = ({ recordId }: PatientFamilyMembersCardProps): 
   const onSubmit = async (familyMember: IFamilyMember<File>): Promise<void> => {
     if (recordId) {
       setIsLoading(true);
-      const { payload } = await dispatch(
-        addFamilyMember({
-          ...familyMember,
-          recordId,
-        }),
-      );
+      const formattedFamilyMember = {
+        ...familyMember,
+        firstName: capitalize(familyMember.firstName.trim()),
+        lastName: capitalize(familyMember.lastName.trim()),
+        recordId,
+      };
+      const { payload } = await dispatch(addFamilyMember(formattedFamilyMember));
       if (!showErrorToast(payload)) {
         setEdit(false);
         reset();

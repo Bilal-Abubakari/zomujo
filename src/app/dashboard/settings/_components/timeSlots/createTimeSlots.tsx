@@ -31,7 +31,11 @@ import { selectExtra } from '@/lib/features/auth/authSelector';
 import { IDoctor } from '@/types/doctor.interface';
 import { useRouter } from 'next/navigation';
 
-const CreateTimeSlots = (): JSX.Element => {
+interface CreateTimeSlotsProps {
+  onSlotCreated?: () => void;
+}
+
+const CreateTimeSlots = ({ onSlotCreated }: CreateTimeSlotsProps): JSX.Element => {
   const doctorInfo = useAppSelector(selectExtra) as IDoctor;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -88,6 +92,8 @@ const CreateTimeSlots = (): JSX.Element => {
       const toastData = payload as Toast;
       toast(toastData);
       if (toastData.variant === 'success') {
+        onSlotCreated?.();
+
         if (!doctorInfo?.bio) {
           router.push('/dashboard/settings');
           toast(dataCompletionToast('profile'));

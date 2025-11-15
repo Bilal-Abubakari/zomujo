@@ -21,6 +21,7 @@ import { ISelected } from '@/components/ui/dropdown-menu';
 import UserSignUp, { UserSignUpMethods } from '@/app/(auth)/_components/userSignUp';
 import GoogleOAuthButton from '@/components/ui/googleOAuthButton';
 import { useSearchParams } from 'next/navigation';
+import { capitalize } from '@/lib/utils';
 import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
 
 const roleOptions: ISelected[] = [
@@ -69,14 +70,18 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
   const dispatch = useAppDispatch();
   const [role, setRole] = useState<Role>(Role.Patient);
   const [successMessage, setSuccessMessage] = useState('');
-  const { isLoading, errorMessage } = useAppSelector(selectThunkState);
+  const { isLoading, isOAuthLoading, errorMessage } = useAppSelector(selectThunkState);
 
   const onSubmit = async (userCredentials: IOrganizationRequest | IUserSignUp): Promise<void> => {
     let payload: unknown;
     setSuccessMessage('');
     if (role === Role.Admin && 'name' in userCredentials) {
+      const formattedCredentials = {
+        ...userCredentials,
+        name: capitalize(userCredentials.name.trim()),
+      };
       const { payload: organizationRequestResponse } = await dispatch(
-        requestOrganization(userCredentials),
+        requestOrganization(formattedCredentials),
       );
       payload = organizationRequestResponse;
     } else if (role !== Role.Admin && 'firstName' in userCredentials) {
@@ -215,7 +220,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
         <>
           <GoogleOAuthButton
             onClick={handleGoogleSignUp}
-            isLoading={isLoading}
+            isLoading={isOAuthLoading}
             text="Sign up with Google"
           />
           <div className="my-6 flex items-center gap-4">

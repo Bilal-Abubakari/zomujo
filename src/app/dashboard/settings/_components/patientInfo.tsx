@@ -23,6 +23,8 @@ import PatientLifestyleCard from '@/app/dashboard/_components/patient/patientLif
 import PatientAllergiesCard from '@/app/dashboard/_components/patient/patientAllergiesCard';
 import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
 import PersonalDetailsForm from '@/components/forms/PersonalDetailsForm';
+import { capitalize } from '@/lib/utils';
+
 const PatientPersonalInfoSchema = z.object({
   firstName: nameSchema,
   lastName: nameSchema,
@@ -79,7 +81,12 @@ const PatientInfo = (): JSX.Element => {
   );
   async function onSubmit(patientInfo: PatientPersonalInfo): Promise<void> {
     setIsLoading(true);
-    const payload = await dispatch(updatePatient(patientInfo)).unwrap();
+    const formattedPatientInfo = {
+      ...patientInfo,
+      firstName: capitalize(patientInfo.firstName.trim()),
+      lastName: capitalize(patientInfo.lastName.trim()),
+    };
+    const payload = await dispatch(updatePatient(formattedPatientInfo)).unwrap();
     toast(payload);
     setIsLoading(false);
   }

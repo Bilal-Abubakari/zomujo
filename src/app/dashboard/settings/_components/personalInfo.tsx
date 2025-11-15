@@ -36,7 +36,7 @@ const PersonalDetailsSchema = z.object({
     .optional(),
   languages: nameArraySchema,
   bio: textAreaSchema,
-  experience: positiveNumberSchema,
+  experience: positiveNumberSchema.refine((value) => (value === 0 ? '' : value)),
   specializations: z.array(nameSchema).max(3, 'You can select up to 3 specializations'),
   contact: phoneNumberSchema,
 });
