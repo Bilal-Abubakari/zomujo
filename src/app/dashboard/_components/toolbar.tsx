@@ -16,8 +16,10 @@ import { AvatarComp } from '@/components/ui/avatar';
 import { selectUserName, selectDoctorStatus } from '@/lib/features/auth/authSelector';
 import { logout } from '@/lib/features/auth/authThunk';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
+import { useRouter } from 'next/navigation';
 
 const Toolbar = (): JSX.Element => {
+  const router = useRouter();
   const [notificationPage, setNotificationPage] = useState(1);
   const dispatch = useAppDispatch();
   const unreadNotifications = useAppSelector(selectUnReadNotificationCount);
@@ -81,7 +83,7 @@ const Toolbar = (): JSX.Element => {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="bottom" align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
                 <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => logoutHandler()}>

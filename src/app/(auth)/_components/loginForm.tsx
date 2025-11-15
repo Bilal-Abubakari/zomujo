@@ -24,6 +24,7 @@ import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import AuthPopIn from './authPopIn';
 import BookingInfoCard from './BookingInfoCard';
 import GoogleOAuthButton from '@/components/ui/googleOAuthButton';
+import { BRANDING } from '@/constants/branding.constant';
 
 const loginSchema = z.object({
   email: emailSchema,
@@ -114,11 +115,11 @@ const LoginForm = (): JSX.Element => {
         </>
       ) : (
         <>
-          <Image src={Logo} width={44} height={44} alt="Zyptyk-logo" />
+          <Image src={Logo} width={44} height={44} alt={`${BRANDING.APP_NAME}-logo`} />
           <div className="mt-5 flex w-full flex-col items-center space-y-3 2xl:space-y-3.5">
             <div className="flex flex-col items-center">
               <Text variantStyle="h4" variant="h4">
-                Welcome to Zyptyk
+                Welcome to {BRANDING.APP_NAME}
               </Text>
               <Text variantStyle="body-small" className="text-grayscale-500">
                 Login to your account to get started

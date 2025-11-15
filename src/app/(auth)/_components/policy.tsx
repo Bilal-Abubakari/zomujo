@@ -7,6 +7,7 @@ import { Users, UserCheck, Clock, Mail, Phone } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { JSX } from 'react';
+import { BRANDING } from '@/constants/branding.constant';
 
 const Policy = (): JSX.Element => {
   const router = useRouter();
@@ -26,7 +27,7 @@ const Policy = (): JSX.Element => {
                       <button onClick={() => router.back()}>
                         <Image className="h-8 w-8 text-blue-400" src={Logo} alt="Logo" />
                       </button>
-                      <h1 className="text-2xl font-bold">Zumojo</h1>
+                      <h1 className="text-2xl font-bold">{BRANDING.APP_NAME}</h1>
                     </div>
                     <Badge variant="brown" className="text-sm">
                       <Clock className="mr-1 h-4 w-4" />
@@ -235,11 +236,11 @@ const Policy = (): JSX.Element => {
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
                             <Mail className="h-4 w-4 text-blue-400" />
-                            <span className="text-muted-foreground">zumojo@gmail.com</span>
+                            <span className="text-muted-foreground">{BRANDING.CONTACT_EMAIL}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Phone className="h-4 w-4 text-blue-400" />
-                            <span className="text-muted-foreground">+233 20 146 2313</span>
+                            <span className="text-muted-foreground">{BRANDING.CONTACT_PHONE}</span>
                           </div>
                         </div>
                       </div>

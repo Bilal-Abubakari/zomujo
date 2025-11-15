@@ -12,7 +12,7 @@ const ForgetPassword = (): JSX.Element => (
     imagePosition={ImagePosition.Right}
   >
     <div>
-      <Image src={Logo} width={44} height={44} alt="Zyptyk-logo" className="m-auto" />
+      <Image src={Logo} width={44} height={44} alt="Fornix Link-logo" className="m-auto" />
       <div className="mt-5 flex w-full flex-col items-center space-y-3 2xl:space-y-3.5">
         <div className="flex flex-col items-center">
           <Text variantStyle="h4" variant="h4">

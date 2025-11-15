@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { JSX } from 'react';
+import { BRANDING } from '@/constants/branding.constant';
 
 const Footer = (): JSX.Element => {
   const footerSections = [
@@ -49,7 +50,7 @@ const Footer = (): JSX.Element => {
 
         <div className="border-border mt-12 border-t pt-8 text-center">
           <p className="text-muted-foreground">
-            &copy; {new Date().getFullYear()} Zomujo. All rights reserved.
+            &copy; {new Date().getFullYear()} {BRANDING.COPYRIGHT_HOLDER}. All rights reserved.
           </p>
         </div>
       </div>

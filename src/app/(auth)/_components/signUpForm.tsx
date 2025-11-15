@@ -22,6 +22,7 @@ import UserSignUp, { UserSignUpMethods } from '@/app/(auth)/_components/userSign
 import GoogleOAuthButton from '@/components/ui/googleOAuthButton';
 import { useSearchParams } from 'next/navigation';
 import { capitalize } from '@/lib/utils';
+import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
 
 const roleOptions: ISelected[] = [
   {
@@ -249,7 +250,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
             <Input
               labelName="Hospital's Name"
               error={'name' in errors ? errors.name?.message : ''}
-              placeholder="Zyptyk Hospital"
+              placeholder={PLACEHOLDER_HOSPITAL_NAME}
               {...register('name')}
             />
 
