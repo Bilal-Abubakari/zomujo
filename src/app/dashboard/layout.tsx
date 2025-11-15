@@ -25,6 +25,7 @@ import {
   CheckboxSection,
   InfoCard,
 } from '@/app/dashboard/_components/onboardingGuide';
+import { BRANDING } from '@/constants/branding.constant';
 
 export default function Layout({
   children,
@@ -126,7 +127,7 @@ export default function Layout({
       return (
         <div className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-gray-900">Welcome to Zomujo!</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Welcome to {BRANDING.APP_NAME}!</h2>
             <p className="text-sm text-gray-600">
               Get ready to start receiving patient bookings by completing these important steps.
             </p>

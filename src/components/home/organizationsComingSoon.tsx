@@ -4,6 +4,7 @@ import { Hospital } from 'lucide-react';
 import { UnderConstruction } from '@/assets/images';
 import { JSX } from 'react';
 import styles from './home.module.css';
+import { BRANDING } from '@/constants/branding.constant';
 
 const OrganizationsComingSoon = (): JSX.Element => (
   <section className="relative mx-auto my-24 flex max-w-5xl flex-col items-center justify-center px-4">
@@ -51,9 +52,9 @@ const OrganizationsComingSoon = (): JSX.Element => (
         </h2>
         <p className="mx-auto mb-10 max-w-lg text-xl font-medium text-gray-700">
           Soon, hospitals and clinics will be able to sign up and use{' '}
-          <span className="text-primary font-bold">Zomujo</span> to connect their patients with
-          their doctors, manage appointments, and streamline healthcare services with advanced
-          tools.
+          <span className="text-primary font-bold">{BRANDING.APP_NAME}</span> to connect their
+          patients with their doctors, manage appointments, and streamline healthcare services with
+          advanced tools.
         </p>
         <span
           className={`bg-primary/10 text-primary inline-block rounded-full px-8 py-4 text-lg font-semibold shadow-lg ${styles.animatePulseSlow}`}

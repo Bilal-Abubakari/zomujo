@@ -17,6 +17,7 @@ import { updateHospitalDetails } from '@/lib/features/hospitals/hospitalThunk';
 import { selectExtra } from '@/lib/features/auth/authSelector';
 import { IAdmin } from '@/types/admin.interface';
 import useImageUpload from '@/hooks/useImageUpload';
+import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
 
 const hospitalSettingsSchema = z.object({
   image: z.union([z.instanceof(File), z.url(), z.null()]),
@@ -114,7 +115,7 @@ const HospitalSettings = (): JSX.Element => {
           <Input
             labelName="Name of Hospital"
             className="bg-transparent"
-            placeholder="Zomujo Hospital"
+            placeholder={PLACEHOLDER_HOSPITAL_NAME}
             error={errors.name?.message || ''}
             {...register('name')}
           />
