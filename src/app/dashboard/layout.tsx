@@ -144,8 +144,8 @@ export default function Layout({
               icon="2"
               title="Complete Your Profile"
               description="While waiting for verification, you can complete your profile to be fully ready for bookings. This includes adding your experience, education, specializations, consultation fees, payment methods, and availability slots."
-              bgColor="border-blue-200 bg-blue-50"
-              textColor="text-blue-800"
+              bgColor="border-gray-200 bg-blue-50"
+              textColor="text-gray-800"
             />
           </div>
 
