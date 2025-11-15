@@ -15,7 +15,6 @@ import { durationTypes } from '@/constants/constants';
 import { useFieldArray, useForm } from 'react-hook-form';
 import {
   IConsultationSymptoms,
-  IConsultationSymptomsHFC,
   IConsultationSymptomsRequest,
   IPatientSymptom,
   ISymptomMap,
@@ -121,7 +120,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     setValue,
     trigger,
     handleSubmit,
-  } = useForm<IConsultationSymptomsHFC>({
+  } = useForm<IConsultationSymptoms>({
     resolver: zodResolver(symptomsSchema),
     mode: 'all',
     defaultValues: {
@@ -198,7 +197,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     setIsLoadingSymptoms(false);
   }, [dispatch]);
 
-  const handleSubmitAndGoToLabs = async (data: IConsultationSymptomsHFC): Promise<void> => {
+  const handleSubmitAndGoToLabs = async (data: IConsultationSymptoms): Promise<void> => {
     const appointmentId = String(params.appointmentId);
     const existingSymptoms: Partial<IAppointmentSymptoms> | undefined = _.cloneDeep({
       ...symptoms,
@@ -285,8 +284,11 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           value: '',
           type: DurationType.Days,
         };
-        (symptoms as unknown as IConsultationSymptomsHFC).complaints = legacyComplaints.map(
-          (c) => ({ complaint: c as string, duration: legacyDuration }),
+        (symptoms as unknown as IConsultationSymptoms).complaints = legacyComplaints.map(
+          (complaint) => ({
+            complaint,
+            duration: legacyDuration,
+          }),
         );
       }
       const {
@@ -296,14 +298,14 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       } = symptoms as IConsultationSymptoms;
 
       if (!isLoadingComplaintSuggestions) {
-        complaints.forEach((c) => {
-          if (complaintSuggestions.includes(c.complaint)) {
-            handleSelectedComplaint(c.complaint, false);
+        for (const { complaint, duration } of complaints) {
+          if (complaintSuggestions.includes(complaint)) {
+            handleSelectedComplaint(complaint, false);
           } else {
-            setComplaintSuggestions((prev) => [...prev, c.complaint]);
-            append({ complaint: c.complaint, duration: c.duration });
+            setComplaintSuggestions((prev) => [...prev, complaint]);
+            append({ complaint, duration });
           }
-        });
+        }
       }
 
       setValue('medicinesTaken', medicinesTaken);
