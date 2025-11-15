@@ -66,7 +66,7 @@ export const generateSlotDescription = (
       } else if (exceptDays.length === 2) {
         daysStr = `every day except ${exceptDays[0]}s and ${exceptDays[1]}s`;
       } else {
-        const lastDay = fullDays[fullDays.length - 1];
+        const lastDay = fullDays.at(-1);
         const otherDays = fullDays.slice(0, -1);
         daysStr = `on ${otherDays.join('s, ')}s, and ${lastDay}s`;
       }
@@ -77,9 +77,16 @@ export const generateSlotDescription = (
   // Format time in 12-hour format for better readability
   const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
+    const hour = Number.parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    let displayHour: number;
+    if (hour === 0) {
+      displayHour = 12;
+    } else if (hour > 12) {
+      displayHour = hour - 12;
+    } else {
+      displayHour = hour;
+    }
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
@@ -95,14 +102,13 @@ export const generateSlotDescription = (
       `This pattern will repeat ${frequency.toLowerCase()} starting from ${startDateStr} ` +
       `and ending on ${endDateStr}.`
     );
-  } 
-    // Single date
-    return (
-      `You are about to create ${duration}-minute appointment slots on ${startDateStr}, ` +
-      `from ${startTimeFormatted} to ${endTimeFormatted}.\n\n` +
-      `This is a single day appointment and will not repeat.`
-    );
-  
+  }
+  // Single date
+  return (
+    `You are about to create ${duration}-minute appointment slots on ${startDateStr}, ` +
+    `from ${startTimeFormatted} to ${endTimeFormatted}.\n\n` +
+    `This is a single day appointment and will not repeat.`
+  );
 };
 
 /**
