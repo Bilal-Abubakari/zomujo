@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Confirmation } from '@/components/ui/dialog';
 import { cn, showErrorToast } from '@/lib/utils';
 import { IAppointment } from '@/types/appointment.interface';
-import { AppointmentStatus, OrderDirection } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+import { OrderDirection } from '@/types/shared.enum';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {

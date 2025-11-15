@@ -19,7 +19,8 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { INotification, NotificationEvent } from '@/types/notification.interface';
 import { useAppDispatch } from '@/lib/hooks';
 import { acceptRecordRequest, declineRecordRequest } from '@/lib/features/records/recordsThunk';
-import { AppointmentStatus, ApproveDeclineStatus } from '@/types/shared.enum';
+import { ApproveDeclineStatus } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import moment from 'moment';
 import { AsyncThunk } from '@reduxjs/toolkit';
 

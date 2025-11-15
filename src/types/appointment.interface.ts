@@ -1,4 +1,5 @@
-import { AppointmentStatus, ApproveDeclineStatus } from './shared.enum';
+import { AppointmentStatus } from './appointmentStatus.enum';
+import { ApproveDeclineStatus } from './shared.enum';
 import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
 import { IHospital } from './hospital.interface';
