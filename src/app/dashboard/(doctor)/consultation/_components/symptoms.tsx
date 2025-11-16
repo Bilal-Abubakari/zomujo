@@ -29,6 +29,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+// import FornixVoiceSummary from '@/app/dashboard/(doctor)/consultation/_components/FornixVoiceSummary';
+import { LocalStorageManager } from '@/lib/localStorage';
 
 const SelectSymptoms = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/selectSymptoms'),
@@ -155,6 +157,50 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const params = useParams();
   const complaintsHFC = watch('complaints');
 
+  const storageKey = useMemo(
+    () => `consultation_${params?.appointmentId}_symptoms_draft`,
+    [params],
+  );
+
+  // Restore draft if no server symptoms yet
+  useEffect(() => {
+    if (!symptoms) {
+      const draft = LocalStorageManager.getJSON<IConsultationSymptoms>(storageKey);
+      if (draft) {
+        // Apply draft values
+        setValue('complaints', draft.complaints ?? []);
+        setValue(
+          'symptoms',
+          draft.symptoms ?? {
+            [SymptomsType.Neurological]: [],
+            [SymptomsType.Cardiovascular]: [],
+            [SymptomsType.Gastrointestinal]: [],
+            [SymptomsType.Genitourinary]: [],
+            [SymptomsType.Musculoskeletal]: [],
+            [SymptomsType.Integumentary]: [],
+            [SymptomsType.Endocrine]: [],
+          },
+        );
+        setValue('medicinesTaken', draft.medicinesTaken ?? []);
+      }
+    }
+  }, [symptoms, storageKey, setValue]);
+
+  // Persist draft on any form value change (debounced via RAF batching)
+  useEffect(() => {
+    const subscription = watch((value) => {
+      // Only persist if not already saved on server (symptoms selector empty or undefined)
+      if (!symptoms) {
+        LocalStorageManager.setJSON(storageKey, value as IConsultationSymptoms);
+      }
+    });
+    return (): void => subscription.unsubscribe();
+  }, [watch, symptoms, storageKey]);
+
+  const clearDraft = useCallback(() => {
+    LocalStorageManager.removeJSON(storageKey);
+  }, [storageKey]);
+
   const selectedComplaints = useMemo(
     () => complaintsHFC?.map(({ complaint }) => complaint),
     [complaintsHFC],
@@ -214,6 +260,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     };
     if (_.isEqual(existingSymptoms, consultationSymptomsRequest)) {
       goToLabs();
+      clearDraft();
       setIsLoading(false);
       return;
     }
@@ -222,6 +269,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     toast(payload as Toast);
     setIsLoading(false);
     if (!showErrorToast(payload)) {
+      clearDraft();
       goToLabs();
     }
   };
@@ -366,6 +414,8 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   return (
     <DndProvider backend={HTML5Backend}>
       <form onSubmit={handleSubmit(handleSubmitAndGoToLabs)}>
+        {/*TODO: Coming soon*/}
+        {/*<FornixVoiceSummary />*/}
         <h1 className="text-xl font-bold">Complaint</h1>
         <div className="mt-8 flex flex-wrap gap-5">
           {isLoadingComplaintSuggestions ? (

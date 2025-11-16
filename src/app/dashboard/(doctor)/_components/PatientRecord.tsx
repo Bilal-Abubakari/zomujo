@@ -84,7 +84,7 @@ const PatientOverview = (): JSX.Element => {
 
   const handleGoBack = (): void => {
     setConsultationExpired(false);
-    router.push('/dashboard/appointments');
+    router.push('/dashboard/appointment');
   };
 
   useEffect(() => {

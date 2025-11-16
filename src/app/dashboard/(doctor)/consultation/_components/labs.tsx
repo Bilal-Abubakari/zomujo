@@ -35,6 +35,7 @@ import {
   NotificationTopic,
 } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
+import { LocalStorageManager } from '@/lib/localStorage';
 
 const labsSchema = z.object({
   fasting: z.boolean(),
@@ -81,6 +82,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   const hasSignature = !!doctorSignature;
   const [showPreviousLabs, setShowPreviousLabs] = useState(false);
   const params = useParams();
+  const storageKey = `consultation_${params?.appointmentId}_labs_draft`;
 
   on(NotificationEvent.NewNotification, (data: unknown) => {
     const { payload } = data as INotification;
@@ -219,6 +221,48 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     return filtered as LaboratoryTest;
   }, [labs, searchQuery]);
 
+  // Restore draft
+  useEffect(() => {
+    if (!requestedAppointmentLabs || requestedAppointmentLabs.length === 0) {
+      const draft = LocalStorageManager.getJSON<{
+        currentRequestedLabs: ILaboratoryRequest[];
+        selectedTests: [string, { category: string; categoryType: string }][];
+        categorySpecimens: [string, string][];
+        fasting: boolean;
+      }>(storageKey);
+      if (draft) {
+        setCurrentRequestedLabs(draft.currentRequestedLabs ?? []);
+        setSelectedTests(new Map(draft.selectedTests ?? []));
+        setCategorySpecimens(new Map(draft.categorySpecimens ?? []));
+        setValue('fasting', draft.fasting ?? false);
+      }
+    }
+  }, [requestedAppointmentLabs, storageKey, setValue]);
+
+  // Persist draft whenever relevant state changes and there is no saved labs on server
+  useEffect(() => {
+    if (!requestedAppointmentLabs || requestedAppointmentLabs.length === 0) {
+      const draft = {
+        currentRequestedLabs,
+        selectedTests: Array.from(selectedTests.entries()),
+        categorySpecimens: Array.from(categorySpecimens.entries()),
+        fasting: watch('fasting'),
+      };
+      LocalStorageManager.setJSON(storageKey, draft);
+    }
+  }, [
+    currentRequestedLabs,
+    selectedTests,
+    categorySpecimens,
+    watch,
+    requestedAppointmentLabs,
+    storageKey,
+  ]);
+
+  const clearDraft = (): void => {
+    LocalStorageManager.removeJSON(storageKey);
+  };
+
   useEffect(() => {
     if (updateLabs && !labs) {
       void getLabsData();
@@ -283,12 +327,14 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
       );
       toast(payload as Toast);
       if (!showErrorToast(payload)) {
+        clearDraft();
         goToDiagnoseAndPrescribe();
       }
       setIsLoading(false);
       return;
     }
     setIsLoading(false);
+    clearDraft();
     goToDiagnoseAndPrescribe();
   };
 

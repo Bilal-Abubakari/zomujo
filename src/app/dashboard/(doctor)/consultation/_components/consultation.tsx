@@ -47,7 +47,7 @@ const ConsultationHistory = dynamic(
   { loading: () => <StageFallback />, ssr: false },
 );
 
-const stages = ['symptoms', 'labs', 'diagnose & prescribe', 'review'] as const;
+const stages = ['history', 'labs', 'diagnose & prescribe', 'review'] as const;
 
 type StageType = (typeof stages)[number];
 
@@ -102,7 +102,7 @@ const Consultation = (): JSX.Element => {
   const canJumpToStage = useCallback(
     (stage: StageType): boolean => {
       const symptomsPassed = !!symptoms || hasSavedSymptoms;
-      if (stage === 'symptoms' || stage === 'diagnose & prescribe') {
+      if (stage === 'history' || stage === 'diagnose & prescribe') {
         return symptomsPassed;
       }
       if (stage === 'labs') {
