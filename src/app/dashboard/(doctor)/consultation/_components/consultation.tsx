@@ -101,11 +101,12 @@ const Consultation = (): JSX.Element => {
 
   const canJumpToStage = useCallback(
     (stage: StageType): boolean => {
+      const symptomsPassed = !!symptoms || hasSavedSymptoms;
       if (stage === 'symptoms' || stage === 'diagnose & prescribe') {
-        return !!symptoms || hasSavedSymptoms;
+        return symptomsPassed;
       }
       if (stage === 'labs') {
-        return !!requestedAppointmentLabs || hasSavedLabs;
+        return symptomsPassed && (!!requestedAppointmentLabs || hasSavedLabs);
       }
       if (stage === 'review') {
         return hasSavedDiagnosis || savedDiagnoses.length > 0;

@@ -8,7 +8,8 @@ import { cn, showErrorToast } from '@/lib/utils';
 import { House, Video } from 'lucide-react';
 import React, { JSX, useEffect, useRef, useState } from 'react';
 import moment from 'moment';
-import { AppointmentStatus, Role } from '@/types/shared.enum';
+import { Role } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { IAppointment } from '@/types/appointment.interface';
 import { AppointmentType } from '@/types/slots.interface';
 import { mergeDateAndTime } from '@/lib/date';
@@ -130,6 +131,7 @@ const AppointmentDetails = ({
     [AppointmentStatus.Completed]: 'border-green-300 bg-green-100',
     [AppointmentStatus.Progress]: 'border-yellow-300 bg-yellow-100',
     [AppointmentStatus.Cancelled]: 'border-error-300 bg-error-100',
+    [AppointmentStatus.Incomplete]: 'border-gray-300 bg-gray-100',
   };
 
   const user = useAppSelector(selectUser);

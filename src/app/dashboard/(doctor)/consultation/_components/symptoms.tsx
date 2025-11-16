@@ -14,7 +14,7 @@ import { SelectInput } from '@/components/ui/select';
 import { durationTypes } from '@/constants/constants';
 import { useFieldArray, useForm } from 'react-hook-form';
 import {
-  IConsultationSymptomsHFC,
+  IConsultationSymptoms,
   IConsultationSymptomsRequest,
   IPatientSymptom,
   ISymptomMap,
@@ -60,16 +60,16 @@ const symptomsSchema = z
     complaints: z
       .array(
         z.object({
-          name: requiredStringSchema(),
+          complaint: requiredStringSchema(),
+          duration: z.object({
+            value: requiredStringSchema().refine((val) => Number(val) > 0, {
+              message: 'Duration must be a positive number',
+            }),
+            type: z.enum(DurationType),
+          }),
         }),
       )
       .min(1),
-    duration: z.object({
-      value: requiredStringSchema().refine((val) => Number(val) > 0, {
-        message: 'Duration must be a positive number',
-      }),
-      type: z.enum(DurationType),
-    }),
     symptoms: z.object({
       [SymptomsType.Neurological]: z.array(symptomItemSchema),
       [SymptomsType.Cardiovascular]: z.array(symptomItemSchema),
@@ -120,10 +120,11 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     setValue,
     trigger,
     handleSubmit,
-  } = useForm<IConsultationSymptomsHFC>({
+  } = useForm<IConsultationSymptoms>({
     resolver: zodResolver(symptomsSchema),
     mode: 'all',
     defaultValues: {
+      complaints: [],
       symptoms: {
         [SymptomsType.Neurological]: [],
         [SymptomsType.Cardiovascular]: [],
@@ -133,9 +134,14 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         [SymptomsType.Integumentary]: [],
         [SymptomsType.Endocrine]: [],
       },
+      medicinesTaken: [],
     },
   });
-  const { append, remove } = useFieldArray({
+  const {
+    fields: complaintFields,
+    append,
+    remove,
+  } = useFieldArray({
     control,
     name: 'complaints',
   });
@@ -149,16 +155,20 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const params = useParams();
   const complaintsHFC = watch('complaints');
 
-  const selectedComplaints = useMemo(() => complaintsHFC?.map(({ name }) => name), [complaintsHFC]);
+  const selectedComplaints = useMemo(
+    () => complaintsHFC?.map(({ complaint }) => complaint),
+    [complaintsHFC],
+  );
 
   const handleSelectedComplaint = useCallback(
     (suggestion: string, shouldRemove = true): void => {
       if (!selectedComplaints.includes(suggestion)) {
         append({
-          name: suggestion,
+          complaint: suggestion,
+          duration: { value: '', type: DurationType.Days },
         });
       } else if (shouldRemove) {
-        const index = complaintsHFC.findIndex(({ name }) => name === suggestion);
+        const index = complaintsHFC.findIndex(({ complaint }) => complaint === suggestion);
         if (index !== -1) {
           remove(index);
         }
@@ -175,9 +185,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       complaintSuggestions.includes(otherComplaint) || selectedComplaints.includes(otherComplaint);
     if (!complaintExists) {
       setComplaintSuggestions((prev) => [...prev, otherComplaint]);
-      append({
-        name: otherComplaint,
-      });
+      append({ complaint: otherComplaint, duration: { value: '', type: DurationType.Days } });
       setOtherComplaint('');
     }
   }, [append, complaintSuggestions, otherComplaint, selectedComplaints]);
@@ -189,7 +197,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     setIsLoadingSymptoms(false);
   }, [dispatch]);
 
-  const handleSubmitAndGoToLabs = async (data: IConsultationSymptomsHFC): Promise<void> => {
+  const handleSubmitAndGoToLabs = async (data: IConsultationSymptoms): Promise<void> => {
     const appointmentId = String(params.appointmentId);
     const existingSymptoms: Partial<IAppointmentSymptoms> | undefined = _.cloneDeep({
       ...symptoms,
@@ -200,10 +208,8 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       delete existingSymptoms.createdAt;
     }
     setIsLoading(true);
-    const complaints = data.complaints.map(({ name }) => name);
     const consultationSymptomsRequest: IConsultationSymptomsRequest = {
       ...data,
-      complaints,
       appointmentId,
     };
     if (_.isEqual(existingSymptoms, consultationSymptomsRequest)) {
@@ -264,21 +270,42 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
 
   useEffect(() => {
     if (symptoms) {
-      const { medicinesTaken, duration, complaints, symptoms: patientSymptoms } = symptoms;
-      setValue('duration', duration, {
-        shouldValidate: true,
-      });
+      // transform legacy shape if server still returns old structure complaints: string[] & duration: IDuration
+      const legacyComplaints = (
+        symptoms as unknown as {
+          complaints?: unknown;
+          duration?: { value: string; type: DurationType };
+        }
+      ).complaints;
+      if (Array.isArray(legacyComplaints) && legacyComplaints.every((c) => typeof c === 'string')) {
+        const legacyDuration = (
+          symptoms as unknown as { duration?: { value: string; type: DurationType } }
+        ).duration ?? {
+          value: '',
+          type: DurationType.Days,
+        };
+        (symptoms as unknown as IConsultationSymptoms).complaints = legacyComplaints.map(
+          (complaint) => ({
+            complaint,
+            duration: legacyDuration,
+          }),
+        );
+      }
+      const {
+        medicinesTaken,
+        complaints,
+        symptoms: patientSymptoms,
+      } = symptoms as IConsultationSymptoms;
 
       if (!isLoadingComplaintSuggestions) {
-        complaints.forEach((complaint) => {
+        for (const { complaint, duration } of complaints) {
           if (complaintSuggestions.includes(complaint)) {
             handleSelectedComplaint(complaint, false);
           } else {
-            setOtherComplaint(complaint);
-            addComplaint();
-            setOtherComplaint('');
+            setComplaintSuggestions((prev) => [...prev, complaint]);
+            append({ complaint, duration });
           }
-        });
+        }
       }
 
       setValue('medicinesTaken', medicinesTaken);
@@ -287,7 +314,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         let symptomsMap = _.cloneDeep(systemSymptoms);
         const sectionsWithSymptoms: string[] = [];
 
-        Object.entries(systemSymptoms).forEach(([id, symptoms]) => {
+        Object.entries(systemSymptoms).forEach(([id, systemSymptomList]) => {
           const formattedPatientSymptoms = (patientSymptoms[id as SymptomsType] ?? []).map(
             ({ name }) => name,
           );
@@ -296,7 +323,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
             sectionsWithSymptoms.push(id);
           }
 
-          const updatedSystemSymptoms = symptoms.filter(
+          const updatedSystemSymptoms = systemSymptomList.filter(
             ({ name }) => !formattedPatientSymptoms.includes(name),
           );
           symptomsMap = {
@@ -319,8 +346,22 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     setValue,
     complaintSuggestions,
     handleSelectedComplaint,
-    addComplaint,
+    append,
   ]);
+
+  const [bulkDurationValue, setBulkDurationValue] = useState<string>('');
+  const [bulkDurationType, setBulkDurationType] = useState<DurationType>(DurationType.Days);
+
+  const handleApplyBulkDuration = useCallback(() => {
+    if (!bulkDurationValue || Number(bulkDurationValue) <= 0) {
+      return;
+    }
+    complaintFields.forEach((field, idx) => {
+      setValue(`complaints.${idx}.duration.value`, bulkDurationValue);
+      setValue(`complaints.${idx}.duration.type`, bulkDurationType);
+    });
+    void trigger('complaints');
+  }, [bulkDurationType, bulkDurationValue, complaintFields, setValue, trigger]);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -345,12 +386,12 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
             ))
           )}
         </div>
-        <div className="mt-8 flex gap-2">
+        <div className="mt-8 flex flex-wrap items-end gap-4">
           <Input
             value={otherComplaint}
             onChange={({ target }) => setOtherComplaint(target.value)}
             labelName="Add complaint if not part of suggestions"
-            className="bg-transparent"
+            className="max-w-xs bg-transparent"
           />
           <Button
             disabled={!otherComplaint}
@@ -360,24 +401,81 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
             child="Add"
           />
         </div>
-        <h1 className="mt-8 text-xl font-bold">Duration</h1>
-        <div className="mt-5 flex max-w-lg">
-          <Input
-            {...register('duration.value')}
-            className="max-w-sm bg-transparent"
-            placeholder={'Number of days, weeks or months'}
-            error={errors.duration?.value?.message}
-            type="number"
-          />
-          <SelectInput
-            ref={register('duration.type').ref}
-            control={control}
-            options={durationTypes}
-            name="duration.type"
-            placeholder="Select days, weeks or months"
-            className="bg-transparent"
-          />
-        </div>
+        {complaintFields.length > 1 && (
+          <div className="mt-6 flex flex-wrap items-end gap-4 rounded-md bg-gray-50 p-4">
+            <Input
+              value={bulkDurationValue}
+              onChange={(e) => setBulkDurationValue(e.target.value)}
+              type="number"
+              placeholder="Duration"
+              labelName="Duration (All)"
+              className="w-32 bg-transparent"
+            />
+            <select
+              value={bulkDurationType}
+              onChange={(e) => setBulkDurationType(e.target.value as DurationType)}
+              className="h-10 rounded-md border bg-transparent px-3 text-sm"
+            >
+              {durationTypes.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+            <Button
+              type="button"
+              disabled={!bulkDurationValue || Number(bulkDurationValue) <= 0}
+              onClick={handleApplyBulkDuration}
+              child="Apply to All"
+            />
+          </div>
+        )}
+        {complaintFields.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-lg font-semibold">Set Duration Per Complaint</h2>
+            <div className="mt-4 space-y-6">
+              {complaintFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="flex flex-wrap items-end gap-4 rounded-md border p-4 shadow-sm"
+                >
+                  <div className="min-w-[180px] flex-1">
+                    <Input
+                      value={field.complaint}
+                      readOnly
+                      labelName="Complaint"
+                      className="bg-transparent"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      {...register(`complaints.${index}.duration.value` as const)}
+                      type="number"
+                      placeholder="Duration"
+                      labelName="Duration"
+                      className="w-28 bg-transparent"
+                      error={errors?.complaints?.[index]?.duration?.value?.message}
+                    />
+                  </div>
+                  <SelectInput
+                    control={control}
+                    name={`complaints.${index}.duration.type`}
+                    options={durationTypes}
+                    placeholder="Type"
+                    className="w-32 bg-transparent"
+                    ref={register(`complaints.${index}.duration.type`).ref}
+                  />
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => remove(index)}
+                    child="Remove"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <h1 className="mt-12 text-xl font-bold">Symptoms</h1>
         {isLoadingSymptoms ? (
           <Loading message="Please wait. Loading System Symptoms.." />
