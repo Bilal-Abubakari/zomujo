@@ -35,6 +35,7 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { selectDiagnoses } from '@/lib/features/appointments/appointmentSelector';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
+import { LocalStorageManager } from '@/lib/localStorage';
 
 const conditionsSchema = z.object({
   name: z.string(),
@@ -107,6 +108,49 @@ const DiagnosePrescribe = ({
     () => [...savedDiagnoses, ...diagnoses],
     [savedDiagnoses, diagnoses],
   );
+  const storageKey = `consultation_${params?.appointmentId}_diagnosis_draft`;
+
+  // Restore draft (only if there are no server-saved diagnoses yet)
+  useEffect(() => {
+    if (savedDiagnoses.length === 0 && diagnoses.length === 0) {
+      const draft = LocalStorageManager.getJSON<{
+        diagnoses: IDiagnosis[];
+        addMedicine: IPrescription;
+        form: Partial<IDiagnosis>;
+      }>(storageKey);
+      if (draft) {
+        setDiagnoses(draft.diagnoses ?? []);
+        setAddMedicine(draft.addMedicine ?? defaultMedicine);
+        if (draft.form) {
+          Object.entries(draft.form).forEach(([k, v]) => {
+            setValue(k as keyof IDiagnosis, v as never);
+          });
+        }
+      }
+    }
+  }, [savedDiagnoses, diagnoses.length, storageKey, setValue]);
+
+  // Persist draft changes (only if not yet saved remotely)
+  useEffect(() => {
+    if (savedDiagnoses.length === 0) {
+      const formSnapshot: Partial<IDiagnosis> = {
+        name: watch('name'),
+        status: watch('status'),
+        notes: watch('notes'),
+        diagnosedAt: watch('diagnosedAt'),
+        prescriptions: watch('prescriptions'),
+      } as Partial<IDiagnosis>;
+      LocalStorageManager.setJSON(storageKey, {
+        diagnoses,
+        addMedicine,
+        form: formSnapshot,
+      });
+    }
+  }, [diagnoses, addMedicine, watch, savedDiagnoses.length, storageKey]);
+
+  const clearDraft = (): void => {
+    LocalStorageManager.removeJSON(storageKey);
+  };
 
   const onAddDiagnosis = (diagnosis: IDiagnosis): void => {
     setDiagnoses([
@@ -118,6 +162,7 @@ const DiagnosePrescribe = ({
     setSearch('');
     reset();
     setUpdateDiagnosis(false);
+    clearDraft(); // Clear intermediate form state for drawer, will persist new array after reset automatically
   };
 
   const onSubmit = async (): Promise<void> => {
@@ -134,6 +179,7 @@ const DiagnosePrescribe = ({
     );
     toast(payload as Toast);
     if (!showErrorToast(payload)) {
+      clearDraft();
       goToReview();
     }
     setIsLoading(false);
