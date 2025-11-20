@@ -14,7 +14,19 @@ import { Toast, toast } from '@/hooks/use-toast';
 
 const patientMandatorySchema = z.object({
   gender: z.enum(Gender),
-  dob: z.string().transform((value) => new Date(value).toISOString()),
+  dob: z
+    .string()
+    .min(1, { message: 'Please select a valid date of birth' })
+    .refine(
+      (value) => {
+        const selectedDate = new Date(value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selectedDate < today;
+      },
+      { message: 'Date of birth cannot be today or in the future' },
+    )
+    .transform((value) => new Date(value).toISOString()),
 });
 
 const UpdatePatientInfo = (): JSX.Element => {

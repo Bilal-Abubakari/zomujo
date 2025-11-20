@@ -1,6 +1,6 @@
-import { ConditionStatus, DurationType } from '@/types/shared.enum';
-import { IMedicineWithoutId } from '@/types/patient.interface';
+import { DurationType } from '@/types/shared.enum';
 import { IExtraBase } from '@/types/shared.interface';
+import { IMedicineWithoutId, IDiagnosis } from '@/types/medical.interface';
 import { IPatientLab } from '@/types/labs.interface';
 import { ISlot } from '@/types/slots.interface';
 
@@ -45,9 +45,13 @@ export interface IConsultationDetails {
   slot: ISlot;
 }
 
-export interface IConsultationSymptoms {
-  complaints: string[];
+export interface IComplaint {
+  complaint: string;
   duration: IDuration;
+}
+
+export interface IConsultationSymptoms {
+  complaints: IComplaint[];
   symptoms: IPatientSymptomMap;
   medicinesTaken: IMedicineWithoutId[];
 }
@@ -59,30 +63,6 @@ export interface IConsultationSymptomsRequest extends IConsultationSymptoms {
 export interface IDuration {
   value: string;
   type: DurationType;
-}
-
-/**
- * The interface used to ensure compatibility with react-hook-form.
- * React-Hook-Form's useFieldArray only supports arrays of objects (not flat arrays).
- * HFC = Hook Form Compatibility
- */
-export interface IConsultationSymptomsHFC extends Omit<IConsultationSymptoms, 'complaints'> {
-  complaints: IName[];
-}
-
-export interface IPrescription {
-  name: string;
-  doses: string;
-  instructions?: string;
-  frequency: string;
-}
-
-export interface IDiagnosis {
-  name: string;
-  diagnosedAt: string;
-  notes?: string;
-  status: ConditionStatus;
-  prescriptions: IPrescription[];
 }
 
 export interface IDiagnosisRequest {

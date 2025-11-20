@@ -151,7 +151,7 @@ export const endConsultation = createAsyncThunk(
     try {
       const {
         data: { message },
-      } = await axios.patch<IResponse>(`consultation/end-consultation/${id}`);
+      } = await axios.patch<IResponse>(`consultation/end/${id}`);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -174,6 +174,20 @@ export const addLabFile = createAsyncThunk(
           },
         },
       );
+      return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const joinConsultation = createAsyncThunk(
+  'consultation/join-consultation',
+  async (appointmentId: string): Promise<Toast | string> => {
+    try {
+      const {
+        data: { data },
+      } = await axios.get<IResponse<string>>(`consultation/join/${appointmentId}`);
       return data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

@@ -379,6 +379,15 @@ const Doctors = (): JSX.Element => {
             className="mt-[20px] h-10 max-h-[62px] cursor-pointer bg-gray-50 sm:flex"
           />
         </div>
+        {paginationData && paginationData.total > 0 && (
+          <div className="mt-3 flex items-center gap-2 border-t border-gray-200 pt-3 text-sm text-gray-600">
+            <span className="text-primary font-semibold">
+              {paginationData.total} {paginationData.total === 1 ? 'Doctor' : 'Doctors'}
+            </span>
+            <span>available</span>
+            {queryParameters.search && <span>matching &quot;{queryParameters.search}&quot;</span>}
+          </div>
+        )}
       </div>
       <Suggested title={'Doctors'} showViewAll={false}>
         {!isLoading &&

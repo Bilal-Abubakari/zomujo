@@ -12,22 +12,28 @@ import {
   assignAppointment,
   declineAppointment,
   getAppointments,
+  rescheduleAppointment,
 } from '@/lib/features/appointments/appointmentsThunk';
+import { joinConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { IAppointment } from '@/types/appointment.interface';
 import { AppointmentType } from '@/types/slots.interface';
-import { AcceptDeclineStatus, AppointmentStatus, OrderDirection, Role } from '@/types/shared.enum';
+import { AcceptDeclineStatus, OrderDirection, Role } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
+  Calendar as CalendarIcon,
   House,
   ListFilter,
+  Loader2,
   Presentation,
   RotateCcw,
   Search,
   SendHorizontal,
   Signature,
+  Video,
   View,
   Waypoints,
 } from 'lucide-react';
@@ -41,14 +47,36 @@ import { Label } from '@/components/ui/label';
 import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { NotificationEvent } from '@/types/notification.interface';
+import useWebSocket from '@/hooks/useWebSocket';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { bookingSchema } from '@/schemas/booking.schema';
+import { IBookingForm } from '@/types/booking.interface';
+import { MODE } from '@/constants/constants';
+import { SlotSelectionModal } from '@/components/ui/slotSelectionModal';
+import { showErrorToast } from '@/lib/utils';
 
 type SelectedAppointment = {
   date: Date;
   appointmentId: string;
 };
+
+type RescheduleAppointment = {
+  appointmentId: string;
+  doctorId: string;
+  doctorName: string;
+  doctorProfilePicture: string;
+  specializations?: string[];
+  experience?: number;
+  noOfConsultations?: number;
+};
+
 const AppointmentRequests = (): JSX.Element => {
+  const { on } = useWebSocket();
   const router = useRouter();
   const user = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -60,36 +88,59 @@ const AppointmentRequests = (): JSX.Element => {
     date: new Date(),
     appointmentId: '',
   });
+  const [openRescheduleModal, setOpenRescheduleModal] = useState(false);
+  const [rescheduleAppointmentData, setRescheduleAppointmentData] =
+    useState<RescheduleAppointment | null>(null);
+  const [isRescheduling, setIsRescheduling] = useState(false);
+  const [joiningAppointmentId, setJoiningAppointmentId] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
-  const { isLoading, setQueryParameters, paginationData, queryParameters, tableData, updatePage } =
-    useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
-      orderBy: 'createdAt',
-      orderDirection: OrderDirection.Descending,
-      doctorId: user?.role === Role.Doctor ? user?.id : undefined,
-      patientId: user?.role === Role.Patient ? user?.id : undefined,
-      page: 1,
-      search: '',
-      status: '',
-    });
+  const { register, setValue, getValues, watch, reset } = useForm<IBookingForm>({
+    resolver: zodResolver(bookingSchema),
+    mode: MODE.ON_TOUCH,
+  });
+
+  const {
+    isLoading,
+    setQueryParameters,
+    paginationData,
+    queryParameters,
+    tableData,
+    updatePage,
+    refetch,
+  } = useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
+    orderBy: 'createdAt',
+    orderDirection: OrderDirection.Descending,
+    doctorId: user?.role === Role.Doctor ? user?.id : undefined,
+    patientId: user?.role === Role.Patient ? user?.id : undefined,
+    page: 1,
+    search: '',
+    status: '',
+  });
+
+  on(NotificationEvent.NewRequest, () => {
+    void refetch();
+  });
 
   const statusFilterOptions: ISelected[] = [
-    {
-      value: '',
-      label: 'All',
-    },
-    {
-      value: AppointmentStatus.Accepted,
-      label: 'Accepted',
-    },
-    {
-      value: AppointmentStatus.Pending,
-      label: 'Pending',
-    },
+    { value: '', label: 'All' },
+    { value: AppointmentStatus.Pending, label: 'Pending' },
+    { value: AppointmentStatus.Accepted, label: 'Accepted' },
+    { value: AppointmentStatus.Progress, label: 'In Progress' },
+    { value: AppointmentStatus.Completed, label: 'Completed' },
+    { value: AppointmentStatus.Cancelled, label: 'Cancelled' },
+    { value: AppointmentStatus.Declined, label: 'Declined' },
+    { value: AppointmentStatus.Incomplete, label: 'Incomplete' },
   ];
   const columns: ColumnDef<IAppointment>[] = [
     {
       accessorKey: 'patient',
-      header: () => <div className="flex cursor-pointer whitespace-nowrap">Patient Name</div>,
+      header: () => (
+        <div className="flex cursor-pointer whitespace-nowrap">
+          {user?.role === Role.Doctor ? 'Patient Name' : 'Doctor Name'}
+        </div>
+      ),
       cell: ({ row: { original } }): JSX.Element => {
         const { doctor, patient } = original;
         const isDoctor = user?.role === Role.Doctor;
@@ -147,7 +198,9 @@ const AppointmentRequests = (): JSX.Element => {
       cell: ({ row: { original } }): JSX.Element => {
         const { status, patient, doctor, id, createdAt } = original;
         const isPending = status === AppointmentStatus.Pending;
+        const isInProgress = status === AppointmentStatus.Progress;
         const isDone = status === AppointmentStatus.Completed;
+        const isCancelled = status === AppointmentStatus.Cancelled;
         const getName = (): string => {
           if (user?.role === Role.Patient) {
             return `${doctor.firstName} ${doctor.lastName}`;
@@ -189,7 +242,7 @@ const AppointmentRequests = (): JSX.Element => {
                     'Yes, decline',
                     'Cancel',
                   ),
-                visible: !isDone,
+                visible: !isDone && !isCancelled,
               },
               // TODO: Is a refund functionality feasible???
               {
@@ -198,13 +251,34 @@ const AppointmentRequests = (): JSX.Element => {
                     <RotateCcw /> Reschedule
                   </>
                 ),
-                clickCommand: () =>
-                  handleConfirmationOpen(
-                    'Reschedule',
-                    `reschedule ${getName()}'s request`,
-                    id,
-                    acceptAppointment,
-                  ),
+                clickCommand: (): void => {
+                  setRescheduleAppointmentData({
+                    appointmentId: id,
+                    doctorId: doctor.id,
+                    doctorName: `${doctor.firstName} ${doctor.lastName}`,
+                    doctorProfilePicture: doctor.profilePicture,
+                    specializations: doctor.specializations,
+                    experience: doctor.experience,
+                    noOfConsultations: doctor.noOfConsultations,
+                  });
+                  setOpenRescheduleModal(true);
+                  reset();
+                },
+                visible: !isDone && !isCancelled && !isInProgress,
+              },
+              {
+                title: (
+                  <>
+                    {joiningAppointmentId === id ? <Loader2 className="animate-spin" /> : <Video />}{' '}
+                    {joiningAppointmentId === id ? 'Joining...' : 'Join Meeting'}
+                  </>
+                ),
+                clickCommand: (): void => {
+                  if (!joiningAppointmentId) {
+                    void handleJoinMeeting(id);
+                  }
+                },
+                visible: !isDone && !isCancelled,
               },
               {
                 title: (
@@ -259,6 +333,96 @@ const AppointmentRequests = (): JSX.Element => {
     }));
   }
 
+  const handleReschedule = async (): Promise<void> => {
+    if (!rescheduleAppointmentData) {
+      return;
+    }
+
+    const { slotId } = getValues();
+    if (!slotId) {
+      toast({
+        title: 'Error',
+        description: 'Please select a time slot',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsRescheduling(true);
+
+    const { payload } = await dispatch(
+      rescheduleAppointment({
+        slotId,
+        appointmentId: rescheduleAppointmentData.appointmentId,
+      }),
+    );
+
+    if (payload && showErrorToast(payload)) {
+      toast(payload);
+      setIsRescheduling(false);
+      return;
+    }
+
+    toast(payload as Toast);
+    setIsRescheduling(false);
+    setOpenRescheduleModal(false);
+    setRescheduleAppointmentData(null);
+    reset();
+    void refetch();
+  };
+
+  const handleJoinMeeting = async (appointmentId: string): Promise<void> => {
+    setJoiningAppointmentId(appointmentId);
+
+    const { payload } = await dispatch(joinConsultation(appointmentId));
+
+    if (payload && showErrorToast(payload)) {
+      toast(payload);
+      setJoiningAppointmentId(null);
+      return;
+    }
+
+    // Open meeting link in new tab
+    const meetingLink = payload as string;
+    if (meetingLink) {
+      window.open(meetingLink, '_blank', 'noopener,noreferrer');
+    }
+
+    setJoiningAppointmentId(null);
+  };
+
+  const handleDateChange = (type: 'start' | 'end', value: string): void => {
+    const dateVal = value ? new Date(value) : null;
+    if (type === 'start') {
+      setStartDate(dateVal);
+      setQueryParameters((prev) => ({ ...prev, page: 1, startDate: dateVal || undefined }));
+      // Validate order
+      if (dateVal && endDate && dateVal > endDate) {
+        toast({
+          title: 'Error',
+          description: 'Start date cannot be after end date',
+          variant: 'destructive',
+        });
+      }
+    } else {
+      setEndDate(dateVal);
+      setQueryParameters((prev) => ({ ...prev, page: 1, endDate: dateVal || undefined }));
+      if (startDate && dateVal && startDate > dateVal) {
+        toast({
+          title: 'Error',
+          description: 'End date cannot be before start date',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
+  const clearDates = (): void => {
+    setStartDate(null);
+    setEndDate(null);
+    setQueryParameters((prev) => ({ ...prev, page: 1, startDate: undefined, endDate: undefined }));
+  };
+
   return (
     <div>
       <div className="flex justify-between">
@@ -273,20 +437,45 @@ const AppointmentRequests = (): JSX.Element => {
           />
           {searchTerm && <Button child={<SendHorizontal />} className="-ml-8" />}
         </form>
-        <OptionsMenu
-          options={statusFilterOptions}
-          Icon={ListFilter}
-          menuTrigger="Status"
-          selected={queryParameters.status}
-          setSelected={(value) =>
-            setQueryParameters((prev) => ({
-              ...prev,
-              page: 1,
-              status: value as AppointmentStatus,
-            }))
-          }
-          className="h-10 cursor-pointer bg-gray-50 sm:flex"
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <OptionsMenu
+            options={statusFilterOptions}
+            Icon={ListFilter}
+            menuTrigger="Status"
+            selected={queryParameters.status}
+            setSelected={(value) =>
+              setQueryParameters((prev) => ({
+                ...prev,
+                page: 1,
+                status: value as AppointmentStatus,
+              }))
+            }
+            className="h-10 cursor-pointer bg-gray-50 sm:flex"
+          />
+          <div className="flex items-center gap-2">
+            <Input
+              error=""
+              type="date"
+              className="w-[150px]"
+              placeholder="Start Date"
+              value={startDate ? moment(startDate).format('YYYY-MM-DD') : ''}
+              leftIcon={<CalendarIcon size={16} />}
+              onChange={(e) => handleDateChange('start', e.target.value)}
+            />
+            {/*Will activate maybe later*/}
+            {/*<Input*/}
+            {/*  error=""*/}
+            {/*  type="date"*/}
+            {/*  className="w-[150px]"*/}
+            {/*  value={endDate ? moment(endDate).format('YYYY-MM-DD') : ''}*/}
+            {/*  leftIcon={<CalendarIcon size={16} />}*/}
+            {/*  onChange={(e) => handleDateChange('end', e.target.value)}*/}
+            {/*/>*/}
+            {(startDate || endDate) && (
+              <Button variant="ghost" child="Clear" onClick={clearDates} />
+            )}
+          </div>
+        </div>
       </div>
       <div className="mt-5">
         <TableData
@@ -316,6 +505,30 @@ const AppointmentRequests = (): JSX.Element => {
         showClose={true}
         setState={setOpenModal}
       />
+
+      {rescheduleAppointmentData && (
+        <SlotSelectionModal
+          open={openRescheduleModal}
+          onCloseAction={() => {
+            setOpenRescheduleModal(false);
+            setRescheduleAppointmentData(null);
+            reset();
+          }}
+          onConfirmAction={handleReschedule}
+          isLoading={isRescheduling}
+          doctorId={rescheduleAppointmentData.doctorId}
+          doctorName={rescheduleAppointmentData.doctorName}
+          doctorProfilePicture={rescheduleAppointmentData.doctorProfilePicture}
+          specializations={rescheduleAppointmentData.specializations}
+          experience={rescheduleAppointmentData.experience}
+          noOfConsultations={rescheduleAppointmentData.noOfConsultations}
+          registerAction={register}
+          setValueAction={setValue}
+          watch={watch}
+          title="Reschedule Appointment"
+          confirmButtonText="Reschedule"
+        />
+      )}
     </div>
   );
 };

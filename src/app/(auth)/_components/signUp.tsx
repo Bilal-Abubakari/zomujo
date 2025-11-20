@@ -10,6 +10,7 @@ import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import AuthPopIn from './authPopIn';
 import { useSearchParams } from 'next/navigation';
 import BookingInfoCard from './BookingInfoCard';
+import { BRANDING } from '@/constants/branding.constant';
 
 const SignUp = (): JSX.Element => {
   const searchParams = useSearchParams();
@@ -65,11 +66,17 @@ const SignUp = (): JSX.Element => {
           </>
         ) : (
           <div>
-            <Image src={Logo} width={44} height={44} alt="Zyptyk-logo" className="m-auto" />
+            <Image
+              src={Logo}
+              width={44}
+              height={44}
+              alt={`${BRANDING.APP_NAME}-logo`}
+              className="m-auto"
+            />
             <div className="mt-5 flex w-full flex-col items-center space-y-3 2xl:space-y-3.5">
               <div className="flex flex-col items-center text-center">
                 <Text variantStyle="h4" variant="h4">
-                  Get started with Zyptyk
+                  Get started with {BRANDING.APP_NAME}
                 </Text>
                 <Text variantStyle="body-small" className="text-grayscale-500">
                   Create new account by providing your details below

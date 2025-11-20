@@ -31,36 +31,83 @@ export const generateSlotDescription = (
   frequency: IFrequency,
   weekDays: IWeekDays[],
 ): string => {
-  const startDateStr = new Date(startDate).toLocaleDateString();
-  const endDateStr = endDate && new Date(endDate).toLocaleDateString();
+  const startDateStr = new Date(startDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const endDateStr =
+    endDate &&
+    new Date(endDate).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   const fullDays = weekDays.map((day) => weekDayMap[day]);
 
+  // Format days string based on selection
   let daysStr: string;
   switch (fullDays.length) {
     case 1:
-      daysStr = `every ${fullDays[0]}`;
+      daysStr = `on ${fullDays[0]}s`;
       break;
     case 2:
-      daysStr = `every ${fullDays[0]} and ${fullDays[1]}`;
+      daysStr = `on ${fullDays[0]}s and ${fullDays[1]}s`;
       break;
     case 7:
-      daysStr = 'daily';
+      daysStr = 'every day';
       break;
     default: {
       const exceptDays = Object.values(weekDayMap).filter((day) => !fullDays.includes(day));
-      if (exceptDays.length <= 2) {
-        daysStr = `daily except ${exceptDays.join(' and ')}`;
+      if (exceptDays.length === 1) {
+        daysStr = `every day except ${exceptDays[0]}s`;
+      } else if (exceptDays.length === 2) {
+        daysStr = `every day except ${exceptDays[0]}s and ${exceptDays[1]}s`;
       } else {
-        daysStr = `every ${fullDays.slice(0, -1).join(', ')} and ${fullDays.slice(-1)}`;
+        const lastDay = fullDays.at(-1);
+        const otherDays = fullDays.slice(0, -1);
+        daysStr = `on ${otherDays.join('s, ')}s, and ${lastDay}s`;
       }
       break;
     }
   }
 
+  // Format time in 12-hour format for better readability
+  const formatTime = (time: string): string => {
+    const [hours, minutes] = time.split(':');
+    const hour = Number.parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    let displayHour: number;
+    if (hour === 0) {
+      displayHour = 12;
+    } else if (hour > 12) {
+      displayHour = hour - 12;
+    } else {
+      displayHour = hour;
+    }
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
+
+  const startTimeFormatted = formatTime(startTime);
+  const endTimeFormatted = formatTime(endTime);
+
+  // Build description based on whether it's single date or range
+  if (endDate) {
+    // Date range
+    return (
+      `You are about to create ${duration}-minute appointment slots ${daysStr}, ` +
+      `from ${startTimeFormatted} to ${endTimeFormatted}.\n\n` +
+      `This pattern will repeat ${frequency.toLowerCase()} starting from ${startDateStr} ` +
+      `and ending on ${endDateStr}.`
+    );
+  }
+  // Single date
   return (
-    `You are creating appointment slots that will occur ${daysStr} ` +
-    `from ${startTime} to ${endTime}, ` +
-    `starting from ${startDateStr} ${endDate ? `to ${endDateStr}` : ''} on a ${frequency.toLowerCase()} basis, each slot being ${duration} minutes long.`
+    `You are about to create ${duration}-minute appointment slots on ${startDateStr}, ` +
+    `from ${startTimeFormatted} to ${endTimeFormatted}.\n\n` +
+    `This is a single day appointment and will not repeat.`
   );
 };
 

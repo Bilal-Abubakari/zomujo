@@ -4,6 +4,7 @@ import { JSX, ReactNode } from 'react';
 import { getCurrentYear } from '@/lib/date';
 import Text from '@/components/text/text';
 import { cn } from '@/lib/utils';
+import { BRANDING } from '@/constants/branding.constant';
 
 export enum ImagePosition {
   Left = 'left',
@@ -53,7 +54,9 @@ export default function AuthenticationFrame({
           {children}
         </div>
         <div className="mt-5 flex flex-col justify-center px-4 text-center text-xs sm:flex-row sm:gap-6 sm:text-sm">
-          <p className="">© {getCurrentYear()} Zyptyk. All rights reserved.</p>
+          <p className="">
+            © {getCurrentYear()} {BRANDING.COPYRIGHT_HOLDER}. All rights reserved.
+          </p>
 
           <div className="text-primary space-x-1">
             <Link href="/terms-conditions" className="text-xs sm:text-sm">

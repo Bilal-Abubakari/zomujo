@@ -1,13 +1,13 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import React, { JSX } from 'react';
-import { IMedicineWithoutId } from '@/types/patient.interface';
+import { IMedicineWithoutId } from '@/types/medical.interface';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
 import { z } from 'zod';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
-import { IConsultationSymptomsHFC } from '@/types/consultation.interface';
+import { IConsultationSymptoms } from '@/types/consultation.interface';
 import Drug from '@/app/dashboard/(doctor)/_components/Drug';
 
 const medicationTakenSchema = z.object({
@@ -17,7 +17,7 @@ const medicationTakenSchema = z.object({
 
 type MedicationTakenProps = {
   medicationsTaken: IMedicineWithoutId[];
-  control: Control<IConsultationSymptomsHFC>;
+  control: Control<IConsultationSymptoms>;
 };
 
 const MedicationTaken = ({ medicationsTaken, control }: MedicationTakenProps): JSX.Element => {
@@ -51,7 +51,7 @@ const MedicationTaken = ({ medicationsTaken, control }: MedicationTakenProps): J
           <Input labelName="Dose Taken" placeholder="eg: 10mg once daily" {...register('dose')} />
         </div>
       </div>
-      <div className="flex">
+      <div className="mt-4 flex">
         <Button
           type="button"
           disabled={!isValid}

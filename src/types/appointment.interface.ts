@@ -1,8 +1,10 @@
-import { AppointmentStatus, ApproveDeclineStatus } from './shared.enum';
+import { AppointmentStatus } from './appointmentStatus.enum';
+import { ApproveDeclineStatus } from './shared.enum';
 import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
 import { IHospital } from './hospital.interface';
-import { IConsultationSymptomsRequest, IDiagnosis } from '@/types/consultation.interface';
+import { IConsultationSymptomsRequest } from '@/types/consultation.interface';
+import { IDiagnosis } from '@/types/medical.interface';
 import { ILab } from '@/types/labs.interface';
 import { ISlot, ISlotBase } from '@/types/slots.interface';
 
@@ -23,7 +25,6 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   status: AppointmentStatus;
   reason: string;
   additionalInfo: string;
-  meetingLink: string | null;
   symptoms: IAppointmentSymptoms;
   lab: ILab[];
   diagnosis: IDiagnosis[];

@@ -4,11 +4,10 @@ import {
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
-  DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { IAppointment, IRecordRequest } from '@/types/appointment.interface';
 import useWebSocket from '@/hooks/useWebSocket';
 import { AcceptDecline } from '@/types/shared.interface';
@@ -20,7 +19,8 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { INotification, NotificationEvent } from '@/types/notification.interface';
 import { useAppDispatch } from '@/lib/hooks';
 import { acceptRecordRequest, declineRecordRequest } from '@/lib/features/records/recordsThunk';
-import { AppointmentStatus, ApproveDeclineStatus } from '@/types/shared.enum';
+import { ApproveDeclineStatus } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import moment from 'moment';
 import { AsyncThunk } from '@reduxjs/toolkit';
 
@@ -99,63 +99,89 @@ const NotificationActions = (): JSX.Element => {
                 records. If you decline then no further actions will be required`;
   };
 
+  const getAppointmentStatusIcon = (): JSX.Element => {
+    if (appointment?.status === AppointmentStatus.Accepted) {
+      return (
+        <CheckCircle2 className="animate-in zoom-in-50 h-12 w-12 text-green-500 duration-500" />
+      );
+    } else if (appointment?.status === AppointmentStatus.Declined) {
+      return <XCircle className="animate-in zoom-in-50 h-12 w-12 text-red-500 duration-500" />;
+    }
+    return <Clock className="animate-in zoom-in-50 h-12 w-12 text-amber-500 duration-500" />;
+  };
+
+  const getRecordRequestStatusIcon = (): JSX.Element => {
+    if (recordRequest?.status === ApproveDeclineStatus.Approved) {
+      return (
+        <CheckCircle2 className="animate-in zoom-in-50 h-12 w-12 text-green-500 duration-500" />
+      );
+    } else if (recordRequest?.status === ApproveDeclineStatus.Declined) {
+      return <XCircle className="animate-in zoom-in-50 h-12 w-12 text-red-500 duration-500" />;
+    }
+    return <Clock className="animate-in zoom-in-50 h-12 w-12 text-amber-500 duration-500" />;
+  };
+
   return (
     <>
       <Drawer open={showNewRequest}>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-sm p-4">
-            <DrawerHeader className="flex items-center justify-between">
-              <div>
-                <DrawerTitle className="text-lg">{newRequestTitle()}</DrawerTitle>
-                <DrawerDescription>{newRequestDescription()}</DrawerDescription>
-              </div>
+        <DrawerContent className="animate-in slide-in-from-bottom duration-300">
+          <div className="mx-auto w-full max-w-sm">
+            <div className="relative p-6">
               <Button
                 child={<X size={20} />}
                 variant="ghost"
                 onClick={() => setShowNewRequest(false)}
-                className="p-2"
+                className="absolute top-4 right-4 rounded-full p-2 transition-all hover:scale-110 hover:bg-gray-100"
               />
-            </DrawerHeader>
-            <div className="p-4 pb-0">
-              <div className="mb-4">
-                {appointment?.status === AppointmentStatus.Pending ? (
-                  <div className="text-muted-foreground text-sm">Patient Name:</div>
-                ) : (
-                  <div className="text-muted-foreground text-sm">Doctor Name:</div>
-                )}
-                {appointment?.status === AppointmentStatus.Pending ? (
-                  <div>
-                    {appointment?.patient.firstName} {appointment?.patient.lastName}
-                  </div>
-                ) : (
-                  <div>
-                    {appointment?.doctor.firstName} {appointment?.doctor.lastName}
-                  </div>
+
+              <div className="mt-2 mb-6 flex flex-col items-center text-center">
+                <div className="mb-4">{getAppointmentStatusIcon()}</div>
+                <DrawerTitle className="animate-in fade-in slide-in-from-bottom-2 mb-2 text-2xl font-semibold delay-200 duration-300">
+                  {newRequestTitle()}
+                </DrawerTitle>
+                <DrawerDescription className="animate-in fade-in slide-in-from-bottom-2 text-base delay-300 duration-300">
+                  {newRequestDescription()}
+                </DrawerDescription>
+              </div>
+
+              <div className="animate-in fade-in slide-in-from-bottom-4 space-y-4 delay-100 duration-500">
+                <div className="rounded-lg bg-gray-50 p-4 transition-all hover:bg-gray-100">
+                  {appointment?.status === AppointmentStatus.Pending ? (
+                    <div className="text-muted-foreground mb-1 text-sm">Patient Name</div>
+                  ) : (
+                    <div className="text-muted-foreground mb-1 text-sm">Doctor Name</div>
+                  )}
+                  {appointment?.status === AppointmentStatus.Pending ? (
+                    <div className="font-medium">
+                      {appointment?.patient.firstName} {appointment?.patient.lastName}
+                    </div>
+                  ) : (
+                    <div className="font-medium">
+                      {appointment?.doctor.firstName} {appointment?.doctor.lastName}
+                    </div>
+                  )}
+                </div>
+
+                {appointment?.slot && (
+                  <>
+                    <div className="animate-in fade-in slide-in-from-bottom-4 rounded-lg bg-gray-50 p-4 transition-all delay-200 duration-500 hover:bg-gray-100">
+                      <div className="text-muted-foreground mb-1 text-sm">Appointment Date</div>
+                      <div className="font-medium">
+                        {moment(appointment?.slot.date).format('LL')}
+                      </div>
+                    </div>
+                    <div className="animate-in fade-in slide-in-from-bottom-4 rounded-lg bg-gray-50 p-4 transition-all delay-300 duration-500 hover:bg-gray-100">
+                      <div className="text-muted-foreground mb-1 text-sm">Appointment Time</div>
+                      <div className="font-medium">
+                        {moment(appointment?.slot.startTime).format('hh:mm A')}
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
-              {appointment?.slot && (
-                <>
-                  <div className="mb-4">
-                    <div className="text-muted-foreground text-sm">Appointment Date & Time:</div>
-                    <div>{moment(appointment?.slot.date).format('LL')}</div>
-                  </div>
-                  <div className="mb-4">
-                    <div className="text-muted-foreground text-sm">Appointment Time:</div>
-                    <div>{moment(appointment?.slot.startTime).format('hh:mm A')}</div>
-                  </div>
-                </>
-              )}
-              {/*TODO: We are not implementing this now*/}
-              {/*<div className="mb-4">*/}
-              {/*  <div className="text-muted-foreground text-sm">Reason for Request:</div>*/}
-              {/*  <div>{appointment?.reason}</div>*/}
-              {/*</div>*/}
-              {/*<div className="mb-4">*/}
-              {/*  <div className="text-muted-foreground text-sm">Additional Information:</div>*/}
-              {/*  <div>{appointment?.additionalInfo}</div>*/}
-              {/*</div>*/}
             </div>
-            <DrawerFooter className="flex justify-between">
+
+            <DrawerFooter className="animate-in fade-in slide-in-from-bottom flex flex-row gap-3 px-6 pb-6 delay-400 duration-400">
               {appointment && appointment.status === AppointmentStatus.Pending ? (
                 <>
                   <Button
@@ -170,6 +196,7 @@ const NotificationActions = (): JSX.Element => {
                     child="Accept"
                     disabled={activeAction === 'accept'}
                     isLoading={activeAction === 'accept'}
+                    className="flex-1 transition-all hover:scale-105"
                   />
                   <Button
                     variant="outline"
@@ -184,6 +211,7 @@ const NotificationActions = (): JSX.Element => {
                     child="Decline"
                     disabled={activeAction === 'decline'}
                     isLoading={activeAction === 'decline'}
+                    className="flex-1 transition-all hover:scale-105"
                   />
                 </>
               ) : (
@@ -191,6 +219,7 @@ const NotificationActions = (): JSX.Element => {
                   variant="destructive"
                   onClick={() => setShowNewRequest(false)}
                   child="Close"
+                  className="w-full transition-all hover:scale-105"
                 />
               )}
             </DrawerFooter>
@@ -198,24 +227,32 @@ const NotificationActions = (): JSX.Element => {
         </DrawerContent>
       </Drawer>{' '}
       <Drawer open={showNewRecordRequest}>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-sm p-4">
-            <DrawerHeader className="flex items-center justify-between">
-              <div>
-                <DrawerTitle className="text-lg">Record Request</DrawerTitle>
-                <DrawerDescription>{recordRequestDescription()}</DrawerDescription>
-              </div>
+        <DrawerContent className="animate-in slide-in-from-bottom duration-300">
+          <div className="mx-auto w-full max-w-sm">
+            <div className="relative p-6">
               <Button
                 child={<X size={20} />}
                 variant="ghost"
-                onClick={() => setShowNewRequest(false)}
-                className="p-2"
+                onClick={() => setShowNewRecordRequest(false)}
+                className="absolute top-4 right-4 rounded-full p-2 transition-all hover:scale-110 hover:bg-gray-100"
               />
-            </DrawerHeader>
-            <div className="p-4 pb-0">
-              <div className="mb-4">{recordRequestMessage()}</div>
+
+              <div className="mt-2 mb-6 flex flex-col items-center text-center">
+                <div className="mb-4">{getRecordRequestStatusIcon()}</div>
+                <DrawerTitle className="animate-in fade-in slide-in-from-bottom-2 mb-2 text-2xl font-semibold delay-200 duration-300">
+                  Record Request
+                </DrawerTitle>
+                <DrawerDescription className="animate-in fade-in slide-in-from-bottom-2 text-base delay-300 duration-300">
+                  {recordRequestDescription()}
+                </DrawerDescription>
+              </div>
+
+              <div className="animate-in fade-in slide-in-from-bottom-4 rounded-lg bg-gray-50 p-4 transition-all delay-100 duration-500 hover:bg-gray-100">
+                <p className="text-sm leading-relaxed text-gray-700">{recordRequestMessage()}</p>
+              </div>
             </div>
-            <DrawerFooter className="flex justify-between">
+
+            <DrawerFooter className="animate-in fade-in slide-in-from-bottom flex flex-row gap-3 px-6 pb-6 delay-400 duration-400">
               {recordRequest?.status === ApproveDeclineStatus.Pending ? (
                 <>
                   <Button
@@ -230,6 +267,7 @@ const NotificationActions = (): JSX.Element => {
                     child="Accept"
                     disabled={activeAction === 'accept'}
                     isLoading={activeAction === 'accept'}
+                    className="flex-1 transition-all hover:scale-105"
                   />
                   <Button
                     variant="outline"
@@ -244,6 +282,7 @@ const NotificationActions = (): JSX.Element => {
                     child="Decline"
                     disabled={activeAction === 'decline'}
                     isLoading={activeAction === 'decline'}
+                    className="flex-1 transition-all hover:scale-105"
                   />
                 </>
               ) : (
@@ -251,6 +290,7 @@ const NotificationActions = (): JSX.Element => {
                   variant="destructive"
                   onClick={() => setShowNewRecordRequest(false)}
                   child="Close"
+                  className="w-full transition-all hover:scale-105"
                 />
               )}
             </DrawerFooter>

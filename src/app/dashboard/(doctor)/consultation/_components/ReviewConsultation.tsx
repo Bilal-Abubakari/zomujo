@@ -12,21 +12,35 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Info, MailCheck, TestTubeDiagonal, Pill, Stethoscope, ActivitySquare } from 'lucide-react';
+import {
+  Info,
+  MailCheck,
+  TestTubeDiagonal,
+  Pill,
+  Stethoscope,
+  ActivitySquare,
+  AlertCircle,
+  ClipboardList,
+} from 'lucide-react';
 import { DiagnosesList } from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
 import { selectUserName } from '@/lib/features/auth/authSelector';
 import { SymptomsType } from '@/types/consultation.interface';
-import { capitalize } from '@/lib/utils';
+import { capitalize, showErrorToast } from '@/lib/utils';
 import { TooltipComp } from '@/components/ui/tooltip';
 import { Modal } from '@/components/ui/dialog';
 import Signature from '@/components/signature/signature';
 import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
 import { Separator } from '@/components/ui/separator';
-import { generatePrescription } from '@/lib/features/appointments/consultation/consultationThunk';
-import { useParams } from 'next/navigation';
+import {
+  generatePrescription,
+  startConsultation,
+} from '@/lib/features/appointments/consultation/consultationThunk';
+import { useParams, useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
@@ -37,6 +51,7 @@ const ReviewConsultation = ({
 }: ReviewConsultationProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const params = useParams();
+  const router = useRouter();
   const doctorSignature = useAppSelector(selectDoctorSignature);
   const diagnoses = useAppSelector(selectDiagnoses);
   const complaints = useAppSelector(selectComplaints);
@@ -48,6 +63,11 @@ const ReviewConsultation = ({
   const [openAddSignature, setOpenAddSignature] = useState(false);
   const [addSignature, setAddSignature] = useState(false);
   const [isSendingPrescription, setIsSendingPrescription] = useState(false);
+  const [showIncompleteModal, setShowIncompleteModal] = useState(false);
+  const [isStartingConsultation, setIsStartingConsultation] = useState(false);
+
+  const hasSignature = !!doctorSignature;
+  const isConsultationIncomplete = appointment?.status !== AppointmentStatus.Completed;
 
   const sendPrescription = async (): Promise<void> => {
     setIsSendingPrescription(true);
@@ -56,24 +76,112 @@ const ReviewConsultation = ({
     setIsSendingPrescription(false);
   };
 
-  useEffect(() => {
-    if (addSignature && !doctorSignature) {
-      setOpenAddSignature(true);
+  const handleStartConsultation = async (): Promise<void> => {
+    if (!appointment?.id) {
+      return;
     }
-  }, [addSignature, doctorSignature]);
+
+    setIsStartingConsultation(true);
+    const result = await dispatch(startConsultation(appointment.id)).unwrap();
+
+    if (showErrorToast(result)) {
+      toast(result);
+    } else {
+      router.push(`/dashboard/consultation/${appointment.patient.id}/${appointment.id}`);
+    }
+    setIsStartingConsultation(false);
+  };
+
+  // Check if consultation is incomplete when viewing past consultation
+  useEffect(() => {
+    if (isPastConsultation && isConsultationIncomplete && appointment) {
+      setShowIncompleteModal(true);
+    }
+  }, [isPastConsultation, isConsultationIncomplete, appointment]);
 
   useEffect(() => {
-    if (!openAddSignature && !doctorSignature) {
+    if (addSignature) {
+      setOpenAddSignature(true);
+    }
+  }, [addSignature]);
+
+  useEffect(() => {
+    if (!openAddSignature) {
       setAddSignature(false);
     }
-  }, [openAddSignature, doctorSignature]);
+  }, [openAddSignature]);
 
   return (
     <>
       <Modal
         setState={setOpenAddSignature}
         open={openAddSignature}
-        content={<Signature signatureAdded={() => setOpenAddSignature(false)} />}
+        content={
+          <Signature
+            signatureAdded={() => setOpenAddSignature(false)}
+            hasExistingSignature={hasSignature}
+          />
+        }
+        showClose={true}
+      />
+
+      {/* Incomplete Consultation Modal */}
+      <Modal
+        setState={setShowIncompleteModal}
+        open={showIncompleteModal}
+        content={
+          <div className="space-y-6 p-6">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="rounded-full bg-amber-100 p-4 text-amber-600">
+                <AlertCircle className="h-12 w-12" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Consultation Not Completed</h2>
+                <p className="mt-2 text-sm text-gray-600">
+                  This consultation is currently in{' '}
+                  <span className="font-semibold capitalize">
+                    {appointment?.status.replace('_', ' ')}
+                  </span>{' '}
+                  status and has not been completed yet.
+                </p>
+              </div>
+            </div>
+
+            <Alert variant="info" className="border-blue-200 bg-blue-50">
+              <ClipboardList className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                You can start or continue this consultation to complete the patient&#39;s medical
+                review, add diagnoses, and prescribe treatments.
+              </AlertDescription>
+            </Alert>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setShowIncompleteModal(false)}
+                className="w-full sm:w-auto"
+                child={<span>View Details</span>}
+              />
+              <Button
+                variant="default"
+                onClick={handleStartConsultation}
+                isLoading={isStartingConsultation}
+                disabled={isStartingConsultation}
+                className="w-full sm:w-auto"
+                child={
+                  <>
+                    <Stethoscope className="mr-2 h-4 w-4" />
+                    <span>
+                      {appointment?.status === AppointmentStatus.Progress
+                        ? 'Continue Consultation'
+                        : 'Start Consultation'}
+                    </span>
+                  </>
+                }
+              />
+            </div>
+          </div>
+        }
         showClose={true}
       />
 
@@ -97,7 +205,7 @@ const ReviewConsultation = ({
                   htmlFor="signature"
                   className="cursor-pointer text-xs font-medium sm:text-sm"
                 >
-                  Digital Signature
+                  {hasSignature ? 'Edit Digital Signature' : 'Add Digital Signature'}
                 </Label>
                 <Switch
                   checked={addSignature}
@@ -109,7 +217,7 @@ const ReviewConsultation = ({
                 variant="default"
                 onClick={() => sendPrescription()}
                 isLoading={isSendingPrescription}
-                disabled={isSendingPrescription}
+                disabled={isSendingPrescription || !hasSignature}
                 className="w-full sm:w-auto"
                 child={
                   <>
@@ -121,6 +229,31 @@ const ReviewConsultation = ({
             </div>
           )}
         </div>
+
+        {/* Signature Alert */}
+        {!isPastConsultation && (
+          <Alert
+            variant="info"
+            className={hasSignature ? 'border-blue-500 bg-blue-50' : 'border-amber-500 bg-amber-50'}
+          >
+            <AlertCircle
+              className={`h-4 w-4 ${hasSignature ? 'text-blue-600' : 'text-amber-600'}`}
+            />
+            <AlertDescription className="flex items-center justify-between">
+              <span className={hasSignature ? 'text-blue-800' : 'text-amber-800'}>
+                {hasSignature
+                  ? 'Your digital signature will be included in the prescription. You can edit it if needed.'
+                  : 'A digital signature is required before sending the prescription.'}
+              </span>
+              <button
+                onClick={() => setOpenAddSignature(true)}
+                className={`ml-4 text-sm font-semibold underline ${hasSignature ? 'text-blue-700 hover:text-blue-900' : 'text-amber-700 hover:text-amber-900'}`}
+              >
+                {hasSignature ? 'Edit signature' : 'Add now'}
+              </button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="space-y-6">
@@ -148,14 +281,18 @@ const ReviewConsultation = ({
                 ) : (
                   <p className="text-sm text-gray-500">No complaints recorded</p>
                 )}
-                {appointment?.symptoms?.duration && (
-                  <div className="mt-4 rounded-md bg-gray-50 p-3">
-                    <span className="text-sm font-medium text-gray-700">Duration: </span>
-                    <span className="text-sm text-gray-900">
-                      {appointment.symptoms.duration.value} {appointment.symptoms.duration.type}
-                    </span>
-                  </div>
-                )}
+                {appointment?.symptoms?.complaints &&
+                  appointment.symptoms.complaints.length > 0 && (
+                    <div className="mt-4 space-y-1 rounded-md bg-gray-50 p-3">
+                      <span className="text-sm font-medium text-gray-700">Durations:</span>
+                      {appointment.symptoms.complaints.map(({ complaint, duration }) => (
+                        <div key={complaint} className="text-xs text-gray-600">
+                          <span className="font-semibold">{complaint}:</span> {duration.value}{' '}
+                          {duration.type}
+                        </div>
+                      ))}
+                    </div>
+                  )}
               </CardContent>
             </Card>
 

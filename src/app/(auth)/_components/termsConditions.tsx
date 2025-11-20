@@ -6,6 +6,7 @@ import { Shield, FileText, Users, Eye, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { Logo } from '@/assets/images';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { BRANDING } from '@/constants/branding.constant';
 
 const TermsAndCondition = (): JSX.Element => {
   const searchParams = useSearchParams();
@@ -45,10 +46,8 @@ const TermsAndCondition = (): JSX.Element => {
               </button>
             </div>
             <div>
-              <h1 className="text-foreground text-3xl font-bold">Zumojo</h1>
-              <p className="text-muted-foreground">
-                Connecting healthcare professionals with patients
-              </p>
+              <h1 className="text-foreground text-3xl font-bold">{BRANDING.APP_NAME}</h1>
+              <p className="text-muted-foreground">{BRANDING.APP_TAGLINE}</p>
             </div>
           </div>
           <h2 className="text-foreground mb-3 text-xl font-bold md:text-4xl">Terms & Conditions</h2>
@@ -113,9 +112,9 @@ const TermsAndCondition = (): JSX.Element => {
                     </div>
                     <div className="prose prose-blue max-w-none">
                       <p className="text-foreground leading-relaxed">
-                        Welcome to Zumojo. These Terms and Conditions (&quot;Terms&quot;) govern
-                        your use of our health and wellness mobile application and related services
-                        (collectively, the &quot;Service&quot;).
+                        Welcome to {BRANDING.APP_NAME}. These Terms and Conditions
+                        (&quot;Terms&quot;) govern your use of our health and wellness mobile
+                        application and related services (collectively, the &quot;Service&quot;).
                       </p>
                       <p className="text-foreground mt-2 leading-relaxed">
                         Our Service is designed to provide a secure and reliable avenue for doctors
@@ -242,9 +241,9 @@ const TermsAndCondition = (): JSX.Element => {
                     </div>
                     <div className="prose prose-blue max-w-none space-y-4">
                       <p className="text-foreground leading-relaxed">
-                        To the fullest extent permitted by law, Zumojo shall not be liable for any
-                        indirect, incidental, special, consequential, or punitive damages, or any
-                        loss of profits or revenues.
+                        To the fullest extent permitted by law, {BRANDING.APP_NAME} shall not be
+                        liable for any indirect, incidental, special, consequential, or punitive
+                        damages, or any loss of profits or revenues.
                       </p>
                       <p className="text-foreground leading-relaxed">
                         Our total liability to you for any damages shall not exceed the amount you
@@ -282,9 +281,9 @@ const TermsAndCondition = (): JSX.Element => {
                     If you have any questions about these Terms and Conditions, please contact us:
                   </p>
                   <div className="space-y-2 text-sm opacity-90">
-                    <p>Email: zumojo@gmail.com</p>
-                    <p>Phone: +233 20 146 2313</p>
-                    <p>Address: Ghana, Accra</p>
+                    <p>Email: {BRANDING.CONTACT_EMAIL}</p>
+                    <p>Phone: {BRANDING.CONTACT_PHONE}</p>
+                    <p>Address: {BRANDING.CONTACT_ADDRESS}</p>
                   </div>
                 </Card>
               </div>

@@ -4,7 +4,8 @@ import DateSelector from './dateSelector';
 import AppointmentCalendar from './appointmentCalendar';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
-import { AppointmentStatus, OrderDirection, Role } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+import { OrderDirection, Role } from '@/types/shared.enum';
 import { cn, showErrorToast } from '@/lib/utils';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -143,8 +144,10 @@ const statusStyles: Record<AppointmentStatus, string> = {
   [AppointmentStatus.Pending]: 'text-[#93C4F0]',
   [AppointmentStatus.Accepted]: 'text-green-300',
   [AppointmentStatus.Declined]: 'text-red-400',
+  [AppointmentStatus.Incomplete]: 'text-red-500',
   [AppointmentStatus.Completed]: 'text-green-400',
   [AppointmentStatus.Progress]: 'text-yellow-400',
+  [AppointmentStatus.Cancelled]: 'text-red-400',
 };
 
 const StatusBadge: React.FC<StatusProps> = ({ status }) => (

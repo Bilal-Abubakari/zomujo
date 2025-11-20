@@ -26,6 +26,7 @@ import {
   CheckboxSection,
   InfoCard,
 } from '@/app/dashboard/_components/onboardingGuide';
+import { BRANDING } from '@/constants/branding.constant';
 
 export default function Layout({
   children,
@@ -54,6 +55,15 @@ export default function Layout({
     hasSlots: boolean;
     isComplete: boolean;
   } => {
+    if (!doctorExtra) {
+      return {
+        hasProfileInfo: false,
+        hasFee: false,
+        hasPayment: false,
+        hasSlots: false,
+        isComplete: false,
+      };
+    }
     const hasProfileInfo =
       !!doctorExtra.experience &&
       doctorExtra.specializations?.length > 0 &&
@@ -118,7 +128,7 @@ export default function Layout({
       return (
         <div className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-gray-900">Welcome to Zomujo!</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Welcome to {BRANDING.APP_NAME}!</h2>
             <p className="text-sm text-gray-600">
               Get ready to start receiving patient bookings by completing these important steps.
             </p>
@@ -136,8 +146,8 @@ export default function Layout({
               icon="2"
               title="Complete Your Profile"
               description="While waiting for verification, you can complete your profile to be fully ready for bookings. This includes adding your experience, education, specializations, consultation fees, payment methods, and availability slots."
-              bgColor="border-blue-200 bg-blue-50"
-              textColor="text-blue-800"
+              bgColor="border-gray-200 bg-blue-50"
+              textColor="text-gray-800"
             />
           </div>
 

@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { CalendarIcon, Info, ChevronDown, ChevronUp, HelpCircle, Lightbulb } from 'lucide-react';
 import { capitalize, cn, dataCompletionToast, showErrorToast } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DateRange } from 'react-day-picker';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { createAppointmentSlot } from '@/lib/features/appointments/appointmentsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -31,7 +30,11 @@ import { selectExtra } from '@/lib/features/auth/authSelector';
 import { IDoctor } from '@/types/doctor.interface';
 import { useRouter } from 'next/navigation';
 
-const CreateTimeSlots = (): JSX.Element => {
+interface CreateTimeSlotsProps {
+  onSlotCreated?: () => void;
+}
+
+const CreateTimeSlots = ({ onSlotCreated }: CreateTimeSlotsProps): JSX.Element => {
   const doctorInfo = useAppSelector(selectExtra) as IDoctor;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -41,9 +44,8 @@ const CreateTimeSlots = (): JSX.Element => {
   const [endTime, setEndTime] = useState<string>('');
   const [frequency, setFrequency] = useState<IFrequency>();
   const [slotDuration, setSlotDuration] = useState(45);
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(),
-  });
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [showGuide, setShowGuide] = useState(false);
   const dispatch = useAppDispatch();
@@ -53,7 +55,7 @@ const CreateTimeSlots = (): JSX.Element => {
   };
 
   const canGenerateSlot = (): boolean => {
-    if (selectedWeekDays.length > 0 && !!frequency && !!startTime && !!endTime && !!date?.from) {
+    if (selectedWeekDays.length > 0 && !!frequency && !!startTime && !!endTime && !!startDate) {
       return true;
     }
     toast({
@@ -64,15 +66,23 @@ const CreateTimeSlots = (): JSX.Element => {
     return false;
   };
 
-  const getSlotPattern = (): ISlotPatternBase => ({
-    startDate: date?.from?.toISOString() ?? '',
-    endDate: date?.to?.toISOString() ?? '',
-    startTime,
-    endTime,
-    recurrence: generateRecurrenceRule(selectedWeekDays, frequency!),
-    duration: slotDuration,
-    type: AppointmentType.Virtual,
-  });
+  const getSlotPattern = (): ISlotPatternBase => {
+    const pattern: ISlotPatternBase = {
+      startDate: startDate?.toISOString() ?? '',
+      startTime,
+      endTime,
+      recurrence: generateRecurrenceRule(selectedWeekDays, frequency!),
+      duration: slotDuration,
+      type: AppointmentType.Virtual,
+    };
+
+    // Only include endDate if it's been set
+    if (endDate) {
+      pattern.endDate = endDate.toISOString();
+    }
+
+    return pattern;
+  };
 
   const generateTimeSlots = async (): Promise<void> => {
     setIsLoading(true);
@@ -88,6 +98,8 @@ const CreateTimeSlots = (): JSX.Element => {
       const toastData = payload as Toast;
       toast(toastData);
       if (toastData.variant === 'success') {
+        onSlotCreated?.();
+
         if (!doctorInfo?.bio) {
           router.push('/dashboard/settings');
           toast(dataCompletionToast('profile'));
@@ -127,12 +139,12 @@ const CreateTimeSlots = (): JSX.Element => {
         </button>
       </Label>
       {expandedSections[section] && (
-        <div className="space-y-2 rounded-r-md border-l-4 border-blue-500 bg-blue-50 p-4">
+        <div className="border-primary space-y-2 rounded-r-md border-l-4 bg-green-50 p-4">
           <div className="text-sm text-gray-700">
             {typeof detailedInfo === 'string' ? <p>{detailedInfo}</p> : detailedInfo}
           </div>
           {tips && tips.length > 0 && (
-            <div className="mt-3 border-t border-blue-200 pt-3">
+            <div className="mt-3 border-t border-green-200 pt-3">
               <div className="flex items-start gap-2">
                 <Lightbulb size={16} className="mt-0.5 flex-shrink-0 text-amber-600" />
                 <div className="space-y-1">
@@ -330,84 +342,182 @@ const CreateTimeSlots = (): JSX.Element => {
                 ))}
               </ToggleGroup>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {getLabel(
                 'Select Dates:',
                 'dates',
-                <div className="space-y-2">
-                  <p>Define when this availability pattern should be active:</p>
+                <div className="space-y-3">
+                  <p>Define when slots should be created:</p>
                   <ul className="ml-4 list-disc space-y-1">
                     <li>
-                      <strong>Single Date:</strong> Click one date for a one-time schedule
+                      <strong>Start Date (Required):</strong> The first day to create slots
                     </li>
                     <li>
-                      <strong>Date Range:</strong> Click start date, then end date for ongoing
-                      availability
+                      <strong>End Date (Optional):</strong> The last day to create slots. Leave
+                      empty to create slots for only the start date
                     </li>
                     <li>Past dates are disabled (you can only create future slots)</li>
                     <li>Your selected days and times will apply to all dates in this range</li>
                   </ul>
+
+                  <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+                    <p className="mb-2 flex items-start gap-2 text-sm font-semibold text-amber-800">
+                      <span className="text-lg">⚠️</span>
+                      <span>Important: Dates Must Match Your Selected Days!</span>
+                    </p>
+                    <div className="space-y-2 text-sm text-amber-700">
+                      <p>
+                        The dates you select here <strong>must include</strong> the days you chose
+                        in &quot;Select Days Preferred&quot; above. Otherwise, no slots will be
+                        created.
+                      </p>
+                      <div className="mt-2 ml-3 space-y-2 border-l-2 border-amber-300 pl-3">
+                        <div>
+                          <p className="font-medium text-amber-800">✓ Example of CORRECT setup:</p>
+                          <p className="text-xs">
+                            • Selected Days: Monday, Wednesday, Friday
+                            <br />
+                            • Start Date: Monday, Jan 6, 2025
+                            <br />
+                            • End Date: Friday, Jan 31, 2025
+                            <br />
+                            <span className="text-green-700">
+                              → Slots will be created for all Mon/Wed/Fri in January
+                            </span>
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-red-700">✗ Example of INCORRECT setup:</p>
+                          <p className="text-xs">
+                            • Selected Days: Monday, Wednesday, Friday
+                            <br />
+                            • Start Date: Tuesday, Jan 7, 2025 (single date, no end date)
+                            <br />
+                            <span className="text-red-700">
+                              → NO slots created! Tuesday is not in your selected days
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 rounded-md border border-blue-200 bg-blue-50 p-3">
+                    <p className="mb-1 text-sm font-medium text-blue-800">
+                      💡 For Single Day Slots:
+                    </p>
+                    <p className="text-sm text-blue-700">
+                      If you leave the end date empty, make sure your start date is one of the days
+                      you selected above. For example:
+                    </p>
+                    <ul className="mt-1 ml-4 list-disc space-y-1 text-xs text-blue-700">
+                      <li>
+                        If you selected &quot;Monday&quot; as your preferred day, choose a Monday as
+                        your start date
+                      </li>
+                      <li>
+                        If you selected &quot;Friday&quot;, make sure your start date falls on a
+                        Friday
+                      </li>
+                    </ul>
+                  </div>
                 </div>,
                 [
-                  'For regular practice: Select a 3-6 month range and extend it later',
-                  'For temporary availability: Select specific start and end dates',
+                  'For a single day: Leave end date empty AND ensure the start date matches one of your selected days',
+                  'For multiple days: Set both dates AND ensure the date range includes the days you selected',
+                  'Tip: Use a longer date range (e.g., 1-3 months) to create slots for multiple weeks of your selected days',
                 ],
               )}
-              <div className={cn('grid gap-2')}>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="date"
-                      variant={'outline'}
-                      className={cn(
-                        'w-full cursor-pointer justify-start text-left text-xs font-normal sm:w-[300px] sm:text-sm',
-                        !date && 'text-muted-foreground',
-                      )}
-                      child={
-                        <>
-                          <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                          <span className="truncate">
-                            {date?.from ? (
-                              date.to ? (
-                                <>
-                                  {moment(date.from).format('LL')} - {moment(date.to).format('LL')}
-                                </>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Start Date */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Start Date (Required)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-full cursor-pointer justify-start text-left text-xs font-normal sm:text-sm',
+                          !startDate && 'text-muted-foreground',
+                        )}
+                        child={
+                          <>
+                            <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                            <span className="truncate">
+                              {startDate ? (
+                                moment(startDate).format('LL')
                               ) : (
-                                moment(date.from).format('LL')
-                              )
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                          </span>
-                        </>
-                      }
+                                <span>Pick start date</span>
+                              )}
+                            </span>
+                          </>
+                        }
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        autoFocus
+                        mode="single"
+                        selected={startDate}
+                        onSelect={setStartDate}
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* End Date */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    End Date{' '}
+                    <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-full cursor-pointer justify-start text-left text-xs font-normal sm:text-sm',
+                          !endDate && 'text-muted-foreground',
+                        )}
+                        child={
+                          <>
+                            <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                            <span className="truncate">
+                              {endDate ? (
+                                moment(endDate).format('LL')
+                              ) : (
+                                <span>Leave empty for single day</span>
+                              )}
+                            </span>
+                          </>
+                        }
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        autoFocus
+                        mode="single"
+                        selected={endDate}
+                        onSelect={setEndDate}
+                        disabled={(date) => {
+                          const today = new Date(new Date().setHours(0, 0, 0, 0));
+                          const minDate = startDate || today;
+                          return date < minDate;
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {endDate && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEndDate(undefined)}
+                      className="text-muted-foreground hover:text-foreground h-auto p-0 text-xs"
+                      child="Clear end date"
                     />
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      autoFocus
-                      mode="range"
-                      defaultMonth={date?.from}
-                      startMonth={new Date()}
-                      hidden={[{ before: new Date() }]}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={2}
-                      className="hidden sm:block"
-                    />
-                    <Calendar
-                      autoFocus
-                      mode="range"
-                      defaultMonth={date?.from}
-                      startMonth={new Date()}
-                      hidden={[{ before: new Date() }]}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={1}
-                      className="block sm:hidden"
-                    />
-                  </PopoverContent>
-                </Popover>
+                  )}
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -419,12 +529,14 @@ const CreateTimeSlots = (): JSX.Element => {
                     <p>When do you want appointments to begin each day?</p>
                     <ul className="ml-4 list-disc space-y-1">
                       <li>Must be earlier than end time</li>
-                      <li>Uses 24-hour format (e.g., 09:00 = 9 AM, 14:00 = 2 PM)</li>
+                      <li>
+                        Time format displays based on your system settings (12-hour or 24-hour)
+                      </li>
                       <li>This is the earliest time patients can book</li>
                       <li>Must be within the same calendar day as end time</li>
                     </ul>
                   </div>,
-                  ['Common start times: 08:00, 09:00, or 10:00'],
+                  ['Common start times: 8:00 AM / 08:00, 9:00 AM / 09:00, or 10:00 AM / 10:00'],
                 )}
                 <input
                   type="time"
@@ -453,12 +565,14 @@ const CreateTimeSlots = (): JSX.Element => {
                     <p>When should appointments end each day?</p>
                     <ul className="ml-4 list-disc space-y-1">
                       <li>Must be later than start time</li>
-                      <li>Uses 24-hour format</li>
+                      <li>
+                        Time format displays based on your system settings (12-hour or 24-hour)
+                      </li>
                       <li>Last appointment slot will start before this time</li>
                       <li>Cannot span overnight (must be same day)</li>
                     </ul>
                   </div>,
-                  ['Common end times: 17:00 (5 PM), 18:00 (6 PM)'],
+                  ['Common end times: 5:00 PM / 17:00, 6:00 PM / 18:00'],
                 )}
                 <input
                   type="time"

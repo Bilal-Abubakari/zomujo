@@ -13,6 +13,7 @@ import { genderOptions, MODE } from '@/constants/constants';
 import { maxDate } from '@/lib/date';
 import { JSX } from 'react';
 import { Gender } from '@/types/shared.enum';
+import { BRANDING } from '@/constants/branding.constant';
 
 const PersonalDetailsSchema = z.object({
   MDCRegistration: mdcNumberSchema,
@@ -51,8 +52,8 @@ const PersonalDetails = (): JSX.Element => {
           </span>
         </p>
         <p className="text-grayscale-medium text-sm leading-6 sm:text-base">
-          Provide your personal details for a personalized Zyptyk experience tailored to your
-          preferences.
+          Provide your personal details for a personalized {BRANDING.APP_NAME} experience tailored
+          to your preferences.
         </p>
       </div>
       <div className="grid w-full grid-cols-1 gap-x-8 gap-y-[28px] sm:grid-cols-2">

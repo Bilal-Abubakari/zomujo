@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import {
   doctorOnboarding,
   forgotPassword,
+  initiateGoogleOAuth,
   login,
   requestOrganization,
   resetPassword,
@@ -16,6 +17,7 @@ import { IPatient } from '@/types/patient.interface';
 interface AuthenticationState {
   errorMessage: string;
   isLoading: boolean;
+  isOAuthLoading: boolean;
   currentStep: number;
   doctorPersonalDetails: IPersonalDetails | undefined;
   doctorIdentification: IDoctorIdentification<File> | undefined;
@@ -28,6 +30,7 @@ interface AuthenticationState {
 const initialState: AuthenticationState = {
   errorMessage: '',
   isLoading: false,
+  isOAuthLoading: false,
   currentStep: 1,
   doctorPersonalDetails: undefined,
   doctorIdentification: undefined,
@@ -140,6 +143,14 @@ const authSlice = createSlice({
       })
       .addCase(verifyEmail.fulfilled || resetPassword.rejected, (state) => {
         state.isLoading = false;
+      });
+    builder
+      .addCase(initiateGoogleOAuth.pending, (state) => {
+        state.errorMessage = '';
+        state.isOAuthLoading = true;
+      })
+      .addCase(initiateGoogleOAuth.fulfilled || initiateGoogleOAuth.rejected, (state) => {
+        state.isOAuthLoading = false;
       });
   },
 });

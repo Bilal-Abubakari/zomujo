@@ -1,31 +1,15 @@
 import React, { JSX, useEffect, useMemo, useState } from 'react';
-import { Info, TestTubeDiagonal, Trash2, AlertCircle } from 'lucide-react';
+import { Info, TestTubeDiagonal, Trash2, AlertCircle, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
 import { CategoryType, ILab, ILaboratoryRequest, LaboratoryTest } from '@/types/labs.interface';
 import { z } from 'zod';
-import { SelectInput } from '@/components/ui/select';
-import {
-  ChemicalPathologyCategory,
-  HaematologyCategory,
-  ImmunologyCategory,
-  LabTestSection,
-  MicrobiologyCategory,
-} from '@/types/labs.enum';
+import { LabTestSection } from '@/types/labs.enum';
 import { fetchLabs } from '@/lib/features/appointments/consultation/fetchLabs';
-import { requiredStringSchema } from '@/schemas/zod.schemas';
-import { capitalize, showErrorToast } from '@/lib/utils';
-import { Textarea } from '@/components/ui/textarea';
+import { showErrorToast } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -51,20 +35,17 @@ import {
   NotificationTopic,
 } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
+import { LocalStorageManager } from '@/lib/localStorage';
 
 const labsSchema = z.object({
-  category: z.enum(LabTestSection),
-  categoryType: z.union([
-    z.enum(ChemicalPathologyCategory),
-    z.enum(HaematologyCategory),
-    z.enum(ImmunologyCategory),
-    z.enum(MicrobiologyCategory),
-  ]),
-  testName: requiredStringSchema(),
-  notes: requiredStringSchema(),
   fasting: z.boolean(),
-  specimen: requiredStringSchema(),
+  testName: z.string().optional(),
+  notes: z.string().optional(),
+  category: z.string().optional(),
+  categoryType: z.string().optional(),
 });
+
+type LabFormData = z.infer<typeof labsSchema>;
 
 type LabsProps = {
   updateLabs: boolean;
@@ -80,16 +61,12 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   const [labs, setLabs] = useState<LaboratoryTest | null>(null);
   const [openAddSignature, setOpenAddSignature] = useState(false);
   const [addSignature, setAddSignature] = useState(false);
-  const {
-    register,
-    control,
-    watch,
-    resetField,
-    setValue,
-    handleSubmit,
-    reset,
-    formState: { errors, isValid },
-  } = useForm<ILaboratoryRequest>({
+  const [selectedTests, setSelectedTests] = useState<
+    Map<string, { category: string; categoryType: string }>
+  >(new Map());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categorySpecimens, setCategorySpecimens] = useState<Map<string, string>>(new Map());
+  const { watch, setValue, handleSubmit, reset } = useForm<LabFormData>({
     resolver: zodResolver(labsSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
@@ -102,10 +79,10 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
   const previousLabs = useAppSelector(selectPreviousLabs);
   const doctorSignature = useAppSelector(selectDoctorSignature);
+  const hasSignature = !!doctorSignature;
   const [showPreviousLabs, setShowPreviousLabs] = useState(false);
   const params = useParams();
-  const category = watch('category');
-  const categoryType = watch('categoryType');
+  const storageKey = `consultation_${params?.appointmentId}_labs_draft`;
 
   on(NotificationEvent.NewNotification, (data: unknown) => {
     const { payload } = data as INotification;
@@ -113,38 +90,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
       void fetchConsultationLabs();
     }
   });
-
-  const labTestSectionsOptions = useMemo(() => {
-    resetField('categoryType', { defaultValue: '' as CategoryType });
-    return Object.entries(labs ?? {}).map(([key]) => ({
-      label: key,
-      value: key,
-    }));
-  }, [labs, category]);
-
-  const categoryTypeOptions = useMemo(() => {
-    resetField('categoryType', { defaultValue: '' as CategoryType });
-    resetField('testName', { defaultValue: '' });
-    return Object.entries(labs?.[category] ?? {}).map(([key]) => ({
-      label: key,
-      value: key,
-    }));
-  }, [category, labs]);
-
-  const testNameOptions = useMemo(() => {
-    resetField('testName', {
-      defaultValue: '',
-    });
-    if (!labs || !category || !categoryType) {
-      return [];
-    }
-    const categoryMap = labs[category] as Record<CategoryType, string[]>;
-
-    return categoryMap[categoryType].map((value) => ({
-      label: value,
-      value: value,
-    }));
-  }, [categoryType, labs]);
 
   const getLabsData = async (): Promise<void> => {
     const response = await fetchLabs();
@@ -165,13 +110,56 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     setIsLoadingLabs(false);
   };
 
-  const addLabRequest = async (data: ILaboratoryRequest): Promise<void> => {
-    setCurrentRequestedLabs((prev) => [...prev, data]);
+  const addLabRequest = async (data: LabFormData): Promise<void> => {
+    // Validate specimens per category: each selected category must have a specimen provided
+    const selectedCategories = Array.from(
+      new Set(Array.from(selectedTests.values()).map((m) => m.category)),
+    );
+    const missingCategories = selectedCategories.filter(
+      (cat) => !categorySpecimens.get(cat) || !categorySpecimens.get(cat)?.trim(),
+    );
+
+    if (missingCategories.length > 0) {
+      toast({
+        title: 'Specimen required',
+        description: `Please provide specimen for: ${missingCategories.join(', ')}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Create lab requests from all selected tests
+    const newLabRequests: ILaboratoryRequest[] = Array.from(selectedTests.entries()).map(
+      ([testName, meta]) => {
+        const specimenToUse = categorySpecimens.get(meta.category)!.trim();
+        return {
+          testName,
+          category: meta.category as LabTestSection,
+          categoryType: meta.categoryType as CategoryType,
+          notes: '', // Notes removed as per requirement
+          fasting: data.fasting || false,
+          specimen: specimenToUse,
+        };
+      },
+    );
+
+    if (newLabRequests.length === 0) {
+      toast({
+        title: 'No tests selected',
+        description: 'Please select at least one laboratory test',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setCurrentRequestedLabs((prev) => [...prev, ...newLabRequests]);
+    setSelectedTests(new Map()); // Clear selections
+    setCategorySpecimens(new Map()); // Clear category specimens
     reset();
     setUpdateLabs(false);
 
     // Show signature alert if no signature exists
-    if (!doctorSignature) {
+    if (!hasSignature) {
       setTimeout(() => {
         const alertElement = document.getElementById('signature-alert');
         if (alertElement) {
@@ -179,6 +167,100 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
         }
       }, 100);
     }
+  };
+
+  const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
+    setSelectedTests((prev) => {
+      const newMap = new Map(prev);
+      if (newMap.has(testName)) {
+        newMap.delete(testName);
+      } else {
+        newMap.set(testName, { category, categoryType });
+      }
+      return newMap;
+    });
+  };
+
+  const filteredLabs = useMemo(() => {
+    if (!labs) {
+      return null;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) {
+      return labs;
+    }
+
+    const filtered: Partial<LaboratoryTest> = {};
+
+    Object.entries(labs).forEach(([mainCategory, subCategories]) => {
+      const filteredSubCategories: Record<string, string[]> = {};
+
+      Object.entries(subCategories).forEach(([subCategory, tests]) => {
+        const testsArray = tests as string[];
+        const filteredTests = testsArray.filter(
+          (test: string) =>
+            test.toLowerCase().includes(query) ||
+            subCategory.toLowerCase().includes(query) ||
+            mainCategory.toLowerCase().includes(query),
+        );
+
+        if (filteredTests.length > 0) {
+          filteredSubCategories[subCategory] = filteredTests;
+        }
+      });
+
+      if (Object.keys(filteredSubCategories).length > 0) {
+        filtered[mainCategory as LabTestSection] = filteredSubCategories as Record<
+          CategoryType,
+          string[]
+        >;
+      }
+    });
+
+    return filtered as LaboratoryTest;
+  }, [labs, searchQuery]);
+
+  // Restore draft
+  useEffect(() => {
+    if (!requestedAppointmentLabs || requestedAppointmentLabs.length === 0) {
+      const draft = LocalStorageManager.getJSON<{
+        currentRequestedLabs: ILaboratoryRequest[];
+        selectedTests: [string, { category: string; categoryType: string }][];
+        categorySpecimens: [string, string][];
+        fasting: boolean;
+      }>(storageKey);
+      if (draft) {
+        setCurrentRequestedLabs(draft.currentRequestedLabs ?? []);
+        setSelectedTests(new Map(draft.selectedTests ?? []));
+        setCategorySpecimens(new Map(draft.categorySpecimens ?? []));
+        setValue('fasting', draft.fasting ?? false);
+      }
+    }
+  }, [requestedAppointmentLabs, storageKey, setValue]);
+
+  // Persist draft whenever relevant state changes and there is no saved labs on server
+  useEffect(() => {
+    if (!requestedAppointmentLabs || requestedAppointmentLabs.length === 0) {
+      const draft = {
+        currentRequestedLabs,
+        selectedTests: Array.from(selectedTests.entries()),
+        categorySpecimens: Array.from(categorySpecimens.entries()),
+        fasting: watch('fasting'),
+      };
+      LocalStorageManager.setJSON(storageKey, draft);
+    }
+  }, [
+    currentRequestedLabs,
+    selectedTests,
+    categorySpecimens,
+    watch,
+    requestedAppointmentLabs,
+    storageKey,
+  ]);
+
+  const clearDraft = (): void => {
+    LocalStorageManager.removeJSON(storageKey);
   };
 
   useEffect(() => {
@@ -216,8 +298,11 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   );
 
   const removeLabRequest = (name: string, requestSpeciment: string): void => {
+    // Fix logic: remove matching by both testName & specimen
     setCurrentRequestedLabs((prev) =>
-      prev.filter(({ testName, specimen }) => testName !== name && specimen !== requestSpeciment),
+      prev.filter(
+        ({ testName, specimen }) => !(testName === name && specimen === requestSpeciment),
+      ),
     );
   };
 
@@ -226,7 +311,7 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     const totalLabRequests = [...(requestedAppointmentLabs ?? []), ...currentRequestedLabs];
 
     // Check if there are lab requests and signature is required but not added
-    if (totalLabRequests.length > 0 && !doctorSignature) {
+    if (totalLabRequests.length > 0 && !hasSignature) {
       setOpenAddSignature(true);
       setIsLoading(false);
       return;
@@ -242,26 +327,28 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
       );
       toast(payload as Toast);
       if (!showErrorToast(payload)) {
+        clearDraft();
         goToDiagnoseAndPrescribe();
       }
       setIsLoading(false);
       return;
     }
     setIsLoading(false);
+    clearDraft();
     goToDiagnoseAndPrescribe();
   };
 
   useEffect(() => {
-    if (addSignature && !doctorSignature) {
+    if (addSignature) {
       setOpenAddSignature(true);
     }
-  }, [addSignature, doctorSignature]);
+  }, [addSignature]);
 
   useEffect(() => {
-    if (!openAddSignature && !doctorSignature) {
+    if (!openAddSignature) {
       setAddSignature(false);
     }
-  }, [openAddSignature, doctorSignature]);
+  }, [openAddSignature]);
 
   const renderLabsContent = (): JSX.Element => {
     if (isLoadingLabs) {
@@ -298,17 +385,22 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
       <Modal
         setState={setOpenAddSignature}
         open={openAddSignature}
-        content={<Signature signatureAdded={() => setOpenAddSignature(false)} />}
+        content={
+          <Signature
+            signatureAdded={() => setOpenAddSignature(false)}
+            hasExistingSignature={hasSignature}
+          />
+        }
         showClose={true}
       />
       <div>
         <h1 className="text-xl font-bold">Patient&#39;s Labs</h1>
-        <h2 className="mt-10 flex items-center font-bold">
+        <h2 className="mt-10 flex items-center font-bold max-sm:text-sm">
           Requested Labs <Info className="ml-2" size={20} />
           {!!previousLabs?.length && (
             <button
               onClick={() => setShowPreviousLabs((prev) => !prev)}
-              className="hover:text-primary ml-5 cursor-pointer text-gray-500"
+              className="hover:text-primary ml-5 cursor-pointer text-gray-500 max-sm:ml-3"
             >
               {showPreviousLabs ? 'Click to hide previous labs' : 'Click to Show previous labs'}
             </button>
@@ -334,27 +426,24 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
         )}
         <h2 className="mt-10 flex items-center font-bold">Request Lab</h2>
 
-        {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 &&
-          !doctorSignature && (
-            <Alert
-              id="signature-alert"
-              variant="info"
-              className="my-4 border-amber-500 bg-amber-50"
-            >
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="flex items-center justify-between">
-                <span className="text-amber-800">
-                  Lab requests require your digital signature before proceeding.
-                </span>
-                <button
-                  onClick={() => setOpenAddSignature(true)}
-                  className="ml-4 text-sm font-semibold text-amber-700 underline hover:text-amber-900"
-                >
-                  Add now
-                </button>
-              </AlertDescription>
-            </Alert>
-          )}
+        {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 && (
+          <Alert id="signature-alert" variant="info" className="my-4 border-amber-500 bg-amber-50">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="flex items-center justify-between">
+              <span className="text-amber-800">
+                {hasSignature
+                  ? 'You can edit your digital signature if needed.'
+                  : 'Lab requests require your digital signature before proceeding.'}
+              </span>
+              <button
+                onClick={() => setOpenAddSignature(true)}
+                className="ml-4 text-sm font-semibold text-amber-700 underline hover:text-amber-900"
+              >
+                {hasSignature ? 'Edit signature' : 'Add now'}
+              </button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="mt-5 mb-20 flex flex-wrap gap-5">
           <AddCardButton onClick={() => setUpdateLabs(true)} />
@@ -362,7 +451,9 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
         </div>
         {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 && (
           <div className="fixed right-4 bottom-16 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
-            <Label htmlFor="signature-labs">Add digital Signature</Label>
+            <Label htmlFor="signature-labs">
+              {hasSignature ? 'Edit digital Signature' : 'Add digital Signature'}
+            </Label>
             <Switch
               checked={addSignature}
               id="signature-labs"
@@ -379,89 +470,214 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
           />
         </div>
       </div>
-      <Drawer direction="right" open={updateLabs}>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-sm p-4">
-            <DrawerHeader className="flex items-center justify-between">
-              <div>
-                <DrawerTitle className="text-lg">Add Laboratory Request</DrawerTitle>
-                <DrawerDescription>
-                  Add a laboratory request for patient to send to the lab
-                </DrawerDescription>
-              </div>
-            </DrawerHeader>
-            <form className="space-y-4" onSubmit={handleSubmit(addLabRequest)}>
-              <SelectInput
-                ref={register('category').ref}
-                control={control}
-                options={labTestSectionsOptions}
-                name="category"
-                label="Laboratory Category"
-                placeholder="Select laboratory category"
-                className="bg-transparent"
-              />
-              {category && (
-                <SelectInput
-                  ref={register('categoryType').ref}
-                  control={control}
-                  options={categoryTypeOptions}
-                  name="categoryType"
-                  label={`${capitalize(category)} Category`}
-                  placeholder={`Select ${capitalize(category)} category`}
-                  className="bg-transparent"
-                />
-              )}
-              {categoryType && (
-                <SelectInput
-                  ref={register('testName').ref}
-                  control={control}
-                  options={testNameOptions}
-                  name="testName"
-                  label={`${capitalize(categoryType)} Test`}
-                  placeholder={`Select ${capitalize(categoryType)} test`}
-                  className="bg-transparent"
-                />
-              )}
-              <Textarea
-                labelName="Notes"
-                placeholder="Add short notes about laboratory test request"
-                {...register('notes')}
-                error={errors?.notes?.message}
-              />
-              <Input
-                labelName="Specimen"
-                error={errors.specimen?.message}
-                placeholder="Enter specimen to be used"
-                {...register('specimen')}
-              />
-              <div className="flex items-center space-x-2">
+      <Modal
+        setState={(value) => setUpdateLabs(typeof value === 'function' ? value(updateLabs) : value)}
+        open={updateLabs}
+        showClose={true}
+        className="h-full w-full max-w-[90%] p-5"
+        content={
+          <div className="w-full overflow-y-auto p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">Add Laboratory Request</h2>
+              <p className="mt-1 text-gray-600">
+                Select laboratory tests for the patient. You can select multiple tests. Provide a
+                specimen for each category you select.
+              </p>
+            </div>
+
+            <form className="space-y-6" onSubmit={handleSubmit(addLabRequest)}>
+              {/* Fasting Checkbox */}
+              <div className="flex items-center space-x-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
                 <Checkbox
                   name="fasting"
                   id="fasting"
                   checked={watch('fasting')}
                   onCheckedChange={(checked) => setValue('fasting', !!checked)}
                 />
-                <Label htmlFor="fasting">Fasting</Label>
+                <Label htmlFor="fasting" className="cursor-pointer">
+                  Fasting required for all tests
+                </Label>
               </div>
-              <div className="space-x-3">
-                <Button
-                  isLoading={isLoading}
-                  disabled={!isValid || isLoading}
-                  child="Save"
-                  type="submit"
+
+              {/* Search Bar */}
+              <div className="relative">
+                <Search
+                  className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-400"
+                  size={20}
                 />
+                <Input
+                  type="text"
+                  placeholder="Search for tests, categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pr-10 pl-10"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={20} />
+                  </button>
+                )}
+              </div>
+
+              {/* Selected Tests Summary */}
+              {selectedTests.size > 0 && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-blue-900">
+                      {selectedTests.size} test{selectedTests.size !== 1 ? 's' : ''} selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTests(new Map())}
+                      className="text-sm text-blue-600 underline hover:text-blue-800"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {Array.from(selectedTests.keys()).map((testName) => (
+                      <Badge key={testName} variant="secondary" className="px-3 py-1">
+                        {testName}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Lab Tests Grid */}
+              <div className="max-h-[50vh] overflow-y-auto rounded-lg border">
+                {filteredLabs && Object.entries(filteredLabs).length > 0 ? (
+                  Object.entries(filteredLabs).map(([mainCategory, subCategories]) => {
+                    const hasSelectedTestsInCategory = Array.from(selectedTests.values()).some(
+                      (meta) => meta.category === mainCategory,
+                    );
+                    const specimenValue = categorySpecimens.get(mainCategory) || '';
+                    const specimenMissing = hasSelectedTestsInCategory && !specimenValue.trim();
+                    return (
+                      <div key={mainCategory} className="border-b last:border-b-0">
+                        <div className="sticky top-0 z-10 bg-gray-50 px-4 py-3">
+                          <h3 className="text-lg font-bold text-gray-800">{mainCategory}</h3>
+                        </div>
+                        <div className="space-y-4 p-4">
+                          {/* Category-specific specimen field - show when tests selected in this category */}
+                          {hasSelectedTestsInCategory && (
+                            <div
+                              className={`mb-4 rounded-md border ${
+                                specimenMissing
+                                  ? 'border-red-300 bg-red-50'
+                                  : 'border-amber-200 bg-amber-50'
+                              } p-3`}
+                            >
+                              <Input
+                                labelName={`Specimen for ${mainCategory} (required)`}
+                                placeholder="Enter specimen (e.g., Blood, Urine)"
+                                value={specimenValue}
+                                onChange={(e) => {
+                                  const newSpecimens = new Map(categorySpecimens);
+                                  if (e.target.value) {
+                                    newSpecimens.set(mainCategory, e.target.value);
+                                  } else {
+                                    newSpecimens.delete(mainCategory);
+                                  }
+                                  setCategorySpecimens(newSpecimens);
+                                }}
+                                className="bg-white"
+                              />
+                              <p
+                                className={`mt-1 text-xs ${
+                                  specimenMissing ? 'text-red-600' : 'text-amber-700'
+                                }`}
+                              >
+                                {specimenMissing
+                                  ? 'Specimen is required for selected tests in this category.'
+                                  : `Provide specimen for all ${mainCategory} tests`}
+                              </p>
+                            </div>
+                          )}
+
+                          {Object.entries(subCategories).map(([subCategory, tests]) => (
+                            <div key={subCategory} className="space-y-2">
+                              <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
+                              <div className="grid grid-cols-1 gap-3 pl-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                {(tests as string[]).map((test: string) => (
+                                  <div key={test} className="flex items-start space-x-2">
+                                    <Checkbox
+                                      id={`${mainCategory}-${subCategory}-${test}`}
+                                      checked={selectedTests.has(test)}
+                                      onCheckedChange={() =>
+                                        toggleTestSelection(test, mainCategory, subCategory)
+                                      }
+                                    />
+                                    <Label
+                                      htmlFor={`${mainCategory}-${subCategory}-${test}`}
+                                      className="cursor-pointer text-sm leading-tight"
+                                    >
+                                      {test}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="p-8 text-center text-gray-500">
+                    {searchQuery ? (
+                      <>
+                        <Search className="mx-auto mb-2 text-gray-400" size={40} />
+                        <p>No tests found matching &quot;{searchQuery}&quot;</p>
+                      </>
+                    ) : (
+                      <p>Loading laboratory tests...</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Sticky Action Buttons */}
+              <div className="sticky bottom-0 z-20 flex justify-end space-x-3 border-t bg-white/95 p-4 backdrop-blur">
                 <Button
                   disabled={isLoading}
-                  onClick={() => setUpdateLabs(false)}
-                  child="Close"
+                  onClick={() => {
+                    setUpdateLabs(false);
+                    setSelectedTests(new Map());
+                    setCategorySpecimens(new Map());
+                    setSearchQuery('');
+                  }}
+                  child="Cancel"
                   type="button"
                   variant="secondary"
+                />
+                <Button
+                  isLoading={isLoading}
+                  disabled={
+                    selectedTests.size === 0 ||
+                    Array.from(
+                      new Set(Array.from(selectedTests.values()).map((m) => m.category)),
+                    ).some(
+                      (cat) => !categorySpecimens.get(cat) || !categorySpecimens.get(cat)?.trim(),
+                    ) ||
+                    isLoading
+                  }
+                  child={
+                    selectedTests.size > 0
+                      ? `Add ${selectedTests.size} Test${selectedTests.size !== 1 ? 's' : ''}`
+                      : 'Add Tests'
+                  }
+                  type="submit"
                 />
               </div>
             </form>
           </div>
-        </DrawerContent>
-      </Drawer>
+        }
+      />
     </>
   );
 };

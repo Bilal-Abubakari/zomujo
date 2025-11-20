@@ -1,5 +1,5 @@
 'use client';
-import { JSX, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
@@ -11,15 +11,18 @@ import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { showErrorToast } from '@/lib/utils';
 import ExpiredConsultationView from './ExpiredConsultationView';
 import { FileText, Loader2 } from 'lucide-react';
+import { getPatientRecords } from '@/lib/features/records/recordsThunk';
+import { toast, Toast } from '@/hooks/use-toast';
 
 const PatientCard = dynamic(() => import('@/app/dashboard/_components/patient/patientCard'), {
   loading: () => <CardFallback />,
   ssr: false,
 });
-const PatientVitalsCard = dynamic(
-  () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
-  { loading: () => <CardFallback />, ssr: false },
-);
+// TODO: Telemedicine limitation - vitals measurement not supported yet. PatientVitalsCard disabled until remote vitals collection solution is implemented.
+// const PatientVitalsCard = dynamic(
+//   () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
+//   { loading: () => <CardFallback />, ssr: false },
+// );
 const PatientConditionsCard = dynamic(
   () => import('@/app/dashboard/_components/patient/patientConditionsCard'),
   { loading: () => <CardFallback />, ssr: false },
@@ -56,6 +59,7 @@ const PatientOverview = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const [isStartingConsultation, setIsStartingConsultation] = useState(false);
   const [consultationExpired, setConsultationExpired] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const redirectToConsultation = async (): Promise<void> => {
     const appointmentId = getQueryParam('appointmentId');
@@ -81,8 +85,25 @@ const PatientOverview = (): JSX.Element => {
 
   const handleGoBack = (): void => {
     setConsultationExpired(false);
-    router.push('/dashboard/appointments');
+    router.push('/dashboard/appointment');
   };
+
+  useEffect(() => {
+    const fetchRecords = async (): Promise<void> => {
+      if (!patientId) {
+        return;
+      }
+
+      setIsLoading(true);
+      const response = await dispatch(getPatientRecords(patientId)).unwrap();
+      if (showErrorToast(response)) {
+        toast(response as Toast);
+      }
+      setIsLoading(false);
+    };
+
+    void fetchRecords();
+  }, [dispatch, patientId]);
 
   if (consultationExpired) {
     return (
@@ -96,6 +117,7 @@ const PatientOverview = (): JSX.Element => {
   return (
     <div className="relative">
       {isStartingConsultation && <LoadingOverlay message="Starting consultation..." />}
+      {isLoading && <LoadingOverlay message="Loading patient records..." />}
 
       <div className="mb-6 flex flex-wrap gap-8 sm:justify-between">
         <span className="self-center text-xl font-bold">Patient Overview</span>
@@ -128,7 +150,7 @@ const PatientOverview = (): JSX.Element => {
           <PatientAllergiesCard recordId={recordId} />
         </div>
         <div className="space-y-4">
-          <PatientVitalsCard />
+          {/* TODO: Re-enable <PatientVitalsCard /> when remote vitals collection becomes available */}
           <PatientFamilyMembersCard recordId={recordId} />
         </div>
         <div className="space-y-4">

@@ -1,6 +1,6 @@
 import React, { ChangeEvent, JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { IConditionWithoutId } from '@/types/patient.interface';
+import { IConditionWithoutId } from '@/types/medical.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectMedicalConditions } from '@/lib/features/patients/patientsSelector';
 import {

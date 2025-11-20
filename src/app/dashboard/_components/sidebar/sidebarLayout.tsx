@@ -19,7 +19,7 @@ import { CollapsibleTrigger } from '@radix-ui/react-collapsible';
 import { ChevronDown, EllipsisVertical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import ProfileCompletionCard from '../profileCompletionCard/ProfileCompletionCard';
 import {
   DropdownMenu,
@@ -94,10 +94,13 @@ export const SidebarLayout = ({
   };
 
   return (
-    <Sidebar className={cn('flex hidden h-screen flex-col', sidebarClassName)}>
+    <Sidebar className={cn('flex h-screen flex-col', sidebarClassName)}>
       {!type && (
-        <SidebarHeader className="pt-3.5 pb-[50px]">
-          <SidebarTrigger child={<Image src={Logo} alt="Zyptyk-logo" />} className="h-10 w-10" />
+        <SidebarHeader className="pt-3.5 pb-[10px]">
+          <SidebarTrigger
+            child={<Image src={Logo} alt="Fornix Link-logo" />}
+            className="h-14 w-14"
+          />
         </SidebarHeader>
       )}
       <SidebarContent className={sidebarContentClassName}>
@@ -225,6 +228,7 @@ export const Navbar = ({
 };
 
 const ProfileDropdownMenu = (): JSX.Element => {
+  const router = useRouter();
   const dispatch = useAppDispatch();
 
   const logoutHandler = async (): Promise<void> => {
@@ -235,7 +239,7 @@ const ProfileDropdownMenu = (): JSX.Element => {
   return (
     <>
       <DropdownMenuContent side="top" className="w-(--radix-popper-anchor-width)">
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
           <span>Profile</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => logoutHandler()}>

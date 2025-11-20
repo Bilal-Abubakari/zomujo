@@ -3,7 +3,7 @@ import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { Toast } from '@/hooks/use-toast';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
-import { AppointmentStatus } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { IAppointment, IAppointmentDoctorId } from '@/types/appointment.interface';
 import {
   AppointmentDate,
@@ -36,6 +36,22 @@ export const getAppointmentSlots = createAsyncThunk(
     try {
       const { data } = await axios.get<IResponse<IPagination<AppointmentDate>>>(
         `appointments/slots?${getValidQueryString(queryParams)}&orderDirection=asc`,
+      );
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getAppointmentSlotsDates = createAsyncThunk(
+  'appointments/getSlotsDates',
+  async (
+    queryParams: IQueryParams<SlotStatus | ''>,
+  ): Promise<Toast | IPagination<AppointmentDate>> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<AppointmentDate>>>(
+        `appointments/slots-dates?${getValidQueryString(queryParams)}&orderDirection=asc`,
       );
       return data.data;
     } catch (error) {
@@ -181,6 +197,18 @@ export const assignAppointment = createAsyncThunk(
   async (appointment: IAppointmentDoctorId): Promise<Toast> => {
     try {
       const { data } = await axios.patch<IResponse>(`appointments/assign`, appointment);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const rescheduleAppointment = createAsyncThunk(
+  'appointment/reschedule',
+  async (payload: { slotId: string; appointmentId: string }): Promise<Toast> => {
+    try {
+      const { data } = await axios.patch<IResponse>(`appointments/reschedule`, payload);
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

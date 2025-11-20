@@ -1,16 +1,15 @@
 'use client';
-import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { cn, showErrorToast } from '@/lib/utils';
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
 import { useAppDispatch } from '@/lib/hooks';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { AvailabilityProps } from '@/types/booking.interface';
 import { extractGMTTime } from '@/lib/date';
 import {
-  getAppointmentSlots,
   getAppointmentSlotsByDate,
+  getAppointmentSlotsDates,
 } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
 import { MedicalAppointmentType, useQueryParam } from '@/hooks/useQueryParam';
@@ -19,17 +18,11 @@ import ListView from './listView';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { AppointmentDate, AppointmentSlots, SlotStatus } from '@/types/slots.interface';
 
-const AvailableDates = ({
-  setValue,
-  setCurrentStep,
-  watch,
-  doctorId,
-}: AvailabilityProps): JSX.Element => {
+const AvailableDates = ({ setValue, watch, doctorId }: AvailabilityProps): JSX.Element => {
   const date = watch('date');
   const selectedTime = watch('time');
   const dispatch = useAppDispatch();
   const params = useParams();
-  const pathname = usePathname();
   const id = params.appointment as string;
   const { getQueryParam } = useQueryParam();
   const appointmentType = getQueryParam('appointmentType');
@@ -38,13 +31,14 @@ const AvailableDates = ({
   const [isLoadingAppointmentDates, setIsLoadingAppointmentDates] = useState(false);
   const [canBookDates, setCanBookDates] = useState<Date[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const timeSlotsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function slotsAvailable(): Promise<void> {
       setIsLoadingAppointmentDates(true);
       const lastDateOfTheMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
       const { payload } = await dispatch(
-        getAppointmentSlots({
+        getAppointmentSlotsDates({
           startDate: currentDate,
           endDate: lastDateOfTheMonth,
           doctorId: appointmentType === MedicalAppointmentType.Doctor ? id : '',
@@ -103,6 +97,19 @@ const AvailableDates = ({
     void slotsAvailable();
   }, [date]);
 
+  // Scroll to time slots when they're loaded after date selection
+  useEffect(() => {
+    if (!isAvailableSlotLoading && date && timeSlotsRef.current) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        timeSlotsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }, 100);
+    }
+  }, [isAvailableSlotLoading, date]);
+
   const handleSlotSelection = (startTime: string, id: string): void => {
     setValue('time', startTime, {
       shouldTouch: true,
@@ -152,7 +159,7 @@ const AvailableDates = ({
             />
           </div>
 
-          <div>
+          <div ref={timeSlotsRef}>
             <p className="mt-5 mb-2 font-medium">Available time (Africa/Accra - GMT (+00:00))</p>
             {!!availableTimeSlots.length && (
               <small className="m-auto text-center text-red-500">
@@ -201,16 +208,6 @@ const AvailableDates = ({
           <ListView setValue={setValue} watch={watch} doctorId={doctorId} />
         </TabsContent>
       </Tabs>
-
-      {pathname !== '/' && (
-        <div className="mt-11 ml-auto flex justify-end">
-          <Button
-            child="Continue"
-            disabled={!(date && selectedTime)}
-            onClick={() => setCurrentStep?.(2)}
-          />
-        </div>
-      )}
     </div>
   );
 };

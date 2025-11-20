@@ -8,6 +8,8 @@ type LocalStorageKeys = {
   OAUTH_DOCTOR_ID: string | null;
   OAUTH_SLOT_ID: string | null;
   OAUTH_ROLE: string | null;
+  REDIRECT_AFTER_LOGIN: string | null;
+  SESSION_EXPIRED: string | null;
 };
 
 type LocalStorageKey = keyof LocalStorageKeys;
@@ -18,6 +20,8 @@ export class LocalStorageManager {
     OAUTH_DOCTOR_ID: 'oauth_doctor_id',
     OAUTH_SLOT_ID: 'oauth_slot_id',
     OAUTH_ROLE: 'oauth_role',
+    REDIRECT_AFTER_LOGIN: 'redirectAfterLogin',
+    SESSION_EXPIRED: 'sessionExpired',
   } as const;
 
   /**
@@ -125,5 +129,92 @@ export class LocalStorageManager {
     this.removeItem(this.KEYS.OAUTH_DOCTOR_ID);
     this.removeItem(this.KEYS.OAUTH_SLOT_ID);
     this.removeItem(this.KEYS.OAUTH_ROLE);
+  }
+
+  /**
+   * Save redirect URL for after login
+   * @param url - The URL to redirect to after login
+   */
+  static saveRedirectUrl(url: string): void {
+    this.setItem(this.KEYS.REDIRECT_AFTER_LOGIN, url);
+  }
+
+  /**
+   * Get and clear redirect URL
+   * @returns The redirect URL if it exists, null otherwise
+   */
+  static getAndClearRedirectUrl(): string | null {
+    const url = this.getItem(this.KEYS.REDIRECT_AFTER_LOGIN);
+    if (url) {
+      this.removeItem(this.KEYS.REDIRECT_AFTER_LOGIN);
+    }
+    return url;
+  }
+
+  /**
+   * Set session expired flag
+   */
+  static setSessionExpiredFlag(): void {
+    this.setItem(this.KEYS.SESSION_EXPIRED, 'true');
+  }
+
+  /**
+   * Check if session has expired
+   * @returns True if session expired flag is set
+   */
+  static hasSessionExpired(): boolean {
+    return this.getItem(this.KEYS.SESSION_EXPIRED) === 'true';
+  }
+
+  /**
+   * Clear session expired flag
+   */
+  static clearSessionExpiredFlag(): void {
+    this.removeItem(this.KEYS.SESSION_EXPIRED);
+  }
+
+  /**
+   * Store arbitrary JSON serializable data under any key (namespaced by caller).
+   */
+  static setJSON(key: string, value: unknown): void {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      }
+    } catch (error) {
+      console.error(`Error setting JSON localStorage item ${key}:`, error);
+    }
+  }
+
+  /**
+   * Retrieve arbitrary JSON data stored with setJSON. Returns null if parse fails or key missing.
+   */
+  static getJSON<T = unknown>(key: string): T | null {
+    try {
+      if (typeof window !== 'undefined') {
+        const raw = window.localStorage.getItem(key);
+        if (!raw) {
+          return null;
+        }
+        return JSON.parse(raw) as T;
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error parsing JSON localStorage item ${key}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Remove arbitrary JSON draft key
+   */
+  static removeJSON(key: string): void {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(key);
+      }
+    } catch (error) {
+      console.error(`Error removing JSON localStorage item ${key}:`, error);
+    }
   }
 }

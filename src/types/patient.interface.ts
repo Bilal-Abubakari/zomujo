@@ -6,7 +6,8 @@ import {
   medicalLevels,
   severityOptions,
 } from '@/constants/constants';
-import { ILab } from '@/types/labs.interface';
+import { ILab, IUploadLab } from '@/types/labs.interface';
+import { IMedicine, ICondition, ISurgery, IDiagnosis } from '@/types/medical.interface';
 
 export interface IPatient extends IExtraBase {
   lifestyle: unknown;
@@ -49,31 +50,6 @@ export interface IMedicalRecord {
   createdAt: string;
   updatedAt: string;
 }
-
-interface IIdName {
-  id: string;
-  name: string;
-}
-
-export interface IMedicine extends IIdName {
-  dose: string;
-}
-
-export type IMedicineWithoutId = Omit<IMedicine, 'id'>;
-
-export interface ICondition<T extends IMedicineWithoutId[] = IMedicine[]> extends IIdName {
-  recordId: string;
-  medicines: T;
-}
-
-export type IConditionWithoutId = Omit<ICondition<IMedicineWithoutId[]>, 'id'>;
-
-export interface ISurgery extends IIdName {
-  recordId: string;
-  additionalNotes: string;
-}
-
-export type ISurgeryWithoutId = Omit<ISurgery, 'id'>;
 
 export interface IPatientWithRecord extends IPatient {
   record: IMedicalRecord;
@@ -148,4 +124,16 @@ export type IAllergyWithoutId = Omit<IAllergy, 'id'>;
 
 export interface IAllergyRequest extends IAllergy {
   recordId: string;
+}
+
+export interface IPatientMedicalHistory {
+  id: string;
+  patientId: string;
+  diagnoses: IDiagnosis[];
+  medications: IMedicine[];
+  allergies: IAllergy[];
+  createdAt: string;
+  updatedAt: string;
+  labResults: ILab[];
+  imagingReports: IUploadLab[];
 }

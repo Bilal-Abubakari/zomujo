@@ -12,6 +12,7 @@ import { useAppDispatch } from '@/lib/hooks';
 import { deleteAccount, updatePassword } from '@/lib/features/auth/authThunk';
 import { toast } from '@/hooks/use-toast';
 import { Confirmation, ConfirmationProps } from '@/components/ui/dialog';
+import { BRANDING } from '@/constants/branding.constant';
 
 const SecurityInfo = (): JSX.Element => {
   const PasswordUpdateSchema = z.object({
@@ -105,8 +106,8 @@ const SecurityInfo = (): JSX.Element => {
         <div>
           <h2 className="font-bold">Delete account</h2>
           <p className="text-xs text-gray-500 sm:max-w-[297px]">
-            We&rsquo;ll delete your account and data permanently. Thanks for being part of Zomujo!
-            You&rsquo;re always welcome back if you change your mind.
+            We&rsquo;ll delete your account and data permanently. Thanks for being part of{' '}
+            {BRANDING.APP_NAME}! You&rsquo;re always welcome back if you change your mind.
           </p>
         </div>
         <div className="flex gap-2 pt-3 pb-28 sm:pt-0 sm:pb-0">
