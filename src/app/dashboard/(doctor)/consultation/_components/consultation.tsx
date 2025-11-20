@@ -16,6 +16,8 @@ import {
   isConsultationInProgress,
   hasConsultationEnded,
 } from '@/lib/features/appointments/appointmentSelector';
+import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
+import { selectRecordId } from '@/lib/features/patients/patientsSelector';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -87,14 +89,21 @@ const Consultation = (): JSX.Element => {
   const currentConsultationStatus = useAppSelector(consultationStatus);
   const isInProgress = useAppSelector(isConsultationInProgress);
   const hasEnded = useAppSelector(hasConsultationEnded);
+  const recordId = useAppSelector(selectRecordId);
   const params = useParams();
   const [isEndingConsultation, setIsEndingConsultation] = useState(false);
 
   const endConsultation = async (): Promise<void> => {
     setIsEndingConsultation(true);
-    const payload = await dispatch(endConsultationRequest(String(params.appointmentId))).unwrap();
+    const appointmentId = String(params.appointmentId);
+    const payload = await dispatch(endConsultationRequest(appointmentId)).unwrap();
     toast(payload);
     setIsEndingConsultation(false);
+
+    if (recordId) {
+      dispatch(showReviewModal({ appointmentId, recordId }));
+    }
+
     router.push('/dashboard');
   };
 

@@ -13,7 +13,7 @@ const Policy = (): JSX.Element => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto sm:px-1 md:px-4">
-        <div className="mx-auto max-w-6xl text-center">
+        <div className="mx-auto text-center">
           <>
             <div>
               <header
@@ -41,7 +41,7 @@ const Policy = (): JSX.Element => {
                 </div>
               </header>
               <Separator />
-              <main className="container mx-auto max-w-4xl px-4 py-8">
+              <main className="container mx-auto px-4 py-8">
                 <div className="mb-12 text-center">
                   <h1 className="text-foreground mb-4 text-2xl font-bold md:text-4xl">
                     Privacy Policy
@@ -53,30 +53,30 @@ const Policy = (): JSX.Element => {
                 </div>
 
                 <div className="mb-12 grid gap-6 md:grid-cols-2">
-                  <Card className="hover:border-border-blue-400/40 border-blue-400/20 transition-colors">
+                  <Card className="hover:border-primary/40 border-primary/20 transition-colors">
                     <CardHeader>
-                      <CardTitle className="text-md flex items-center text-blue-400 md:text-2xl">
-                        <UserCheck className="mr-2 h-6 w-6" />
+                      <CardTitle className="text-md text-foreground flex items-center md:text-2xl">
+                        <UserCheck className="text-primary mr-2 h-6 w-6" />
                         For Health care Professionals
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground">
+                      <p className="text-foreground">
                         Enhanced privacy protections for medical professionals, including HIPAA
                         compliance and professional data security.
                       </p>
                     </CardContent>
                   </Card>
 
-                  <Card className="border-green-400/20 transition-colors hover:border-green-400/40">
+                  <Card className="border-primary/20 hover:border-primary/40 transition-colors">
                     <CardHeader>
-                      <CardTitle className="text-md flex items-center border-green-400 text-green-400 md:text-2xl">
-                        <Users className="mr-2 h-6 w-6" />
+                      <CardTitle className="text-md text-foreground flex items-center md:text-2xl">
+                        <Users className="text-primary mr-2 h-6 w-6" />
                         For Patients
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground">
+                      <p className="text-foreground">
                         Comprehensive patient privacy rights and medical information protection
                         under healthcare regulations.
                       </p>
@@ -91,10 +91,10 @@ const Policy = (): JSX.Element => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <h4 className="mb-2 font-semibold text-blue-400">
+                        <h4 className="text-foreground mb-2 font-semibold">
                           For Healthcare Professionals:
                         </h4>
-                        <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-1">
+                        <ul className="text-foreground ml-4 list-inside list-disc space-y-1">
                           <li>Professional credentials and licensing information</li>
                           <li>Medical practice details and specializations</li>
                           <li>Professional contact information</li>
@@ -103,8 +103,8 @@ const Policy = (): JSX.Element => {
                       </div>
 
                       <div>
-                        <h4 className="mb-2 font-semibold text-green-400">For Patients:</h4>
-                        <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-1">
+                        <h4 className="text-foreground mb-2 font-semibold">For Patients:</h4>
+                        <ul className="text-foreground ml-4 list-inside list-disc space-y-1">
                           <li>Personal identification information</li>
                           <li>Medical history and health records</li>
                           <li>Insurance information</li>
@@ -119,10 +119,10 @@ const Policy = (): JSX.Element => {
                       <CardTitle>2. How We Use Your Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-muted-foreground">
+                      <p className="text-foreground">
                         We use your information solely for legitimate healthcare purposes:
                       </p>
-                      <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
+                      <ul className="text-foreground ml-4 list-inside list-disc space-y-2">
                         <li>Providing and coordinating medical care</li>
                         <li>
                           Facilitating communication between healthcare providers and patients
@@ -139,9 +139,9 @@ const Policy = (): JSX.Element => {
                       <CardTitle>3. Data Security & Protection</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="bg-section-bg rounded-lg p-4">
-                        <h4 className="mb-2 font-semibold">Security Measures:</h4>
-                        <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-1">
+                      <div className="bg-muted/50 border-border rounded-lg border p-4">
+                        <h4 className="text-foreground mb-2 font-semibold">Security Measures:</h4>
+                        <ul className="text-foreground ml-4 list-inside list-disc space-y-1">
                           <li>End-to-end encryption for all medical data</li>
                           <li>Multi-factor authentication for all users</li>
                           <li>Regular security audits and compliance checks</li>
@@ -157,23 +157,23 @@ const Policy = (): JSX.Element => {
                       <CardTitle>4. HIPAA Compliance</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-muted-foreground">
+                      <p className="text-foreground">
                         We are fully committed to HIPAA compliance and protecting your health
                         information:
                       </p>
                       <div className="grid gap-4 md:grid-cols-2">
-                        <div className="rounded-lg bg-blue-100 p-4">
-                          <h5 className="mb-2 font-semibold text-blue-400">Your Rights</h5>
-                          <ul className="text-muted-foreground space-y-1 text-sm">
+                        <div className="bg-primary/5 border-primary/20 rounded-lg border p-4">
+                          <h5 className="text-foreground mb-2 font-semibold">Your Rights</h5>
+                          <ul className="text-foreground space-y-1 text-sm">
                             <li>• Access your health records</li>
                             <li>• Request corrections to your information</li>
                             <li>• Request restrictions on use/disclosure</li>
                             <li>• File complaints about privacy practices</li>
                           </ul>
                         </div>
-                        <div className="rounded-lg bg-gray-100 p-4">
+                        <div className="bg-muted/50 border-border rounded-lg border p-4">
                           <h5 className="text-foreground mb-2 font-semibold">Our Obligations</h5>
-                          <ul className="text-muted-foreground space-y-1 text-sm">
+                          <ul className="text-foreground space-y-1 text-sm">
                             <li>• Maintain privacy of health information</li>
                             <li>• Provide notice of privacy practices</li>
                             <li>• Implement appropriate safeguards</li>
@@ -189,33 +189,35 @@ const Policy = (): JSX.Element => {
                       <CardTitle>5. Information Sharing</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-muted-foreground mb-4">
+                      <p className="text-foreground mb-4">
                         We only share your information in the following circumstances:
                       </p>
                       <div className="space-y-3">
                         <div className="flex items-start space-x-3">
-                          <div className="mt-2 h-2 w-2 rounded-full bg-blue-400"></div>
+                          <div className="bg-primary mt-2 h-2 w-2 rounded-full"></div>
                           <div>
-                            <h5 className="font-semibold">Treatment Coordination</h5>
-                            <p className="text-muted-foreground text-sm">
+                            <h5 className="text-foreground font-semibold">
+                              Treatment Coordination
+                            </h5>
+                            <p className="text-foreground text-sm">
                               With your healthcare team for continuity of care
                             </p>
                           </div>
                         </div>
                         <div className="flex items-start space-x-3">
-                          <div className="mt-2 h-2 w-2 rounded-full bg-green-400"></div>
+                          <div className="bg-primary mt-2 h-2 w-2 rounded-full"></div>
                           <div>
-                            <h5 className="font-semibold">Legal Requirements</h5>
-                            <p className="text-muted-foreground text-sm">
+                            <h5 className="text-foreground font-semibold">Legal Requirements</h5>
+                            <p className="text-foreground text-sm">
                               When required by law or court order
                             </p>
                           </div>
                         </div>
                         <div className="flex items-start space-x-3">
-                          <div className="mt-2 h-2 w-2 rounded-full bg-amber-300"></div>
+                          <div className="bg-primary mt-2 h-2 w-2 rounded-full"></div>
                           <div>
-                            <h5 className="font-semibold">Your Consent</h5>
-                            <p className="text-muted-foreground text-sm">
+                            <h5 className="text-foreground font-semibold">Your Consent</h5>
+                            <p className="text-foreground text-sm">
                               With your explicit written authorization
                             </p>
                           </div>
@@ -231,24 +233,28 @@ const Policy = (): JSX.Element => {
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div>
-                        <h4 className="mb-3 font-semibold">Privacy Officer Contact:</h4>
+                        <h4 className="text-foreground mb-3 font-semibold">
+                          Privacy Officer Contact:
+                        </h4>
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <Mail className="h-4 w-4 text-blue-400" />
-                            <span className="text-muted-foreground">zumojo@gmail.com</span>
+                            <Mail className="text-primary h-4 w-4" />
+                            <span className="text-foreground">zumojo@gmail.com</span>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Phone className="h-4 w-4 text-blue-400" />
-                            <span className="text-muted-foreground">+233 20 146 2313</span>
+                            <Phone className="text-primary h-4 w-4" />
+                            <span className="text-foreground">+233 20 146 2313</span>
                           </div>
                         </div>
                       </div>
 
                       <Separator />
 
-                      <div className="bg-section-bg rounded-lg p-4">
-                        <h4 className="mb-2 font-semibold">Changes to This Policy</h4>
-                        <p className="text-muted-foreground text-sm">
+                      <div className="bg-muted/50 border-border rounded-lg border p-4">
+                        <h4 className="text-foreground mb-2 font-semibold">
+                          Changes to This Policy
+                        </h4>
+                        <p className="text-foreground text-sm">
                           We may update this privacy policy from time to time. We will notify you of
                           any material changes by posting the new policy on our website and sending
                           notifications to registered users.
@@ -260,7 +266,7 @@ const Policy = (): JSX.Element => {
 
                 {/* Footer */}
                 <div className="mt-12 border-t py-8 text-center">
-                  <p className="text-muted-foreground">
+                  <p className="text-foreground">
                     This privacy policy is effective as of September 10, 2025 . For questions about
                     this policy, please contact our Privacy Officer using the information provided
                     above.

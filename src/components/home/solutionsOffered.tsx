@@ -8,8 +8,7 @@ const SolutionsOffered = (): JSX.Element => {
     {
       icon: Shield,
       title: 'Own Your Medical Records',
-      description:
-        'Find practices that accept your insurance or pay directly. 24/7 access to your health data.',
+      description: 'Connect with top healthcare providers and access your health data anytime',
     },
     {
       icon: Zap,
@@ -19,9 +18,9 @@ const SolutionsOffered = (): JSX.Element => {
     },
     {
       icon: BarChart,
-      title: 'Seamless Practice Management',
+      title: 'Seamless Operations Management',
       description:
-        'Admin roles for staff, detailed scheduling, insurance integration. Scale services with ease.',
+        'Simplify scheduling, track patient visits, and keep your operations running smoothly.',
     },
   ];
 
@@ -61,16 +60,16 @@ const SolutionsOffered = (): JSX.Element => {
 
         <div className="mx-auto max-w-4xl text-center">
           <blockquote className="text-foreground mb-8 text-2xl font-medium md:text-3xl">
-            &quot;The integrated features save me hours each week, allowing me to focus more on
-            patient care.&quot;
+            &quot;This platform has transformed how I manage my practice. I can now see more
+            patients efficiently while maintaining the quality care they deserve.&quot;
           </blockquote>
           <div className="flex items-center justify-center space-x-4">
             <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
               <span className="text-lg font-semibold">TD</span>
             </div>
             <div className="text-left">
-              <div className="font-semibold">Teata Duut</div>
-              <div className="text-muted-foreground">Product Manager, Ghana</div>
+              <div className="font-semibold">Dr. Teata Duut</div>
+              <div className="text-muted-foreground">General Practitioner, Ghana</div>
             </div>
           </div>
         </div>

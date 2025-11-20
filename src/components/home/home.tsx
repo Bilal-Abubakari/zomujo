@@ -36,6 +36,10 @@ const Faq = dynamic(() => import('./faq'), {
   loading: () => <SectionFallback />,
   ssr: false,
 });
+const Pricing = dynamic(() => import('./pricing'), {
+  loading: () => <SectionFallback />,
+  ssr: false,
+});
 const InterestedProvider = dynamic(() => import('./interestedProviders'), {
   loading: () => <SectionFallback />,
   ssr: false,
@@ -84,6 +88,7 @@ export default function Home(): JSX.Element {
           <Hero />
           <Statistics />
           <AvailableFeatures />
+          <Pricing />
           <SolutionsOffered />
           <HowItWorks />
           <Faq />

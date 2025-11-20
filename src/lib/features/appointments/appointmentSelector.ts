@@ -63,3 +63,18 @@ export const selectDiagnoses = createSelector(
   selectAppointment,
   (appointment) => appointment?.diagnosis ?? [],
 );
+
+export const selectShowReviewModal = createSelector(
+  selectAppointments,
+  (appointments) => appointments.showReviewModal,
+);
+
+export const selectReviewAppointmentId = createSelector(
+  selectAppointments,
+  (appointments) => appointments.reviewAppointmentId,
+);
+
+export const selectReviewRecordId = createSelector(
+  selectAppointments,
+  (appointments) => appointments.reviewRecordId,
+);
