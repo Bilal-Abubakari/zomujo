@@ -133,15 +133,13 @@ const Consultation = (): JSX.Element => {
     toast(payload);
     setIsEndingConsultation(false);
 
-
     if (!showErrorToast(payload)) {
       router.push('/dashboard');
-      
+
       if (recordId) {
         dispatch(showReviewModal({ appointmentId, recordId }));
       }
     }
-
   };
 
   const getStage = (): JSX.Element => {
