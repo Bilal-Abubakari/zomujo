@@ -46,7 +46,7 @@ const Hero = (): JSX.Element => {
         className={`relative z-10 flex h-full flex-col items-center justify-center px-4 text-center ${styles.fadeIn}`}
       >
         <h1 className="t mt-48 mb-2 text-3xl font-extrabold text-white drop-shadow-lg sm:mt-0 sm:text-5xl md:text-6xl">
-          Book local Specialist who take your insurance{' '}
+          Connect with the right specialist for your needs{' '}
         </h1>
         <div className="mb-2 flex min-h-[2.2rem] items-center justify-center text-lg font-bold md:text-xl">
           <span className="animate-fadeSpeciality text-lg font-extrabold">
@@ -54,7 +54,7 @@ const Hero = (): JSX.Element => {
           </span>
         </div>
         <p className="mb-2 text-lg font-bold text-white drop-shadow-md md:text-xl">
-          Connect with the best healthcare professionals.
+          Quality care made simple — find the right expert for you.{' '}
         </p>
         <div className="items-left mt-8 flex w-full max-w-3xl flex-col space-y-4 rounded-lg bg-white/80 p-6 shadow-2xl backdrop-blur-md md:flex-col md:space-y-0 md:space-x-4">
           <div className="w-full flex-grow">
@@ -113,10 +113,11 @@ const Hero = (): JSX.Element => {
           />
 
           <div className="mt-12 flex flex-wrap justify-center gap-4 text-sm font-medium text-black/80">
-            <div className="flex items-center">
+            {/* TODO: Implement this when we have the insurance verified feature */}
+            {/* <div className="flex items-center">
               <div className="mr-2 h-2 w-2 rounded-full bg-green-400"></div>
               Insurance Verified
-            </div>
+            </div> */}
             <div className="flex items-center">
               <div className="mr-2 h-2 w-2 rounded-full bg-blue-400"></div>
               Same-Day Booking

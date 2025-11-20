@@ -14,3 +14,4 @@ export { default as PdfFile } from './pdf-file.png';
 export { default as UnderConstruction } from './under-construction.svg';
 export { default as ContentProfile } from './Content.png';
 export { default as ProviderDashboard } from './provider-dashboard.png';
+export { default as DocPatient } from './doc-patient.jpg';

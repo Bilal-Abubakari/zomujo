@@ -50,18 +50,21 @@ const TermsAndCondition = (): JSX.Element => {
               <p className="text-muted-foreground">{BRANDING.APP_TAGLINE}</p>
             </div>
           </div>
-          <h2 className="text-foreground mb-2 text-xl font-bold md:text-4xl">Terms & Conditions</h2>
-          <p className="text-muted-foreground max-w-2xl text-lg">
-            Please read these terms carefully. By using our health application, you agree to be
-            bound by these terms and conditions.
+          <h2 className="text-foreground mb-3 text-xl font-bold md:text-4xl">Terms & Conditions</h2>
+          <p className="text-muted-foreground mb-4 text-lg leading-relaxed">
+            These Terms and Conditions govern your use of the Zumojo platform. By accessing or using
+            our services, you acknowledge that you have read, understood, and agree to be bound by
+            these terms.
           </p>
-          <p className="text-muted-foreground mt-4 text-sm">
+          <p className="text-muted-foreground text-sm">
             Last updated:{' '}
-            {new Date('2025, 09, 10').toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+            <span className="font-medium">
+              {new Date('2025, 09, 10').toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </span>
           </p>
         </div>
       </header>

@@ -6,10 +6,16 @@ import { IConsultationSymptoms } from '@/types/consultation.interface';
 interface AppointmentsState {
   appointment: IAppointment | undefined;
   isLoading: boolean;
+  showReviewModal: boolean;
+  reviewAppointmentId: string | undefined;
+  reviewRecordId: string | undefined;
 }
 const initialState: AppointmentsState = {
   appointment: undefined,
   isLoading: false,
+  showReviewModal: false,
+  reviewAppointmentId: undefined,
+  reviewRecordId: undefined,
 };
 
 const appointmentsSlice = createSlice({
@@ -27,6 +33,19 @@ const appointmentsSlice = createSlice({
         };
       }
     },
+    showReviewModal: (
+      state,
+      action: PayloadAction<{ appointmentId: string; recordId: string }>,
+    ) => {
+      state.showReviewModal = true;
+      state.reviewAppointmentId = action.payload.appointmentId;
+      state.reviewRecordId = action.payload.recordId;
+    },
+    hideReviewModal: (state) => {
+      state.showReviewModal = false;
+      state.reviewAppointmentId = undefined;
+      state.reviewRecordId = undefined;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -42,6 +61,7 @@ const appointmentsSlice = createSlice({
   },
 });
 
-export const { setAppointment, updateSymptoms } = appointmentsSlice.actions;
+export const { setAppointment, updateSymptoms, showReviewModal, hideReviewModal } =
+  appointmentsSlice.actions;
 
 export default appointmentsSlice.reducer;

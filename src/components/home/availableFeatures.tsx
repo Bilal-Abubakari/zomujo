@@ -11,14 +11,14 @@ const AvailableFeatures = (): JSX.Element => {
     },
     {
       icon: CreditCard,
-      title: 'Billing & Insurance',
+      title: 'Simple & Secure Payments',
       description:
-        'Integrated payment gateway with insurance eligibility checks and quick payment options',
+        'Streamlined billing with multiple payment options for a smooth checkout experience.',
     },
     {
       icon: MessageSquare,
-      title: 'Telehealth & Messaging',
-      description: 'HD video consults and secure chat with store-and-forward capabilities',
+      title: 'Telehealth',
+      description: 'HD video consults that bring quality care to you, anytime, anywhere.',
     },
     {
       icon: Shield,
@@ -38,7 +38,7 @@ const AvailableFeatures = (): JSX.Element => {
   ];
 
   return (
-    <section className="bg-medical-light-gray py-16">
+    <section id="features" className="bg-medical-light-gray py-16">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-center">
           <p className="text-primary mb-2 font-semibold">Features</p>

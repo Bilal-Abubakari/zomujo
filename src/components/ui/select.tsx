@@ -190,11 +190,12 @@ const SelectInput = ({
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options.map(({ value, label }) => (
-            <SelectItem key={value} value={value}>
-              {label}
-            </SelectItem>
-          ))}
+          {Array.isArray(options) &&
+            options.map(({ value, label }) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
         </SelectContent>
         {error && <small className="-mt-1 text-xs font-medium text-red-500">{error}</small>}
       </Select>
@@ -260,25 +261,26 @@ const Combobox = ({
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                {options.map(({ label, value }) => (
-                  <CommandItem
-                    key={value}
-                    value={label}
-                    onSelect={() => {
-                      setCurrentOption(label);
-                      onChange(value);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        'mr-2 h-4 w-4',
-                        value === currentValue ? 'opacity-100' : 'opacity-0',
-                      )}
-                    />
-                    {label}
-                  </CommandItem>
-                ))}
+                {Array.isArray(options) &&
+                  options.map(({ label, value }) => (
+                    <CommandItem
+                      key={value}
+                      value={label}
+                      onSelect={() => {
+                        setCurrentOption(label);
+                        onChange(value);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          'mr-2 h-4 w-4',
+                          value === currentValue ? 'opacity-100' : 'opacity-0',
+                        )}
+                      />
+                      {label}
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>

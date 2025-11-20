@@ -1,39 +1,51 @@
 import { JSX, useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const Faq = (): JSX.Element => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const faqs = [
     {
-      question: 'Is there a free trial available?',
+      question: 'How do I book an appointment with a doctor?',
       answer:
-        "Yes, you can try us for free for 30 days. If you want, we'll provide you with a free, personalized 30-minute onboarding call to get you up and running as soon as possible.",
+        'Simply sign up, verify your email, and browse our directory of healthcare providers by specialty or location. Select your preferred doctor, choose an available time slot, and complete payment to confirm your appointment. You can attend virtually or in-person based on your preference.',
     },
     {
-      question: 'Can I change my plan later?',
+      question: 'Can I access my medical records on the platform?',
       answer:
-        'Of course. Our pricing scales with your company. Chat to our friendly team to find a solution that works for you.',
+        'Yes! Once you register and verify your account, you can access your medical records anytime, anywhere. All your consultation history, prescriptions, and health information are securely stored and easily accessible through your dashboard.',
     },
     {
-      question: 'What is your cancellation policy?',
+      question: 'How do I register as a healthcare provider?',
       answer:
-        "We understand that things change. You can cancel your plan at any time and we'll refund you the difference already paid.",
+        "Healthcare providers can sign up and complete our onboarding process, which includes credential verification. You'll set up your profile with your specialty, location, and pricing, then create your availability schedule. Once approved, patients can start booking appointments with you.",
     },
     {
-      question: 'Can other info be added to an invoice?',
+      question: 'What payment methods are accepted?',
       answer:
-        'Yes, you can add additional information to your invoices including custom fields, notes, and attachments.',
+        'We support various payment methods including mobile money and other secure payment options. You can set your payment preference during registration, and all transactions are processed securely through our platform.',
     },
     {
-      question: 'How does billing work?',
+      question: 'Can I cancel or reschedule my appointment?',
       answer:
-        'Plans are per workspace, not per account. You can upgrade one workspace, and still have any number of free workspaces.',
+        "Yes, you can manage your appointments through your dashboard. You can cancel or reschedule appointments based on the doctor's cancellation policy. Please check the specific terms when booking your appointment.",
     },
     {
-      question: 'How do I change my account email?',
+      question: 'How do virtual consultations work?',
       answer:
-        "You can change your account email from your account settings. We'll send a verification email to your new address.",
+        "Virtual consultations are conducted through our integrated video platform. Once you book an appointment, you'll receive access details. Simply join at your scheduled time using any device with internet access for a secure, private consultation.",
+    },
+    {
+      question: 'Is my health information secure?',
+      answer:
+        'Absolutely. We take data security and patient privacy seriously. All medical records and personal information are encrypted and stored securely. We comply with healthcare data protection standards to ensure your information remains confidential and protected.',
+    },
+    {
+      question: 'How do doctors manage their schedules?',
+      answer:
+        "Doctors can easily create and manage their availability by setting up time slots through their dashboard. You'll receive appointment requests that you can confirm or decline. The platform helps streamline scheduling so you can focus on patient care.",
     },
   ];
 
@@ -43,28 +55,60 @@ const Faq = (): JSX.Element => {
         <div className="mb-12 text-center">
           <h2 className="text-foreground mb-4 text-4xl font-bold">Frequently asked questions</h2>
           <p className="text-muted-foreground mx-auto max-w-2xl">
-            Everything you need to know about the product and billing.
+            Everything you need to know about booking appointments, managing your health, and
+            connecting with healthcare providers.
           </p>
         </div>
 
         <div className="mx-auto max-w-3xl space-y-4">
           {faqs.map(({ question, answer }, index) => (
-            <div key={question} className="border-border rounded-lg border">
+            <motion.div
+              key={question}
+              className={cn(
+                'border-border overflow-hidden rounded-lg border transition-colors',
+                openIndex === index && 'bg-muted/10',
+              )}
+            >
               <button
                 className="hover:bg-muted/50 flex w-full items-center justify-between px-6 py-4 text-left transition-colors"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
                 <span className="text-foreground font-semibold">{question}</span>
-                {openIndex === index ? (
-                  <Minus className="text-primary h-5 w-5" />
-                ) : (
-                  <Plus className="text-primary h-5 w-5" />
-                )}
+                <motion.div
+                  animate={{
+                    rotate: openIndex === index ? 180 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {openIndex === index ? (
+                    <Minus className="text-primary h-5 w-5" />
+                  ) : (
+                    <Plus className="text-primary h-5 w-5" />
+                  )}
+                </motion.div>
               </button>
-              {openIndex === index && (
-                <div className="text-muted-foreground px-6 pb-4">{answer}</div>
-              )}
-            </div>
+              <AnimatePresence initial={false}>
+                {openIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <motion.div
+                      initial={{ y: -10 }}
+                      animate={{ y: 0 }}
+                      exit={{ y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-muted-foreground px-6 pt-0 pb-4"
+                    >
+                      {answer}
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           ))}
         </div>
         {/*  Implemet this when we do the chat the system */}

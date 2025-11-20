@@ -6,15 +6,16 @@ const Footer = (): JSX.Element => {
   const footerSections = [
     {
       title: 'Product',
-      links: ['Features', 'Integrations', 'Pricing'],
+      links: ['Features', 'Pricing'],
     },
-    {
-      title: 'Company',
-      links: ['About us', 'Blog', 'Careers', 'Customers', 'Brand'],
-    },
+    // TODO: Implement this when we have the integrations feature
+    // {
+    //   title: 'Company',
+    //   links: ['About us', 'Blog', 'Careers', 'Customers', 'Brand'],
+    // },
     {
       title: 'Resources',
-      links: ['Community', 'Contact', 'DPA', 'Terms of service'],
+      links: ['Privacy Policy', 'Terms of service'],
     },
   ];
 
