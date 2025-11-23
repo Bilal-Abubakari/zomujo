@@ -55,7 +55,13 @@ const OAuthCallbackPage = (): JSX.Element | null => {
       if (authorizationUrl) {
         window.location.replace(authorizationUrl);
       } else {
-        router.push('/dashboard');
+        // Check for saved redirect URL
+        const redirectUrl = LocalStorageManager.getAndClearRedirectUrl();
+        if (redirectUrl) {
+          router.push(redirectUrl);
+        } else {
+          router.push('/dashboard');
+        }
       }
     } else {
       setError(response.message || 'Authentication failed');
