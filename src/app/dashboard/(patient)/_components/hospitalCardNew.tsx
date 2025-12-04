@@ -1,0 +1,150 @@
+'use client';
+import { MapPin, ExternalLink, Building2, X, Phone, Globe, Mail } from 'lucide-react';
+import Image from 'next/image';
+import React, { JSX, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { IHospitalListItem } from '@/types/hospital.interface';
+import { Modal } from '@/components/ui/dialog';
+import { useRouter } from 'next/navigation';
+
+interface HospitalCardProps {
+  hospital: IHospitalListItem;
+}
+
+const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
+  const [showPreview, setShowPreview] = useState(false);
+  const router = useRouter();
+  const { name, slug, description, organizationType, hasEmergency, telemedicine, primaryAddress, images, mainPhone, website, mainEmail } = hospital;
+
+  const primaryImage = images && images.length > 0 ? images[0] : null;
+
+  const handleViewDetails = () => {
+    if (!slug) {
+      console.error('Hospital slug is missing');
+      return;
+    }
+    router.push(`/dashboard/find-hospitals/${slug}`);
+  };
+
+  return (
+    <>
+      {showPreview && primaryImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setShowPreview(false)}
+        >
+          <div className="relative max-h-[90vh] max-w-[90vw]">
+            <button
+              onClick={() => setShowPreview(false)}
+              className="absolute -top-4 -right-4 rounded-full bg-white p-2 shadow-lg"
+            >
+              <X size={20} />
+            </button>
+            <Image
+              src={primaryImage.url}
+              alt={name}
+              width={800}
+              height={600}
+              className="rounded-lg object-contain"
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="flex w-full max-w-[360px] shrink-0 flex-col rounded-[14px] border border-gray-200 bg-white">
+        {primaryImage ? (
+          <div className="relative h-48 w-full cursor-pointer" onClick={() => setShowPreview(true)}>
+            <Image
+              src={primaryImage.url}
+              alt={name}
+              fill
+              className="rounded-t-[14px] object-cover transition-opacity duration-200 hover:opacity-90"
+            />
+          </div>
+        ) : (
+          <div className="bg-primary/10 flex h-48 w-full items-center justify-center rounded-t-[14px] border border-gray-100">
+            <Building2 size={48} className="text-primary" />
+          </div>
+        )}
+        <div className="flex flex-col gap-2 p-6">
+          <div className="flex flex-col">
+            <div className="mb-4 flex w-full flex-col gap-2">
+              <p className="text-lg font-bold">{name}</p>
+              {primaryAddress && (
+                <div className="flex items-center gap-1 text-sm font-medium text-gray-400">
+                  <MapPin size={14} />
+                  {primaryAddress.city && primaryAddress.state
+                    ? `${primaryAddress.city}, ${primaryAddress.state}`
+                    : primaryAddress.city || primaryAddress.state || primaryAddress.street}
+                </div>
+              )}
+              {description && (
+                <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
+              )}
+              <div className="mt-2 flex flex-wrap gap-2">
+                <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                  {organizationType}
+                </span>
+                {hasEmergency && (
+                  <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
+                    Emergency
+                  </span>
+                )}
+                {telemedicine && (
+                  <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                    Telemedicine
+                  </span>
+                )}
+              </div>
+              <hr className="mt-2 w-full" />
+            </div>
+            {(mainPhone || website || mainEmail) && (
+              <div className="mb-4 flex flex-col gap-2 text-sm text-gray-600">
+                {mainPhone && (
+                  <div className="flex items-center gap-2">
+                    <Phone size={14} />
+                    <span>{mainPhone}</span>
+                  </div>
+                )}
+                {website && (
+                  <div className="flex items-center gap-2">
+                    <Globe size={14} />
+                    <a href={website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      Visit Website
+                    </a>
+                  </div>
+                )}
+                {mainEmail && (
+                  <div className="flex items-center gap-2">
+                    <Mail size={14} />
+                    <span>{mainEmail}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-row items-center justify-between">
+            <Button variant="secondary" onClick={handleViewDetails} child="View Details" />
+            {primaryAddress && primaryAddress.city && (
+              <Button
+                onClick={() => {
+                  const query = encodeURIComponent(`${name} ${primaryAddress.city} ${primaryAddress.state || ''}`);
+                  window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                }}
+                child={
+                  <>
+                    <ExternalLink size={14} />
+                    Maps
+                  </>
+                }
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default HospitalCard;
+

@@ -1,10 +1,16 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { IPagination, IQueryParams, IResponse } from '@/types/shared.interface';
-import { IHospital, IHospitalProfile, INearByQueryParams } from '@/types/hospital.interface';
+import {
+  IHospital,
+  IHospitalProfile,
+  INearByQueryParams,
+  IHospitalListItem,
+  IHospitalDetail,
+} from '@/types/hospital.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { Toast } from '@/hooks/use-toast';
-import { generateSuccessToast } from '@/lib/utils';
+import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 
 export const getHospitals = createAsyncThunk(
   'hospitals/getHospitals',
@@ -57,6 +63,46 @@ export const updateHospitalDetails = createAsyncThunk(
         hospitalProfile,
       );
       return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+// New hospital API thunks for the new hospital model
+export const getAllHospitals = createAsyncThunk(
+  'hospitals/allHospitals',
+  async ({
+    pageSize,
+    ...rest
+  }: IQueryParams<AcceptDeclineStatus | ''> & {
+    city?: string;
+    organizationType?: string;
+    hasEmergency?: boolean;
+    telemedicine?: boolean;
+    serviceId?: string;
+    departmentId?: string;
+    insuranceCompanyId?: string;
+    languages?: string[];
+    isActive?: boolean;
+  }): Promise<IPagination<IHospitalListItem> | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<IHospitalListItem>>>(
+        `hospitals?${getValidQueryString(rest)}&pageSize=${pageSize || 10}`,
+      );
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getHospitalBySlug = createAsyncThunk(
+  'hospitals/getHospitalBySlug',
+  async (slug: string): Promise<IHospitalDetail | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IHospitalDetail>>(`hospitals/${slug}`);
+      return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
