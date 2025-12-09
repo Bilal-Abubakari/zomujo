@@ -1,11 +1,12 @@
 'use client';
-import { MapPin, ExternalLink, Building2, X, Phone, Mail } from 'lucide-react';
+import { MapPin, CalendarCheck, Building2, X, Phone, Mail } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { IHospitalListItem } from '@/types/hospital.interface';
 import { Modal } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
+import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 
 interface HospitalCardProps {
   hospital: IHospitalListItem;
@@ -127,22 +128,19 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           </div>
           <div className="flex flex-row items-center justify-between">
             <Button variant="secondary" onClick={handleViewDetails} child="View Details" />
-            {primaryAddress && primaryAddress.city && (
-              <Button
-                onClick={() => {
-                  const query = encodeURIComponent(
-                    `${name} ${primaryAddress.city} ${primaryAddress.state || ''}`,
-                  );
-                  window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-                }}
-                child={
-                  <>
-                    <ExternalLink size={14} />
-                    Maps
-                  </>
-                }
-              />
-            )}
+            <Button
+              onClick={() =>
+                router.push(
+                  `/dashboard/book-appointment/${hospital.id}?appointmentType=${MedicalAppointmentType.Hospital}`,
+                )
+              }
+              child={
+                <>
+                  <CalendarCheck size={14} />
+                  Book Appointment
+                </>
+              }
+            />
           </div>
         </div>
       </div>

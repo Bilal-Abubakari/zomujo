@@ -6,11 +6,9 @@ import {
   Building2,
   Mail,
   MapPin,
-  Navigation,
   CheckCircle,
   Shield,
   CircleDollarSign,
-  ExternalLink,
   CalendarCheck,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -18,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { IHospital } from '@/types/hospital.interface';
 import { METERS_TO_KM_FACTOR } from '@/constants/constants';
-import { openExternalUrls } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 
@@ -125,11 +122,15 @@ const HospitalPreview = (hospital: IHospital): JSX.Element => {
           </div>
           <div className="flex gap-4">
             <Button
-              onClick={() => openExternalUrls(gpsLink)}
+              onClick={() =>
+                router.push(
+                  `/dashboard/book-appointment/${id}?appointmentType=${MedicalAppointmentType.Hospital}`,
+                )
+              }
               child={
                 <>
-                  <ExternalLink size={14} />
-                  Open in Maps
+                  <CalendarCheck size={14} />
+                  Book Appointment
                 </>
               }
             />

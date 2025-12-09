@@ -1,5 +1,5 @@
 'use client';
-import { MapPin, Navigation, ExternalLink, Building2, X } from 'lucide-react';
+import { MapPin, CalendarCheck, Building2, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,12 +7,14 @@ import { IHospital } from '@/types/hospital.interface';
 import { METERS_TO_KM_FACTOR } from '@/constants/constants';
 import { Modal } from '@/components/ui/dialog';
 import HospitalPreview from '@/app/dashboard/(patient)/find-doctor/_components/hospitalPreview';
-import { openExternalUrls } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 
 const HospitalCard = (hospital: IHospital): JSX.Element => {
   const [showPreview, setShowPreview] = useState(false);
   const [showHospitalPreview, setShowHospitalPreview] = useState(false);
-  const { name, location, gpsLink, specialties, image, distance } = hospital;
+  const router = useRouter();
+  const { id, name, location, specialties, image, distance } = hospital;
 
   return (
     <>
@@ -100,11 +102,15 @@ const HospitalCard = (hospital: IHospital): JSX.Element => {
               child="View Details"
             />
             <Button
-              onClick={() => openExternalUrls(gpsLink)}
+              onClick={() =>
+                router.push(
+                  `/dashboard/book-appointment/${id}?appointmentType=${MedicalAppointmentType.Hospital}`,
+                )
+              }
               child={
                 <>
-                  <ExternalLink size={14} />
-                  Open in Maps
+                  <CalendarCheck size={14} />
+                  Book Appointment
                 </>
               }
             />

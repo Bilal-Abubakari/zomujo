@@ -11,7 +11,6 @@ import {
   MapPin,
   Phone,
   Mail,
-  Globe,
   Clock,
   Stethoscope,
   Shield,
@@ -19,10 +18,12 @@ import {
   ChevronLeft,
   Calendar,
   CheckCircle2,
+  CalendarCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import SkeletonDoctorPatientCard from '@/components/skeleton/skeletonDoctorPatientCard';
+import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 
 interface HospitalDetailProps {
   slug: string;
@@ -115,12 +116,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         <div className="flex flex-col gap-4 md:flex-row">
           {logoImage && (
             <div className="relative h-32 w-32 shrink-0">
-              <Image
-                src={logoImage.url}
-                alt={name}
-                fill
-                className="rounded-lg object-cover"
-              />
+              <Image src={logoImage.url} alt={name} fill className="rounded-lg object-cover" />
             </div>
           )}
           <div className="flex flex-1 flex-col gap-2">
@@ -163,19 +159,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
               <span className="text-sm">{mainEmail}</span>
             </div>
           )}
-          {website && (
-            <div className="flex items-center gap-2">
-              <Globe size={18} className="text-gray-400" />
-              <a
-                href={website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary text-sm hover:underline"
-              >
-                Visit Website
-              </a>
-            </div>
-          )}
+          {/* website removed per UI requirements */}
         </div>
       </div>
 
@@ -186,12 +170,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {photoImages.map((img) => (
               <div key={img.id} className="relative aspect-square">
-                <Image
-                  src={img.url}
-                  alt={name}
-                  fill
-                  className="rounded-lg object-cover"
-                />
+                <Image src={img.url} alt={name} fill className="rounded-lg object-cover" />
               </div>
             ))}
           </div>
@@ -208,15 +187,11 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           <div className="flex flex-col gap-4">
             {addresses.map((address) => (
               <div key={address.id} className="rounded-lg border border-gray-100 p-4">
-                {address.label && (
-                  <h3 className="mb-2 font-semibold">{address.label}</h3>
-                )}
+                {address.label && <h3 className="mb-2 font-semibold">{address.label}</h3>}
                 <div className="flex flex-col gap-1 text-sm text-gray-600">
                   {address.street && <p>{address.street}</p>}
                   <p>
-                    {[address.city, address.state, address.postalCode]
-                      .filter(Boolean)
-                      .join(', ')}
+                    {[address.city, address.state, address.postalCode].filter(Boolean).join(', ')}
                   </p>
                   {address.country && <p>{address.country}</p>}
                   {address.phone && (
@@ -228,14 +203,13 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                 </div>
                 {address.city && (
                   <Button
-                    onClick={() => {
-                      const query = encodeURIComponent(
-                        `${name} ${address.street || ''} ${address.city} ${address.state || ''}`,
-                      );
-                      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-                    }}
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/book-appointment/${hospital?.id}?appointmentType=${MedicalAppointmentType.Hospital}`,
+                      )
+                    }
                     variant="outline"
-                    child="Open in Maps"
+                    child="Book Appointment"
                     className="mt-2 w-fit"
                   />
                 )}
@@ -254,8 +228,11 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           </h2>
           <div className="flex flex-col gap-2">
             {openingHours.map((hour) => (
-              <div key={hour.id} className="flex items-center justify-between border-b border-gray-100 py-2">
-                <span className="capitalize font-medium">{hour.weekday}</span>
+              <div
+                key={hour.id}
+                className="flex items-center justify-between border-b border-gray-100 py-2"
+              >
+                <span className="font-medium capitalize">{hour.weekday}</span>
                 <span className="text-gray-600">
                   {hour.isClosed
                     ? 'Closed'
@@ -414,7 +391,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           <h2 className="mb-4 text-xl font-bold">Accreditations</h2>
           <div className="text-sm text-gray-600">
             {Array.isArray(accreditations) ? (
-              <ul className="list-disc list-inside space-y-1">
+              <ul className="list-inside list-disc space-y-1">
                 {accreditations.map((acc: any, index: number) => (
                   <li key={index}>
                     {typeof acc === 'string' ? acc : acc.name || JSON.stringify(acc)}
@@ -432,4 +409,3 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
 };
 
 export default HospitalDetail;
-
