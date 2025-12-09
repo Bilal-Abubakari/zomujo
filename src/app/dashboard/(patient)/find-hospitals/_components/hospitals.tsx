@@ -14,14 +14,7 @@ import { AcceptDeclineStatus, OrderDirection } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ChevronUp, ListFilter, Search, SendHorizontal, Building2 } from 'lucide-react';
 import Image from 'next/image';
-import React, {
-  FormEvent,
-  JSX,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { FormEvent, JSX, useCallback, useEffect, useRef, useState } from 'react';
 import HospitalCard from '@/app/dashboard/(patient)/_components/hospitalCardNew';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
@@ -45,7 +38,7 @@ const Hospitals = (): JSX.Element => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  
+
   const [filterInputs, setFilterInputs] = useState({
     priceMin: '',
     priceMax: '',
@@ -98,6 +91,7 @@ const Hospitals = (): JSX.Element => {
       organizationType?: string;
       hasEmergency?: boolean;
       telemedicine?: boolean;
+      isActive?: boolean;
     }
   >({
     page: 1,
@@ -107,10 +101,10 @@ const Hospitals = (): JSX.Element => {
     pageSize: 20,
     status: AcceptDeclineStatus.Accepted,
     isActive: true,
-    city: getQueryParam('city') || '',
-    organizationType: getQueryParam('organizationType') || '',
-    hasEmergency: getQueryParam('hasEmergency') === 'true',
-    telemedicine: getQueryParam('telemedicine') === 'true',
+    city: (getQueryParam as any)('city') || '',
+    organizationType: (getQueryParam as any)('organizationType') || '',
+    hasEmergency: (getQueryParam as any)('hasEmergency') === 'true',
+    telemedicine: (getQueryParam as any)('telemedicine') === 'true',
   });
 
   const canLoadMorePages = (): boolean => {
@@ -342,7 +336,6 @@ const Hospitals = (): JSX.Element => {
               onChange={(e) => setFilterInputs((p) => ({ ...p, distanceKm: e.target.value }))}
             />
           </div>
-          
         </div>
         {paginationData && paginationData.total > 0 && (
           <div className="mt-3 flex items-center gap-2 border-t border-gray-200 pt-3 text-sm text-gray-600">
@@ -397,4 +390,3 @@ const Hospitals = (): JSX.Element => {
 };
 
 export default Hospitals;
-

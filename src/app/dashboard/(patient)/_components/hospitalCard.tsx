@@ -1,5 +1,5 @@
 'use client';
-import { MapPin, CalendarCheck, Building2, X } from 'lucide-react';
+import { MapPin, CalendarCheck, Building2, X, Navigation } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';

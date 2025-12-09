@@ -6,6 +6,7 @@ import {
   Building2,
   Mail,
   MapPin,
+  Navigation,
   CheckCircle,
   Shield,
   CircleDollarSign,
