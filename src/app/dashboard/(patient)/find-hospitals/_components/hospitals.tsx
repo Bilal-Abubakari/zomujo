@@ -45,6 +45,52 @@ const Hospitals = (): JSX.Element => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  
+  const [filterInputs, setFilterInputs] = useState({
+    priceMin: '',
+    priceMax: '',
+    rateMin: '',
+    rateMax: '',
+    distanceKm: '',
+  });
+  const validationTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const validateNumber = (value: string): boolean => {
+    if (!value) return true;
+    return !Number.isNaN(Number.parseFloat(value));
+  };
+
+  React.useEffect(() => {
+    if (validationTimeoutRef.current) clearTimeout(validationTimeoutRef.current);
+    validationTimeoutRef.current = setTimeout(() => {
+      // basic validation
+      if (
+        !validateNumber(filterInputs.priceMin) ||
+        !validateNumber(filterInputs.priceMax) ||
+        !validateNumber(filterInputs.rateMin) ||
+        !validateNumber(filterInputs.rateMax) ||
+        !validateNumber(filterInputs.distanceKm)
+      ) {
+        // don't apply invalid filters
+        return;
+      }
+
+      setHospitals([]);
+      setQueryParameters((prev) => ({
+        ...prev,
+        page: 1,
+        priceMin: filterInputs.priceMin || undefined,
+        priceMax: filterInputs.priceMax || undefined,
+        rateMin: filterInputs.rateMin || undefined,
+        rateMax: filterInputs.rateMax || undefined,
+        radius: filterInputs.distanceKm || undefined,
+      }));
+    }, 700);
+
+    return () => {
+      if (validationTimeoutRef.current) clearTimeout(validationTimeoutRef.current);
+    };
+  }, [filterInputs]);
 
   const [queryParameters, setQueryParameters] = useState<
     IQueryParams<AcceptDeclineStatus> & {
@@ -240,6 +286,63 @@ const Hospitals = (): JSX.Element => {
             }}
             className="mt-[20px] h-10 max-h-[62px] cursor-pointer bg-gray-50 sm:flex"
           />
+          <div className="mt-2 flex flex-wrap gap-4">
+            <Input
+              labelName="Min Price"
+              placeholder="GHC 0"
+              wrapperClassName="max-w-52 max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="priceMin"
+              value={filterInputs.priceMin}
+              onChange={(e) => setFilterInputs((p) => ({ ...p, priceMin: e.target.value }))}
+            />
+            <Input
+              labelName="Max Price"
+              placeholder="GHC 1000"
+              wrapperClassName="max-w-52 max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="priceMax"
+              value={filterInputs.priceMax}
+              onChange={(e) => setFilterInputs((p) => ({ ...p, priceMax: e.target.value }))}
+            />
+            <Input
+              labelName="Min Rating"
+              placeholder="0"
+              wrapperClassName="max-w-32 max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="rateMin"
+              min={0}
+              max={5}
+              value={filterInputs.rateMin}
+              onChange={(e) => setFilterInputs((p) => ({ ...p, rateMin: e.target.value }))}
+            />
+            <Input
+              labelName="Max Rating"
+              placeholder="5"
+              wrapperClassName="max-w-32 max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="rateMax"
+              min={0}
+              max={5}
+              value={filterInputs.rateMax}
+              onChange={(e) => setFilterInputs((p) => ({ ...p, rateMax: e.target.value }))}
+            />
+            <Input
+              labelName="Max Distance (km)"
+              placeholder="10"
+              wrapperClassName="max-w-52 max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="distanceKm"
+              value={filterInputs.distanceKm}
+              onChange={(e) => setFilterInputs((p) => ({ ...p, distanceKm: e.target.value }))}
+            />
+          </div>
+          
         </div>
         {paginationData && paginationData.total > 0 && (
           <div className="mt-3 flex items-center gap-2 border-t border-gray-200 pt-3 text-sm text-gray-600">
