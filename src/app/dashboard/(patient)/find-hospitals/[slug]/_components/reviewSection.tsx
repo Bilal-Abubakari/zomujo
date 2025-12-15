@@ -37,16 +37,13 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
 
     setIsSubmitting(true);
 
-    // Mock submission - simulate API delay
     setTimeout(() => {
-      // Mock success
       toast({
         title: 'Review Submitted Successfully! ✓',
         description: `Thank you for your ${rating}-star review of ${hospitalName}. Your feedback helps others make better healthcare decisions.`,
         variant: 'success',
       });
 
-      // Reset form
       setRating(0);
       setReviewText('');
       setIsSubmitting(false);
@@ -57,7 +54,6 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
     <div className="rounded-lg border border-gray-200 bg-white p-6">
       <h2 className="mb-4 text-xl font-bold">Write a Review</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* Star Rating Selector */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">Your Rating</label>
           <div className="flex gap-1">
@@ -92,7 +88,6 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
           )}
         </div>
 
-        {/* Review Text Area */}
         <div className="flex flex-col gap-2">
           <label htmlFor="review" className="text-sm font-medium text-gray-700">
             Your Review
@@ -108,7 +103,6 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
           <span className="text-xs text-gray-500">{reviewText.length}/1000 characters</span>
         </div>
 
-        {/* Submit Button */}
         <Button
           type="submit"
           disabled={isSubmitting || rating === 0 || !reviewText.trim()}
@@ -117,11 +111,9 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
         />
       </form>
 
-      {/* Mock Reviews Display (optional - showing what others wrote) */}
       <div className="mt-8 border-t border-gray-200 pt-6">
         <h3 className="mb-4 text-lg font-semibold">Recent Reviews</h3>
         <div className="flex flex-col gap-4">
-          {/* Mock Review 1 */}
           <div className="rounded-lg border border-gray-100 p-4">
             <div className="mb-2 flex items-center gap-2">
               <div className="flex">
@@ -142,7 +134,6 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
             </p>
           </div>
 
-          {/* Mock Review 2 */}
           <div className="rounded-lg border border-gray-100 p-4">
             <div className="mb-2 flex items-center gap-2">
               <div className="flex">
@@ -163,7 +154,6 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
             </p>
           </div>
 
-          {/* Mock Review 3 */}
           <div className="rounded-lg border border-gray-100 p-4">
             <div className="mb-2 flex items-center gap-2">
               <div className="flex">
