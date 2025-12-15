@@ -215,76 +215,97 @@ const Hospitals = (): JSX.Element => {
             />
           </div>
         </div>
-        <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-wrap gap-4 lg:flex`}>
-          <Input
-            labelName="City"
-            placeholder="Enter city"
-            wrapperClassName="max-w-52  max-h-[62px]"
-            defaultMaxWidth={false}
-            type="text"
-            value={queryParameters.city || ''}
-            onChange={(e) => {
-              setHospitals([]);
-              setQueryParameters((prev) => ({ ...prev, city: e.target.value, page: 1 }));
-            }}
-          />
-          <Combobox
-            onChange={(value) => {
-              setHospitals([]);
-              setQueryParameters((prev) => ({ ...prev, organizationType: value, page: 1 }));
-            }}
-            label="Organization Type"
-            options={organizationTypeOptions}
-            value={queryParameters?.organizationType ?? ''}
-            className="max-h-[62px] px-4"
-            placeholder="Select type..."
-            searchPlaceholder="Search for type..."
-            defaultMaxWidth={false}
-            wrapperClassName="text-left text-[#111111] max-w-52 max-h-[62px]"
-          />
-          <OptionsMenu
-            options={[
-              { value: '', label: 'All' },
-              { value: 'true', label: 'Has Emergency' },
-              { value: 'false', label: 'No Emergency' },
-            ]}
-            Icon={Building2}
-            menuTrigger="Emergency"
-            selected={queryParameters.hasEmergency?.toString() || ''}
-            setSelected={(value) => {
-              setQueryParameters((prev) => ({
-                ...prev,
-                page: 1,
-                hasEmergency: value === 'true' ? true : value === 'false' ? false : undefined,
-              }));
-              setHospitals([]);
-            }}
-            className="mt-[20px] h-10 max-h-[62px] cursor-pointer bg-gray-50 sm:flex"
-          />
-          <OptionsMenu
-            options={[
-              { value: '', label: 'All' },
-              { value: 'true', label: 'Telemedicine Available' },
-              { value: 'false', label: 'No Telemedicine' },
-            ]}
-            Icon={Building2}
-            menuTrigger="Telemedicine"
-            selected={queryParameters.telemedicine?.toString() || ''}
-            setSelected={(value) => {
-              setQueryParameters((prev) => ({
-                ...prev,
-                page: 1,
-                telemedicine: value === 'true' ? true : value === 'false' ? false : undefined,
-              }));
-              setHospitals([]);
-            }}
-            className="mt-[20px] h-10 max-h-[62px] cursor-pointer bg-gray-50 sm:flex"
-          />
-          <div className="mt-2 flex flex-wrap gap-4">
+        <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-col gap-3 lg:flex`}>
+          {/* Row 1: Location and Organization Filters */}
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:flex-wrap lg:flex-nowrap">
+            <Input
+              labelName="City"
+              placeholder="Enter city"
+              wrapperClassName="w-full sm:flex-1 lg:w-auto"
+              defaultMaxWidth={false}
+              type="text"
+              value={queryParameters.city || ''}
+              onChange={(e) => {
+                setHospitals([]);
+                setQueryParameters((prev) => ({ ...prev, city: e.target.value, page: 1 }));
+              }}
+            />
+            <Input
+              labelName="Distance (km)"
+              placeholder="10"
+              wrapperClassName="w-full sm:flex-1 lg:w-auto"
+              defaultMaxWidth={false}
+              type="number"
+              name="distanceKm"
+              value={filterInputs.distanceKm}
+              onChange={(e) => setFilterInputs((p) => ({ ...p, distanceKm: e.target.value }))}
+            />
+            <Combobox
+              onChange={(value) => {
+                setHospitals([]);
+                setQueryParameters((prev) => ({ ...prev, organizationType: value, page: 1 }));
+              }}
+              label="Organization Type"
+              options={organizationTypeOptions}
+              value={queryParameters?.organizationType ?? ''}
+              className="px-4"
+              placeholder="Select type..."
+              searchPlaceholder="Search for type..."
+              defaultMaxWidth={false}
+              wrapperClassName="col-span-2 w-full text-left text-[#111111] sm:col-span-1 sm:flex-1 lg:w-auto"
+            />
+            <div className="w-full sm:flex-1 lg:w-auto">
+              <label className="mb-1 block text-sm font-medium text-gray-700">Emergency</label>
+              <OptionsMenu
+                options={[
+                  { value: '', label: 'All' },
+                  { value: 'true', label: 'Has Emergency' },
+                  { value: 'false', label: 'No Emergency' },
+                ]}
+                Icon={Building2}
+                menuTrigger="Emergency"
+                selected={queryParameters.hasEmergency?.toString() || ''}
+                setSelected={(value) => {
+                  setQueryParameters((prev) => ({
+                    ...prev,
+                    page: 1,
+                    hasEmergency: value === 'true' ? true : value === 'false' ? false : undefined,
+                  }));
+                  setHospitals([]);
+                }}
+                className="h-10 w-full cursor-pointer bg-gray-50"
+              />
+            </div>
+            <div className="w-full sm:flex-1 lg:w-auto">
+              <label className="mb-1 block text-sm font-medium text-gray-700">Telemedicine</label>
+              <OptionsMenu
+                options={[
+                  { value: '', label: 'All' },
+                  { value: 'true', label: 'Telemedicine Available' },
+                  { value: 'false', label: 'No Telemedicine' },
+                ]}
+                Icon={Building2}
+                menuTrigger="Telemedicine"
+                selected={queryParameters.telemedicine?.toString() || ''}
+                setSelected={(value) => {
+                  setQueryParameters((prev) => ({
+                    ...prev,
+                    page: 1,
+                    telemedicine: value === 'true' ? true : value === 'false' ? false : undefined,
+                  }));
+                  setHospitals([]);
+                }}
+                className="h-10 w-full cursor-pointer bg-gray-50"
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Price, Rating, and Distance Filters */}
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:flex-wrap lg:flex-nowrap">
             <Input
               labelName="Min Price"
               placeholder="GHC 0"
-              wrapperClassName="max-w-52 max-h-[62px]"
+              wrapperClassName="w-full sm:flex-1 lg:w-auto"
               defaultMaxWidth={false}
               type="number"
               name="priceMin"
@@ -294,7 +315,7 @@ const Hospitals = (): JSX.Element => {
             <Input
               labelName="Max Price"
               placeholder="GHC 1000"
-              wrapperClassName="max-w-52 max-h-[62px]"
+              wrapperClassName="w-full sm:flex-1 lg:w-auto"
               defaultMaxWidth={false}
               type="number"
               name="priceMax"
@@ -304,7 +325,7 @@ const Hospitals = (): JSX.Element => {
             <Input
               labelName="Min Rating"
               placeholder="0"
-              wrapperClassName="max-w-32 max-h-[62px]"
+              wrapperClassName="w-full sm:flex-1 lg:w-auto"
               defaultMaxWidth={false}
               type="number"
               name="rateMin"
@@ -316,7 +337,7 @@ const Hospitals = (): JSX.Element => {
             <Input
               labelName="Max Rating"
               placeholder="5"
-              wrapperClassName="max-w-32 max-h-[62px]"
+              wrapperClassName="w-full sm:flex-1 lg:w-auto"
               defaultMaxWidth={false}
               type="number"
               name="rateMax"
@@ -324,16 +345,6 @@ const Hospitals = (): JSX.Element => {
               max={5}
               value={filterInputs.rateMax}
               onChange={(e) => setFilterInputs((p) => ({ ...p, rateMax: e.target.value }))}
-            />
-            <Input
-              labelName="Max Distance (km)"
-              placeholder="10"
-              wrapperClassName="max-w-52 max-h-[62px]"
-              defaultMaxWidth={false}
-              type="number"
-              name="distanceKm"
-              value={filterInputs.distanceKm}
-              onChange={(e) => setFilterInputs((p) => ({ ...p, distanceKm: e.target.value }))}
             />
           </div>
         </div>
