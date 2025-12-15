@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import SkeletonDoctorPatientCard from '@/components/skeleton/skeletonDoctorPatientCard';
 import { MedicalAppointmentType } from '@/hooks/useQueryParam';
+import ReviewSection from './reviewSection';
 
 interface HospitalDetailProps {
   slug: string;
@@ -404,6 +405,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           </div>
         </div>
       )}
+
+      {/* Review Section */}
+      <ReviewSection hospitalName={name} />
     </div>
   );
 };
