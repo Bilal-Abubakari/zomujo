@@ -28,11 +28,122 @@ const organizationTypeOptions = [
   { value: 'clinic', label: 'Clinic' },
 ];
 
+// Accra coordinates as fallback
+const ACCRA_COORDINATES = { lat: 5.6037, lng: -0.187 };
+
+// Extended hospital type with mock data
+type HospitalWithMockData = IHospitalListItem & {
+  mockPrice?: number;
+  mockRating?: number;
+  mockDistance?: number;
+};
+
+// Generate consistent mock data based on hospital ID
+function generateMockData(hospital: IHospitalListItem, index: number): HospitalWithMockData {
+  // Simple fixed price distribution between 50-1000 based on index
+  // This ensures even distribution across the price range
+  const priceStep = 95; // (1000 - 50) / 10 ≈ 95
+  const mockPrice = 50 + index * priceStep;
+
+  // Fixed rating distribution between 2.5-5.0
+  const ratingStep = 0.25; // (5.0 - 2.5) / 10 = 0.25
+  const mockRating = 2.5 + index * ratingStep;
+
+  // Calculate or generate mock distance from Accra
+  let mockDistance: number;
+
+  if (hospital.primaryAddress?.city) {
+    // Rough estimates based on major cities (in km)
+    const cityDistances: Record<string, number> = {
+      accra: 5,
+      kumasi: 250,
+      takoradi: 200,
+      tamale: 600,
+      'cape coast': 150,
+      tema: 30,
+      sunyani: 350,
+      koforidua: 80,
+      ho: 150,
+    };
+
+    const cityName = hospital.primaryAddress.city.toLowerCase();
+    mockDistance = cityDistances[cityName] || 50 + ((seed * 97) % 400);
+  } else {
+    // Random distance between 5-450 km if no city info
+    mockDistance = 5 + ((seed * 97) % 445);
+  }
+
+  return {
+    ...hospital,
+    mockPrice: Math.round(mockPrice),
+    mockRating: Math.round(mockRating * 10) / 10,
+    mockDistance: Math.round(mockDistance),
+  };
+}
+
+// Client-side filtering function
+function applyClientSideFilters(
+  hospitals: HospitalWithMockData[],
+  filters: {
+    priceMin?: string;
+    priceMax?: string;
+    rateMin?: string;
+    rateMax?: string;
+    distanceKm?: string;
+  },
+): HospitalWithMockData[] {
+  return hospitals.filter((hospital) => {
+    // Price filter
+    if (
+      filters.priceMin &&
+      hospital.mockPrice &&
+      hospital.mockPrice < Number.parseFloat(filters.priceMin)
+    ) {
+      return false;
+    }
+    if (
+      filters.priceMax &&
+      hospital.mockPrice &&
+      hospital.mockPrice > Number.parseFloat(filters.priceMax)
+    ) {
+      return false;
+    }
+
+    // Rating filter
+    if (
+      filters.rateMin &&
+      hospital.mockRating &&
+      hospital.mockRating < Number.parseFloat(filters.rateMin)
+    ) {
+      return false;
+    }
+    if (
+      filters.rateMax &&
+      hospital.mockRating &&
+      hospital.mockRating > Number.parseFloat(filters.rateMax)
+    ) {
+      return false;
+    }
+
+    // Distance filter
+    if (
+      filters.distanceKm &&
+      hospital.mockDistance &&
+      hospital.mockDistance > Number.parseFloat(filters.distanceKm)
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
 const Hospitals = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
   const [isLoading, setIsLoading] = useState(true);
-  const [hospitals, setHospitals] = useState<IHospitalListItem[]>([]);
+  const [hospitals, setHospitals] = useState<HospitalWithMockData[]>([]);
+  const [filteredHospitals, setFilteredHospitals] = useState<HospitalWithMockData[]>([]);
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
@@ -53,6 +164,7 @@ const Hospitals = (): JSX.Element => {
     return !Number.isNaN(Number.parseFloat(value));
   };
 
+  // Client-side filtering effect for price, rating, and distance
   React.useEffect(() => {
     if (validationTimeoutRef.current) clearTimeout(validationTimeoutRef.current);
     validationTimeoutRef.current = setTimeout(() => {
@@ -68,22 +180,15 @@ const Hospitals = (): JSX.Element => {
         return;
       }
 
-      setHospitals([]);
-      setQueryParameters((prev) => ({
-        ...prev,
-        page: 1,
-        priceMin: filterInputs.priceMin || undefined,
-        priceMax: filterInputs.priceMax || undefined,
-        rateMin: filterInputs.rateMin || undefined,
-        rateMax: filterInputs.rateMax || undefined,
-        radius: filterInputs.distanceKm || undefined,
-      }));
-    }, 700);
+      // Apply client-side filters
+      const filtered = applyClientSideFilters(hospitals, filterInputs);
+      setFilteredHospitals(filtered);
+    }, 300);
 
     return () => {
       if (validationTimeoutRef.current) clearTimeout(validationTimeoutRef.current);
     };
-  }, [filterInputs]);
+  }, [filterInputs, hospitals]);
 
   const [queryParameters, setQueryParameters] = useState<
     IQueryParams<AcceptDeclineStatus> & {
@@ -140,7 +245,29 @@ const Hospitals = (): JSX.Element => {
         return;
       }
       const { rows, ...pagination } = payload as IPagination<IHospitalListItem>;
-      setHospitals((prev) => (queryParameters.page === 1 ? rows : [...prev, ...rows]));
+
+      // Enrich hospitals with mock data (pass index for fixed price distribution)
+      const enrichedRows = rows.map((hospital, index) => generateMockData(hospital, index));
+
+      // Debug: Log mock data for verification
+      console.log(
+        'Hospitals with mock data:',
+        enrichedRows.map((h) => ({
+          name: h.name,
+          price: h.mockPrice,
+          rating: h.mockRating,
+          distance: h.mockDistance,
+        })),
+      );
+
+      const updatedHospitals =
+        queryParameters.page === 1 ? enrichedRows : [...hospitals, ...enrichedRows];
+      setHospitals(updatedHospitals);
+
+      // Apply client-side filters
+      const filtered = applyClientSideFilters(updatedHospitals, filterInputs);
+      setFilteredHospitals(filtered);
+
       setPaginationData(pagination);
       setIsLoading(false);
     }
@@ -351,16 +478,19 @@ const Hospitals = (): JSX.Element => {
         {paginationData && paginationData.total > 0 && (
           <div className="mt-3 flex items-center gap-2 border-t border-gray-200 pt-3 text-sm text-gray-600">
             <span className="text-primary font-semibold">
-              {paginationData.total} {paginationData.total === 1 ? 'Hospital' : 'Hospitals'}
+              {filteredHospitals.length} {filteredHospitals.length === 1 ? 'Hospital' : 'Hospitals'}
             </span>
-            <span>available</span>
+            <span>found</span>
+            {filteredHospitals.length < hospitals.length && (
+              <span className="text-gray-500">(filtered from {hospitals.length})</span>
+            )}
             {queryParameters.search && <span>matching &quot;{queryParameters.search}&quot;</span>}
           </div>
         )}
       </div>
       <Suggested title={'Hospitals'} showViewAll={false}>
         {!isLoading &&
-          hospitals.map((hospital) => (
+          filteredHospitals.map((hospital) => (
             <div className="cursor-pointer" key={hospital.id}>
               <HospitalCard key={hospital.id} hospital={hospital} />
             </div>
@@ -373,7 +503,7 @@ const Hospitals = (): JSX.Element => {
           ))}
         </div>
       )}
-      {!isLoading && hospitals.length === 0 && (
+      {!isLoading && filteredHospitals.length === 0 && (
         <section>
           {
             <Image
