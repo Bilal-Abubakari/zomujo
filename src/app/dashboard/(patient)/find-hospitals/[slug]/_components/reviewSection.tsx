@@ -8,7 +8,7 @@ interface ReviewSectionProps {
   hospitalName: string;
 }
 
-const ReviewSection = ({ hospitalName }: ReviewSectionProps): JSX.Element => {
+const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState('');

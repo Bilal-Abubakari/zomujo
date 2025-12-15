@@ -67,10 +67,10 @@ function generateMockData(hospital: IHospitalListItem, index: number): HospitalW
     };
 
     const cityName = hospital.primaryAddress.city.toLowerCase();
-    mockDistance = cityDistances[cityName] || 50 + ((seed * 97) % 400);
+    mockDistance = cityDistances[cityName] || 50 + index * 40;
   } else {
-    // Random distance between 5-450 km if no city info
-    mockDistance = 5 + ((seed * 97) % 445);
+    // Fixed distance based on index if no city info
+    mockDistance = 10 + index * 50;
   }
 
   return {
