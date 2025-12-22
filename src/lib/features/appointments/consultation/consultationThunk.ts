@@ -12,6 +12,7 @@ import {
 import { IAppointment } from '@/types/appointment.interface';
 import { setAppointment, updateSymptoms } from '@/lib/features/appointments/appointmentsSlice';
 import { ILab, ILaboratoryRequestWithRecordId, IUploadLab } from '@/types/labs.interface';
+import { IRadiologyRequestWithRecordId } from '@/types/radiology.interface';
 
 export const getComplaintSuggestions = createAsyncThunk(
   'consultation/complaint-suggestions',
@@ -96,6 +97,20 @@ export const addLabRequests = createAsyncThunk(
       const {
         data: { message },
       } = await axios.post<IResponse>(`consultation/request-labs`, labRequests);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const addRadiologyRequests = createAsyncThunk(
+  'consultation/radiology-request',
+  async (radiologyRequests: IRadiologyRequestWithRecordId): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>(`consultation/radiology-request`, radiologyRequests);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -188,6 +203,40 @@ export const joinConsultation = createAsyncThunk(
       const {
         data: { data },
       } = await axios.get<IResponse<string>>(`consultation/join/${appointmentId}`);
+      return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const saveConsultationSummary = createAsyncThunk(
+  'consultation/save-summary',
+  async ({
+    appointmentId,
+    summary,
+  }: {
+    appointmentId: string;
+    summary: string;
+  }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>(`consultation/save-summary`, { appointmentId, summary });
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const downloadLabRequestPdf = createAsyncThunk(
+  'consultation/download-lab-pdf',
+  async (consultationId: string): Promise<Toast | Blob> => {
+    try {
+      const { data } = await axios.get<Blob>(`consultation/download-lab-pdf/${consultationId}`, {
+        responseType: 'blob',
+      });
       return data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

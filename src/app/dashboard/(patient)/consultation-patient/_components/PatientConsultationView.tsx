@@ -4,6 +4,7 @@ import React, { ChangeEvent, JSX, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   CircleCheck,
+  Download,
   FileText,
   Paperclip,
   Pill,
@@ -23,6 +24,7 @@ import { IConsultationDetails } from '@/types/consultation.interface';
 import { useAppDispatch } from '@/lib/hooks';
 import {
   addLabFile,
+  downloadLabRequestPdf,
   getConsultationDetail,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams } from 'next/navigation';
@@ -50,12 +52,42 @@ const PatientConsultationView = (): JSX.Element => {
   const [selectedFiles, setSelectedFiles] = useState<SelectedFiles>({});
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [downloadingLabRequest, setDownloadingLabRequest] = useState(false);
 
   const handleFileChange = ({ target }: ChangeEvent<HTMLInputElement>, labId: string): void => {
     const file = target.files?.[0];
     if (file) {
       setSelectedFiles((prev) => ({ ...prev, [labId]: file }));
     }
+  };
+
+  const handleDownloadLabRequest = async (): Promise<void> => {
+    const consultationId = params.consultationId as string;
+    if (!consultationId) {
+      return;
+    }
+
+    setDownloadingLabRequest(true);
+    const { payload } = await dispatch(downloadLabRequestPdf(consultationId));
+
+    if (showErrorToast(payload)) {
+      toast(payload as Toast);
+      setDownloadingLabRequest(false);
+      return;
+    }
+
+    // Create a blob URL and trigger download
+    const blob = payload as Blob;
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `lab-request-${consultationId}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    setDownloadingLabRequest(false);
   };
 
   const fetchConsultation = async (scroll = false): Promise<void> => {
@@ -279,10 +311,27 @@ const PatientConsultationView = (): JSX.Element => {
         {/* Lab Requests Section */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl font-semibold">
-              <TestTubeDiagonal className="text-primary" />
-              Lab Requests
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-xl font-semibold">
+                <TestTubeDiagonal className="text-primary" />
+                Lab Requests
+              </CardTitle>
+              {consultationDetails?.lab && consultationDetails.lab.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadLabRequest}
+                  disabled={downloadingLabRequest}
+                  isLoading={downloadingLabRequest}
+                  child={
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Lab Request
+                    </>
+                  }
+                />
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {consultationDetails?.lab && consultationDetails.lab.length > 0 ? (
