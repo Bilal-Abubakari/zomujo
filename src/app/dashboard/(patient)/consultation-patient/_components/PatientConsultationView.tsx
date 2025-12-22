@@ -68,17 +68,14 @@ const PatientConsultationView = (): JSX.Element => {
     }
 
     setDownloadingLabRequest(true);
-    const { payload } = await dispatch(downloadLabRequestPdf(consultationId));
+    const payload = await dispatch(downloadLabRequestPdf(consultationId)).unwrap();
 
     if (showErrorToast(payload)) {
       toast(payload as Toast);
       setDownloadingLabRequest(false);
       return;
     }
-
-    // Download the PDF using the utility function
-    const blob = payload as Blob;
-    downloadBlob(blob, `lab-request-${consultationId}.pdf`);
+    downloadBlob(payload as Blob, `lab-request-${consultationId}.pdf`);
 
     setDownloadingLabRequest(false);
   };
