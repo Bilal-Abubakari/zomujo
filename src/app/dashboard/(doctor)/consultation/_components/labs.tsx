@@ -1,5 +1,5 @@
 import React, { JSX, useEffect, useMemo, useState } from 'react';
-import { Info, TestTubeDiagonal, Trash2, AlertCircle, Search, X } from 'lucide-react';
+import { Info, TestTubeDiagonal, Trash2, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useForm } from 'react-hook-form';
@@ -15,20 +15,13 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import AddCardButton from '@/components/ui/addCardButton';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import {
-  addLabRequests,
-  getConsultationLabs,
-} from '@/lib/features/appointments/consultation/consultationThunk';
+import { getConsultationLabs } from '@/lib/features/appointments/consultation/consultationThunk';
 import { Toast, toast } from '@/hooks/use-toast';
-import { selectPreviousLabs, selectRecordId } from '@/lib/features/patients/patientsSelector';
+import { selectPreviousLabs } from '@/lib/features/patients/patientsSelector';
 import { useParams } from 'next/navigation';
 import { selectRequestedLabs } from '@/lib/features/appointments/appointmentSelector';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
 import { Modal } from '@/components/ui/dialog';
-import Signature from '@/components/signature/signature';
-import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
-import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   INotification,
   NotificationEvent,
@@ -36,6 +29,11 @@ import {
 } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
 import { LocalStorageManager } from '@/lib/localStorage';
+import { selectCurrentLabRequest } from '@/lib/features/appointments/consultation/consultationSelector';
+import {
+  removeLabRequest,
+  setCurrentLabRequest,
+} from '@/lib/features/appointments/consultation/consultationSlice';
 
 const labsSchema = z.object({
   fasting: z.boolean(),
@@ -50,23 +48,19 @@ type LabFormData = z.infer<typeof labsSchema>;
 type LabsProps = {
   updateLabs: boolean;
   setUpdateLabs: (value: boolean) => void;
-  goToDiagnoseAndPrescribe: () => void;
 };
 
-const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps): JSX.Element => {
+const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
   const { on } = useWebSocket();
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingLabs, setIsLoadingLabs] = useState(false);
-  const [currentRequestedLabs, setCurrentRequestedLabs] = useState<ILaboratoryRequest[]>([]);
+  const currentRequestedLabs = useAppSelector(selectCurrentLabRequest);
   const [labs, setLabs] = useState<LaboratoryTest | null>(null);
-  const [openAddSignature, setOpenAddSignature] = useState(false);
-  const [addSignature, setAddSignature] = useState(false);
   const [selectedTests, setSelectedTests] = useState<
     Map<string, { category: string; categoryType: string }>
   >(new Map());
   const [searchQuery, setSearchQuery] = useState('');
   const [categorySpecimens, setCategorySpecimens] = useState<Map<string, string>>(new Map());
-  const { watch, setValue, handleSubmit, reset } = useForm<LabFormData>({
+  const { watch, handleSubmit, reset } = useForm<LabFormData>({
     resolver: zodResolver(labsSchema),
     mode: MODE.ON_TOUCH,
     defaultValues: {
@@ -74,12 +68,9 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     },
   });
   const dispatch = useAppDispatch();
-  const recordId = useAppSelector(selectRecordId);
   const [consultationLabs, setConsultationLabs] = useState<ILab[]>([]);
   const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
   const previousLabs = useAppSelector(selectPreviousLabs);
-  const doctorSignature = useAppSelector(selectDoctorSignature);
-  const hasSignature = !!doctorSignature;
   const [showPreviousLabs, setShowPreviousLabs] = useState(false);
   const params = useParams();
   const storageKey = `consultation_${params?.appointmentId}_labs_draft`;
@@ -152,21 +143,11 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
       return;
     }
 
-    setCurrentRequestedLabs((prev) => [...prev, ...newLabRequests]);
+    dispatch(setCurrentLabRequest(newLabRequests));
     setSelectedTests(new Map()); // Clear selections
     setCategorySpecimens(new Map()); // Clear category specimens
     reset();
     setUpdateLabs(false);
-
-    // Show signature alert if no signature exists
-    if (!hasSignature) {
-      setTimeout(() => {
-        const alertElement = document.getElementById('signature-alert');
-        if (alertElement) {
-          alertElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 100);
-    }
   };
 
   const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
@@ -221,24 +202,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     return filtered as LaboratoryTest;
   }, [labs, searchQuery]);
 
-  // Restore draft
-  useEffect(() => {
-    if (!requestedAppointmentLabs || requestedAppointmentLabs.length === 0) {
-      const draft = LocalStorageManager.getJSON<{
-        currentRequestedLabs: ILaboratoryRequest[];
-        selectedTests: [string, { category: string; categoryType: string }][];
-        categorySpecimens: [string, string][];
-        fasting: boolean;
-      }>(storageKey);
-      if (draft) {
-        setCurrentRequestedLabs(draft.currentRequestedLabs ?? []);
-        setSelectedTests(new Map(draft.selectedTests ?? []));
-        setCategorySpecimens(new Map(draft.categorySpecimens ?? []));
-        setValue('fasting', draft.fasting ?? false);
-      }
-    }
-  }, [requestedAppointmentLabs, storageKey, setValue]);
-
   // Persist draft whenever relevant state changes and there is no saved labs on server
   useEffect(() => {
     if (!requestedAppointmentLabs || requestedAppointmentLabs.length === 0) {
@@ -259,10 +222,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
     storageKey,
   ]);
 
-  const clearDraft = (): void => {
-    LocalStorageManager.removeJSON(storageKey);
-  };
-
   useEffect(() => {
     if (updateLabs && !labs) {
       void getLabsData();
@@ -270,85 +229,55 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
   }, [updateLabs, labs]);
 
   useEffect(() => {
+    if (updateLabs && !labs) {
+      void getLabsData();
+    }
+  }, [updateLabs, labs]);
+
+  // Populate selectedTests and categorySpecimens from currentRequestedLabs when modal opens
+  useEffect(() => {
+    if (updateLabs && currentRequestedLabs.length > 0) {
+      const testsMap = new Map<string, { category: string; categoryType: string }>();
+      const specimensMap = new Map<string, string>();
+
+      currentRequestedLabs.forEach((lab) => {
+        testsMap.set(lab.testName, {
+          category: lab.category,
+          categoryType: lab.categoryType,
+        });
+        // Set specimen for the category if not already set
+        if (!specimensMap.has(lab.category)) {
+          specimensMap.set(lab.category, lab.specimen);
+        }
+      });
+
+      setSelectedTests(testsMap);
+      setCategorySpecimens(specimensMap);
+    }
+  }, [updateLabs]);
+
+  useEffect(() => {
     void fetchConsultationLabs();
   }, []);
 
-  const requestedLab = ({
-    testName,
-    notes,
-    fasting,
-    specimen,
-  }: ILaboratoryRequest): JSX.Element => (
-    <div className="w-xs rounded-[8px] bg-[linear-gradient(180deg,rgba(197,216,255,0.306)_0%,rgba(197,216,255,0.6)_61.43%)] p-4">
+  const requestedLab = ({ testName, notes, specimen }: ILaboratoryRequest): JSX.Element => (
+    <div className="w-56 rounded-[8px] bg-[linear-gradient(180deg,rgba(197,216,255,0.306)_0%,rgba(197,216,255,0.6)_61.43%)] p-4">
       <div className="mb-3 flex justify-between">
         <span className="text-grayscale-600 flex items-center gap-2">
           <TestTubeDiagonal /> {testName}
         </span>
         <Trash2
-          onClick={() => removeLabRequest(testName, specimen)}
+          onClick={() => dispatch(removeLabRequest({ name: testName, requestSpecimen: specimen }))}
           className="cursor-pointer text-red-500"
         />
       </div>
       <p className="text-grayscale-600 max-w-xs text-xs">{notes}</p>
       <span className="text-xs">Specimen Type: {specimen}</span>
-      <div className="text-grayscale-600 mt-2 max-w-xs text-xs">
-        Fasting: <Badge>{fasting ? 'Yes' : 'No'}</Badge>
-      </div>
+      {/*<div className="text-grayscale-600 mt-2 max-w-xs text-xs">*/}
+      {/*  Fasting: <Badge>{fasting ? 'Yes' : 'No'}</Badge>*/}
+      {/*</div>*/}
     </div>
   );
-
-  const removeLabRequest = (name: string, requestSpeciment: string): void => {
-    // Fix logic: remove matching by both testName & specimen
-    setCurrentRequestedLabs((prev) =>
-      prev.filter(
-        ({ testName, specimen }) => !(testName === name && specimen === requestSpeciment),
-      ),
-    );
-  };
-
-  const handleSubmitAndGoToExamination = async (): Promise<void> => {
-    setIsLoading(true);
-    const totalLabRequests = [...(requestedAppointmentLabs ?? []), ...currentRequestedLabs];
-
-    // Check if there are lab requests and signature is required but not added
-    if (totalLabRequests.length > 0 && !hasSignature) {
-      setOpenAddSignature(true);
-      setIsLoading(false);
-      return;
-    }
-
-    if (currentRequestedLabs.length) {
-      const { payload } = await dispatch(
-        addLabRequests({
-          labs: currentRequestedLabs,
-          appointmentId: String(params.appointmentId),
-          recordId,
-        }),
-      );
-      toast(payload as Toast);
-      if (!showErrorToast(payload)) {
-        clearDraft();
-        goToDiagnoseAndPrescribe();
-      }
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(false);
-    clearDraft();
-    goToDiagnoseAndPrescribe();
-  };
-
-  useEffect(() => {
-    if (addSignature) {
-      setOpenAddSignature(true);
-    }
-  }, [addSignature]);
-
-  useEffect(() => {
-    if (!openAddSignature) {
-      setAddSignature(false);
-    }
-  }, [openAddSignature]);
 
   const renderLabsContent = (): JSX.Element => {
     if (isLoadingLabs) {
@@ -382,17 +311,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
 
   return (
     <>
-      <Modal
-        setState={setOpenAddSignature}
-        open={openAddSignature}
-        content={
-          <Signature
-            signatureAdded={() => setOpenAddSignature(false)}
-            hasExistingSignature={hasSignature}
-          />
-        }
-        showClose={true}
-      />
       <div>
         <h1 className="text-xl font-bold">Patient&#39;s Labs</h1>
         <h2 className="mt-10 flex items-center font-bold max-sm:text-sm">
@@ -425,49 +343,9 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
           </>
         )}
         <h2 className="mt-10 flex items-center font-bold">Request Lab</h2>
-
-        {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 && (
-          <Alert id="signature-alert" variant="info" className="my-4 border-amber-500 bg-amber-50">
-            <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="flex items-center justify-between">
-              <span className="text-amber-800">
-                {hasSignature
-                  ? 'You can edit your digital signature if needed.'
-                  : 'Lab requests require your digital signature before proceeding.'}
-              </span>
-              <button
-                onClick={() => setOpenAddSignature(true)}
-                className="ml-4 text-sm font-semibold text-amber-700 underline hover:text-amber-900"
-              >
-                {hasSignature ? 'Edit signature' : 'Add now'}
-              </button>
-            </AlertDescription>
-          </Alert>
-        )}
-
         <div className="mt-5 mb-20 flex flex-wrap gap-5">
           <AddCardButton onClick={() => setUpdateLabs(true)} />
           {(currentRequestedLabs ?? []).map((lab) => requestedLab(lab))}
-        </div>
-        {[...(requestedAppointmentLabs ?? []), ...currentRequestedLabs].length > 0 && (
-          <div className="fixed right-4 bottom-16 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
-            <Label htmlFor="signature-labs">
-              {hasSignature ? 'Edit digital Signature' : 'Add digital Signature'}
-            </Label>
-            <Switch
-              checked={addSignature}
-              id="signature-labs"
-              onCheckedChange={() => setAddSignature((prev) => !prev)}
-            />
-          </div>
-        )}
-        <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
-          <Button
-            onClick={() => handleSubmitAndGoToExamination()}
-            disabled={false}
-            isLoading={isLoading}
-            child="Go to Diagnose and Prescribe"
-          />
         </div>
       </div>
       <Modal
@@ -487,17 +365,17 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
 
             <form className="space-y-6" onSubmit={handleSubmit(addLabRequest)}>
               {/* Fasting Checkbox */}
-              <div className="flex items-center space-x-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
-                <Checkbox
-                  name="fasting"
-                  id="fasting"
-                  checked={watch('fasting')}
-                  onCheckedChange={(checked) => setValue('fasting', !!checked)}
-                />
-                <Label htmlFor="fasting" className="cursor-pointer">
-                  Fasting required for all tests
-                </Label>
-              </div>
+              {/*<div className="flex items-center space-x-2 rounded-lg border border-gray-200 bg-gray-50 p-4">*/}
+              {/*  <Checkbox*/}
+              {/*    name="fasting"*/}
+              {/*    id="fasting"*/}
+              {/*    checked={watch('fasting')}*/}
+              {/*    onCheckedChange={(checked) => setValue('fasting', !!checked)}*/}
+              {/*  />*/}
+              {/*  <Label htmlFor="fasting" className="cursor-pointer">*/}
+              {/*    Fasting required for all tests*/}
+              {/*  </Label>*/}
+              {/*</div>*/}
 
               {/* Search Bar */}
               <div className="relative">
@@ -644,7 +522,6 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
               {/* Sticky Action Buttons */}
               <div className="sticky bottom-0 z-20 flex justify-end space-x-3 border-t bg-white/95 p-4 backdrop-blur">
                 <Button
-                  disabled={isLoading}
                   onClick={() => {
                     setUpdateLabs(false);
                     setSelectedTests(new Map());
@@ -656,15 +533,13 @@ const Labs = ({ updateLabs, setUpdateLabs, goToDiagnoseAndPrescribe }: LabsProps
                   variant="secondary"
                 />
                 <Button
-                  isLoading={isLoading}
                   disabled={
                     selectedTests.size === 0 ||
                     Array.from(
                       new Set(Array.from(selectedTests.values()).map((m) => m.category)),
                     ).some(
                       (cat) => !categorySpecimens.get(cat) || !categorySpecimens.get(cat)?.trim(),
-                    ) ||
-                    isLoading
+                    )
                   }
                   child={
                     selectedTests.size > 0

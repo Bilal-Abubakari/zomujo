@@ -6,8 +6,10 @@ import notificationsReducer from '@/lib/features/notifications/notificationsSlic
 import paymentsReducer from '@/lib/features/payments/paymentSlice';
 import patientsReducer from '@/lib/features/patients/patientsSlice';
 import appointmentsReducer from '@/lib/features/appointments/appointmentsSlice';
+import consultationReducer from '@/lib/features/appointments/consultation/consultationSlice';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import aiReducer from '@/lib/features/ai/aiSlice';
 
 const authPersistConfig = {
   key: 'user',
@@ -23,6 +25,8 @@ const rootReducer = combineReducers({
   payments: paymentsReducer,
   patients: patientsReducer,
   appointments: appointmentsReducer,
+  consultation: consultationReducer,
+  ai: aiReducer,
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
