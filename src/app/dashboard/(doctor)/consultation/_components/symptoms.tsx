@@ -214,13 +214,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           complaint: suggestion,
           duration: { value: '', type: DurationType.Days },
         });
-        // Scroll to the complaint fields after a short delay to ensure DOM is updated
-        setTimeout(() => {
-          complaintFieldsContainerRef.current?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest',
-          });
-        }, 100);
+        scrollToComplaintFields();
       } else if (shouldRemove) {
         const index = complaintsHFC.findIndex(({ complaint }) => complaint === suggestion);
         if (index !== -1) {
@@ -241,15 +235,19 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setComplaintSuggestions((prev) => [...prev, otherComplaint]);
       append({ complaint: otherComplaint, duration: { value: '', type: DurationType.Days } });
       setOtherComplaint('');
-      // Scroll to the complaint fields after a short delay to ensure DOM is updated
-      setTimeout(() => {
-        complaintFieldsContainerRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-        });
-      }, 100);
+      scrollToComplaintFields();
     }
   }, [append, complaintSuggestions, otherComplaint, selectedComplaints]);
+
+  const scrollToComplaintFields = (): void => {
+    // Scroll to the complaint fields after a short delay to ensure DOM is updated
+    setTimeout(() => {
+      complaintFieldsContainerRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }, 100);
+  };
 
   const fetchSymptoms = useCallback(async (): Promise<void> => {
     setIsLoadingSymptoms(true);
