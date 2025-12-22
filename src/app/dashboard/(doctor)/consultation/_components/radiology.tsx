@@ -1,6 +1,6 @@
 'use client';
 import React, { JSX, useCallback, useEffect, useMemo, useState } from 'react';
-import { Info, Search, X, Trash2, Microscope } from 'lucide-react';
+import { Info, Microscope, Search, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -159,7 +159,7 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
   };
 
   const testExists = useCallback(
-    (test: string) => !!testsWatch.find(({ testName }) => testName === test),
+    (test: string) => testsWatch.some(({ testName }) => testName === test),
     [testsWatch],
   );
 
@@ -180,6 +180,33 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
     });
   };
 
+  const filterTestsByQuery = useCallback(
+    (tests: string[], query: string, subCategory: string, mainCategory: string): string[] =>
+      tests.filter(
+        (test: string) =>
+          test.toLowerCase().includes(query) ||
+          subCategory.toLowerCase().includes(query) ||
+          mainCategory.toLowerCase().includes(query),
+      ),
+    [],
+  );
+
+  const filterSubCategories = useCallback(
+    (subCategories: Record<string, string[]>, query: string, mainCategory: string) => {
+      const filteredSubCategories: Record<string, string[]> = {};
+
+      Object.entries(subCategories).forEach(([subCategory, tests]) => {
+        const filteredTests = filterTestsByQuery(tests, query, subCategory, mainCategory);
+        if (filteredTests.length > 0) {
+          filteredSubCategories[subCategory] = filteredTests;
+        }
+      });
+
+      return filteredSubCategories;
+    },
+    [filterTestsByQuery],
+  );
+
   const filteredRadiologyTests = useMemo(() => {
     if (!radiologyTests) {
       return null;
@@ -193,21 +220,11 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
     const filtered: Partial<RadiologyTest> = {};
 
     Object.entries(radiologyTests).forEach(([mainCategory, subCategories]) => {
-      const filteredSubCategories: Record<string, string[]> = {};
-
-      Object.entries(subCategories as Record<string, string[]>).forEach(([subCategory, tests]) => {
-        const testsArray = tests as string[];
-        const filteredTests = testsArray.filter(
-          (test: string) =>
-            test.toLowerCase().includes(query) ||
-            subCategory.toLowerCase().includes(query) ||
-            mainCategory.toLowerCase().includes(query),
-        );
-
-        if (filteredTests.length > 0) {
-          filteredSubCategories[subCategory] = filteredTests;
-        }
-      });
+      const filteredSubCategories = filterSubCategories(
+        subCategories as Record<string, string[]>,
+        query,
+        mainCategory,
+      );
 
       if (Object.keys(filteredSubCategories).length > 0) {
         filtered[mainCategory as RadiologySection] = filteredSubCategories as Record<
@@ -218,7 +235,7 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
     });
 
     return filtered as RadiologyTest;
-  }, [radiologyTests, searchQuery]);
+  }, [radiologyTests, searchQuery, filterSubCategories]);
 
   // Persist draft
   useEffect(() => {
@@ -317,7 +334,7 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
                 <p className="font-semibold">Tests:</p>
                 <ul className="list-inside list-disc">
                   {currentRequestedRadiology.tests.map((test, index) => (
-                    <li key={index}>{test.testName}</li>
+                    <li key={`${index}-${test.testName}`}>{test.testName}</li>
                   ))}
                 </ul>
               </div>
@@ -418,7 +435,7 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
                 <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-purple-900">
-                      {testsWatch.length} test{testsWatch.length !== 1 ? 's' : ''} selected
+                      {testsWatch.length} test{testsWatch.length === 1 ? '' : 's'} selected
                     </span>
                     <button
                       type="button"
@@ -454,7 +471,7 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
                             <div key={subCategory} className="space-y-2">
                               <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
                               <div className="grid grid-cols-1 gap-3 pl-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                                {(tests as string[]).map((test: string) => (
+                                {tests.map((test: string) => (
                                   <div key={test} className="flex items-start space-x-2">
                                     <Checkbox
                                       id={`${mainCategory}-${subCategory}-${test}`}
@@ -514,7 +531,7 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
                   disabled={!isValid}
                   child={
                     testsWatch?.length > 0
-                      ? `Add ${testsWatch.length} Test${testsWatch.length !== 1 ? 's' : ''}`
+                      ? `Add ${testsWatch.length} Test${testsWatch.length === 1 ? '' : 's'}`
                       : 'Add Tests'
                   }
                   type="submit"
