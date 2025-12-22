@@ -68,6 +68,114 @@ type RadiologyProps = {
   setUpdateRadiology: (value: boolean) => void;
 };
 
+type TestItemProps = {
+  test: string;
+  mainCategory: string;
+  subCategory: string;
+  isChecked: boolean;
+  onToggle: () => void;
+};
+
+const TestItem = ({
+  test,
+  mainCategory,
+  subCategory,
+  isChecked,
+  onToggle,
+}: TestItemProps): JSX.Element => (
+  <div className="flex items-start space-x-2">
+    <Checkbox
+      id={`${mainCategory}-${subCategory}-${test}`}
+      checked={isChecked}
+      onCheckedChange={onToggle}
+    />
+    <Label
+      htmlFor={`${mainCategory}-${subCategory}-${test}`}
+      className="cursor-pointer text-sm leading-tight"
+    >
+      {test}
+    </Label>
+  </div>
+);
+
+type SubCategorySectionProps = {
+  subCategory: string;
+  tests: string[];
+  mainCategory: string;
+  selectedTests: { testName: string }[] | undefined;
+  onToggleTest: (
+    test: string,
+    mainCategory: RadiologySection,
+    subCategory: RadiologyCategoryType,
+  ) => void;
+};
+
+const SubCategorySection = ({
+  subCategory,
+  tests,
+  mainCategory,
+  selectedTests,
+  onToggleTest,
+}: SubCategorySectionProps): JSX.Element => (
+  <div className="space-y-2">
+    <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
+    <div className="grid grid-cols-1 gap-3 pl-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {tests.map((test: string) => (
+        <TestItem
+          key={test}
+          test={test}
+          mainCategory={mainCategory}
+          subCategory={subCategory}
+          isChecked={!!selectedTests?.find(({ testName }) => testName === test)}
+          onToggle={() =>
+            onToggleTest(
+              test,
+              mainCategory as RadiologySection,
+              subCategory as RadiologyCategoryType,
+            )
+          }
+        />
+      ))}
+    </div>
+  </div>
+);
+
+type MainCategorySectionProps = {
+  mainCategory: string;
+  subCategories: Record<string, string[]>;
+  selectedTests: { testName: string }[] | undefined;
+  onToggleTest: (
+    test: string,
+    mainCategory: RadiologySection,
+    subCategory: RadiologyCategoryType,
+  ) => void;
+};
+
+const MainCategorySection = ({
+  mainCategory,
+  subCategories,
+  selectedTests,
+  onToggleTest,
+}: MainCategorySectionProps): JSX.Element => (
+  <div className="border-b last:border-b-0">
+    <div className="sticky top-0 z-10 bg-gray-50 px-4 py-3">
+      <h3 className="text-lg font-bold text-gray-800">{mainCategory}</h3>
+    </div>
+    <div className="space-y-4 p-4">
+      {Object.entries(subCategories).map(([subCategory, tests]) => (
+        <SubCategorySection
+          key={subCategory}
+          subCategory={subCategory}
+          tests={tests}
+          mainCategory={mainCategory}
+          selectedTests={selectedTests}
+          onToggleTest={onToggleTest}
+        />
+      ))}
+    </div>
+  </div>
+);
+
 const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const currentRequestedRadiology = useAppSelector(selectCurrentRadiologyRequest);
@@ -459,47 +567,13 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
               <div className="max-h-[50vh] overflow-y-auto rounded-lg border">
                 {filteredRadiologyTests && Object.entries(filteredRadiologyTests).length > 0 ? (
                   Object.entries(filteredRadiologyTests).map(([mainCategory, subCategories]) => (
-                    <div key={mainCategory} className="border-b last:border-b-0">
-                      <div className="sticky top-0 z-10 bg-gray-50 px-4 py-3">
-                        <h3 className="text-lg font-bold text-gray-800">{mainCategory}</h3>
-                      </div>
-                      <div className="space-y-4 p-4">
-                        {/* Category-specific information fields */}
-
-                        {Object.entries(subCategories as Record<string, string[]>).map(
-                          ([subCategory, tests]) => (
-                            <div key={subCategory} className="space-y-2">
-                              <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
-                              <div className="grid grid-cols-1 gap-3 pl-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                                {tests.map((test: string) => (
-                                  <div key={test} className="flex items-start space-x-2">
-                                    <Checkbox
-                                      id={`${mainCategory}-${subCategory}-${test}`}
-                                      checked={
-                                        !!watch('tests')?.find(({ testName }) => testName === test)
-                                      }
-                                      onCheckedChange={() =>
-                                        toggleTestSelection(
-                                          test,
-                                          mainCategory as RadiologySection,
-                                          subCategory as RadiologyCategoryType,
-                                        )
-                                      }
-                                    />
-                                    <Label
-                                      htmlFor={`${mainCategory}-${subCategory}-${test}`}
-                                      className="cursor-pointer text-sm leading-tight"
-                                    >
-                                      {test}
-                                    </Label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ),
-                        )}
-                      </div>
-                    </div>
+                    <MainCategorySection
+                      key={mainCategory}
+                      mainCategory={mainCategory}
+                      subCategories={subCategories as Record<string, string[]>}
+                      selectedTests={testsWatch}
+                      onToggleTest={toggleTestSelection}
+                    />
                   ))
                 ) : (
                   <div className="p-8 text-center text-gray-500">
