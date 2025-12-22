@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useMemo, useState, useCallback } from 'react';
+import React, { JSX, useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
@@ -10,7 +10,7 @@ import { cn, showErrorToast } from '@/lib/utils';
 import { toast, Toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { SelectInput } from '@/components/ui/select';
+import { SelectInput, SelectInputV2 } from '@/components/ui/select';
 import { durationTypes } from '@/constants/constants';
 import { useFieldArray, useForm } from 'react-hook-form';
 import {
@@ -29,7 +29,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-// import FornixVoiceSummary from '@/app/dashboard/(doctor)/consultation/_components/FornixVoiceSummary';
 import { LocalStorageManager } from '@/lib/localStorage';
 
 const SelectSymptoms = dynamic(
@@ -156,6 +155,8 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const params = useParams();
   const complaintsHFC = watch('complaints');
+  const hasSetComplaintDurations = useRef(false);
+  const complaintFieldsContainerRef = useRef<HTMLDivElement>(null);
 
   const storageKey = useMemo(
     () => `consultation_${params?.appointmentId}_symptoms_draft`,
@@ -213,6 +214,13 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           complaint: suggestion,
           duration: { value: '', type: DurationType.Days },
         });
+        // Scroll to the complaint fields after a short delay to ensure DOM is updated
+        setTimeout(() => {
+          complaintFieldsContainerRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          });
+        }, 100);
       } else if (shouldRemove) {
         const index = complaintsHFC.findIndex(({ complaint }) => complaint === suggestion);
         if (index !== -1) {
@@ -233,6 +241,13 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setComplaintSuggestions((prev) => [...prev, otherComplaint]);
       append({ complaint: otherComplaint, duration: { value: '', type: DurationType.Days } });
       setOtherComplaint('');
+      // Scroll to the complaint fields after a short delay to ensure DOM is updated
+      setTimeout(() => {
+        complaintFieldsContainerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }, 100);
     }
   }, [append, complaintSuggestions, otherComplaint, selectedComplaints]);
 
@@ -357,6 +372,17 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       }
 
       setValue('medicinesTaken', medicinesTaken);
+      if (complaints && complaints.length > 0 && !hasSetComplaintDurations.current) {
+        setValue('complaints', complaints);
+        complaints.forEach((complaintObj, idx) => {
+          setValue(`complaints.${idx}.duration.value`, complaintObj.duration?.value ?? '');
+          setValue(
+            `complaints.${idx}.duration.type`,
+            complaintObj.duration?.type ?? DurationType.Days,
+          );
+        });
+        hasSetComplaintDurations.current = true;
+      }
       if (systemSymptoms) {
         setValue('symptoms', patientSymptoms);
         let symptomsMap = _.cloneDeep(systemSymptoms);
@@ -461,17 +487,12 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
               labelName="Duration (All)"
               className="w-32 bg-transparent"
             />
-            <select
+            <SelectInputV2
+              className="max-w-40"
+              options={durationTypes}
+              onChange={(value) => setBulkDurationType(value as DurationType)}
               value={bulkDurationType}
-              onChange={(e) => setBulkDurationType(e.target.value as DurationType)}
-              className="h-10 rounded-md border bg-transparent px-3 text-sm"
-            >
-              {durationTypes.map((d) => (
-                <option key={d.value} value={d.value}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
+            />
             <Button
               type="button"
               disabled={!bulkDurationValue || Number(bulkDurationValue) <= 0}
@@ -481,7 +502,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           </div>
         )}
         {complaintFields.length > 0 && (
-          <div className="mt-10">
+          <div ref={complaintFieldsContainerRef} className="mt-10">
             <h2 className="text-lg font-semibold">Set Duration Per Complaint</h2>
             <div className="mt-4 space-y-6">
               {complaintFields.map((field, index) => (
@@ -489,7 +510,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                   key={field.id}
                   className="flex flex-wrap items-end gap-4 rounded-md border p-4 shadow-sm"
                 >
-                  <div className="min-w-[180px] flex-1">
+                  <div className="min-w-45 flex-1">
                     <Input
                       value={field.complaint}
                       readOnly
@@ -499,8 +520,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                   </div>
                   <div>
                     <Input
-                      {...register(`complaints.${index}.duration.value` as const)}
-                      type="number"
+                      {...register(`complaints.${index}.duration.value`)}
                       placeholder="Duration"
                       labelName="Duration"
                       className="w-28 bg-transparent"
@@ -567,7 +587,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
         <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
         <div className="mt-20"></div>
-        <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
+        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
           <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Go to Labs" />
         </div>
       </form>
