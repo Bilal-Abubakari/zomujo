@@ -41,4 +41,3 @@ export enum InterventionalRadiologyCategory {
   Angiography = 'Angiography',
   Others = 'Others',
 }
-

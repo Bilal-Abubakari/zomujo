@@ -90,10 +90,8 @@ const Investigation = ({
     setIsSubmitting(true);
 
     try {
-      // Create array of promises for concurrent submission
       const submissionPromises: Promise<Toast>[] = [];
 
-      // Add lab request submission if there are labs
       if (currentLabRequests.length > 0) {
         const labPayload = {
           recordId,
@@ -103,7 +101,6 @@ const Investigation = ({
         submissionPromises.push(dispatch(addLabRequests(labPayload)).unwrap());
       }
 
-      // Add radiology request submission if there is radiology
       if (currentRadiologyRequest) {
         const radiologyPayload = {
           recordId,
@@ -116,10 +113,8 @@ const Investigation = ({
         submissionPromises.push(dispatch(addRadiologyRequests(radiologyPayload)).unwrap());
       }
 
-      // Wait for all submissions to complete
       const results = await Promise.all(submissionPromises);
 
-      // Display all responses
       let hasError = false;
       results.forEach((result) => {
         toast(result);
@@ -128,7 +123,6 @@ const Investigation = ({
         }
       });
 
-      // Proceed to next stage regardless of errors (or only if no errors - your choice)
       if (!hasError) {
         clearDraft();
         // Clear the state after successful submission

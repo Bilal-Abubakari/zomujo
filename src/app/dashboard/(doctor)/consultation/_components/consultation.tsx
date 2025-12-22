@@ -109,8 +109,7 @@ const Consultation = (): JSX.Element => {
         return symptomsPassed;
       }
       if (stage === 'investigation') {
-        // return symptomsPassed && (!!requestedAppointmentLabs || hasSavedLabs);
-        return true;
+        return symptomsPassed && (!!requestedAppointmentLabs || hasSavedLabs);
       }
       if (stage === 'review') {
         return hasSavedDiagnosis || savedDiagnoses.length > 0;
@@ -252,7 +251,7 @@ const Consultation = (): JSX.Element => {
                           stages.indexOf(currentStage) > stages.indexOf(stage)
                           ? 'bg-primary-light text-primary'
                           : 'bg-gray-200',
-                        'inline-block px-6 py-3 text-xs whitespace-nowrap sm:py-[18px] sm:text-sm md:px-8',
+                        'inline-block px-6 py-3 text-xs whitespace-nowrap sm:py-4.5 sm:text-sm md:px-8',
                       )}
                     >
                       {capitalize(stage)}
