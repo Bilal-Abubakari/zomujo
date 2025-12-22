@@ -222,7 +222,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         }
       }
     },
-    [append, complaintsHFC, remove, selectedComplaints],
+    [append, complaintsHFC, selectedComplaints],
   );
 
   const addComplaint = useCallback((): void => {
@@ -370,15 +370,8 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       }
 
       setValue('medicinesTaken', medicinesTaken);
-      if (complaints && complaints.length > 0 && !hasSetComplaintDurations.current) {
+      if (complaints?.length > 0 && !hasSetComplaintDurations.current) {
         setValue('complaints', complaints);
-        complaints.forEach((complaintObj, idx) => {
-          setValue(`complaints.${idx}.duration.value`, complaintObj.duration?.value ?? '');
-          setValue(
-            `complaints.${idx}.duration.type`,
-            complaintObj.duration?.type ?? DurationType.Days,
-          );
-        });
         hasSetComplaintDurations.current = true;
       }
       if (systemSymptoms) {
@@ -417,7 +410,6 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     isLoadingComplaintSuggestions,
     setValue,
     complaintSuggestions,
-    handleSelectedComplaint,
     append,
   ]);
 
