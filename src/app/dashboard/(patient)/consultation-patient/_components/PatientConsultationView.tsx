@@ -36,7 +36,7 @@ import {
   NotificationEvent,
   NotificationTopic,
 } from '@/types/notification.interface';
-import { showErrorToast } from '@/lib/utils';
+import { downloadBlob, showErrorToast } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
 
 type SelectedFiles = {
@@ -76,16 +76,9 @@ const PatientConsultationView = (): JSX.Element => {
       return;
     }
 
-    // Create a blob URL and trigger download
+    // Download the PDF using the utility function
     const blob = payload as Blob;
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `lab-request-${consultationId}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    downloadBlob(blob, `lab-request-${consultationId}.pdf`);
 
     setDownloadingLabRequest(false);
   };
