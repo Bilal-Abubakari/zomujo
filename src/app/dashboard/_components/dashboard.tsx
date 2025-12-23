@@ -19,6 +19,10 @@ const AdminHome = dynamic(() => import('@/app/dashboard/_components/adminHome/ho
   loading: () => <DashboardFallback />,
   ssr: false,
 });
+const HospitalHome = dynamic(() => import('@/app/dashboard/_components/hospitalHome/home'), {
+  loading: () => <DashboardFallback />,
+  ssr: false,
+});
 
 const DashboardFallback = (): JSX.Element => (
   <div className="flex min-h-screen items-center justify-center">
@@ -34,6 +38,7 @@ const Dashboard = (): JSX.Element => {
     [Role.Patient]: <PatientHome />,
     [Role.Admin]: <AdminHome />,
     [Role.SuperAdmin]: <AdminHome />,
+    [Role.Hospital]: <HospitalHome />,
   };
 
   return home[role!];

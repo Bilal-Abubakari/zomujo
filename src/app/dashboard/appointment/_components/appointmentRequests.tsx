@@ -15,7 +15,7 @@ import {
   rescheduleAppointment,
 } from '@/lib/features/appointments/appointmentsThunk';
 import { joinConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
-import { selectUser } from '@/lib/features/auth/authSelector';
+import { selectUser, selectExtra, selectOrganizationId } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { IAppointment } from '@/types/appointment.interface';
 import { AppointmentType } from '@/types/slots.interface';
@@ -76,6 +76,8 @@ const AppointmentRequests = (): JSX.Element => {
   const { on } = useWebSocket();
   const router = useRouter();
   const user = useAppSelector(selectUser);
+  const extra = useAppSelector(selectExtra);
+  const orgId = useAppSelector(selectOrganizationId);
   const dispatch = useAppDispatch();
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
@@ -101,6 +103,10 @@ const AppointmentRequests = (): JSX.Element => {
     mode: MODE.ON_TOUCH,
   });
 
+  // Get hospital ID from extra if user is a hospital
+  const hospitalId =
+    user?.role === Role.Hospital && extra && 'id' in extra ? (extra as { id: string }).id : undefined;
+
   const {
     isLoading,
     setQueryParameters,
@@ -114,6 +120,7 @@ const AppointmentRequests = (): JSX.Element => {
     orderDirection: OrderDirection.Descending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
     patientId: user?.role === Role.Patient ? user?.id : undefined,
+    orgId: user?.role === Role.Hospital ? hospitalId : user?.role === Role.Admin ? orgId : undefined,
     page: 1,
     search: '',
     status: '',
@@ -138,18 +145,21 @@ const AppointmentRequests = (): JSX.Element => {
       accessorKey: 'patient',
       header: () => (
         <div className="flex cursor-pointer whitespace-nowrap">
-          {user?.role === Role.Doctor ? 'Patient Name' : 'Doctor Name'}
+          {user?.role === Role.Doctor || user?.role === Role.Hospital
+            ? 'Patient Name'
+            : 'Doctor Name'}
         </div>
       ),
       cell: ({ row: { original } }): JSX.Element => {
         const { doctor, patient } = original;
         const isDoctor = user?.role === Role.Doctor;
+        const isHospital = user?.role === Role.Hospital;
         const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
         return (
           <AvatarWithName
-            imageSrc={isDoctor || isAdmin ? patient.profilePicture : doctor.profilePicture}
-            firstName={isDoctor || isAdmin ? patient.firstName : doctor.firstName}
-            lastName={isDoctor || isAdmin ? patient.lastName : doctor.lastName}
+            imageSrc={isDoctor || isAdmin || isHospital ? patient.profilePicture : doctor.profilePicture}
+            firstName={isDoctor || isAdmin || isHospital ? patient.firstName : doctor.firstName}
+            lastName={isDoctor || isAdmin || isHospital ? patient.lastName : doctor.lastName}
           />
         );
       },
@@ -204,6 +214,9 @@ const AppointmentRequests = (): JSX.Element => {
         const getName = (): string => {
           if (user?.role === Role.Patient) {
             return `${doctor.firstName} ${doctor.lastName}`;
+          }
+          if (user?.role === Role.Hospital) {
+            return `${patient.firstName} ${patient.lastName}`;
           }
           return `${patient.firstName} ${patient.lastName}`;
         };
@@ -287,7 +300,7 @@ const AppointmentRequests = (): JSX.Element => {
                   </>
                 ),
                 clickCommand: (): void => {
-                  if (user?.role === Role.Doctor) {
+                  if (user?.role === Role.Doctor || user?.role === Role.Hospital) {
                     router.push(`/dashboard/patients/${patient.id}?appointmentId=${id}`);
                   } else {
                     router.push(`/dashboard/consultation-patient/${id}`);

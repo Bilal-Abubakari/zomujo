@@ -59,6 +59,18 @@ export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {
   gpsLink: string;
 }
 
+export interface IHospitalSignUp {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  hospitalName: string;
+  location: string;
+  lat: number;
+  long: number;
+  gpsLink: string;
+  phone?: string;
+}
+
 export interface ILogin extends IAuthBooking {
   email: string;
   password: string;

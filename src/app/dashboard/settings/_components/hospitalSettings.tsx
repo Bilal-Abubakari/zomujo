@@ -18,6 +18,7 @@ import { selectExtra } from '@/lib/features/auth/authSelector';
 import { IAdmin } from '@/types/admin.interface';
 import useImageUpload from '@/hooks/useImageUpload';
 import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
+import { IHospital } from '@/types/hospital.interface';
 
 const hospitalSettingsSchema = z.object({
   image: z.union([z.instanceof(File), z.url(), z.null()]),
@@ -29,7 +30,28 @@ const hospitalSettingsSchema = z.object({
 
 const HospitalSettings = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
-  const { org } = useAppSelector(selectExtra) as IAdmin;
+  const extra = useAppSelector(selectExtra);
+  const org = ((extra as IAdmin | null)?.org ?? (extra as IHospital | null)) as
+    | IHospital
+    | undefined;
+
+  const dummyOrg: IHospital = {
+    id: 'demo-hospital-id',
+    name: PLACEHOLDER_HOSPITAL_NAME,
+    email: 'admin@hospital.com',
+    location: 'Liberation Road, Accra',
+    status: 'approved' as any,
+    distance: 0,
+    gpsLink: 'https://maps.google.com/?q=Liberation+Road+Accra',
+    image: null,
+    supportedInsurance: ['NHIS'],
+    specialties: ['General Practice'],
+    regularFee: 100,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const initialOrg = org ?? dummyOrg;
   const dispatch = useAppDispatch();
   const {
     register,
@@ -40,7 +62,7 @@ const HospitalSettings = (): JSX.Element => {
   } = useForm<Required<IHospitalProfile>>({
     resolver: zodResolver(hospitalSettingsSchema),
     mode: MODE.ON_TOUCH,
-    defaultValues: org,
+    defaultValues: initialOrg,
   });
   const {
     imageRef,
@@ -49,7 +71,7 @@ const HospitalSettings = (): JSX.Element => {
     resetImage,
   } = useImageUpload<Required<IHospitalProfile>>({
     setValue,
-    defaultImageUrl: org.image,
+    defaultImageUrl: initialOrg.image,
     fieldName: 'image',
   });
 

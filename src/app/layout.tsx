@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { JSX, ReactNode } from 'react';
 import StoreProvider from '@/app/storeProvider';
 import { BRANDING } from '@/constants/branding.constant';
+import DevLoginBanner from '@/components/dev/DevLoginBanner';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,7 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          {children}
+          {/* Development Login Banner - Remove before production! */}
+          <DevLoginBanner />
+        </StoreProvider>
 
         <Toaster />
       </body>
