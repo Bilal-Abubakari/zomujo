@@ -50,6 +50,7 @@ import { useParams } from 'next/navigation';
 import { selectSymptoms } from '@/lib/features/appointments/appointmentSelector';
 import _ from 'lodash';
 import { IAppointmentSymptoms } from '@/types/appointment.interface';
+import FornixVoiceSummary from '@/app/dashboard/(doctor)/consultation/_components/FornixVoiceSummary';
 
 const symptomItemSchema = z.object({
   name: requiredStringSchema(),
@@ -431,7 +432,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     <DndProvider backend={HTML5Backend}>
       <form onSubmit={handleSubmit(handleSubmitAndGoToLabs)}>
         {/*TODO: Coming soon*/}
-        {/*<FornixVoiceSummary />*/}
+        <FornixVoiceSummary />
         <h1 className="text-xl font-bold">Complaint</h1>
         <div className="mt-8 flex flex-wrap gap-5">
           {isLoadingComplaintSuggestions ? (
