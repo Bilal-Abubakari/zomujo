@@ -19,6 +19,7 @@ import { IAdmin } from '@/types/admin.interface';
 import useImageUpload from '@/hooks/useImageUpload';
 import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
 import { IHospital } from '@/types/hospital.interface';
+import { ApproveDeclineStatus } from '@/types/shared.enum';
 
 const hospitalSettingsSchema = z.object({
   image: z.union([z.instanceof(File), z.url(), z.null()]),
@@ -40,7 +41,7 @@ const HospitalSettings = (): JSX.Element => {
     name: PLACEHOLDER_HOSPITAL_NAME,
     email: 'admin@hospital.com',
     location: 'Liberation Road, Accra',
-    status: 'approved' as any,
+    status: ApproveDeclineStatus.Approved,
     distance: 0,
     gpsLink: 'https://maps.google.com/?q=Liberation+Road+Accra',
     image: null,

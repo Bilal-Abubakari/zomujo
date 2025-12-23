@@ -56,6 +56,11 @@ import { IBookingForm } from '@/types/booking.interface';
 import { MODE } from '@/constants/constants';
 import { SlotSelectionModal } from '@/components/ui/slotSelectionModal';
 import { showErrorToast } from '@/lib/utils';
+import {
+  DUMMY_HOSPITAL_APPOINTMENTS,
+  DUMMY_HOSPITAL_APPOINTMENTS_PAGINATION,
+  ENABLE_DUMMY_APPOINTMENTS,
+} from '@/app/dashboard/appointment/_components/dummyHospitalAppointments';
 
 type SelectedAppointment = {
   date: Date;
@@ -337,6 +342,23 @@ const AppointmentRequests = (): JSX.Element => {
     });
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
+  const shouldUseDummyAppointments =
+    ENABLE_DUMMY_APPOINTMENTS &&
+    user?.role === Role.Hospital &&
+    !isLoading &&
+    tableData.length === 0 &&
+    !queryParameters.search &&
+    !queryParameters.status &&
+    !queryParameters.startDate &&
+    !queryParameters.endDate;
+
+  const displayAppointments = shouldUseDummyAppointments
+    ? DUMMY_HOSPITAL_APPOINTMENTS
+    : tableData;
+  const displayPaginationData = shouldUseDummyAppointments
+    ? DUMMY_HOSPITAL_APPOINTMENTS_PAGINATION
+    : paginationData;
+
   function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
     event.preventDefault();
     setQueryParameters((prev) => ({
@@ -494,8 +516,8 @@ const AppointmentRequests = (): JSX.Element => {
         <TableData
           columns={columns}
           page={queryParameters.page}
-          data={tableData}
-          paginationData={paginationData}
+          data={displayAppointments}
+          paginationData={displayPaginationData}
           userPaginationChange={({ pageIndex }) => updatePage(pageIndex)}
           isLoading={isLoading}
         />

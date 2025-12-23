@@ -196,8 +196,24 @@ export function extractGMTTime(
  *
  */
 export function mergeDateAndTime(dateString: string, timeString: string): Date {
-  const date = dateString.split('T')[0];
-  const time = timeString.split('T')[1];
+  const date = dateString.includes('T') ? dateString.split('T')[0] : dateString;
+
+  // Backends sometimes return time as an ISO string (e.g. 1970-01-01T09:00:00.000Z)
+  // while local/dummy data may use plain time (e.g. 09:00 or 09:00:00).
+  let time = timeString;
+  if (timeString.includes('T')) {
+    time = timeString.split('T')[1] ?? '';
+  }
+
+  if (!time) {
+    return new Date(dateString);
+  }
+
+  // Normalize HH:mm -> HH:mm:ss
+  if (/^\d{2}:\d{2}$/.test(time)) {
+    time = `${time}:00`;
+  }
+
   return new Date(`${date}T${time}`);
 }
 

@@ -9,7 +9,7 @@ import { OrderDirection, Role } from '@/types/shared.enum';
 import { cn, showErrorToast } from '@/lib/utils';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectUser } from '@/lib/features/auth/authSelector';
+import { selectExtra, selectOrganizationId, selectUser } from '@/lib/features/auth/authSelector';
 import { IAppointment } from '@/types/appointment.interface';
 import { toast } from '@/hooks/use-toast';
 import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
@@ -17,6 +17,10 @@ import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { AppointmentDate, useQueryParam } from '@/hooks/useQueryParam';
 import { INotification, NotificationEvent } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
+import {
+  DUMMY_HOSPITAL_APPOINTMENTS,
+  ENABLE_DUMMY_APPOINTMENTS,
+} from '@/app/dashboard/appointment/_components/dummyHospitalAppointments';
 
 type AppointmentProps = {
   customClass?: string;
@@ -30,6 +34,10 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const { on } = useWebSocket();
   const [loading, setLoading] = useState(false);
   const user = useAppSelector(selectUser);
+  const extra = useAppSelector(selectExtra);
+  const organizationId = useAppSelector(selectOrganizationId);
+  const hospitalId =
+    user?.role === Role.Hospital && extra && 'id' in extra ? (extra as { id: string }).id : undefined;
   const dispatch = useAppDispatch();
   const { getQueryParam } = useQueryParam();
   const selectedDateParam = getQueryParam(AppointmentDate.selectedDate);
@@ -45,11 +53,26 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
     orderDirection: OrderDirection.Ascending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
     patientId: user?.role === Role.Patient ? user?.id : undefined,
+    orgId: user?.role === Role.Hospital ? hospitalId : user?.role === Role.Admin ? organizationId : undefined,
     startDate: startOfWeek.toDate(),
     endDate: endOfWeek.toDate(),
     pageSize: 100,
   });
   const [upcomingAppointment, setUpcomingAppointment] = useState<IAppointment[]>([]);
+
+  useEffect(() => {
+    setQueryParams((prev) => ({
+      ...prev,
+      doctorId: user?.role === Role.Doctor ? user?.id : undefined,
+      patientId: user?.role === Role.Patient ? user?.id : undefined,
+      orgId:
+        user?.role === Role.Hospital
+          ? hospitalId
+          : user?.role === Role.Admin
+            ? organizationId
+            : undefined,
+    }));
+  }, [user?.role, user?.id, hospitalId, organizationId]);
 
   on(NotificationEvent.NewRequest, (data: unknown) => {
     const notification = data as INotification;
@@ -67,16 +90,27 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
+        if (ENABLE_DUMMY_APPOINTMENTS && user?.role === Role.Hospital) {
+          setUpcomingAppointment(DUMMY_HOSPITAL_APPOINTMENTS);
+        }
         return;
       }
 
       const { rows } = payload as IPagination<IAppointment>;
 
-      setUpcomingAppointment(rows);
+      if (ENABLE_DUMMY_APPOINTMENTS && user?.role === Role.Hospital && rows.length === 0) {
+        setUpcomingAppointment(DUMMY_HOSPITAL_APPOINTMENTS);
+      } else {
+        setUpcomingAppointment(rows);
+      }
     }
 
     void getUpcomingAppointments();
   }, [queryParams]);
+
+  const todayAppointmentsCount = upcomingAppointment.filter((appointment) =>
+    moment(appointment.slot.date).isSame(selectedDate, 'day'),
+  ).length;
 
   useEffect(() => {
     const selectedMoment = moment(selectedDate);
@@ -107,9 +141,12 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
       <div className="relative flex flex-col gap-8 border-b border-gray-200 p-6">
         <div className="flex flex-row items-center gap-2.5">
           <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>
-          {user?.role === Role.Doctor && (
+          {(user?.role === Role.Doctor || user?.role === Role.Hospital) && (
             <Badge variant={'brown'}>
-              {upcomingAppointment.length} <span className="ml-1 hidden sm:block">patients</span>
+              {user?.role === Role.Doctor ? upcomingAppointment.length : todayAppointmentsCount}{' '}
+              <span className="ml-1 hidden sm:block">
+                {user?.role === Role.Doctor ? 'patients' : 'appointments'}
+              </span>
             </Badge>
           )}
         </div>

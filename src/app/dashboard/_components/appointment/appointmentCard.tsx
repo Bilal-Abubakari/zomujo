@@ -38,6 +38,10 @@ const AppointmentCard = ({
   const { status, slot, type, patient, doctor } = appointment;
   const startDate = mergeDateAndTime(slot.date, slot.startTime);
   const endDate = mergeDateAndTime(slot.date, slot.endTime);
+
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+    return <></>;
+  }
   const day = (startDate.getDay() + (DAYS_IN_WEEK - 1)) % DAYS_IN_WEEK;
 
   const hour = startDate.getHours() + startDate.getMinutes() / MINUTES_IN_HOUR;
