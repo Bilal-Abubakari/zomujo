@@ -32,10 +32,10 @@ const Symptoms = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/symptoms'),
   { loading: () => <StageFallback />, ssr: false },
 );
-const Labs = dynamic(() => import('@/app/dashboard/(doctor)/consultation/_components/labs'), {
-  loading: () => <StageFallback />,
-  ssr: false,
-});
+const Investigation = dynamic(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/investigation'),
+  { loading: () => <StageFallback />, ssr: false },
+);
 const DiagnosePrescribe = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/diagnosePrescribe'),
   { loading: () => <StageFallback />, ssr: false },
@@ -49,7 +49,7 @@ const ConsultationHistory = dynamic(
   { loading: () => <StageFallback />, ssr: false },
 );
 
-const stages = ['history', 'labs', 'diagnose & prescribe', 'review'] as const;
+const stages = ['history', 'investigation', 'diagnose & prescribe', 'review'] as const;
 
 type StageType = (typeof stages)[number];
 
@@ -108,7 +108,7 @@ const Consultation = (): JSX.Element => {
       if (stage === 'history' || stage === 'diagnose & prescribe') {
         return symptomsPassed;
       }
-      if (stage === 'labs') {
+      if (stage === 'investigation') {
         return symptomsPassed && (!!requestedAppointmentLabs || hasSavedLabs);
       }
       if (stage === 'review') {
@@ -144,15 +144,15 @@ const Consultation = (): JSX.Element => {
 
   const getStage = (): JSX.Element => {
     switch (currentStage) {
-      case 'labs':
+      case 'investigation':
         return (
-          <Labs
+          <Investigation
             goToDiagnoseAndPrescribe={() => {
               setHasSavedLabs(true);
               setCurrentStage(stages[2]);
             }}
-            updateLabs={update}
-            setUpdateLabs={setUpdate}
+            updateInvestigation={update}
+            setUpdateInvestigation={setUpdate}
           />
         );
       case 'diagnose & prescribe':
@@ -231,10 +231,8 @@ const Consultation = (): JSX.Element => {
             <>
               <div
                 className={cn(
-                  update || isLoadingAppointment
-                    ? 'mb-6 border-t border-b border-gray-300 bg-gray-100 py-4 font-bold text-gray-500 sm:mb-8 sm:py-6'
-                    : 'sticky top-0 z-50 mb-6 border-t border-b border-gray-300 bg-gray-100 py-4 font-bold text-gray-500 sm:mb-8 sm:py-6',
-                  'flex flex-col gap-4 lg:flex-row lg:justify-between',
+                  update || isLoadingAppointment ? '' : 'sticky top-0 z-50',
+                  'sticky top-0 z-50 mb-6 flex flex-col gap-4 border-t border-b border-gray-300 bg-gray-100 py-4 font-bold text-gray-500 sm:mb-8 sm:py-6 lg:flex-row lg:justify-between',
                 )}
                 id="clip"
               >
@@ -253,7 +251,7 @@ const Consultation = (): JSX.Element => {
                           stages.indexOf(currentStage) > stages.indexOf(stage)
                           ? 'bg-primary-light text-primary'
                           : 'bg-gray-200',
-                        'inline-block px-6 py-3 text-xs whitespace-nowrap sm:py-[18px] sm:text-sm md:px-8',
+                        'inline-block px-6 py-3 text-xs whitespace-nowrap sm:py-4.5 sm:text-sm md:px-8',
                       )}
                     >
                       {capitalize(stage)}

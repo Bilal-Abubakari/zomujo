@@ -12,6 +12,7 @@ import {
 import { IAppointment } from '@/types/appointment.interface';
 import { setAppointment, updateSymptoms } from '@/lib/features/appointments/appointmentsSlice';
 import { ILab, ILaboratoryRequestWithRecordId, IUploadLab } from '@/types/labs.interface';
+import { IRadiology, IRadiologyRequestWithRecordId } from '@/types/radiology.interface';
 
 export const getComplaintSuggestions = createAsyncThunk(
   'consultation/complaint-suggestions',
@@ -75,6 +76,22 @@ export const getConsultationLabs = createAsyncThunk(
   },
 );
 
+export const getConsultationRadiology = createAsyncThunk(
+  'consultation/get-consultation-radiology',
+  async (id: string): Promise<Toast | IRadiology[]> => {
+    try {
+      const {
+        data: { data },
+      } = await axios.get<IResponse<IRadiology[]>>(
+        `consultation/radiology-labs?appointmentId=${id}`,
+      );
+      return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const getConsultationDetail = createAsyncThunk(
   'consultation/get-consultation-appointment',
   async (id: string): Promise<Toast | IConsultationDetails> => {
@@ -102,6 +119,21 @@ export const addLabRequests = createAsyncThunk(
     }
   },
 );
+
+export const addRadiologyRequests = createAsyncThunk(
+  'consultation/radiology-request',
+  async (radiologyRequests: IRadiologyRequestWithRecordId): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>(`consultation/radiology-request`, radiologyRequests);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const addDiagnosisAndPrescription = createAsyncThunk(
   'consultation/add-diagnosis-prescription',
   async (diagnosisRequest: IDiagnosisRequest): Promise<Toast> => {
