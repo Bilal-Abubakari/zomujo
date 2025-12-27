@@ -43,6 +43,9 @@ const notificationsSlice = createSlice({
           state.totalPages = payload.totalPages;
         }
         state.isLoading = false;
+      })
+      .addCase(previousNotifications.rejected, (state) => {
+        state.isLoading = false;
       });
   },
 });
