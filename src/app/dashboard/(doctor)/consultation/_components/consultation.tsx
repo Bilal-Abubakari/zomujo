@@ -2,22 +2,22 @@
 import React, { JSX, useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Badge } from '@/components/ui/badge';
-import { ClockFading, CheckCircle, Clock, Loader2 } from 'lucide-react';
+import { CheckCircle, Clock, ClockFading, Loader2 } from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
-  getConsultationAppointment,
   endConsultation as endConsultationRequest,
+  getConsultationAppointment,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams, useRouter } from 'next/navigation';
 import {
-  selectIsLoading,
   consultationStatus,
-  isConsultationInProgress,
   hasConsultationEnded,
-  selectSymptoms,
-  selectRequestedLabs,
+  isConsultationInProgress,
   selectDiagnoses,
+  selectIsLoading,
+  selectRequestedLabs,
+  selectSymptoms,
 } from '@/lib/features/appointments/appointmentSelector';
 import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
@@ -27,11 +27,12 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 
-const Symptoms = dynamic(
-  () => import('@/app/dashboard/(doctor)/consultation/_components/symptoms'),
-  { loading: () => <StageFallback />, ssr: false },
-);
+const History = dynamic(() => import('@/app/dashboard/(doctor)/consultation/_components/history'), {
+  loading: () => <StageFallback />,
+  ssr: false,
+});
 const Investigation = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/investigation'),
   { loading: () => <StageFallback />, ssr: false },
@@ -53,12 +54,16 @@ const stages = ['history', 'investigation', 'diagnose & prescribe', 'review'] as
 
 type StageType = (typeof stages)[number];
 
-const getStatusBadgeVariant = (status: string | undefined): 'brown' | 'default' => {
-  switch (status?.toLowerCase()) {
-    case 'progress':
+const getStatusBadgeVariant = (
+  status: AppointmentStatus | undefined,
+): 'brown' | 'default' | 'destructive' => {
+  switch (status) {
+    case AppointmentStatus.Progress:
       return 'brown';
-    case 'completed':
+    case AppointmentStatus.Completed:
       return 'default';
+    case AppointmentStatus.Incomplete:
+      return 'destructive';
     default:
       return 'default';
   }
@@ -170,7 +175,7 @@ const Consultation = (): JSX.Element => {
         return <ReviewConsultation />;
       default:
         return (
-          <Symptoms
+          <History
             goToLabs={() => {
               setHasSavedSymptoms(true);
               setCurrentStage(stages[1]);

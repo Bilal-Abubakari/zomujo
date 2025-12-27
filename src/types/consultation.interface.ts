@@ -3,6 +3,7 @@ import { IExtraBase } from '@/types/shared.interface';
 import { IMedicineWithoutId, IDiagnosis } from '@/types/medical.interface';
 import { IPatientLab } from '@/types/labs.interface';
 import { ISlot } from '@/types/slots.interface';
+import { IRadiology } from '@/types/radiology.interface';
 
 interface IName {
   name: string;
@@ -41,6 +42,7 @@ export interface IConsultationDetails {
   patient: Pick<IExtraBase, 'firstName' | 'lastName' | 'profilePicture'>;
   prescriptionUrl: string;
   lab: IPatientLab[];
+  radiology: IRadiology;
   diagnosis: IDiagnosis[];
   slot: ISlot;
 }

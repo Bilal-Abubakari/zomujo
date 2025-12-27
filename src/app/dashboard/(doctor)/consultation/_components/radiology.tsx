@@ -37,6 +37,7 @@ import { selectCurrentRadiologyRequest } from '@/lib/features/appointments/consu
 import { setCurrentRadiologyRequest } from '@/lib/features/appointments/consultation/consultationSlice';
 import { getConsultationRadiology } from '@/lib/features/appointments/consultation/consultationThunk';
 import { RadiologyCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
+import { RequestStatus } from '@/types/shared.enum';
 
 const radiologySchema = z.object({
   tests: z
@@ -378,7 +379,7 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
       return (
         <div className="mt-5 flex flex-wrap gap-5">
           {consultationRadiology.map(
-            ({ id, tests, fileUrl, status, createdAt, procedureRequest, history, questions }) =>
+            ({ id, tests, createdAt, procedureRequest, history, questions }) =>
               tests.map((test, index) => {
                 const additionalInfo = [
                   procedureRequest && `Procedure: ${procedureRequest}`,
@@ -392,8 +393,8 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
                   <RadiologyCard
                     key={`${id}-${index}`}
                     testName={test.testName}
-                    fileUrl={fileUrl}
-                    status={status}
+                    fileUrl={test.fileUrl ?? null}
+                    status={test.fileUrl ? RequestStatus.Completed : RequestStatus.Pending}
                     date={createdAt}
                     additionalInfo={additionalInfo}
                   />

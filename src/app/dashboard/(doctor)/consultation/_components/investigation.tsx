@@ -31,7 +31,6 @@ import {
   addRadiologyRequests,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
-import { showErrorToast } from '@/lib/utils';
 
 type InvestigationProps = {
   updateInvestigation: boolean;
@@ -113,27 +112,23 @@ const Investigation = ({
         submissionPromises.push(dispatch(addRadiologyRequests(radiologyPayload)).unwrap());
       }
 
-      const results = await Promise.all(submissionPromises);
+      await Promise.all(submissionPromises);
 
-      let hasError = false;
-      results.forEach((result) => {
-        toast(result);
-        if (showErrorToast(result)) {
-          hasError = true;
-        }
+      toast({
+        title: 'Investigation Success',
+        description: 'Submission of investigation is successful',
+        variant: 'default',
       });
 
-      if (!hasError) {
-        clearDraft();
-        // Clear the state after successful submission
-        dispatch(setCurrentLabRequest([]));
-        dispatch(setCurrentRadiologyRequest(null));
-        goToDiagnoseAndPrescribe();
-      }
+      clearDraft();
+      // Clear the state after successful submission
+      dispatch(setCurrentLabRequest([]));
+      dispatch(setCurrentRadiologyRequest(null));
+      goToDiagnoseAndPrescribe();
     } catch {
       toast({
-        title: 'Submission Error',
-        description: 'Failed to submit investigation requests. Please try again.',
+        title: 'Investigation Submission Error',
+        description: 'Investigation submission failed.',
         variant: 'destructive',
       });
     } finally {

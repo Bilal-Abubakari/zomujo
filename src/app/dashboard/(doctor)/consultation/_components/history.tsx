@@ -110,7 +110,7 @@ const LoadingFallback = (): JSX.Element => (
   </div>
 );
 
-const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
+const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -167,6 +167,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   useEffect(() => {
     if (!symptoms) {
       const draft = LocalStorageManager.getJSON<IConsultationSymptoms>(storageKey);
+      console.log('Draft', draft);
       if (draft) {
         // Apply draft values
         setValue('complaints', draft.complaints ?? []);
@@ -585,4 +586,4 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   );
 };
 
-export default Symptoms;
+export default History;

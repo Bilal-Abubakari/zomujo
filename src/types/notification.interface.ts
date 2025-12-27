@@ -35,4 +35,5 @@ export enum NotificationTopic {
   ConsultationUpdate = 'Consultation Update',
   ConsultationStarted = 'Consultation Started',
   DiagnosisAdded = 'Diagnosis Added',
+  RadiologyRequest = 'Radiology Test Requests',
 }
