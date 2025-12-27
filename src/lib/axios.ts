@@ -8,7 +8,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const FORNIX_URL = process.env.NEXT_PUBLIC_FORNIX_URL;
 
-const networkFailureErrorMessage = 'Oops! Server Error... Please check your internet connection';
+export const networkFailureErrorMessage =
+  'Oops! Server Error... Please check your internet connection';
 
 const axios = axiosClient.create({
   baseURL: BASE_URL,
