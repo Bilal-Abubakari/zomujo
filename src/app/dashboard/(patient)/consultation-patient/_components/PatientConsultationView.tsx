@@ -41,11 +41,11 @@ import {
 import { downloadBlob, showErrorToast } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
 
-const notificationsToRefetch: NotificationTopic[] = [
+const notificationsToRefetch = new Set<NotificationTopic>([
   NotificationTopic.LabRequest,
   NotificationTopic.PrescriptionGenerated,
   NotificationTopic.RadiologyRequest,
-];
+]);
 
 type SelectedFiles = {
   [key: string]: File | null;
@@ -145,7 +145,7 @@ const PatientConsultationView = (): JSX.Element => {
 
   on(NotificationEvent.NewNotification, (data: unknown) => {
     const { payload } = data as INotification;
-    if (notificationsToRefetch.includes(payload.topic)) {
+    if (notificationsToRefetch.has(payload.topic)) {
       void fetchConsultation(true);
     }
   });
@@ -530,7 +530,7 @@ const PatientConsultationView = (): JSX.Element => {
                 </div>
                 {consultationDetails.radiology.tests.map((test, index) => (
                   <div
-                    key={index}
+                    key={`${index}-${test.testName}`}
                     className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
                   >
                     <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
