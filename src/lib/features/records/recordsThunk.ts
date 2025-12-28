@@ -149,7 +149,6 @@ export const getConditions = createAsyncThunk(
       const { data } = await axiosBase.get<Array<Array<Array<string>>>>(
         `${process.env.NEXT_PUBLIC_CLINICAL_TABLES}/icd10cm/v3/search?sf=code,name&terms=${searchTerm}`,
       );
-      console.log('Data', data);
       return data[3].map((item) => ({
         label: `${item[1]} ${item[0]}`,
         value: `${item[1]} ${item[0]}`,
