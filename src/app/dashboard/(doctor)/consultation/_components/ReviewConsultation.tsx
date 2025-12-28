@@ -41,6 +41,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+import { Textarea } from '@/components/ui/textarea';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
@@ -65,15 +66,20 @@ const ReviewConsultation = ({
   const [isSendingPrescription, setIsSendingPrescription] = useState(false);
   const [showIncompleteModal, setShowIncompleteModal] = useState(false);
   const [isStartingConsultation, setIsStartingConsultation] = useState(false);
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [prescriptionNotes, setPrescriptionNotes] = useState('');
 
   const hasSignature = !!doctorSignature;
   const isConsultationIncomplete = appointment?.status !== AppointmentStatus.Completed;
 
-  const sendPrescription = async (): Promise<void> => {
+  const sendPrescription = async (notes: string): Promise<void> => {
     setIsSendingPrescription(true);
-    const result = await dispatch(generatePrescription(String(params.appointmentId))).unwrap();
+    const result = await dispatch(
+      generatePrescription({ appointmentId: String(params.appointmentId), notes }),
+    ).unwrap();
     toast(result);
     setIsSendingPrescription(false);
+    setPrescriptionNotes('');
   };
 
   const handleStartConsultation = async (): Promise<void> => {
@@ -185,9 +191,51 @@ const ReviewConsultation = ({
         showClose={true}
       />
 
+      {/* Prescription Notes Modal */}
+      <Modal
+        setState={setShowPrescriptionModal}
+        open={showPrescriptionModal}
+        content={
+          <div className="space-y-4 p-6">
+            <h2 className="text-lg font-bold text-gray-900">Additional Prescription Notes</h2>
+            <Textarea
+              value={prescriptionNotes}
+              onChange={(e) => setPrescriptionNotes(e.target.value)}
+              rows={4}
+              placeholder="Enter any additional notes or instructions for the prescription..."
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowPrescriptionModal(false)}
+                className="flex-1"
+                child={<span>Close</span>}
+              />
+              <Button
+                variant="default"
+                onClick={() => {
+                  setShowPrescriptionModal(false);
+                  void sendPrescription(prescriptionNotes);
+                }}
+                isLoading={isSendingPrescription}
+                disabled={isSendingPrescription}
+                className="flex-1"
+                child={
+                  <>
+                    <MailCheck className="mr-2 h-4 w-4" />
+                    <span>Send Prescription</span>
+                  </>
+                }
+              />
+            </div>
+          </div>
+        }
+        showClose={true}
+      />
+
       <div className="space-y-6 pb-20">
         {/* Header Section */}
-        <div className="from-primary/10 to-primary/5 flex flex-col gap-4 rounded-lg bg-gradient-to-r p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="from-primary/10 to-primary/5 flex flex-col gap-4 rounded-lg bg-linear-to-r p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
             <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
               {isPastConsultation ? 'Consultation Summary' : 'Consultation Review'}
@@ -215,7 +263,7 @@ const ReviewConsultation = ({
               </div>
               <Button
                 variant="default"
-                onClick={() => sendPrescription()}
+                onClick={() => setShowPrescriptionModal(true)}
                 isLoading={isSendingPrescription}
                 disabled={isSendingPrescription || !hasSignature}
                 className="w-full sm:w-auto"

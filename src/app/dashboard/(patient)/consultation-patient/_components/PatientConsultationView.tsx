@@ -146,7 +146,8 @@ const PatientConsultationView = (): JSX.Element => {
   on(NotificationEvent.NewNotification, (data: unknown) => {
     const { payload } = data as INotification;
     if (notificationsToRefetch.has(payload.topic)) {
-      void fetchConsultation(true);
+      const shouldScroll = payload.topic !== NotificationTopic.PrescriptionGenerated;
+      void fetchConsultation(shouldScroll);
     }
   });
 
@@ -324,7 +325,6 @@ const PatientConsultationView = (): JSX.Element => {
                 >
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-gray-800">{diagnosis.name}</h3>
-                    <StatusBadge status={diagnosis.status} />
                   </div>
                   <p className="mt-2 text-sm text-gray-600">{diagnosis.notes}</p>
                 </div>

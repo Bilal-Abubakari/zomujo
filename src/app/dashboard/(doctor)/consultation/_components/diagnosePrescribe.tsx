@@ -6,7 +6,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
-import { Combobox, SelectInput, SelectOption } from '@/components/ui/select';
+import { Combobox, SelectInput, SelectInputV2, SelectOption } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import React, { ChangeEvent, JSX, useEffect, useMemo, useState } from 'react';
 import { AlertMessage } from '@/components/ui/alert';
@@ -14,12 +14,16 @@ import AddCardButton from '@/components/ui/addCardButton';
 import { ConditionStatus } from '@/types/shared.enum';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { conditionStatusOptions, MODE } from '@/constants/constants';
+import {
+  conditionStatusOptions,
+  MODE,
+  routeOptions,
+  doseRegimenOptions,
+} from '@/constants/constants';
 import { z } from 'zod';
 import { getConditions } from '@/lib/features/records/recordsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { useDebounce } from 'use-debounce';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import {
   DiagnosisCard,
@@ -44,8 +48,11 @@ const conditionsSchema = z.object({
       z.object({
         name: requiredStringSchema(),
         doses: requiredStringSchema(),
-        instructions: z.string().optional(),
-        frequency: z.string(),
+        route: requiredStringSchema(),
+        numOfDays: requiredStringSchema().refine((val) => Number(val) > 0, {
+          message: 'Number of days must be a positive number',
+        }),
+        doseRegimen: requiredStringSchema(),
       }),
     )
     .min(1),
@@ -57,8 +64,9 @@ const conditionsSchema = z.object({
 const defaultMedicine: IPrescription = {
   name: '',
   doses: '',
-  instructions: '',
-  frequency: '',
+  route: '',
+  numOfDays: '',
+  doseRegimen: '',
 };
 
 type DiagnosePrescribeProps = {
@@ -75,7 +83,7 @@ const DiagnosePrescribe = ({
   const [isLoading, setIsLoading] = useState(false);
   const {
     setValue,
-    formState: { isValid, errors },
+    formState: { isValid },
     handleSubmit,
     watch,
     control,
@@ -84,6 +92,7 @@ const DiagnosePrescribe = ({
   } = useForm<IDiagnosis>({
     defaultValues: {
       diagnosedAt: new Date().toISOString(),
+      status: ConditionStatus.Active,
     },
     resolver: zodResolver(conditionsSchema),
     mode: MODE.ON_TOUCH,
@@ -238,12 +247,6 @@ const DiagnosePrescribe = ({
               placeholder="Select status of condition"
               className="bg-transparent"
             />
-            <Textarea
-              labelName="Notes"
-              placeholder="Add short notes about the condition"
-              {...register('notes')}
-              error={errors?.notes?.message}
-            />
             {watch('name') && (
               <>
                 <div className="mt-8 text-center text-sm text-gray-500">
@@ -264,24 +267,42 @@ const DiagnosePrescribe = ({
                     value={addMedicine.doses}
                     onChange={handleAddMedicineChange}
                   />
+                  <SelectInputV2
+                    label="Route"
+                    options={routeOptions}
+                    value={addMedicine.route}
+                    onChange={(value) => setAddMedicine((prev) => ({ ...prev, route: value }))}
+                    placeholder="Select route"
+                    className="bg-transparent"
+                  />
                   <Input
-                    labelName="Frequency"
-                    placeholder="eg: once daily"
-                    name="frequency"
-                    value={addMedicine.frequency}
+                    labelName="Number of Days"
+                    placeholder="eg: 7"
+                    name="numOfDays"
+                    type="number"
+                    value={addMedicine.numOfDays}
                     onChange={handleAddMedicineChange}
                   />
-                  <Textarea
-                    labelName="Instructions"
-                    placeholder="Instructions for taking this medicine"
-                    name="instructions"
-                    value={addMedicine.instructions}
-                    onChange={handleAddMedicineChange}
+                  <SelectInputV2
+                    label="Dose Regimen"
+                    options={doseRegimenOptions}
+                    value={addMedicine.doseRegimen}
+                    onChange={(value) =>
+                      setAddMedicine((prev) => ({ ...prev, doseRegimen: value }))
+                    }
+                    placeholder="Select dose regimen"
+                    className="bg-transparent"
                   />
                 </div>
                 <div className="flex justify-end">
                   <Button
-                    disabled={!addMedicine.name || !addMedicine.doses}
+                    disabled={
+                      !addMedicine.name ||
+                      !addMedicine.doses ||
+                      !addMedicine.route ||
+                      !addMedicine.numOfDays ||
+                      !addMedicine.doseRegimen
+                    }
                     child="Add Drug"
                     onClick={() => {
                       append(addMedicine);
