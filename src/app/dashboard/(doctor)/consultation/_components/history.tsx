@@ -367,11 +367,11 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
 
       const symptomsMap = Object.fromEntries(
         Object.entries(systemSymptoms).map(([id, systemSymptomList]) => {
-          const formattedPatientSymptoms = (patientSymptoms[id as SymptomsType] ?? []).map(
-            ({ name }) => name,
+          const formattedPatientSymptoms = new Set(
+            (patientSymptoms[id as SymptomsType] ?? []).map(({ name }) => name),
           );
           const updatedSystemSymptoms = systemSymptomList.filter(
-            ({ name }) => !formattedPatientSymptoms.includes(name),
+            ({ name }) => !formattedPatientSymptoms.has(name),
           );
           return [id, updatedSystemSymptoms];
         }),
