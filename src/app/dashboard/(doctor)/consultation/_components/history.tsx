@@ -110,7 +110,7 @@ const LoadingFallback = (): JSX.Element => (
   </div>
 );
 
-const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
+const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -167,6 +167,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   useEffect(() => {
     if (!symptoms) {
       const draft = LocalStorageManager.getJSON<IConsultationSymptoms>(storageKey);
+      console.log('Draft', draft);
       if (draft) {
         // Apply draft values
         setValue('complaints', draft.complaints ?? []);
@@ -330,78 +331,54 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   );
 
   useEffect(() => {
-    if (symptoms) {
-      // transform legacy shape if server still returns old structure complaints: string[] & duration: IDuration
-      const legacyComplaints = (
-        symptoms as unknown as {
-          complaints?: unknown;
-          duration?: { value: string; type: DurationType };
+    if (!symptoms) {
+      return;
+    }
+
+    const {
+      medicinesTaken,
+      complaints,
+      symptoms: patientSymptoms,
+    } = symptoms as IConsultationSymptoms;
+
+    setValue('medicinesTaken', medicinesTaken);
+    if (complaints?.length > 0 && !hasSetComplaintDurations.current) {
+      setValue('complaints', complaints);
+      hasSetComplaintDurations.current = true;
+    }
+
+    if (!isLoadingComplaintSuggestions) {
+      complaints.forEach(({ complaint, duration }) => {
+        if (complaintSuggestions.includes(complaint)) {
+          handleSelectedComplaint(complaint, false);
+        } else {
+          setComplaintSuggestions((prev) => [...prev, complaint]);
+          append({ complaint, duration });
         }
-      ).complaints;
-      if (Array.isArray(legacyComplaints) && legacyComplaints.every((c) => typeof c === 'string')) {
-        const legacyDuration = (
-          symptoms as unknown as { duration?: { value: string; type: DurationType } }
-        ).duration ?? {
-          value: '',
-          type: DurationType.Days,
-        };
-        (symptoms as unknown as IConsultationSymptoms).complaints = legacyComplaints.map(
-          (complaint) => ({
-            complaint,
-            duration: legacyDuration,
-          }),
-        );
-      }
-      const {
-        medicinesTaken,
-        complaints,
-        symptoms: patientSymptoms,
-      } = symptoms as IConsultationSymptoms;
+      });
+    }
 
-      if (!isLoadingComplaintSuggestions) {
-        for (const { complaint, duration } of complaints) {
-          if (complaintSuggestions.includes(complaint)) {
-            handleSelectedComplaint(complaint, false);
-          } else {
-            setComplaintSuggestions((prev) => [...prev, complaint]);
-            append({ complaint, duration });
-          }
-        }
-      }
+    if (systemSymptoms) {
+      setValue('symptoms', patientSymptoms);
+      const sectionsWithSymptoms = Object.keys(systemSymptoms).filter(
+        (id) => (patientSymptoms[id as SymptomsType] ?? []).length > 0,
+      );
+      setExpandedSections(sectionsWithSymptoms);
 
-      setValue('medicinesTaken', medicinesTaken);
-      if (complaints?.length > 0 && !hasSetComplaintDurations.current) {
-        setValue('complaints', complaints);
-        hasSetComplaintDurations.current = true;
-      }
-      if (systemSymptoms) {
-        setValue('symptoms', patientSymptoms);
-        let symptomsMap = _.cloneDeep(systemSymptoms);
-        const sectionsWithSymptoms: string[] = [];
-
-        Object.entries(systemSymptoms).forEach(([id, systemSymptomList]) => {
-          const formattedPatientSymptoms = (patientSymptoms[id as SymptomsType] ?? []).map(
-            ({ name }) => name,
+      const symptomsMap = Object.fromEntries(
+        Object.entries(systemSymptoms).map(([id, systemSymptomList]) => {
+          const formattedPatientSymptoms = new Set(
+            (patientSymptoms[id as SymptomsType] ?? []).map(({ name }) => name),
           );
-
-          if (formattedPatientSymptoms.length > 0) {
-            sectionsWithSymptoms.push(id);
-          }
-
           const updatedSystemSymptoms = systemSymptomList.filter(
-            ({ name }) => !formattedPatientSymptoms.includes(name),
+            ({ name }) => !formattedPatientSymptoms.has(name),
           );
-          symptomsMap = {
-            ...symptomsMap,
-            [id]: updatedSystemSymptoms,
-          };
-        });
+          return [id, updatedSystemSymptoms];
+        }),
+      ) as ISymptomMap;
 
-        setExpandedSections(sectionsWithSymptoms);
-
-        if (!_.isEqual(systemSymptoms, symptomsMap)) {
-          setSystemSymptoms(symptomsMap);
-        }
+      if (!_.isEqual(systemSymptoms, symptomsMap)) {
+        setSystemSymptoms(symptomsMap);
       }
     }
   }, [
@@ -411,6 +388,10 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     setValue,
     complaintSuggestions,
     append,
+    handleSelectedComplaint,
+    setComplaintSuggestions,
+    setExpandedSections,
+    setSystemSymptoms,
   ]);
 
   const [bulkDurationValue, setBulkDurationValue] = useState<string>('');
@@ -430,8 +411,6 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   return (
     <DndProvider backend={HTML5Backend}>
       <form onSubmit={handleSubmit(handleSubmitAndGoToLabs)}>
-        {/*TODO: Coming soon*/}
-        {/*<FornixVoiceSummary />*/}
         <h1 className="text-xl font-bold">Complaint</h1>
         <div className="mt-8 flex flex-wrap gap-5">
           {isLoadingComplaintSuggestions ? (
@@ -585,4 +564,4 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   );
 };
 
-export default Symptoms;
+export default History;

@@ -37,14 +37,9 @@ export interface IRadiologyRequestWithRecordId {
 
 export interface IRadiology extends IRadiologyRequest {
   id: string;
-  fileUrl: string | null;
   status: RequestStatus;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface IPatientRadiology extends IRadiology {
-  fileUrl: string | null;
 }
 
 export interface IUploadRadiology {
