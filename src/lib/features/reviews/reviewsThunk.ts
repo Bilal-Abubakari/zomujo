@@ -3,7 +3,7 @@ import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { IResponse, IPagination, IQueryParams } from '@/types/shared.interface';
-import { IReviewRequest, IReview } from '@/types/review.interface';
+import { IReviewRequest, IReview, ILandingPageReview } from '@/types/review.interface';
 
 export const createReview = createAsyncThunk(
   'reviews/create-review',
@@ -42,6 +42,20 @@ export const completeReview = createAsyncThunk(
         data: { message },
       } = await axios.patch<IResponse>(`common/reviews/complete/${id}`);
       return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getLandingPageReviews = createAsyncThunk(
+  'reviews/getLandingPageReviews',
+  async (): Promise<ILandingPageReview[] | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<ILandingPageReview[]>>(
+        'common/reviews/landing-page',
+      );
+      return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

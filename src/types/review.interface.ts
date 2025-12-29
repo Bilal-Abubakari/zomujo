@@ -18,7 +18,7 @@ export interface IReviewRequest {
   communicationSkill: ICommunicationSkill;
   expertise: IExpertise;
   doctorId: string;
-  recordId: string;
+  appointmentId: string;
 }
 
 export interface IReviewDoctor {
@@ -37,4 +37,9 @@ export interface IReview {
   comment: string;
   communicationSkill: ICommunicationSkill;
   expertise: IExpertise;
+}
+
+export interface ILandingPageReview {
+  rating: number;
+  comment: string;
 }

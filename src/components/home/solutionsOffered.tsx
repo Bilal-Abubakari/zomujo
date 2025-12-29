@@ -1,9 +1,22 @@
+'use client';
+
 import { ContentProfile } from '@/assets/images';
-import { Shield, Zap, BarChart } from 'lucide-react';
+import { Shield, Zap, BarChart, Star } from 'lucide-react';
 import Image from 'next/image';
-import { JSX } from 'react';
+import { JSX, useEffect, useState } from 'react';
+import { ILandingPageReview } from '@/types/review.interface';
+import { Loader2 } from 'lucide-react';
+import { useAppDispatch } from '@/lib/hooks';
+import { getLandingPageReviews } from '@/lib/features/reviews/reviewsThunk';
+import { showErrorToast } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 const SolutionsOffered = (): JSX.Element => {
+  const dispatch = useAppDispatch();
+  const [reviews, setReviews] = useState<ILandingPageReview[]>([]);
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+
   const solutions = [
     {
       icon: Shield,
@@ -23,6 +36,43 @@ const SolutionsOffered = (): JSX.Element => {
         'Simplify scheduling, track patient visits, and keep your operations running smoothly.',
     },
   ];
+
+  useEffect(() => {
+    const fetchLandingPageReviews = async (): Promise<void> => {
+      setIsLoadingReviews(true);
+      const { payload } = await dispatch(getLandingPageReviews());
+      if (payload && showErrorToast(payload)) {
+        toast(payload);
+        setIsLoadingReviews(false);
+        return;
+      }
+      if (payload && Array.isArray(payload) && payload.length > 0) {
+        setReviews(payload);
+      }
+      setIsLoadingReviews(false);
+    };
+
+    void fetchLandingPageReviews();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (reviews.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [reviews.length]);
+
+  const currentReview = reviews[currentReviewIndex];
+  const getInitials = (comment: string): string => {
+    if (!comment) return 'U';
+    const words = comment.trim().split(/\s+/);
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return comment[0].toUpperCase();
+  };
 
   return (
     <section className="bg-white py-16">
@@ -45,7 +95,7 @@ const SolutionsOffered = (): JSX.Element => {
               const IconComponent = icon;
               return (
                 <div key={title} className="flex items-start space-x-4">
-                  <div className="bg-primary/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg">
+                  <div className="bg-primary/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
                     <IconComponent className="text-primary h-6 w-6" />
                   </div>
                   <div>
@@ -58,21 +108,56 @@ const SolutionsOffered = (): JSX.Element => {
           </div>
         </div>
 
-        <div className="mx-auto max-w-4xl text-center">
-          <blockquote className="text-foreground mb-8 text-2xl font-medium md:text-3xl">
-            &quot;This platform has transformed how I manage my practice. I can now see more
-            patients efficiently while maintaining the quality care they deserve.&quot;
-          </blockquote>
-          <div className="flex items-center justify-center space-x-4">
-            <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
-              <span className="text-lg font-semibold">TD</span>
-            </div>
-            <div className="text-left">
-              <div className="font-semibold">Dr. Teata Duut</div>
-              <div className="text-muted-foreground">General Practitioner, Ghana</div>
-            </div>
+        {reviews.length > 0 && (
+          <div className="mx-auto max-w-4xl text-center">
+            {isLoadingReviews ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="animate-spin" size={32} />
+              </div>
+            ) : (
+              <>
+                <blockquote className="text-foreground mb-8 text-2xl font-medium md:text-3xl transition-opacity duration-500">
+                  &quot;{currentReview?.comment || 'No review available'}&quot;
+                </blockquote>
+                <div className="flex items-center justify-center space-x-4">
+                  <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
+                    <span className="text-lg font-semibold">
+                      {currentReview ? getInitials(currentReview.comment) : 'U'}
+                    </span>
+                  </div>
+                  <div className="text-left">
+                    <div className="flex items-center gap-2">
+                      <div className="font-semibold">Verified User</div>
+                      {currentReview?.rating > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-sm font-medium">{currentReview.rating}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-muted-foreground">Platform User</div>
+                  </div>
+                </div>
+                {reviews.length > 1 && (
+                  <div className="mt-6 flex items-center justify-center gap-2">
+                    {reviews.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentReviewIndex(index)}
+                        className={`h-2 rounded-full transition-all ${
+                          index === currentReviewIndex
+                            ? 'w-8 bg-primary'
+                            : 'w-2 bg-muted-foreground/30'
+                        }`}
+                        aria-label={`Go to review ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

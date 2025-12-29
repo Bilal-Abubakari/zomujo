@@ -93,7 +93,7 @@ const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
     const reviewData: IReviewRequest = {
       ...data,
       doctorId: appointment.doctor.id,
-      recordId,
+     appointmentId: recordId,
     };
 
     const payload = await dispatch(createReview(reviewData)).unwrap();
