@@ -20,6 +20,7 @@ import {
   EarthLock,
   BetweenHorizontalStart,
   Smile,
+  MessageSquare 
 } from 'lucide-react';
 import { getDynamicParamFromUrl } from '@/lib/utils';
 
@@ -172,6 +173,11 @@ export const ADMIN_SIDE_BAR: ISidebar = {
               url: `${DASHBOARD_ROUTE}/admin`,
             },
           ],
+        },
+        {
+          title: 'Reviews',
+          url: `${DASHBOARD_ROUTE}/reviews`,
+          Icon: MessageSquare,
         },
         {
           title: 'Transactions',
