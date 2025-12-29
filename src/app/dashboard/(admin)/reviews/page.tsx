@@ -17,7 +17,7 @@ import { useSearch } from '@/hooks/useSearch';
 import { Modal, Confirmation, ConfirmationProps } from '@/components/ui/dialog';
 import { ReviewDetails } from './_components/reviewDetails';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
-import { DoctorCell, RatingCell, StatusCell, CommentCell, ActionsCell } from './_components/reviewTableCells';
+import { createReviewColumns } from './_components/reviewColumns';
 
 const ReviewsPage = (): JSX.Element => {
   const [reviews, setReviews] = useState<IReview[]>([]);
@@ -88,44 +88,11 @@ const ReviewsPage = (): JSX.Element => {
     setOpenModal(true);
   };
 
-  const columns: ColumnDef<IReview>[] = [
-    {
-      accessorKey: 'id',
-    },
-    {
-      accessorKey: 'doctorId',
-      header: 'Doctor',
-      cell: ({ row }): JSX.Element => <DoctorCell doctor={row.original.doctorId} />,
-    },
-    {
-      accessorKey: 'rating',
-      header: 'Rating',
-      cell: ({ row }): JSX.Element => <RatingCell rating={row.original.rating} />,
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }): JSX.Element => <StatusCell status={row.original.status} />,
-    },
-    {
-      accessorKey: 'comment',
-      header: 'Comment',
-      cell: ({ row }): JSX.Element => <CommentCell comment={row.original.comment} />,
-    },
-    {
-      id: 'actions',
-      header: 'Action',
-      cell: ({ row }): JSX.Element => (
-        <ActionsCell
-          review={row.original}
-          onView={handleViewReview}
-          onComplete={handleConfirmationOpen}
-          completeReview={completeReview}
-        />
-      ),
-      enableHiding: false,
-    },
-  ];
+  const columns = createReviewColumns({
+    onView: handleViewReview,
+    onComplete: handleConfirmationOpen,
+    completeReview,
+  });
 
   return (
     <>
