@@ -1,7 +1,7 @@
 'use client';
 
 import { ContentProfile } from '@/assets/images';
-import { Shield, Zap, BarChart, Star,Loader2 } from 'lucide-react';
+import { Shield, Zap, BarChart, Star, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { JSX, useEffect, useState } from 'react';
 import { ILandingPageReview } from '@/types/review.interface';
@@ -59,13 +59,15 @@ const SolutionsOffered = (): JSX.Element => {
       const interval = setInterval(() => {
         setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
       }, 5000);
-      return ():void => clearInterval(interval);
+      return (): void => clearInterval(interval);
     }
   }, [reviews.length]);
 
   const currentReview = reviews[currentReviewIndex];
   const getInitials = (comment: string): string => {
-    if (!comment) {return 'U';}
+    if (!comment) {
+      return 'U';
+    }
     const words = comment.trim().split(/\s+/);
     if (words.length >= 2) {
       return (words[0][0] + words[1][0]).toUpperCase();
@@ -115,7 +117,7 @@ const SolutionsOffered = (): JSX.Element => {
               </div>
             ) : (
               <>
-                <blockquote className="text-foreground mb-8 text-2xl font-medium md:text-3xl transition-opacity duration-500">
+                <blockquote className="text-foreground mb-8 text-2xl font-medium transition-opacity duration-500 md:text-3xl">
                   &quot;{currentReview?.comment || 'No review available'}&quot;
                 </blockquote>
                 <div className="flex items-center justify-center space-x-4">
@@ -147,8 +149,8 @@ const SolutionsOffered = (): JSX.Element => {
                           onClick={() => setCurrentReviewIndex(index)}
                           className={`h-2 rounded-full transition-all ${
                             index === currentReviewIndex
-                              ? 'w-8 bg-primary'
-                              : 'w-2 bg-muted-foreground/30'
+                              ? 'bg-primary w-8'
+                              : 'bg-muted-foreground/30 w-2'
                           }`}
                           aria-label={`Go to review ${index + 1}`}
                         />

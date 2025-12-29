@@ -60,4 +60,3 @@ export const createReviewColumns = ({
     enableHiding: false,
   },
 ];
-

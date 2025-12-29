@@ -44,7 +44,9 @@ const ReviewsPage = (): JSX.Element => {
   const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
     useDropdownAction<''>({
       setConfirmation,
-      setQueryParameters: setQueryParameters as React.Dispatch<React.SetStateAction<IQueryParams<''>>>,
+      setQueryParameters: setQueryParameters as React.Dispatch<
+        React.SetStateAction<IQueryParams<''>>
+      >,
     });
 
   useEffect(() => {
@@ -103,7 +105,7 @@ const ReviewsPage = (): JSX.Element => {
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 type="text"
                 placeholder="Search by doctor name or comment..."

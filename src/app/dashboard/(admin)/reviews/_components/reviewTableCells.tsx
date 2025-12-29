@@ -14,37 +14,40 @@ interface DoctorCellProps {
 }
 
 export const DoctorCell = ({ doctor }: DoctorCellProps): JSX.Element => (
-    <div className="flex items-center gap-2">
-      {doctor.profilePicture && (
-        <img
-          src={doctor.profilePicture}
-          alt={`${doctor.firstName} ${doctor.lastName}`}
-          className="h-8 w-8 rounded-full object-cover"
-        />
-      )}
-      <span className="font-medium">
-        {doctor.firstName} {doctor.lastName}
-      </span>
-    </div>
-  );
+  <div className="flex items-center gap-2">
+    {doctor.profilePicture && (
+      <img
+        src={doctor.profilePicture}
+        alt={`${doctor.firstName} ${doctor.lastName}`}
+        className="h-8 w-8 rounded-full object-cover"
+      />
+    )}
+    <span className="font-medium">
+      {doctor.firstName} {doctor.lastName}
+    </span>
+  </div>
+);
 
 interface RatingCellProps {
   rating: number;
 }
 
 export const RatingCell = ({ rating }: RatingCellProps): JSX.Element => (
-    <div className="flex items-center gap-1">
-      <span className="font-semibold">{rating}</span>
-      <span className="text-yellow-500">★</span>
-    </div>
-  );
+  <div className="flex items-center gap-1">
+    <span className="font-semibold">{rating}</span>
+    <span className="text-yellow-500">★</span>
+  </div>
+);
 
 interface StatusCellProps {
   status: string;
 }
 
 export const StatusCell = ({ status }: StatusCellProps): JSX.Element => {
-  const statusMap: Record<string, { label: string; variant: 'default' | 'destructive' | 'brown' | 'outline' }> = {
+  const statusMap: Record<
+    string,
+    { label: string; variant: 'default' | 'destructive' | 'brown' | 'outline' }
+  > = {
     pending: { label: 'Pending', variant: 'brown' },
     skipped: { label: 'Skipped', variant: 'destructive' },
     completed: { label: 'Completed', variant: 'default' },
@@ -59,7 +62,8 @@ interface CommentCellProps {
 
 export const CommentCell = ({ comment }: CommentCellProps): JSX.Element => {
   const displayComment = comment || 'No comment';
-  const truncatedComment = displayComment.length > 50 ? `${displayComment.substring(0, 50)}...` : displayComment;
+  const truncatedComment =
+    displayComment.length > 50 ? `${displayComment.substring(0, 50)}...` : displayComment;
   return <span className="text-sm text-gray-600">{truncatedComment}</span>;
 };
 
@@ -140,4 +144,3 @@ export const ActionsCell = ({
     />
   );
 };
-

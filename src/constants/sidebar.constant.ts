@@ -20,7 +20,7 @@ import {
   EarthLock,
   BetweenHorizontalStart,
   Smile,
-  MessageSquare 
+  MessageSquare,
 } from 'lucide-react';
 import { getDynamicParamFromUrl } from '@/lib/utils';
 

@@ -9,17 +9,12 @@ interface ReviewDetailsProps {
 }
 
 export const ReviewDetails = ({ review }: ReviewDetailsProps): JSX.Element => {
-  const {
-    doctorId,
-    rating,
-    status,
-    comment,
-    communicationSkill,
-    expertise,
-    recordId,
-  } = review;
+  const { doctorId, rating, status, comment, communicationSkill, expertise, recordId } = review;
 
-  const statusMap: Record<string, { label: string; variant: 'default' | 'destructive' | 'brown' | 'outline' }> = {
+  const statusMap: Record<
+    string,
+    { label: string; variant: 'default' | 'destructive' | 'brown' | 'outline' }
+  > = {
     pending: { label: 'Pending', variant: 'brown' },
     skipped: { label: 'Skipped', variant: 'destructive' },
     completed: { label: 'Completed', variant: 'default' },
@@ -87,7 +82,7 @@ export const ReviewDetails = ({ review }: ReviewDetailsProps): JSX.Element => {
       {comment && (
         <div className="rounded-lg border bg-white p-4">
           <h3 className="mb-2 text-lg font-semibold text-gray-900">Comment</h3>
-          <p className="text-gray-700 whitespace-pre-wrap">{comment}</p>
+          <p className="whitespace-pre-wrap text-gray-700">{comment}</p>
         </div>
       )}
 
@@ -128,4 +123,3 @@ export const ReviewDetails = ({ review }: ReviewDetailsProps): JSX.Element => {
     </div>
   );
 };
-
