@@ -5,9 +5,8 @@ import { IReview } from '@/types/review.interface';
 import { PaginationData, TableData } from '@/components/ui/table';
 import React, { FormEvent, JSX, useEffect, useState } from 'react';
 import { useAppDispatch } from '@/lib/hooks';
-import { Search, CheckCircle } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { OrderDirection } from '@/types/shared.enum';
-import { Badge } from '@/components/ui/badge';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { getReviews, completeReview } from '@/lib/features/reviews/reviewsThunk';
 import { showErrorToast } from '@/lib/utils';
@@ -17,8 +16,8 @@ import { Button } from '@/components/ui/button';
 import { useSearch } from '@/hooks/useSearch';
 import { Modal, Confirmation, ConfirmationProps } from '@/components/ui/dialog';
 import { ReviewDetails } from './_components/reviewDetails';
-import { ActionsDropdownMenus } from '@/components/ui/dropdown-menu';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
+import { DoctorCell, RatingCell, StatusCell, CommentCell, ActionsCell } from './_components/reviewTableCells';
 
 const ReviewsPage = (): JSX.Element => {
   const [reviews, setReviews] = useState<IReview[]>([]);
@@ -96,121 +95,34 @@ const ReviewsPage = (): JSX.Element => {
     {
       accessorKey: 'doctorId',
       header: 'Doctor',
-      cell: ({ row }): JSX.Element => {
-        const doctor = row.original.doctorId;
-        return (
-          <div className="flex items-center gap-2">
-            {doctor.profilePicture && (
-              <img
-                src={doctor.profilePicture}
-                alt={`${doctor.firstName} ${doctor.lastName}`}
-                className="h-8 w-8 rounded-full object-cover"
-              />
-            )}
-            <span className="font-medium">
-              {doctor.firstName} {doctor.lastName}
-            </span>
-          </div>
-        );
-      },
+      cell: ({ row }): JSX.Element => <DoctorCell doctor={row.original.doctorId} />,
     },
     {
       accessorKey: 'rating',
       header: 'Rating',
-      cell: ({ row }): JSX.Element => {
-        const rating = row.original.rating;
-        return (
-          <div className="flex items-center gap-1">
-            <span className="font-semibold">{rating}</span>
-            <span className="text-yellow-500">★</span>
-          </div>
-        );
-      },
+      cell: ({ row }): JSX.Element => <RatingCell rating={row.original.rating} />,
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }): JSX.Element => {
-        const status = row.original.status;
-        const statusMap: Record<string, { label: string; variant: 'default' | 'destructive' | 'brown' | 'outline' }> = {
-          pending: { label: 'Pending', variant: 'brown' },
-          skipped: { label: 'Skipped', variant: 'destructive' },
-          completed: { label: 'Completed', variant: 'default' },
-        };
-        const statusConfig = statusMap[status.toLowerCase()] || { label: status, variant: 'outline' };
-        return <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>;
-      },
+      cell: ({ row }): JSX.Element => <StatusCell status={row.original.status} />,
     },
     {
       accessorKey: 'comment',
       header: 'Comment',
-      cell: ({ row }): JSX.Element => {
-        const comment = row.original.comment || 'No comment';
-        const truncatedComment = comment.length > 50 ? `${comment.substring(0, 50)}...` : comment;
-        return <span className="text-sm text-gray-600">{truncatedComment}</span>;
-      },
+      cell: ({ row }): JSX.Element => <CommentCell comment={row.original.comment} />,
     },
     {
       id: 'actions',
       header: 'Action',
-      cell: ({ row }): JSX.Element => {
-        const { status, id, doctorId } = row.original;
-        const isPending = status.toLowerCase() === 'pending';
-        const doctorName = `${doctorId.firstName} ${doctorId.lastName}`;
-
-        return (
-          <ActionsDropdownMenus
-            menuContent={[
-              {
-                title: (
-                  <>
-                    <CheckCircle className="mr-2 h-4 w-4" /> Complete
-                  </>
-                ),
-                visible: isPending,
-                clickCommand: () =>
-                  handleConfirmationOpen(
-                    'Complete',
-                    `mark this review from ${doctorName} as complete`,
-                    id,
-                    completeReview,
-                    'Yes, complete',
-                    'Cancel',
-                  ),
-              },
-            ]}
-            action={
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleViewReview(row.original)}
-                  className="cursor-pointer"
-                  child="View"
-                />
-                {isPending && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() =>
-                      handleConfirmationOpen(
-                        'Complete',
-                        `mark this review from ${doctorName} as complete`,
-                        id,
-                        completeReview,
-                        'Yes, complete',
-                        'Cancel',
-                      )
-                    }
-                    className="cursor-pointer"
-                    child="Complete"
-                  />
-                )}
-              </div>
-            }
-          />
-        );
-      },
+      cell: ({ row }): JSX.Element => (
+        <ActionsCell
+          review={row.original}
+          onView={handleViewReview}
+          onComplete={handleConfirmationOpen}
+          completeReview={completeReview}
+        />
+      ),
       enableHiding: false,
     },
   ];
