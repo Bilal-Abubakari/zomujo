@@ -13,8 +13,7 @@ interface DoctorCellProps {
   doctor: IReview['doctorId'];
 }
 
-export const DoctorCell = ({ doctor }: DoctorCellProps): JSX.Element => {
-  return (
+export const DoctorCell = ({ doctor }: DoctorCellProps): JSX.Element => (
     <div className="flex items-center gap-2">
       {doctor.profilePicture && (
         <img
@@ -28,20 +27,17 @@ export const DoctorCell = ({ doctor }: DoctorCellProps): JSX.Element => {
       </span>
     </div>
   );
-};
 
 interface RatingCellProps {
   rating: number;
 }
 
-export const RatingCell = ({ rating }: RatingCellProps): JSX.Element => {
-  return (
+export const RatingCell = ({ rating }: RatingCellProps): JSX.Element => (
     <div className="flex items-center gap-1">
       <span className="font-semibold">{rating}</span>
       <span className="text-yellow-500">★</span>
     </div>
   );
-};
 
 interface StatusCellProps {
   status: string;
