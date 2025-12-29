@@ -15,7 +15,6 @@ import { toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useSearch } from '@/hooks/useSearch';
-import { getFormattedDate } from '@/lib/date';
 import { Modal, Confirmation, ConfirmationProps } from '@/components/ui/dialog';
 import { ReviewDetails } from './_components/reviewDetails';
 import { ActionsDropdownMenus } from '@/components/ui/dropdown-menu';
@@ -41,7 +40,7 @@ const ReviewsPage = (): JSX.Element => {
     orderBy: 'createdAt',
     search: '',
     pageSize: 10,
-    status: '' as '',
+    status: '',
   });
 
   const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =

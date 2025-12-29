@@ -1,11 +1,10 @@
 'use client';
 
 import { ContentProfile } from '@/assets/images';
-import { Shield, Zap, BarChart, Star } from 'lucide-react';
+import { Shield, Zap, BarChart, Star,Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { JSX, useEffect, useState } from 'react';
 import { ILandingPageReview } from '@/types/review.interface';
-import { Loader2 } from 'lucide-react';
 import { useAppDispatch } from '@/lib/hooks';
 import { getLandingPageReviews } from '@/lib/features/reviews/reviewsThunk';
 import { showErrorToast } from '@/lib/utils';
@@ -60,13 +59,13 @@ const SolutionsOffered = (): JSX.Element => {
       const interval = setInterval(() => {
         setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
       }, 5000);
-      return () => clearInterval(interval);
+      return ():void => clearInterval(interval);
     }
   }, [reviews.length]);
 
   const currentReview = reviews[currentReviewIndex];
   const getInitials = (comment: string): string => {
-    if (!comment) return 'U';
+    if (!comment) {return 'U';}
     const words = comment.trim().split(/\s+/);
     if (words.length >= 2) {
       return (words[0][0] + words[1][0]).toUpperCase();
