@@ -189,7 +189,7 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
 
                 {watch('medicines')?.map(({ name, dose }, index) => (
                   <div key={`${name}-${dose}`} className="mt-4">
-                    <Drug name={name} dose={dose} index={index} remove={remove} />
+                    <Drug name={name} doses={dose} index={index} remove={remove} />
                   </div>
                 ))}
               </div>

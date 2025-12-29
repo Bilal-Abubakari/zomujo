@@ -66,15 +66,16 @@ export const DiagnosisCard = ({
           </div>
         )}
         <div className="space-y-2">
-          {prescription?.map(({ name, doses, instructions, frequency }, index) => (
+          {prescription?.map(({ name, doses, route, numOfDays, doseRegimen }, index) => (
             <div key={`${name}-${index}`} className="flex rounded-md bg-white/80 p-2.5">
               <Drug
-                dose={doses}
+                doses={doses}
                 name={name}
                 index={index}
                 remove={removeMedicine}
-                instructions={instructions}
-                frequency={frequency}
+                route={route}
+                numOfDays={numOfDays}
+                doseRegimen={doseRegimen}
               />
             </div>
           ))}
@@ -129,14 +130,14 @@ export const ConditionCard = ({ name, medicines }: ConditionCardProps): JSX.Elem
                 <Drug
                   key={`${medicines[0].name}-${medicines[0].dose}`}
                   name={medicines[0].name}
-                  dose={medicines[0].dose}
+                  doses={medicines[0].dose}
                 />
               </div>
             }
             <CollapsibleContent>
               {medicines.slice(1).map(({ name, dose }) => (
                 <div key={`${name}-${dose}`} className="mt-4">
-                  <Drug name={name} dose={dose} />
+                  <Drug name={name} doses={dose} />
                 </div>
               ))}
             </CollapsibleContent>
