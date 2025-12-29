@@ -4,6 +4,7 @@ import React, { ChangeEvent, JSX, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   CircleCheck,
+  Download,
   FileText,
   Paperclip,
   Pill,
@@ -23,6 +24,9 @@ import { IConsultationDetails } from '@/types/consultation.interface';
 import { useAppDispatch } from '@/lib/hooks';
 import {
   addLabFile,
+  addRadiologyFile,
+  downloadLabRequestPdf,
+  downloadRadiologyRequestPdf,
   getConsultationDetail,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams } from 'next/navigation';
@@ -34,8 +38,14 @@ import {
   NotificationEvent,
   NotificationTopic,
 } from '@/types/notification.interface';
-import { showErrorToast } from '@/lib/utils';
+import { downloadBlob, showErrorToast } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
+
+const notificationsToRefetch = new Set<NotificationTopic>([
+  NotificationTopic.LabRequest,
+  NotificationTopic.PrescriptionGenerated,
+  NotificationTopic.RadiologyRequest,
+]);
 
 type SelectedFiles = {
   [key: string]: File | null;
@@ -48,14 +58,66 @@ const PatientConsultationView = (): JSX.Element => {
   const [consultationDetails, setConsultationDetails] = useState<IConsultationDetails>();
   const dispatch = useAppDispatch();
   const [selectedFiles, setSelectedFiles] = useState<SelectedFiles>({});
+  const [selectedRadiologyFiles, setSelectedRadiologyFiles] = useState<SelectedFiles>({});
   const [uploading, setUploading] = useState<string | null>(null);
+  const [uploadingRadiology, setUploadingRadiology] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [downloadingLabRequest, setDownloadingLabRequest] = useState(false);
+  const [downloadingRadiologyRequest, setDownloadingRadiologyRequest] = useState(false);
 
   const handleFileChange = ({ target }: ChangeEvent<HTMLInputElement>, labId: string): void => {
     const file = target.files?.[0];
     if (file) {
       setSelectedFiles((prev) => ({ ...prev, [labId]: file }));
     }
+  };
+
+  const handleRadiologyFileChange = (
+    { target }: ChangeEvent<HTMLInputElement>,
+    radiologyId: string,
+  ): void => {
+    const file = target.files?.[0];
+    if (file) {
+      setSelectedRadiologyFiles((prev) => ({ ...prev, [radiologyId]: file }));
+    }
+  };
+
+  const handleDownloadLabRequest = async (): Promise<void> => {
+    const consultationId = params.consultationId as string;
+    if (!consultationId) {
+      return;
+    }
+
+    setDownloadingLabRequest(true);
+    const payload = await dispatch(downloadLabRequestPdf(consultationId)).unwrap();
+
+    if (showErrorToast(payload)) {
+      toast(payload as Toast);
+      setDownloadingLabRequest(false);
+      return;
+    }
+    downloadBlob(payload as Blob, `lab-request-${consultationId}.pdf`);
+
+    setDownloadingLabRequest(false);
+  };
+
+  const handleDownloadRadiologyRequest = async (): Promise<void> => {
+    const consultationId = params.consultationId as string;
+    if (!consultationId) {
+      return;
+    }
+
+    setDownloadingRadiologyRequest(true);
+    const payload = await dispatch(downloadRadiologyRequestPdf(consultationId)).unwrap();
+
+    if (showErrorToast(payload)) {
+      toast(payload as Toast);
+      setDownloadingRadiologyRequest(false);
+      return;
+    }
+    downloadBlob(payload as Blob, `radiology-request-${consultationId}.pdf`);
+
+    setDownloadingRadiologyRequest(false);
   };
 
   const fetchConsultation = async (scroll = false): Promise<void> => {
@@ -83,10 +145,7 @@ const PatientConsultationView = (): JSX.Element => {
 
   on(NotificationEvent.NewNotification, (data: unknown) => {
     const { payload } = data as INotification;
-    if (
-      payload.topic === NotificationTopic.LabRequest ||
-      payload.topic === NotificationTopic.PrescriptionGenerated
-    ) {
+    if (notificationsToRefetch.has(payload.topic)) {
       void fetchConsultation(true);
     }
   });
@@ -113,6 +172,32 @@ const PatientConsultationView = (): JSX.Element => {
     }
     setSelectedFiles((prev) => ({ ...prev, [labId]: null }));
     setUploading(null);
+  };
+
+  const handleRadiologyUpload = async (testName: string, radiologyId: string): Promise<void> => {
+    const key = `${radiologyId}-${testName}`;
+    const file = selectedRadiologyFiles[key];
+    if (!file) {
+      return;
+    }
+    setUploadingRadiology(key);
+
+    const payload = await dispatch(addRadiologyFile({ file, radiologyId, testName })).unwrap();
+    if (showErrorToast(payload)) {
+      toast(payload as Toast);
+      setUploadingRadiology(null);
+      return;
+    }
+
+    const updatedTests = consultationDetails?.radiology?.tests.map((test) =>
+      test.testName === testName ? { ...test, fileUrl: payload as string } : test,
+    );
+    if (updatedTests) {
+      const radiology = { ...consultationDetails!.radiology!, tests: updatedTests };
+      setConsultationDetails({ ...consultationDetails!, radiology });
+    }
+    setSelectedRadiologyFiles((prev) => ({ ...prev, [key]: null }));
+    setUploadingRadiology(null);
   };
 
   useEffect(() => {
@@ -177,6 +262,21 @@ const PatientConsultationView = (): JSX.Element => {
                 <Separator className="mt-6" />
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        {/* Skeleton for Radiology Requests */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-40" />
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+              <Skeleton className="mb-2 h-4 w-32" />
+              <Skeleton className="mb-1 h-3 w-40" />
+              <Skeleton className="mb-2 h-3 w-56" />
+              <Skeleton className="h-8 w-32" />
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -279,10 +379,27 @@ const PatientConsultationView = (): JSX.Element => {
         {/* Lab Requests Section */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl font-semibold">
-              <TestTubeDiagonal className="text-primary" />
-              Lab Requests
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-xl font-semibold">
+                <TestTubeDiagonal className="text-primary" />
+                Lab Requests
+              </CardTitle>
+              {consultationDetails?.lab && consultationDetails.lab.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadLabRequest}
+                  disabled={downloadingLabRequest}
+                  isLoading={downloadingLabRequest}
+                  child={
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Lab Request
+                    </>
+                  }
+                />
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {consultationDetails?.lab && consultationDetails.lab.length > 0 ? (
@@ -367,6 +484,158 @@ const PatientConsultationView = (): JSX.Element => {
             ) : (
               <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 text-center text-gray-500">
                 There are currently no lab requests from the doctor.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Radiology Requests Section */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-xl font-semibold">
+                <TestTubeDiagonal className="text-primary" />
+                Radiology Requests
+              </CardTitle>
+              {consultationDetails?.radiology && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadRadiologyRequest}
+                  disabled={downloadingRadiologyRequest}
+                  isLoading={downloadingRadiologyRequest}
+                  child={
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Radiology Request
+                    </>
+                  }
+                />
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {consultationDetails?.radiology ? (
+              <>
+                <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                  <h3 className="mb-4 font-semibold text-gray-800">
+                    {consultationDetails.radiology.procedureRequest}
+                  </h3>
+                  {consultationDetails.radiology.history && (
+                    <p className="mb-4 text-sm text-gray-500">
+                      <span className="font-medium">History:</span>{' '}
+                      {consultationDetails.radiology.history}
+                    </p>
+                  )}
+                </div>
+                {consultationDetails.radiology.tests.map((test, index) => (
+                  <div
+                    key={`${index}-${test.testName}`}
+                    className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                      <div>
+                        <h4 className="font-semibold text-gray-800">{test.testName}</h4>
+                        <p className="mt-1 text-sm text-gray-600">
+                          <span className="font-medium">Category:</span> {test.category}
+                        </p>
+                      </div>
+                      {test.fileUrl ? (
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                          <CircleCheck size={20} />
+                          <span>Result Uploaded</span>
+                        </div>
+                      ) : (
+                        <div className="space-y-2 sm:w-auto">
+                          <div className="flex items-center gap-2 justify-self-end">
+                            <Button
+                              child={
+                                <label
+                                  htmlFor={`radio-file-${consultationDetails.radiology.id}-${test.testName}`}
+                                >
+                                  <Paperclip className="mr-2 h-4 w-4" />
+                                  Attach PDF
+                                </label>
+                              }
+                              asChild
+                              variant="outline"
+                              size="sm"
+                              className="cursor-pointer"
+                            ></Button>
+                            <Input
+                              id={`radio-file-${consultationDetails.radiology.id}-${test.testName}`}
+                              type="file"
+                              className="hidden"
+                              accept=".pdf"
+                              onChange={(e) =>
+                                handleRadiologyFileChange(
+                                  e,
+                                  `${consultationDetails.radiology.id}-${test.testName}`,
+                                )
+                              }
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                handleRadiologyUpload(
+                                  test.testName,
+                                  consultationDetails.radiology.id,
+                                )
+                              }
+                              disabled={
+                                !selectedRadiologyFiles[
+                                  `${consultationDetails.radiology.id}-${test.testName}`
+                                ] ||
+                                uploadingRadiology ===
+                                  `${consultationDetails.radiology.id}-${test.testName}`
+                              }
+                              isLoading={
+                                uploadingRadiology ===
+                                `${consultationDetails.radiology.id}-${test.testName}`
+                              }
+                              child={
+                                <>
+                                  <Upload className="mr-2 h-4 w-4" />
+                                  Upload
+                                </>
+                              }
+                            />
+                          </div>
+                          {selectedRadiologyFiles[
+                            `${consultationDetails.radiology.id}-${test.testName}`
+                          ] && (
+                            <div className="flex items-center rounded-md bg-gray-100 p-2 text-sm">
+                              <span className="max-w-sm truncate pr-2">
+                                {
+                                  selectedRadiologyFiles[
+                                    `${consultationDetails.radiology.id}-${test.testName}`
+                                  ]?.name
+                                }
+                              </span>
+                              <TooltipComp tip="Remove file">
+                                <button
+                                  onClick={() =>
+                                    setSelectedRadiologyFiles({
+                                      ...selectedRadiologyFiles,
+                                      [`${consultationDetails.radiology.id}-${test.testName}`]:
+                                        null,
+                                    })
+                                  }
+                                >
+                                  <X className="h-4 w-4 text-gray-500 hover:text-red-500" />
+                                </button>
+                              </TooltipComp>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 text-center text-gray-500">
+                There are currently no radiology requests from the doctor.
               </div>
             )}
           </CardContent>

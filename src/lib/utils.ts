@@ -89,6 +89,24 @@ export const downloadFileWithUrl = (url: string, filename: string): void => {
 };
 
 /**
+ * Downloads a Blob as a file with the specified filename.
+ * Creates a temporary blob URL, triggers download, and cleans up resources.
+ *
+ * @param blob - The Blob object to download.
+ * @param filename - The name to give the downloaded file.
+ */
+export const downloadBlob = (blob: Blob, filename: string): void => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
+/**
  * Converts a string or sentence to capitalized version
  * @param text - The string or sentence to capitalize
  * @returns The capitalized string or sentence

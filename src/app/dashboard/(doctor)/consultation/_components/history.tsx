@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useMemo, useState, useCallback } from 'react';
+import React, { JSX, useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
@@ -10,7 +10,7 @@ import { cn, showErrorToast } from '@/lib/utils';
 import { toast, Toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { SelectInput } from '@/components/ui/select';
+import { SelectInput, SelectInputV2 } from '@/components/ui/select';
 import { durationTypes } from '@/constants/constants';
 import { useFieldArray, useForm } from 'react-hook-form';
 import {
@@ -29,7 +29,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-// import FornixVoiceSummary from '@/app/dashboard/(doctor)/consultation/_components/FornixVoiceSummary';
 import { LocalStorageManager } from '@/lib/localStorage';
 
 const SelectSymptoms = dynamic(
@@ -111,7 +110,7 @@ const LoadingFallback = (): JSX.Element => (
   </div>
 );
 
-const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
+const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -156,6 +155,8 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const params = useParams();
   const complaintsHFC = watch('complaints');
+  const hasSetComplaintDurations = useRef(false);
+  const complaintFieldsContainerRef = useRef<HTMLDivElement>(null);
 
   const storageKey = useMemo(
     () => `consultation_${params?.appointmentId}_symptoms_draft`,
@@ -166,6 +167,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   useEffect(() => {
     if (!symptoms) {
       const draft = LocalStorageManager.getJSON<IConsultationSymptoms>(storageKey);
+      console.log('Draft', draft);
       if (draft) {
         // Apply draft values
         setValue('complaints', draft.complaints ?? []);
@@ -213,6 +215,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           complaint: suggestion,
           duration: { value: '', type: DurationType.Days },
         });
+        scrollToComplaintFields();
       } else if (shouldRemove) {
         const index = complaintsHFC.findIndex(({ complaint }) => complaint === suggestion);
         if (index !== -1) {
@@ -220,7 +223,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         }
       }
     },
-    [append, complaintsHFC, remove, selectedComplaints],
+    [append, complaintsHFC, selectedComplaints],
   );
 
   const addComplaint = useCallback((): void => {
@@ -233,8 +236,19 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setComplaintSuggestions((prev) => [...prev, otherComplaint]);
       append({ complaint: otherComplaint, duration: { value: '', type: DurationType.Days } });
       setOtherComplaint('');
+      scrollToComplaintFields();
     }
   }, [append, complaintSuggestions, otherComplaint, selectedComplaints]);
+
+  const scrollToComplaintFields = (): void => {
+    // Scroll to the complaint fields after a short delay to ensure DOM is updated
+    setTimeout(() => {
+      complaintFieldsContainerRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }, 100);
+  };
 
   const fetchSymptoms = useCallback(async (): Promise<void> => {
     setIsLoadingSymptoms(true);
@@ -317,74 +331,54 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   );
 
   useEffect(() => {
-    if (symptoms) {
-      // transform legacy shape if server still returns old structure complaints: string[] & duration: IDuration
-      const legacyComplaints = (
-        symptoms as unknown as {
-          complaints?: unknown;
-          duration?: { value: string; type: DurationType };
+    if (!symptoms) {
+      return;
+    }
+
+    const {
+      medicinesTaken,
+      complaints,
+      symptoms: patientSymptoms,
+    } = symptoms as IConsultationSymptoms;
+
+    setValue('medicinesTaken', medicinesTaken);
+    if (complaints?.length > 0 && !hasSetComplaintDurations.current) {
+      setValue('complaints', complaints);
+      hasSetComplaintDurations.current = true;
+    }
+
+    if (!isLoadingComplaintSuggestions) {
+      complaints.forEach(({ complaint, duration }) => {
+        if (complaintSuggestions.includes(complaint)) {
+          handleSelectedComplaint(complaint, false);
+        } else {
+          setComplaintSuggestions((prev) => [...prev, complaint]);
+          append({ complaint, duration });
         }
-      ).complaints;
-      if (Array.isArray(legacyComplaints) && legacyComplaints.every((c) => typeof c === 'string')) {
-        const legacyDuration = (
-          symptoms as unknown as { duration?: { value: string; type: DurationType } }
-        ).duration ?? {
-          value: '',
-          type: DurationType.Days,
-        };
-        (symptoms as unknown as IConsultationSymptoms).complaints = legacyComplaints.map(
-          (complaint) => ({
-            complaint,
-            duration: legacyDuration,
-          }),
-        );
-      }
-      const {
-        medicinesTaken,
-        complaints,
-        symptoms: patientSymptoms,
-      } = symptoms as IConsultationSymptoms;
+      });
+    }
 
-      if (!isLoadingComplaintSuggestions) {
-        for (const { complaint, duration } of complaints) {
-          if (complaintSuggestions.includes(complaint)) {
-            handleSelectedComplaint(complaint, false);
-          } else {
-            setComplaintSuggestions((prev) => [...prev, complaint]);
-            append({ complaint, duration });
-          }
-        }
-      }
+    if (systemSymptoms) {
+      setValue('symptoms', patientSymptoms);
+      const sectionsWithSymptoms = Object.keys(systemSymptoms).filter(
+        (id) => (patientSymptoms[id as SymptomsType] ?? []).length > 0,
+      );
+      setExpandedSections(sectionsWithSymptoms);
 
-      setValue('medicinesTaken', medicinesTaken);
-      if (systemSymptoms) {
-        setValue('symptoms', patientSymptoms);
-        let symptomsMap = _.cloneDeep(systemSymptoms);
-        const sectionsWithSymptoms: string[] = [];
-
-        Object.entries(systemSymptoms).forEach(([id, systemSymptomList]) => {
-          const formattedPatientSymptoms = (patientSymptoms[id as SymptomsType] ?? []).map(
-            ({ name }) => name,
+      const symptomsMap = Object.fromEntries(
+        Object.entries(systemSymptoms).map(([id, systemSymptomList]) => {
+          const formattedPatientSymptoms = new Set(
+            (patientSymptoms[id as SymptomsType] ?? []).map(({ name }) => name),
           );
-
-          if (formattedPatientSymptoms.length > 0) {
-            sectionsWithSymptoms.push(id);
-          }
-
           const updatedSystemSymptoms = systemSymptomList.filter(
-            ({ name }) => !formattedPatientSymptoms.includes(name),
+            ({ name }) => !formattedPatientSymptoms.has(name),
           );
-          symptomsMap = {
-            ...symptomsMap,
-            [id]: updatedSystemSymptoms,
-          };
-        });
+          return [id, updatedSystemSymptoms];
+        }),
+      ) as ISymptomMap;
 
-        setExpandedSections(sectionsWithSymptoms);
-
-        if (!_.isEqual(systemSymptoms, symptomsMap)) {
-          setSystemSymptoms(symptomsMap);
-        }
+      if (!_.isEqual(systemSymptoms, symptomsMap)) {
+        setSystemSymptoms(symptomsMap);
       }
     }
   }, [
@@ -393,8 +387,11 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
     isLoadingComplaintSuggestions,
     setValue,
     complaintSuggestions,
-    handleSelectedComplaint,
     append,
+    handleSelectedComplaint,
+    setComplaintSuggestions,
+    setExpandedSections,
+    setSystemSymptoms,
   ]);
 
   const [bulkDurationValue, setBulkDurationValue] = useState<string>('');
@@ -414,8 +411,6 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   return (
     <DndProvider backend={HTML5Backend}>
       <form onSubmit={handleSubmit(handleSubmitAndGoToLabs)}>
-        {/*TODO: Coming soon*/}
-        {/*<FornixVoiceSummary />*/}
         <h1 className="text-xl font-bold">Complaint</h1>
         <div className="mt-8 flex flex-wrap gap-5">
           {isLoadingComplaintSuggestions ? (
@@ -461,17 +456,12 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
               labelName="Duration (All)"
               className="w-32 bg-transparent"
             />
-            <select
+            <SelectInputV2
+              className="max-w-40"
+              options={durationTypes}
+              onChange={(value) => setBulkDurationType(value as DurationType)}
               value={bulkDurationType}
-              onChange={(e) => setBulkDurationType(e.target.value as DurationType)}
-              className="h-10 rounded-md border bg-transparent px-3 text-sm"
-            >
-              {durationTypes.map((d) => (
-                <option key={d.value} value={d.value}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
+            />
             <Button
               type="button"
               disabled={!bulkDurationValue || Number(bulkDurationValue) <= 0}
@@ -481,7 +471,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
           </div>
         )}
         {complaintFields.length > 0 && (
-          <div className="mt-10">
+          <div ref={complaintFieldsContainerRef} className="mt-10">
             <h2 className="text-lg font-semibold">Set Duration Per Complaint</h2>
             <div className="mt-4 space-y-6">
               {complaintFields.map((field, index) => (
@@ -489,7 +479,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                   key={field.id}
                   className="flex flex-wrap items-end gap-4 rounded-md border p-4 shadow-sm"
                 >
-                  <div className="min-w-[180px] flex-1">
+                  <div className="min-w-45 flex-1">
                     <Input
                       value={field.complaint}
                       readOnly
@@ -499,8 +489,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
                   </div>
                   <div>
                     <Input
-                      {...register(`complaints.${index}.duration.value` as const)}
-                      type="number"
+                      {...register(`complaints.${index}.duration.value`)}
                       placeholder="Duration"
                       labelName="Duration"
                       className="w-28 bg-transparent"
@@ -567,7 +556,7 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
         <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
         <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
         <div className="mt-20"></div>
-        <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
+        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
           <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Go to Labs" />
         </div>
       </form>
@@ -575,4 +564,4 @@ const Symptoms = ({ goToLabs }: SymptomsProps): JSX.Element => {
   );
 };
 
-export default Symptoms;
+export default History;

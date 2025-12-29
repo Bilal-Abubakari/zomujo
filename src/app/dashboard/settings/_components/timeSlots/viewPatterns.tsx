@@ -15,15 +15,17 @@ import { showErrorToast } from '@/lib/utils';
 import { useDropdownAction } from '@/hooks/useDropdownAction';
 import { deletePattern, getSlotPatterns } from '@/lib/features/appointments/appointmentsThunk';
 import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
-import { TableData } from '@/components/ui/table';
+import { PaginationData, TableData } from '@/components/ui/table';
 import { getFrequencyFromRule, getWeekDaysFromRule } from '@/lib/rule';
 import { Badge } from '@/components/ui/badge';
 import CreateException from '@/app/dashboard/settings/_components/timeSlots/createException';
 import { ISlotPattern } from '@/types/slots.interface';
+import { IPagination } from '@/types/shared.interface';
 
 const ViewPatterns = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [slotPatterns, setSlotPatterns] = useState<ISlotPattern[]>([]);
+  const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -43,8 +45,9 @@ const ViewPatterns = (): JSX.Element => {
         setIsLoading(false);
         return;
       }
-
-      setSlotPatterns(payload as ISlotPattern[]);
+      const { rows, ...pagination } = payload as IPagination<ISlotPattern>;
+      setSlotPatterns(rows);
+      setPaginationData(pagination);
       setIsLoading(false);
     };
     void fetchData();
@@ -164,6 +167,7 @@ const ViewPatterns = (): JSX.Element => {
             data={slotPatterns}
             manualPagination={false}
             isLoading={isLoading}
+            paginationData={paginationData}
           />
         </div>
       </div>

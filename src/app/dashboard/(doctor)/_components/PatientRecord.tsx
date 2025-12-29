@@ -147,11 +147,11 @@ const PatientOverview = (): JSX.Element => {
         <div className="space-y-4">
           <PatientCard />
           <PatientSurgeriesCard recordId={recordId} />
-          <PatientAllergiesCard recordId={recordId} />
         </div>
         <div className="space-y-4">
           {/* TODO: Re-enable <PatientVitalsCard /> when remote vitals collection becomes available */}
           <PatientFamilyMembersCard recordId={recordId} />
+          <PatientAllergiesCard recordId={recordId} />
         </div>
         <div className="space-y-4">
           <PatientConditionsCard recordId={recordId} />

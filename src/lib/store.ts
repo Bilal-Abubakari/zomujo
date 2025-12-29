@@ -6,6 +6,8 @@ import notificationsReducer from '@/lib/features/notifications/notificationsSlic
 import paymentsReducer from '@/lib/features/payments/paymentSlice';
 import patientsReducer from '@/lib/features/patients/patientsSlice';
 import appointmentsReducer from '@/lib/features/appointments/appointmentsSlice';
+import consultationReducer from '@/lib/features/appointments/consultation/consultationSlice';
+import connectivityReducer from '@/lib/features/connectivity/connectivitySlice';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -23,6 +25,8 @@ const rootReducer = combineReducers({
   payments: paymentsReducer,
   patients: patientsReducer,
   appointments: appointmentsReducer,
+  consultation: consultationReducer,
+  connectivity: connectivityReducer,
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
