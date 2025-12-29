@@ -237,3 +237,27 @@ export const conditionStatusOptions = [
   { value: ConditionStatus.Controlled, label: 'Controlled' },
   { value: ConditionStatus.Chronic, label: 'Chronic' },
 ];
+
+export const routeOptions = [
+  { value: 'Oral', label: 'Oral' },
+  { value: 'Intravenous', label: 'Intravenous' },
+  { value: 'Intramuscular', label: 'Intramuscular' },
+  { value: 'Subcutaneous', label: 'Subcutaneous' },
+  { value: 'Topical', label: 'Topical' },
+  { value: 'Inhalational', label: 'Inhalational' },
+  { value: 'Rectal', label: 'Rectal' },
+  { value: 'Ophthalmic', label: 'Ophthalmic' },
+  { value: 'Otic', label: 'Otic' },
+];
+
+export const doseRegimenOptions = [
+  { value: 'Once daily', label: 'Once daily' },
+  { value: 'Twice daily', label: 'Twice daily' },
+  { value: 'Three times daily', label: 'Three times daily' },
+  { value: 'Four times daily', label: 'Four times daily' },
+  { value: 'As needed', label: 'As needed' },
+  { value: 'Every 4 hours', label: 'Every 4 hours' },
+  { value: 'Every 6 hours', label: 'Every 6 hours' },
+  { value: 'Every 8 hours', label: 'Every 8 hours' },
+  { value: 'Every 12 hours', label: 'Every 12 hours' },
+];

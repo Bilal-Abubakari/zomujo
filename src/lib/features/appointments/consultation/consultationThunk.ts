@@ -150,11 +150,14 @@ export const addDiagnosisAndPrescription = createAsyncThunk(
 
 export const generatePrescription = createAsyncThunk(
   'consultation/generate-prescription',
-  async (appointmentId: string): Promise<Toast> => {
+  async ({ appointmentId, notes }: { appointmentId: string; notes: string }): Promise<Toast> => {
     try {
       const {
         data: { message },
-      } = await axios.post<IResponse>(`consultation/generate-prescription/${appointmentId}`);
+      } = await axios.post<IResponse>(`consultation/generate-prescription`, {
+        appointmentId,
+        notes,
+      });
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

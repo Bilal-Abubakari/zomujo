@@ -31,8 +31,9 @@ export type ISurgeryWithoutId = Omit<ISurgery, 'id'>;
 export interface IPrescription {
   name: string;
   doses: string;
-  instructions?: string;
-  frequency: string;
+  route: string;
+  numOfDays: string;
+  doseRegimen: string;
 }
 
 export interface IDiagnosis {

@@ -61,7 +61,7 @@ const MedicationTaken = ({ medicationsTaken, control }: MedicationTakenProps): J
       </div>
       {medicationsTaken?.map(({ dose, name }, index) => (
         <div key={`${name}-${dose}`} className="mt-4">
-          <Drug key={`${name}-${dose}`} name={name} dose={dose} index={index} remove={remove} />
+          <Drug key={`${name}-${dose}`} name={name} doses={dose} index={index} remove={remove} />
         </div>
       ))}
     </>
