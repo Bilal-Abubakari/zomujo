@@ -139,18 +139,21 @@ const SolutionsOffered = (): JSX.Element => {
                 </div>
                 {reviews.length > 1 && (
                   <div className="mt-6 flex items-center justify-center gap-2">
-                    {reviews.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentReviewIndex(index)}
-                        className={`h-2 rounded-full transition-all ${
-                          index === currentReviewIndex
-                            ? 'w-8 bg-primary'
-                            : 'w-2 bg-muted-foreground/30'
-                        }`}
-                        aria-label={`Go to review ${index + 1}`}
-                      />
-                    ))}
+                    {reviews.map((review, index) => {
+                      const uniqueKey = `${review.comment.substring(0, 20)}-${review.rating}`;
+                      return (
+                        <button
+                          key={uniqueKey}
+                          onClick={() => setCurrentReviewIndex(index)}
+                          className={`h-2 rounded-full transition-all ${
+                            index === currentReviewIndex
+                              ? 'w-8 bg-primary'
+                              : 'w-2 bg-muted-foreground/30'
+                          }`}
+                          aria-label={`Go to review ${index + 1}`}
+                        />
+                      );
+                    })}
                   </div>
                 )}
               </>

@@ -1,6 +1,5 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
 import { IReview } from '@/types/review.interface';
 import { PaginationData, TableData } from '@/components/ui/table';
 import React, { FormEvent, JSX, useEffect, useState } from 'react';
