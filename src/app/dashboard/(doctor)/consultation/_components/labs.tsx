@@ -150,13 +150,51 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
     setUpdateLabs(false);
   };
 
+  // Helper function to extract specimen options from test name parentheses
+  const extractSpecimenOptions = (testName: string): string[] | null => {
+    const match = testName.match(/\(([^)]+)\)/);
+    if (!match) {
+      return null; // No parentheses found
+    }
+    const content = match[1].trim();
+    if (!content) {
+      return null; // Empty parentheses
+    }
+    // Split by comma and trim each option
+    return content.split(',').map((option) => option.trim()).filter((option) => option.length > 0);
+  };
+
   const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
     setSelectedTests((prev) => {
       const newMap = new Map(prev);
       if (newMap.has(testName)) {
         newMap.delete(testName);
+        
+        const remainingTestsInCategory = Array.from(newMap.values()).some(
+          (meta) => meta.category === category,
+        );
+                if (!remainingTestsInCategory) {
+          setCategorySpecimens((specimens) => {
+            const newSpecimens = new Map(specimens);
+            newSpecimens.delete(category);
+            return newSpecimens;
+          });
+        }
       } else {
         newMap.set(testName, { category, categoryType });
+        
+        const specimenOptions = extractSpecimenOptions(testName);
+        
+        if (specimenOptions && specimenOptions.length === 1) {
+          const singleSpecimen = specimenOptions[0];
+          setCategorySpecimens((specimens) => {
+            const newSpecimens = new Map(specimens);
+            if (!newSpecimens.has(category) || !newSpecimens.get(category)?.trim()) {
+              newSpecimens.set(category, singleSpecimen);
+            }
+            return newSpecimens;
+          });
+        }
       }
       return newMap;
     });
@@ -442,40 +480,74 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
                         </div>
                         <div className="space-y-4 p-4">
                           {/* Category-specific specimen field - show when tests selected in this category */}
-                          {hasSelectedTestsInCategory && (
-                            <div
-                              className={`mb-4 rounded-md border ${
-                                specimenMissing
-                                  ? 'border-red-300 bg-red-50'
-                                  : 'border-amber-200 bg-amber-50'
-                              } p-3`}
-                            >
-                              <Input
-                                labelName={`Specimen for ${mainCategory} (required)`}
-                                placeholder="Enter specimen (e.g., Blood, Urine)"
-                                value={specimenValue}
-                                onChange={(e) => {
-                                  const newSpecimens = new Map(categorySpecimens);
-                                  if (e.target.value) {
-                                    newSpecimens.set(mainCategory, e.target.value);
-                                  } else {
-                                    newSpecimens.delete(mainCategory);
-                                  }
-                                  setCategorySpecimens(newSpecimens);
-                                }}
-                                className="bg-white"
-                              />
-                              <p
-                                className={`mt-1 text-xs ${
-                                  specimenMissing ? 'text-red-600' : 'text-amber-700'
-                                }`}
+                          {hasSelectedTestsInCategory && ((): JSX.Element => {
+                            const selectedTestsInCategory = Array.from(selectedTests.entries()).filter(
+                              ([, meta]) => meta.category === mainCategory,
+                            );
+                            
+                            const hasMultipleOptions = selectedTestsInCategory.some(([testName]) => {
+                              const options = extractSpecimenOptions(testName);
+                              return options && options.length > 1;
+                            });
+                            
+                            const hasSingleOption = selectedTestsInCategory.some(([testName]) => {
+                              const options = extractSpecimenOptions(testName);
+                              return options && options.length === 1;
+                            });
+                            
+                            const allOptions = new Set<string>();
+                            selectedTestsInCategory.forEach(([testName]) => {
+                              const options = extractSpecimenOptions(testName);
+                              if (options && options.length > 1) {
+                                options.forEach((opt) => allOptions.add(opt));
+                              }
+                            });
+                            
+                            const optionsList = Array.from(allOptions).join(', ');
+                            
+                            return (
+                              <div
+                                className={`mb-4 rounded-md border ${
+                                  specimenMissing
+                                    ? 'border-red-300 bg-red-50'
+                                    : 'border-amber-200 bg-amber-50'
+                                } p-3`}
                               >
-                                {specimenMissing
-                                  ? 'Specimen is required for selected tests in this category.'
-                                  : `Provide specimen for all ${mainCategory} tests`}
-                              </p>
-                            </div>
-                          )}
+                                <Input
+                                  labelName={`Specimen for ${mainCategory} (required)`}
+                                  placeholder={
+                                    hasMultipleOptions
+                                      ? `Enter specimen (e.g., ${optionsList})`
+                                      : 'Enter specimen (e.g., Blood, Urine)'
+                                  }
+                                  value={specimenValue}
+                                  onChange={(e) => {
+                                    const newSpecimens = new Map(categorySpecimens);
+                                    if (e.target.value) {
+                                      newSpecimens.set(mainCategory, e.target.value);
+                                    } else {
+                                      newSpecimens.delete(mainCategory);
+                                    }
+                                    setCategorySpecimens(newSpecimens);
+                                  }}
+                                  className="bg-white"
+                                />
+                                <p
+                                  className={`mt-1 text-xs ${
+                                    specimenMissing ? 'text-red-600' : 'text-amber-700'
+                                  }`}
+                                >
+                                  {specimenMissing
+                                    ? 'Specimen is required for selected tests in this category.'
+                                    : hasMultipleOptions
+                                      ? `Please specify specimen type. Options: ${optionsList}`
+                                      : hasSingleOption
+                                        ? `Specimen auto-filled from test name`
+                                        : `Provide specimen for all ${mainCategory} tests`}
+                                </p>
+                              </div>
+                            );
+                          })()}
 
                           {Object.entries(subCategories).map(([subCategory, tests]) => (
                             <div key={subCategory} className="space-y-2">
