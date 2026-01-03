@@ -10,9 +10,7 @@ import { z } from 'zod';
 import { LabTestSection } from '@/types/labs.enum';
 import { fetchLabs } from '@/lib/features/appointments/consultation/fetchLabs';
 import { showErrorToast } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import AddCardButton from '@/components/ui/addCardButton';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { getConsultationLabs } from '@/lib/features/appointments/consultation/consultationThunk';
@@ -22,6 +20,7 @@ import { useParams } from 'next/navigation';
 import { selectRequestedLabs } from '@/lib/features/appointments/appointmentSelector';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
 import { Modal } from '@/components/ui/dialog';
+import LabCategorySection from '@/app/dashboard/(doctor)/consultation/_components/LabCategorySection';
 import {
   INotification,
   NotificationEvent,
@@ -150,16 +149,70 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
     setUpdateLabs(false);
   };
 
+  const extractSpecimenOptions = (testName: string): string[] | null => {
+    const MAX_INPUT_LENGTH = 1000;
+    if (testName.length > MAX_INPUT_LENGTH) {
+      return null;
+    }
+    const openParenIndex = testName.indexOf('(');
+    const closeParenIndex = testName.indexOf(')', openParenIndex);
+    if (openParenIndex === -1 || closeParenIndex === -1 || closeParenIndex <= openParenIndex) {
+      return null;
+    }
+    const content = testName.slice(openParenIndex + 1, closeParenIndex).trim();
+    if (!content) {
+      return null;
+    }
+    return content
+      .split(',')
+      .map((option) => option.trim())
+      .filter((option) => option.length > 0);
+  };
+
   const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
     setSelectedTests((prev) => {
       const newMap = new Map(prev);
       if (newMap.has(testName)) {
         newMap.delete(testName);
+
+        const remainingTestsInCategory = Array.from(newMap.values()).some(
+          (meta) => meta.category === category,
+        );
+        if (!remainingTestsInCategory) {
+          setCategorySpecimens((specimens) => {
+            const newSpecimens = new Map(specimens);
+            newSpecimens.delete(category);
+            return newSpecimens;
+          });
+        }
       } else {
         newMap.set(testName, { category, categoryType });
+
+        const specimenOptions = extractSpecimenOptions(testName);
+
+        if (specimenOptions?.length === 1) {
+          const singleSpecimen = specimenOptions[0];
+          setCategorySpecimens((specimens) => {
+            const newSpecimens = new Map(specimens);
+            if (!newSpecimens.has(category) || !newSpecimens.get(category)?.trim()) {
+              newSpecimens.set(category, singleSpecimen);
+            }
+            return newSpecimens;
+          });
+        }
       }
       return newMap;
     });
+  };
+
+  const handleSpecimenChange = (category: string, value: string): void => {
+    const newSpecimens = new Map(categorySpecimens);
+    if (value) {
+      newSpecimens.set(category, value);
+    } else {
+      newSpecimens.delete(category);
+    }
+    setCategorySpecimens(newSpecimens);
   };
 
   const filteredLabs = useMemo(() => {
@@ -429,82 +482,18 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
               {/* Lab Tests Grid */}
               <div className="max-h-[50vh] overflow-y-auto rounded-lg border">
                 {filteredLabs && Object.entries(filteredLabs).length > 0 ? (
-                  Object.entries(filteredLabs).map(([mainCategory, subCategories]) => {
-                    const hasSelectedTestsInCategory = Array.from(selectedTests.values()).some(
-                      (meta) => meta.category === mainCategory,
-                    );
-                    const specimenValue = categorySpecimens.get(mainCategory) || '';
-                    const specimenMissing = hasSelectedTestsInCategory && !specimenValue.trim();
-                    return (
-                      <div key={mainCategory} className="border-b last:border-b-0">
-                        <div className="sticky top-0 z-10 bg-gray-50 px-4 py-3">
-                          <h3 className="text-lg font-bold text-gray-800">{mainCategory}</h3>
-                        </div>
-                        <div className="space-y-4 p-4">
-                          {/* Category-specific specimen field - show when tests selected in this category */}
-                          {hasSelectedTestsInCategory && (
-                            <div
-                              className={`mb-4 rounded-md border ${
-                                specimenMissing
-                                  ? 'border-red-300 bg-red-50'
-                                  : 'border-amber-200 bg-amber-50'
-                              } p-3`}
-                            >
-                              <Input
-                                labelName={`Specimen for ${mainCategory} (required)`}
-                                placeholder="Enter specimen (e.g., Blood, Urine)"
-                                value={specimenValue}
-                                onChange={(e) => {
-                                  const newSpecimens = new Map(categorySpecimens);
-                                  if (e.target.value) {
-                                    newSpecimens.set(mainCategory, e.target.value);
-                                  } else {
-                                    newSpecimens.delete(mainCategory);
-                                  }
-                                  setCategorySpecimens(newSpecimens);
-                                }}
-                                className="bg-white"
-                              />
-                              <p
-                                className={`mt-1 text-xs ${
-                                  specimenMissing ? 'text-red-600' : 'text-amber-700'
-                                }`}
-                              >
-                                {specimenMissing
-                                  ? 'Specimen is required for selected tests in this category.'
-                                  : `Provide specimen for all ${mainCategory} tests`}
-                              </p>
-                            </div>
-                          )}
-
-                          {Object.entries(subCategories).map(([subCategory, tests]) => (
-                            <div key={subCategory} className="space-y-2">
-                              <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
-                              <div className="grid grid-cols-1 gap-3 pl-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                                {(tests as string[]).map((test: string) => (
-                                  <div key={test} className="flex items-start space-x-2">
-                                    <Checkbox
-                                      id={`${mainCategory}-${subCategory}-${test}`}
-                                      checked={selectedTests.has(test)}
-                                      onCheckedChange={() =>
-                                        toggleTestSelection(test, mainCategory, subCategory)
-                                      }
-                                    />
-                                    <Label
-                                      htmlFor={`${mainCategory}-${subCategory}-${test}`}
-                                      className="cursor-pointer text-sm leading-tight"
-                                    >
-                                      {test}
-                                    </Label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })
+                  Object.entries(filteredLabs).map(([mainCategory, subCategories]) => (
+                    <LabCategorySection
+                      key={mainCategory}
+                      mainCategory={mainCategory}
+                      subCategories={subCategories as Record<string, string[]>}
+                      selectedTests={selectedTests}
+                      categorySpecimens={categorySpecimens}
+                      onSpecimenChange={handleSpecimenChange}
+                      onToggleTest={toggleTestSelection}
+                      extractSpecimenOptions={extractSpecimenOptions}
+                    />
+                  ))
                 ) : (
                   <div className="p-8 text-center text-gray-500">
                     {searchQuery ? (
