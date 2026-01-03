@@ -250,7 +250,7 @@ const DiagnosePrescribe = ({
             {watch('name') && (
               <>
                 <div className="mt-8 text-center text-sm text-gray-500">
-                Prescribe drug for condition
+                  Prescribe drug for condition
                 </div>
                 <div className="space-y-4">
                   <Input

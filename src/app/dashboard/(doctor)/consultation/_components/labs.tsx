@@ -150,6 +150,10 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
   };
 
   const extractSpecimenOptions = (testName: string): string[] | null => {
+    const MAX_INPUT_LENGTH = 1000;
+    if (testName.length > MAX_INPUT_LENGTH) {
+      return null;
+    }
     const match = testName.match(/\(([^)]+?)\)/);
     if (!match) {
       return null;
@@ -158,7 +162,10 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
     if (!content) {
       return null;
     }
-    return content.split(',').map((option) => option.trim()).filter((option) => option.length > 0);
+    return content
+      .split(',')
+      .map((option) => option.trim())
+      .filter((option) => option.length > 0);
   };
 
   const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
@@ -166,11 +173,11 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
       const newMap = new Map(prev);
       if (newMap.has(testName)) {
         newMap.delete(testName);
-        
+
         const remainingTestsInCategory = Array.from(newMap.values()).some(
           (meta) => meta.category === category,
         );
-                if (!remainingTestsInCategory) {
+        if (!remainingTestsInCategory) {
           setCategorySpecimens((specimens) => {
             const newSpecimens = new Map(specimens);
             newSpecimens.delete(category);
@@ -179,9 +186,9 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
         }
       } else {
         newMap.set(testName, { category, categoryType });
-        
+
         const specimenOptions = extractSpecimenOptions(testName);
-        
+
         if (specimenOptions?.length === 1) {
           const singleSpecimen = specimenOptions[0];
           setCategorySpecimens((specimens) => {

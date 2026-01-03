@@ -62,4 +62,3 @@ const LabCategorySection = ({
 };
 
 export default LabCategorySection;
-

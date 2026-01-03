@@ -72,9 +72,7 @@ const SpecimenInput = ({
         onChange={(e) => onSpecimenChange(e.target.value)}
         className="bg-white"
       />
-      <p
-        className={`mt-1 text-xs ${specimenMissing ? 'text-red-600' : 'text-amber-700'}`}
-      >
+      <p className={`mt-1 text-xs ${specimenMissing ? 'text-red-600' : 'text-amber-700'}`}>
         {getHelpText()}
       </p>
     </div>
@@ -82,4 +80,3 @@ const SpecimenInput = ({
 };
 
 export default SpecimenInput;
-

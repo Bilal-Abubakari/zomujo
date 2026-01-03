@@ -245,11 +245,11 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-primary-200 bg-primary-50 p-4">
+                <div className="border-primary-200 bg-primary-50 rounded-lg border p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-medium text-gray-600">Total Amount</p>
-                      <p className="text-xl font-bold text-primary-600">GHS {fee?.amount || '0'}</p>
+                      <p className="text-primary-600 text-xl font-bold">GHS {fee?.amount || '0'}</p>
                     </div>
                   </div>
                 </div>
