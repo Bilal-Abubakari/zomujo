@@ -154,11 +154,12 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
     if (testName.length > MAX_INPUT_LENGTH) {
       return null;
     }
-    const match = testName.match(/\(([^)]+?)\)/);
-    if (!match) {
+    const openParenIndex = testName.indexOf('(');
+    const closeParenIndex = testName.indexOf(')', openParenIndex);
+    if (openParenIndex === -1 || closeParenIndex === -1 || closeParenIndex <= openParenIndex) {
       return null;
     }
-    const content = match[1].trim();
+    const content = testName.slice(openParenIndex + 1, closeParenIndex).trim();
     if (!content) {
       return null;
     }
