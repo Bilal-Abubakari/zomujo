@@ -215,3 +215,22 @@ export const rescheduleAppointment = createAsyncThunk(
     }
   },
 );
+
+export const createHospitalAppointment = createAsyncThunk(
+  'appointment/createHospitalAppointment',
+  async (payload: {
+    hospitalId: string;
+    name: string;
+    telephone: string;
+    serviceType?: string;
+    additionalInfo?: string;
+    date: string;
+  }): Promise<Toast | IAppointment> => {
+    try {
+      const { data } = await axios.post<IResponse<IAppointment>>(`appointments/hospital-request`, payload);
+      return generateSuccessToast('Appointment request submitted successfully');
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);

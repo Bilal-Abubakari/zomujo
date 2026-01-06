@@ -4,9 +4,12 @@ import Image from 'next/image';
 import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { IHospitalListItem } from '@/types/hospital.interface';
-import { Modal } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
-import { MedicalAppointmentType } from '@/hooks/useQueryParam';
+import HospitalAppointmentModal, { HospitalAppointmentFormData } from '@/app/dashboard/(patient)/find-hospitals/_components/hospitalAppointmentModal';
+import { useAppDispatch } from '@/lib/hooks';
+import { createHospitalAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { toast } from '@/hooks/use-toast';
+import { showErrorToast } from '@/lib/utils';
 
 interface HospitalCardProps {
   hospital: IHospitalListItem;
@@ -14,8 +17,11 @@ interface HospitalCardProps {
 
 const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
   const [showPreview, setShowPreview] = useState(false);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const {
+    id,
     name,
     slug,
     description,
@@ -37,6 +43,26 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
       return;
     }
     router.push(`/dashboard/find-hospitals/${slug}`);
+  };
+
+  const handleAppointmentSubmit = async (formData: HospitalAppointmentFormData): Promise<void> => {
+    const { payload } = await dispatch(
+      createHospitalAppointment({
+        hospitalId: id,
+        name: formData.name,
+        telephone: formData.telephone,
+        serviceType: formData.serviceType,
+        additionalInfo: formData.additionalInfo,
+        date: formData.date,
+      }),
+    );
+
+    if (showErrorToast(payload)) {
+      toast(payload);
+      throw new Error('Failed to submit appointment request');
+    } else {
+      toast(payload);
+    }
   };
 
   return (
@@ -129,11 +155,7 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           <div className="flex flex-row items-center justify-between">
             <Button variant="secondary" onClick={handleViewDetails} child="View Details" />
             <Button
-              onClick={() =>
-                router.push(
-                  `/dashboard/book-appointment/${hospital.id}?appointmentType=${MedicalAppointmentType.Hospital}`,
-                )
-              }
+              onClick={() => setShowAppointmentModal(true)}
               child={
                 <>
                   <CalendarCheck size={14} />
@@ -144,6 +166,13 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           </div>
         </div>
       </div>
+      <HospitalAppointmentModal
+        open={showAppointmentModal}
+        setOpen={setShowAppointmentModal}
+        hospitalId={id}
+        hospitalName={name}
+        onSubmit={handleAppointmentSubmit}
+      />
     </>
   );
 };
