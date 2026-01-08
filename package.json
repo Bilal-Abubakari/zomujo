@@ -59,7 +59,7 @@
     "react-intersection-observer": "10.0.0",
     "react-redux": "^9.2.0",
     "react-signature-pad-wrapper": "^4.1.1",
-    "recharts": "^3.6.0",
+    "recharts": "^2.15.3",
     "redux-persist": "^6.0.0",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.2.0",
@@ -69,8 +69,6 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.3.0",
-    "@commitlint/config-conventional": "^20.3.0",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.1.6",
     "@testing-library/dom": "^10.4.0",
