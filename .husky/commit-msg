@@ -1,9 +1,2 @@
-commit_regex='^([a-z]+)(\([a-z]+\))?: [a-z].*$'
-# Read the commit message from the file
-commit_message=$(cat "$1")
-if ! echo "$commit_message" | grep -qE "$commit_regex"; then
-    echo "ERROR: Commit message does not follow the required format."
-    echo "Please follow the format: <type>(<scope>): <subject>"
-    echo "Example: feat(parser): add ability to parse arrays"
-    exit 1
-fi
+npx commitlint --edit $1
+
