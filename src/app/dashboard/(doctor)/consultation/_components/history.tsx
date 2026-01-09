@@ -158,18 +158,12 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const hasSetComplaintDurations = useRef(false);
   const complaintFieldsContainerRef = useRef<HTMLDivElement>(null);
 
-  const storageKey = useMemo(
-    () => `consultation_${params?.appointmentId}_symptoms_draft`,
-    [params],
-  );
+  const storageKey = useMemo(() => `consultation_${params?.appointmentId}_history_draft`, [params]);
 
-  // Restore draft if no server symptoms yet
   useEffect(() => {
     if (!symptoms) {
       const draft = LocalStorageManager.getJSON<IConsultationSymptoms>(storageKey);
-      console.log('Draft', draft);
       if (draft) {
-        // Apply draft values
         setValue('complaints', draft.complaints ?? []);
         setValue(
           'symptoms',
@@ -186,18 +180,16 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
         setValue('medicinesTaken', draft.medicinesTaken ?? []);
       }
     }
-  }, [symptoms, storageKey, setValue]);
+  }, [symptoms, storageKey]);
 
-  // Persist draft on any form value change (debounced via RAF batching)
   useEffect(() => {
     const subscription = watch((value) => {
-      // Only persist if not already saved on server (symptoms selector empty or undefined)
       if (!symptoms) {
         LocalStorageManager.setJSON(storageKey, value as IConsultationSymptoms);
       }
     });
     return (): void => subscription.unsubscribe();
-  }, [watch, symptoms, storageKey]);
+  }, [symptoms, storageKey]);
 
   const clearDraft = useCallback(() => {
     LocalStorageManager.removeJSON(storageKey);
@@ -223,7 +215,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
         }
       }
     },
-    [append, complaintsHFC, selectedComplaints],
+    [complaintsHFC, selectedComplaints],
   );
 
   const addComplaint = useCallback((): void => {
@@ -238,7 +230,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setOtherComplaint('');
       scrollToComplaintFields();
     }
-  }, [append, complaintSuggestions, otherComplaint, selectedComplaints]);
+  }, [complaintSuggestions, otherComplaint, selectedComplaints]);
 
   const scrollToComplaintFields = (): void => {
     // Scroll to the complaint fields after a short delay to ensure DOM is updated
@@ -347,17 +339,6 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
       hasSetComplaintDurations.current = true;
     }
 
-    if (!isLoadingComplaintSuggestions) {
-      complaints.forEach(({ complaint, duration }) => {
-        if (complaintSuggestions.includes(complaint)) {
-          handleSelectedComplaint(complaint, false);
-        } else {
-          setComplaintSuggestions((prev) => [...prev, complaint]);
-          append({ complaint, duration });
-        }
-      });
-    }
-
     if (systemSymptoms) {
       setValue('symptoms', patientSymptoms);
       const sectionsWithSymptoms = Object.keys(systemSymptoms).filter(
@@ -381,18 +362,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
         setSystemSymptoms(symptomsMap);
       }
     }
-  }, [
-    symptoms,
-    systemSymptoms,
-    isLoadingComplaintSuggestions,
-    setValue,
-    complaintSuggestions,
-    append,
-    handleSelectedComplaint,
-    setComplaintSuggestions,
-    setExpandedSections,
-    setSystemSymptoms,
-  ]);
+  }, [symptoms, systemSymptoms, isLoadingComplaintSuggestions, complaintSuggestions]);
 
   const [bulkDurationValue, setBulkDurationValue] = useState<string>('');
   const [bulkDurationType, setBulkDurationType] = useState<DurationType>(DurationType.Days);
