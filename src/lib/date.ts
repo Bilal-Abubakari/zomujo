@@ -113,6 +113,25 @@ export function getFormattedDate(date: Date | string): string {
 }
 
 /**
+ * Formats a given date to a string including both date and time in the format "DD MMM YYYY at HH:MM".
+ *
+ * @param date - The date to format, either as a Date object or a string.
+ * @returns The formatted date and time string.
+ */
+export function getFormattedDateTime(date: Date | string): string {
+  const formattedDate = new Date(date).toLocaleDateString('en', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  const formattedTime = new Date(date).toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return `${formattedDate} at ${formattedTime}`;
+}
+
+/**
  * Converts a date to the format DD/MM/YYYY
  * @param date - The date to format
  * @returns The formatted date string

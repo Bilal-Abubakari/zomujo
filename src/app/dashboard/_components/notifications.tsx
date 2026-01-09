@@ -1,5 +1,5 @@
 import { JSX, useCallback, useRef } from 'react';
-import { getFormattedDate } from '@/lib/date';
+import { getFormattedDateTime } from '@/lib/date';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   selectNotificationsLoading,
@@ -118,14 +118,14 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                       'group relative w-full rounded-lg border transition-all duration-200 hover:shadow-md',
                       read
                         ? 'border-gray-200 bg-white hover:border-gray-300'
-                        : 'border-[#067458]/20 bg-[#067458]/5 hover:border-[#067458]/30',
+                        : 'border-primary-dark/20 bg-primary-dark/5 hover:border-primary-dark/30',
                     )}
                     key={id}
                   >
                     <div className="w-full p-2 sm:p-3 lg:p-4">
                       {/* Header section */}
                       <div className="flex w-full gap-2 sm:gap-3 lg:gap-4">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <AvatarComp
                             name=""
                             imageSrc={Logo.src}
@@ -137,16 +137,16 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                         <div className="w-0 min-w-0 flex-1">
                           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
                             <div className="min-w-0 flex-1">
-                              <h3 className="text-xs leading-tight font-semibold break-words text-gray-900 sm:text-sm lg:text-base">
+                              <h3 className="text-xs leading-tight font-semibold wrap-break-word text-gray-900 sm:text-sm lg:text-base">
                                 {payload.topic}
                               </h3>
                               <time className="mt-0.5 block text-xs text-gray-500">
-                                {getFormattedDate(createdAt)}
+                                {getFormattedDateTime(createdAt)}
                               </time>
                             </div>
 
                             {!read && (
-                              <span className="mt-1 inline-flex max-w-fit items-center rounded-full bg-[#067458]/10 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-[#067458] sm:mt-0">
+                              <span className="bg-primary-dark/10 text-primary-dark mt-1 inline-flex max-w-fit items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap sm:mt-0">
                                 New
                               </span>
                             )}
@@ -156,7 +156,7 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
 
                       <div className="mt-2 w-full sm:mt-3">
                         <div className="w-full max-w-full rounded-lg bg-gray-50 p-2 sm:p-3">
-                          <p className="overflow-wrap-anywhere text-xs leading-relaxed break-words whitespace-pre-wrap text-gray-700 sm:text-sm">
+                          <p className="overflow-wrap-anywhere text-xs leading-relaxed wrap-break-word whitespace-pre-wrap text-gray-700 sm:text-sm">
                             {payload.message}
                           </p>
                         </div>
@@ -167,7 +167,7 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                         <div className="mt-2 flex w-full flex-row gap-2 sm:mt-3 sm:gap-3">
                           <button
                             onClick={() => dispatch(markAsRead(id))}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-[#067458] sm:justify-start sm:text-sm"
+                            className="focus:ring-primary-dark inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition-colors hover:bg-gray-50 focus:ring-2 sm:justify-start sm:text-sm"
                           >
                             <CheckCheck className="h-3 w-3 sm:h-4 sm:w-4" />
                             <span>Mark as Read</span>
@@ -177,7 +177,7 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                           ) && (
                             <button
                               onClick={() => viewNotificationDetails(notification)}
-                              className="inline-flex items-center justify-center gap-1.5 rounded-md bg-[#067458] px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-[#067458]/90 focus:ring-2 focus:ring-[#067458] sm:justify-start sm:text-sm"
+                              className="bg-primary-dark hover:bg-primary-dark/90 focus:ring-primary-dark inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors focus:ring-2 sm:justify-start sm:text-sm"
                             >
                               <EyeIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                               <span>View Details</span>
