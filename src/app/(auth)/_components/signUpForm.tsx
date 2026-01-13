@@ -86,6 +86,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     handleSubmit: handleSubmitHospital,
     watch: watchHospital,
     setValue: setValueHospital,
+    trigger: triggerHospital,
     formState: { errors: errorsHospital, isValid: isValidHospital },
   } = useForm<IHospitalSignUp>({
     resolver: zodResolver(hospitalSignUpSchema),
@@ -326,11 +327,31 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
               <Location
                 placeHolder="Liberation Road, Accra"
                 error={errorsHospital.location?.message || ''}
+                value={hospitalLocation || ''}
+                onChange={(value) => {
+                  setValueHospital('location', value, { shouldValidate: true });
+                  // Set default coordinates if not already set (when typing directly)
+                  const currentLat = watchHospital('lat');
+                  const currentLong = watchHospital('long');
+                  const currentGpsLink = watchHospital('gpsLink');
+                  if (currentLat === undefined || currentLong === undefined || !currentGpsLink) {
+                    // Use default coordinates from first location
+                    const defaultCoords = DUMMY_COORDINATES['1'];
+                    setValueHospital('lat', defaultCoords.lat, { shouldValidate: true });
+                    setValueHospital('long', defaultCoords.lng, { shouldValidate: true });
+                    setValueHospital('gpsLink', defaultCoords.url, { shouldValidate: true });
+                    // Trigger validation for all location-related fields
+                    setTimeout(() => {
+                      triggerHospital(['location', 'lat', 'long', 'gpsLink']);
+                    }, 0);
+                  }
+                }}
                 handleLocationValue={handleHospitalLocationValue}
-                onBlur={() =>
-                  !hospitalLocation &&
-                  setValueHospital('location', '', { shouldTouch: true, shouldValidate: true })
-                }
+                onBlur={() => {
+                  if (!hospitalLocation) {
+                    setValueHospital('location', '', { shouldTouch: true, shouldValidate: true });
+                  }
+                }}
               />
               <Input
                 labelName="Phone (Optional)"
@@ -369,10 +390,16 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
             <Location
               placeHolder="Liberation Road, Accra"
               error={errors.location?.message || ''}
+              value={location || ''}
+              onChange={(value) => {
+                setValue('location', value, { shouldValidate: true });
+              }}
               handleLocationValue={handleLocationValue}
-              onBlur={() =>
-                !location && setValue('location', '', { shouldTouch: true, shouldValidate: true })
-              }
+              onBlur={() => {
+                if (!location) {
+                  setValue('location', '', { shouldTouch: true, shouldValidate: true });
+                }
+              }}
             />
             <Input
               labelName="Email"

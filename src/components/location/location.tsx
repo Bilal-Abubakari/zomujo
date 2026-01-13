@@ -1,5 +1,5 @@
 'use client';
-import React, { JSX, useState } from 'react';
+import React, { JSX, useState, useEffect } from 'react';
 import { Label } from '../ui/label';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
@@ -27,6 +27,8 @@ interface LocationProps {
   error: string;
   handleLocationValue: (data: Option) => void;
   onBlur?: () => void;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 const Location = ({
@@ -35,14 +37,26 @@ const Location = ({
   error,
   handleLocationValue,
   onBlur,
+  value: controlledValue,
+  onChange,
 }: LocationProps): JSX.Element => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(controlledValue || '');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredLocations, setFilteredLocations] = useState(DUMMY_LOCATIONS);
+
+  // Sync with controlled value if provided
+  useEffect(() => {
+    if (controlledValue !== undefined) {
+      setInputValue(controlledValue);
+    }
+  }, [controlledValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
+    
+    // Update form state if onChange callback is provided
+    onChange?.(value);
     
     // Filter locations based on input
     const filtered = DUMMY_LOCATIONS.filter(location =>
@@ -53,8 +67,11 @@ const Location = ({
   };
 
   const handleSelectLocation = (location: Option) => {
-    setInputValue(location.value.description);
+    const description = location.value.description;
+    setInputValue(description);
     setShowSuggestions(false);
+    // Update form state via onChange if provided
+    onChange?.(description);
     handleLocationValue(location);
   };
 
@@ -98,8 +115,6 @@ const Location = ({
             ))}
           </div>
         )}
-        
-        {error && <small className="-mt-1 text-xs font-medium text-red-500">{error}</small>}
       </div>
     </div>
   );
