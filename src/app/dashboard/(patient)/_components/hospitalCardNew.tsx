@@ -1,11 +1,15 @@
 'use client';
-import { MapPin, ExternalLink, Building2, X, Phone, Globe, Mail } from 'lucide-react';
+import { MapPin, CalendarCheck, Building2, X, Phone, Mail } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { IHospitalListItem } from '@/types/hospital.interface';
-import { Modal } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
+import HospitalAppointmentModal, { HospitalAppointmentFormData } from '@/app/dashboard/(patient)/find-hospitals/_components/hospitalAppointmentModal';
+import { useAppDispatch } from '@/lib/hooks';
+import { createHospitalAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { toast } from '@/hooks/use-toast';
+import { showErrorToast } from '@/lib/utils';
 
 interface HospitalCardProps {
   hospital: IHospitalListItem;
@@ -13,8 +17,23 @@ interface HospitalCardProps {
 
 const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
   const [showPreview, setShowPreview] = useState(false);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const router = useRouter();
-  const { name, slug, description, organizationType, hasEmergency, telemedicine, primaryAddress, images, mainPhone, website, mainEmail } = hospital;
+  const dispatch = useAppDispatch();
+  const {
+    id,
+    name,
+    slug,
+    description,
+    organizationType,
+    hasEmergency,
+    telemedicine,
+    primaryAddress,
+    images,
+    mainPhone,
+    website,
+    mainEmail,
+  } = hospital;
 
   const primaryImage = images && images.length > 0 ? images[0] : null;
 
@@ -24,6 +43,26 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
       return;
     }
     router.push(`/dashboard/find-hospitals/${slug}`);
+  };
+
+  const handleAppointmentSubmit = async (formData: HospitalAppointmentFormData): Promise<void> => {
+    const { payload } = await dispatch(
+      createHospitalAppointment({
+        hospitalId: id,
+        name: formData.name,
+        telephone: formData.telephone,
+        serviceType: formData.serviceType,
+        additionalInfo: formData.additionalInfo,
+        date: formData.date,
+      }),
+    );
+
+    if (showErrorToast(payload)) {
+      toast(payload);
+      throw new Error('Failed to submit appointment request');
+    } else {
+      toast(payload);
+    }
   };
 
   return (
@@ -78,9 +117,7 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
                     : primaryAddress.city || primaryAddress.state || primaryAddress.street}
                 </div>
               )}
-              {description && (
-                <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
-              )}
+              {description && <p className="line-clamp-2 text-sm text-gray-600">{description}</p>}
               <div className="mt-2 flex flex-wrap gap-2">
                 <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
                   {organizationType}
@@ -98,20 +135,12 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
               </div>
               <hr className="mt-2 w-full" />
             </div>
-            {(mainPhone || website || mainEmail) && (
+            {(mainPhone || mainEmail) && (
               <div className="mb-4 flex flex-col gap-2 text-sm text-gray-600">
                 {mainPhone && (
                   <div className="flex items-center gap-2">
                     <Phone size={14} />
                     <span>{mainPhone}</span>
-                  </div>
-                )}
-                {website && (
-                  <div className="flex items-center gap-2">
-                    <Globe size={14} />
-                    <a href={website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                      Visit Website
-                    </a>
                   </div>
                 )}
                 {mainEmail && (
@@ -125,26 +154,27 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           </div>
           <div className="flex flex-row items-center justify-between">
             <Button variant="secondary" onClick={handleViewDetails} child="View Details" />
-            {primaryAddress && primaryAddress.city && (
-              <Button
-                onClick={() => {
-                  const query = encodeURIComponent(`${name} ${primaryAddress.city} ${primaryAddress.state || ''}`);
-                  window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-                }}
-                child={
-                  <>
-                    <ExternalLink size={14} />
-                    Maps
-                  </>
-                }
-              />
-            )}
+            <Button
+              onClick={() => setShowAppointmentModal(true)}
+              child={
+                <>
+                  <CalendarCheck size={14} />
+                  Book Appointment
+                </>
+              }
+            />
           </div>
         </div>
       </div>
+      <HospitalAppointmentModal
+        open={showAppointmentModal}
+        setOpen={setShowAppointmentModal}
+        hospitalId={id}
+        hospitalName={name}
+        onSubmit={handleAppointmentSubmit}
+      />
     </>
   );
 };
 
 export default HospitalCard;
-
