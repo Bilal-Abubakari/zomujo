@@ -2,20 +2,15 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UpcomingAppointments from '@/app/dashboard/appointment/_components/upcomingAppointments';
 import AppointmentRequests from '@/app/dashboard/appointment/_components/appointmentRequests';
-import AppointmentRequestsPreview from '@/app/dashboard/appointment/_components/appointmentRequestsPreview';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect } from 'react';
 import { AppointmentView, useQueryParam } from '@/hooks/useQueryParam';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppSelector } from '@/lib/hooks';
 import { Role } from '@/types/shared.enum';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Appointment = (): JSX.Element => {
   const { updateQuery, getQueryParam } = useQueryParam();
   const user = useAppSelector(selectUser);
-  const [isRequestsExpanded, setIsRequestsExpanded] = useState(false);
   const isAdminOrHospital = user?.role === Role.Admin || user?.role === Role.Hospital || user?.role === Role.SuperAdmin;
 
   useEffect(() => {
@@ -29,54 +24,17 @@ const Appointment = (): JSX.Element => {
     }
   }, [isAdminOrHospital]);
 
-  // For Admin/Hospital: Column layout with collapsible Requests
+  // For Admin/Hospital: Column layout with Requests
   if (isAdminOrHospital) {
     return (
       <div className="flex flex-col gap-6">
         <div>
           <p className="text-xl font-bold">Appointments</p>
         </div>
-        <Collapsible open={isRequestsExpanded} onOpenChange={setIsRequestsExpanded}>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4">
-              <div className="flex items-center gap-2">
-                <p className="text-lg font-semibold">Appointment Requests</p>
-              </div>
-              <CollapsibleTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8"
-                  child={
-                    isRequestsExpanded ? (
-                      <>
-                        <ChevronUp className="h-4 w-4" />
-                        <span>Collapse</span>
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="h-4 w-4" />
-                        <span>View All</span>
-                      </>
-                    )
-                  }
-                />
-              </CollapsibleTrigger>
-            </div>
-            {!isRequestsExpanded && (
-              <div className="rounded-lg border border-gray-200 bg-white p-4">
-                <AppointmentRequestsPreview />
-              </div>
-            )}
-            <CollapsibleContent>
-              <div className="rounded-lg border border-gray-200 bg-white p-4">
-                <AppointmentRequests />
-              </div>
-            </CollapsibleContent>
+        <div className="flex flex-col gap-4">
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <AppointmentRequests />
           </div>
-        </Collapsible>
-        <div className="flex-1">
-          <UpcomingAppointments />
         </div>
       </div>
     );

@@ -14,31 +14,26 @@ import {
   getAppointments,
   rescheduleAppointment,
 } from '@/lib/features/appointments/appointmentsThunk';
-import { joinConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import { selectUser, selectExtra, selectOrganizationId } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { IAppointment } from '@/types/appointment.interface';
-import { AppointmentType } from '@/types/slots.interface';
 import { AcceptDeclineStatus, OrderDirection, Role } from '@/types/shared.enum';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
   Calendar as CalendarIcon,
-  House,
+  ChevronDown,
+  ChevronUp,
   ListFilter,
-  Loader2,
-  Presentation,
   RotateCcw,
   Search,
   SendHorizontal,
   Signature,
-  Video,
-  View,
   Waypoints,
 } from 'lucide-react';
 import moment from 'moment';
-import React, { FormEvent, JSX, useState } from 'react';
+import React, { FormEvent, JSX, useMemo, useState } from 'react';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 import { IDoctor } from '@/types/doctor.interface';
@@ -46,7 +41,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { NotificationEvent } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
 import { useForm } from 'react-hook-form';
@@ -79,7 +73,6 @@ type RescheduleAppointment = {
 
 const AppointmentRequests = (): JSX.Element => {
   const { on } = useWebSocket();
-  const router = useRouter();
   const user = useAppSelector(selectUser);
   const extra = useAppSelector(selectExtra);
   const orgId = useAppSelector(selectOrganizationId);
@@ -99,7 +92,6 @@ const AppointmentRequests = (): JSX.Element => {
   const [rescheduleAppointmentData, setRescheduleAppointmentData] =
     useState<RescheduleAppointment | null>(null);
   const [isRescheduling, setIsRescheduling] = useState(false);
-  const [joiningAppointmentId, setJoiningAppointmentId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
@@ -139,12 +131,15 @@ const AppointmentRequests = (): JSX.Element => {
     { value: '', label: 'All' },
     { value: AppointmentStatus.Pending, label: 'Pending' },
     { value: AppointmentStatus.Accepted, label: 'Accepted' },
-    { value: AppointmentStatus.Progress, label: 'In Progress' },
-    { value: AppointmentStatus.Completed, label: 'Completed' },
     { value: AppointmentStatus.Cancelled, label: 'Cancelled' },
-    { value: AppointmentStatus.Declined, label: 'Declined' },
-    { value: AppointmentStatus.Incomplete, label: 'Incomplete' },
   ];
+  const dateSortOptions: ISelected[] = [
+    { value: '', label: 'Default' },
+    { value: OrderDirection.Ascending, label: 'Ascending' },
+    { value: OrderDirection.Descending, label: 'Descending' },
+  ];
+  const [dateSortDirection, setDateSortDirection] = useState<string>('');
+
   const columns: ColumnDef<IAppointment>[] = [
     {
       accessorKey: 'patient',
@@ -170,31 +165,9 @@ const AppointmentRequests = (): JSX.Element => {
       },
     },
     {
-      accessorKey: 'type',
-      header: 'Type',
-      cell: ({ row: { original } }): JSX.Element => {
-        const { type } = original;
-        const virtual = type === AppointmentType.Virtual;
-        return virtual ? (
-          <div className="flex items-center gap-2">
-            <Presentation size={16} /> Virtual
-          </div>
-        ) : (
-          <div>
-            <House size={16} /> Visit
-          </div>
-        );
-      },
-    },
-    {
       accessorKey: 'date',
       header: 'Date',
       cell: ({ row: { original } }): string => moment(original.slot.date).format('LL'),
-    },
-    {
-      accessorKey: 'time',
-      header: 'Time',
-      cell: ({ row: { original } }): string => moment(original.slot.startTime).format('hh:mm A'),
     },
     {
       accessorKey: 'status',
@@ -287,34 +260,6 @@ const AppointmentRequests = (): JSX.Element => {
               {
                 title: (
                   <>
-                    {joiningAppointmentId === id ? <Loader2 className="animate-spin" /> : <Video />}{' '}
-                    {joiningAppointmentId === id ? 'Joining...' : 'Join Meeting'}
-                  </>
-                ),
-                clickCommand: (): void => {
-                  if (!joiningAppointmentId) {
-                    void handleJoinMeeting(id);
-                  }
-                },
-                visible: !isDone && !isCancelled,
-              },
-              {
-                title: (
-                  <>
-                    <View /> View Consultation
-                  </>
-                ),
-                clickCommand: (): void => {
-                  if (user?.role === Role.Doctor || user?.role === Role.Hospital) {
-                    router.push(`/dashboard/patients/${patient.id}?appointmentId=${id}`);
-                  } else {
-                    router.push(`/dashboard/consultation-patient/${id}`);
-                  }
-                },
-              },
-              {
-                title: (
-                  <>
                     <Waypoints /> Assign to a Doctor
                   </>
                 ),
@@ -352,9 +297,23 @@ const AppointmentRequests = (): JSX.Element => {
     !queryParameters.startDate &&
     !queryParameters.endDate;
 
-  const displayAppointments = shouldUseDummyAppointments
+  const baseAppointments = shouldUseDummyAppointments
     ? DUMMY_HOSPITAL_APPOINTMENTS
     : tableData;
+
+  const displayAppointments = useMemo(() => {
+    if (!dateSortDirection) {
+      return baseAppointments;
+    }
+    const sorted = [...baseAppointments].sort((a, b) => {
+      const dateA = moment(a.slot.date).valueOf();
+      const dateB = moment(b.slot.date).valueOf();
+      return dateSortDirection === OrderDirection.Ascending
+        ? dateA - dateB
+        : dateB - dateA;
+    });
+    return sorted;
+  }, [baseAppointments, dateSortDirection]);
   const displayPaginationData = shouldUseDummyAppointments
     ? DUMMY_HOSPITAL_APPOINTMENTS_PAGINATION
     : paginationData;
@@ -404,26 +363,6 @@ const AppointmentRequests = (): JSX.Element => {
     setRescheduleAppointmentData(null);
     reset();
     void refetch();
-  };
-
-  const handleJoinMeeting = async (appointmentId: string): Promise<void> => {
-    setJoiningAppointmentId(appointmentId);
-
-    const { payload } = await dispatch(joinConsultation(appointmentId));
-
-    if (payload && showErrorToast(payload)) {
-      toast(payload);
-      setJoiningAppointmentId(null);
-      return;
-    }
-
-    // Open meeting link in new tab
-    const meetingLink = payload as string;
-    if (meetingLink) {
-      window.open(meetingLink, '_blank', 'noopener,noreferrer');
-    }
-
-    setJoiningAppointmentId(null);
   };
 
   const handleDateChange = (type: 'start' | 'end', value: string): void => {
@@ -485,6 +424,14 @@ const AppointmentRequests = (): JSX.Element => {
                 status: value as AppointmentStatus,
               }))
             }
+            className="h-10 cursor-pointer bg-gray-50 sm:flex"
+          />
+          <OptionsMenu
+            options={dateSortOptions}
+            Icon={ListFilter}
+            menuTrigger="Sort Date"
+            selected={dateSortDirection}
+            setSelected={(value) => setDateSortDirection(value)}
             className="h-10 cursor-pointer bg-gray-50 sm:flex"
           />
           <div className="flex items-center gap-2">
