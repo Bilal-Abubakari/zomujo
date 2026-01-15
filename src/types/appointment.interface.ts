@@ -7,6 +7,7 @@ import { IConsultationSymptomsRequest } from '@/types/consultation.interface';
 import { IDiagnosis } from '@/types/medical.interface';
 import { ILab } from '@/types/labs.interface';
 import { ISlot, ISlotBase } from '@/types/slots.interface';
+import { IRadiology } from '@/types/radiology.interface';
 
 interface IBaseAppointment {
   id: string;
@@ -27,6 +28,9 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   additionalInfo: string;
   symptoms: IAppointmentSymptoms;
   lab: ILab[];
+  notes: string;
+  radiology: IRadiology;
+  prescriptionUrl: string | null;
   diagnosis: IDiagnosis[];
 }
 

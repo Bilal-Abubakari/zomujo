@@ -11,6 +11,7 @@ import { Control, Controller, FieldPath, TriggerConfig, useFieldArray } from 're
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import { Textarea } from '@/components/ui/textarea';
+import { TooltipComp } from '@/components/ui/tooltip';
 
 type FlyingItemData = {
   id: string;
@@ -35,6 +36,7 @@ const SelectSymptoms = memo(
   ({ symptoms, id, control, selectedSymptoms, trigger }: SelectSymptomsProps): JSX.Element => {
     const [systemSymptoms, setSystemSymptoms] = useState<ISymptom[]>(symptoms);
     const [flyingItem, setFlyingItem] = useState<FlyingItemData | null>(null);
+    const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
     const systemContainerRef = useRef<HTMLDivElement>(null);
     const patientContainerRef = useRef<HTMLDivElement>(null);
 
@@ -43,6 +45,13 @@ const SelectSymptoms = memo(
       control,
       name: `symptoms.${id as SymptomsType}`,
     });
+
+    useEffect(() => {
+      if (newlyAddedId) {
+        const timer = setTimeout(() => setNewlyAddedId(null), 500);
+        return (): void => clearTimeout(timer);
+      }
+    }, [newlyAddedId]);
 
     const handleSymptomClick = (
       item: ISymptom | IPatientSymptom,
@@ -93,6 +102,7 @@ const SelectSymptoms = memo(
               ...symptomItem,
               notes: '',
             });
+            setNewlyAddedId(symptomItem.name); // Track the newly added symptom name
             void trigger();
           }
         }
@@ -110,6 +120,7 @@ const SelectSymptoms = memo(
           selectedSymptoms={selectedSymptoms}
           control={control}
           onSymptomClick={handleSymptomClick}
+          newlyAddedId={newlyAddedId}
         />
         <div className="flex items-center justify-center lg:block">
           <ArrowRight className="h-6 w-6 rotate-90 text-gray-400 lg:rotate-0" />
@@ -123,6 +134,7 @@ const SelectSymptoms = memo(
           selectedSymptoms={selectedSymptoms}
           control={control}
           onSymptomClick={handleSymptomClick}
+          newlyAddedId={newlyAddedId} // Pass newlyAddedId to SymptomsContainer
         />
         {flyingItem && <FlyingSymptom flyingItem={flyingItem} />}
       </div>
@@ -149,6 +161,7 @@ type SymptomsContainerProps = {
     isFromPatient: boolean,
     element: HTMLElement,
   ) => void;
+  newlyAddedId?: string | null;
 };
 
 const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProps>(
@@ -161,6 +174,7 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
       control,
       id,
       onSymptomClick,
+      newlyAddedId, // Destructure newlyAddedId
     },
     ref,
   ): ReactElement | null => {
@@ -187,6 +201,7 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
             control={control}
             onSymptomClick={onSymptomClick}
             isFromPatient={false}
+            newlyAddedId={newlyAddedId}
           />
         ))
       : emptyResults;
@@ -202,6 +217,7 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
             control={control}
             onSymptomClick={onSymptomClick}
             isFromPatient={true}
+            newlyAddedId={newlyAddedId}
           />
         ))
       : emptyResults;
@@ -227,7 +243,7 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
             >
               <div className="relative flex h-[280px] flex-col gap-1 overflow-y-auto">
                 {!patientSymptoms && (
-                  <div className="sticky top-0 z-10 bg-white pb-2">
+                  <div className="sticky top-0 z-10 pb-2">
                     <Input
                       value={search}
                       onChange={({ target }) => setSearch(target.value)}
@@ -260,6 +276,7 @@ type SymptomItemProps = {
     element: HTMLElement,
   ) => void;
   isFromPatient: boolean;
+  newlyAddedId?: string | null;
 };
 
 const SymptomItem = ({
@@ -270,13 +287,14 @@ const SymptomItem = ({
   control,
   onSymptomClick,
   isFromPatient,
+  newlyAddedId,
 }: SymptomItemProps): ReactElement | null => {
   const [showNotes, setShowNotes] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+  const handleClick = ({ detail }: React.MouseEvent<HTMLButtonElement>): void => {
     // If clicking on patient symptom and notes are showing, toggle notes
-    if (patientSymptoms && e.detail === 2) {
+    if (patientSymptoms && detail === 2) {
       setShowNotes((prev) => !prev);
     } else {
       // Single click moves the symptom
@@ -293,7 +311,7 @@ const SymptomItem = ({
         type="button"
         onClick={handleClick}
         className={cn(
-          'hover:border-primaryLightBase flex w-full flex-row items-center justify-between gap-2 rounded-md border border-gray-200 bg-white px-2 py-2 text-left duration-100 hover:bg-blue-50 active:scale-95 sm:px-3 sm:py-2.5',
+          'hover:border-primaryLightBase flex w-full flex-row items-center justify-between gap-2 rounded-md border border-gray-200 bg-white px-2 py-2 text-left duration-100 hover:bg-blue-50 sm:px-3 sm:py-2.5',
         )}
       >
         <p className="text-xs leading-[14px] sm:text-sm">{item.name}</p>
@@ -304,12 +322,17 @@ const SymptomItem = ({
               e.stopPropagation();
               setShowNotes((prev) => !prev);
             }}
-            className="ml-auto text-gray-400 hover:text-gray-600"
+            className={cn(
+              'ml-auto rounded bg-gray-50 p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600',
+              newlyAddedId === item.name && 'animate-shake',
+            )}
           >
-            <CornerDownRight
-              size={16}
-              className={cn('transition-transform', showNotes && 'rotate-90')}
-            />
+            <TooltipComp tip="Toggle notes">
+              <CornerDownRight
+                size={20}
+                className={cn('transition-transform', showNotes && 'rotate-90')}
+              />
+            </TooltipComp>
           </button>
         )}
       </button>

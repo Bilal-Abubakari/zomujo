@@ -424,7 +424,9 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
               type="number"
               placeholder="Duration"
               labelName="Duration (All)"
-              className="w-32 bg-transparent"
+              className="bg-transparent"
+              wrapperClassName="max-w-32"
+              defaultMaxWidth={false}
             />
             <SelectInputV2
               className="max-w-40"
