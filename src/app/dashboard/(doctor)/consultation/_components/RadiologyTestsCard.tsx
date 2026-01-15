@@ -26,7 +26,7 @@ export const RadiologyTestsCard = ({
     </CardHeader>
     <CardContent className="space-y-4">
       {/* Requested Radiology */}
-      {radiology && radiology.tests.filter(({ fileUrl }) => !fileUrl).length > 0 && (
+      {radiology && radiology.tests.some(({ fileUrl }) => !fileUrl) && (
         <div>
           <h4 className="mb-3 text-sm font-semibold text-gray-700">Requested Tests</h4>
           <div className="space-y-2">
@@ -73,7 +73,7 @@ export const RadiologyTestsCard = ({
       )}
 
       {/* Conducted Radiology */}
-      {radiology && radiology.tests.filter(({ fileUrl }) => fileUrl).length > 0 && (
+      {radiology && radiology.tests.some(({ fileUrl }) => fileUrl) && (
         <div>
           <h4 className="mb-3 text-sm font-semibold text-gray-700">Completed Tests</h4>
           <div className="space-y-2">

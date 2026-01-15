@@ -13,7 +13,7 @@ import {
 } from '@/lib/features/appointments/appointmentSelector';
 import { FileText, LayoutGrid } from 'lucide-react';
 import { selectUserName } from '@/lib/features/auth/authSelector';
-import { SymptomsType } from '@/types/consultation.interface';
+import { IPatientSymptomMap, SymptomsType } from '@/types/consultation.interface';
 import { capitalize, showErrorToast } from '@/lib/utils';
 import { Modal } from '@/components/ui/dialog';
 import Signature from '@/components/signature/signature';
@@ -32,6 +32,10 @@ import { CardsView } from './CardsView';
 import { DoctorNotesView } from './DoctorNotesView';
 import { IncompleteConsultationModal } from './IncompleteConsultationModal';
 import { PrescriptionNotesModal } from './PrescriptionNotesModal';
+import { IAppointment } from '@/types/appointment.interface';
+import { ILab } from '@/types/labs.interface';
+import { IRadiology } from '@/types/radiology.interface';
+import { IDiagnosis } from '@/types/medical.interface';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
@@ -67,175 +71,200 @@ const ReviewConsultation = ({
   const hasSignature = !!doctorSignature;
   const isConsultationIncomplete = appointment?.status !== AppointmentStatus.Completed;
 
+  const generateHeader = (appointment: IAppointment, doctorName: string): string =>
+    [
+      `CONSULTATION NOTES\n`,
+      `Date: ${new Date(appointment.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })}\n`,
+      `Patient: ${appointment.patient.firstName} ${appointment.patient.lastName}\n`,
+      `Doctor: ${doctorName}\n`,
+      `\n${'='.repeat(80)}\n\n`,
+    ].join('');
+
+  const generateChiefComplaints = (appointment: IAppointment, complaints?: string[]): string => {
+    if (!complaints || complaints.length === 0) {
+      return '';
+    }
+    const lines: string[] = [`CHIEF COMPLAINTS:\n`];
+    complaints.forEach((complaint) => {
+      const duration = appointment.symptoms?.complaints?.find(
+        (c) => c.complaint === complaint,
+      )?.duration;
+      lines.push(
+        `• ${complaint}${duration ? ` (Duration: ${duration.value} ${duration.type})` : ''}\n`,
+      );
+    });
+    lines.push('\n');
+    return lines.join('');
+  };
+
+  const generateSymptoms = (symptoms?: IPatientSymptomMap): string => {
+    if (!symptoms || Object.keys(symptoms).length === 0) {
+      return '';
+    }
+    const lines: string[] = [
+      `HISTORY OF PRESENT ILLNESS:\n`,
+      `The patient presents with the following symptoms:\n\n`,
+    ];
+    Object.keys(symptoms).forEach((key) => {
+      const symptomType = key as SymptomsType;
+      const symptomList = symptoms[symptomType];
+      if (symptomList && symptomList.length > 0) {
+        lines.push(`${capitalize(symptomType)} System:\n`);
+        symptomList.forEach(({ name, notes }: { name: string; notes?: string }) => {
+          lines.push(`  • ${name}${notes ? ` - ${notes}` : ''}\n`);
+        });
+        lines.push('\n');
+      }
+    });
+    return lines.join('');
+  };
+
+  const generateMedications = (appointment: IAppointment): string => {
+    if (!appointment.symptoms?.medicinesTaken || appointment.symptoms.medicinesTaken.length === 0) {
+      return '';
+    }
+    const lines: string[] = [`MEDICATIONS PREVIOUSLY TAKEN:\n`];
+    appointment.symptoms.medicinesTaken.forEach(
+      ({ name, dose }: { name: string; dose: string }) => {
+        lines.push(`• ${name} - ${dose}\n`);
+      },
+    );
+    lines.push('\n');
+    return lines.join('');
+  };
+
+  const generateLabs = (requestedLabs?: ILab[], conductedLabs?: ILab[]): string => {
+    if (
+      (!requestedLabs || requestedLabs.length === 0) &&
+      (!conductedLabs || conductedLabs.length === 0)
+    ) {
+      return '';
+    }
+    const lines: string[] = [`LABORATORY INVESTIGATIONS:\n`];
+    if (requestedLabs && requestedLabs.length > 0) {
+      lines.push(`Requested Tests:\n`);
+      requestedLabs.forEach(
+        ({
+          testName,
+          specimen,
+          fasting,
+          notes,
+        }: {
+          testName: string;
+          specimen: string;
+          fasting: boolean;
+          notes?: string;
+        }) => {
+          lines.push(
+            `  • ${testName} (Specimen: ${specimen}, Fasting: ${fasting ? 'Yes' : 'No'})${notes ? ` - ${notes}` : ''}\n`,
+          );
+        },
+      );
+      lines.push('\n');
+    }
+    if (conductedLabs && conductedLabs.length > 0) {
+      lines.push(`Completed Tests:\n`);
+      conductedLabs.forEach(({ testName, notes }: { testName: string; notes?: string }) => {
+        lines.push(`  • ${testName}${notes ? ` - ${notes}` : ''}\n`);
+      });
+      lines.push('\n');
+    }
+    return lines.join('');
+  };
+
+  const generateRadiology = (radiology?: IRadiology): string => {
+    if (!radiology) {
+      return '';
+    }
+    const lines: string[] = [
+      `RADIOLOGY INVESTIGATIONS:\n`,
+      `Procedure Request: ${radiology.procedureRequest}\n`,
+      `Clinical History: ${radiology.history}\n\n`,
+    ];
+    const requestedTests = radiology.tests.filter(({ fileUrl }: { fileUrl?: string }) => !fileUrl);
+    const completedTests = radiology.tests.filter(({ fileUrl }: { fileUrl?: string }) => fileUrl);
+    if (requestedTests.length > 0) {
+      lines.push(`Requested Studies:\n`);
+      requestedTests.forEach(({ testName }: { testName: string }) => {
+        lines.push(`  • ${testName}\n`);
+      });
+      lines.push('\n');
+    }
+    if (completedTests.length > 0) {
+      lines.push(`Completed Studies:\n`);
+      completedTests.forEach(({ testName }: { testName: string }) => {
+        lines.push(`  • ${testName}\n`);
+      });
+      lines.push('\n');
+    }
+    if (radiology.questions && radiology.questions.length > 0) {
+      lines.push(`Clinical Questions:\n`);
+      radiology.questions.forEach((question: string) => {
+        lines.push(`  • ${question}\n`);
+      });
+      lines.push('\n');
+    }
+    return lines.join('');
+  };
+
+  const generateDiagnoses = (diagnoses: IDiagnosis[]): string => {
+    if (!diagnoses || diagnoses.length === 0) {
+      return '';
+    }
+    const lines: string[] = [`ASSESSMENT AND DIAGNOSIS:\n`];
+    diagnoses.forEach(({ name, prescriptions, notes }, index: number) => {
+      let diagnosisText = `${index + 1}. ${name}\n`;
+      if (notes) {
+        diagnosisText += `   Notes: ${notes}\n`;
+      }
+      if (prescriptions && prescriptions.length > 0) {
+        diagnosisText += `   Treatment Plan:\n`;
+        prescriptions.forEach(({ name: drugName, doses, doseRegimen, numOfDays, route }) => {
+          diagnosisText += `   • ${drugName} ${doses} - ${doseRegimen} for ${numOfDays} days (${route})\n`;
+        });
+      }
+      diagnosisText += '\n';
+      lines.push(diagnosisText);
+    });
+    return lines.join('');
+  };
+
+  const generatePlan = (): string =>
+    `PLAN:\n[Doctor can add additional recommendations, follow-up instructions, or notes here]\n\n`;
+
+  const generateSignature = (doctorName: string): string =>
+    `\n${'='.repeat(80)}\n\nSigned by: Dr. ${doctorName}\nDate: ${new Date().toLocaleDateString(
+      'en-US',
+      {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      },
+    )}\n`;
+
   // Generate formatted doctor's notes from appointment data
   const generateDoctorNotes = useCallback((): string => {
     if (!appointment) {
       return '';
     }
 
-    const sections: string[] = [];
-
-    // Header
-    sections.push(`CONSULTATION NOTES\n`);
-    sections.push(
-      `Date: ${new Date(appointment.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })}\n`,
-    );
-    sections.push(`Patient: ${appointment.patient.firstName} ${appointment.patient.lastName}\n`);
-    sections.push(`Doctor: ${doctorName}\n`);
-    sections.push(`\n${'='.repeat(80)}\n\n`);
-
-    // Chief Complaints
-    if (complaints && complaints.length > 0) {
-      sections.push(`CHIEF COMPLAINTS:\n`);
-      complaints.forEach((complaint) => {
-        const duration = appointment.symptoms?.complaints?.find(
-          (c) => c.complaint === complaint,
-        )?.duration;
-        if (duration) {
-          sections.push(`• ${complaint} (Duration: ${duration.value} ${duration.type})\n`);
-        } else {
-          sections.push(`• ${complaint}\n`);
-        }
-      });
-      sections.push('\n');
-    }
-
-    // History of Present Illness / Symptoms
-    if (symptoms && Object.keys(symptoms).length > 0) {
-      sections.push(`HISTORY OF PRESENT ILLNESS:\n`);
-      sections.push(`The patient presents with the following symptoms:\n\n`);
-
-      Object.keys(symptoms).forEach((key) => {
-        const symptomType = key as SymptomsType;
-        const symptomList = symptoms[symptomType];
-        if (symptomList && symptomList.length > 0) {
-          sections.push(`${capitalize(symptomType)} System:\n`);
-          symptomList.forEach(({ name, notes }) => {
-            sections.push(`  • ${name}${notes ? ` - ${notes}` : ''}\n`);
-          });
-          sections.push('\n');
-        }
-      });
-    }
-
-    // Medications Previously Taken
-    if (appointment.symptoms?.medicinesTaken && appointment.symptoms.medicinesTaken.length > 0) {
-      sections.push(`MEDICATIONS PREVIOUSLY TAKEN:\n`);
-      appointment.symptoms.medicinesTaken.forEach(({ name, dose }) => {
-        sections.push(`• ${name} - ${dose}\n`);
-      });
-      sections.push('\n');
-    }
-
-    // Laboratory Tests
-    if (
-      (requestedLabs && requestedLabs.length > 0) ||
-      (conductedLabs && conductedLabs.length > 0)
-    ) {
-      sections.push(`LABORATORY INVESTIGATIONS:\n`);
-
-      if (requestedLabs && requestedLabs.length > 0) {
-        sections.push(`Requested Tests:\n`);
-        requestedLabs.forEach(({ testName, specimen, fasting, notes }) => {
-          sections.push(
-            `  • ${testName} (Specimen: ${specimen}, Fasting: ${fasting ? 'Yes' : 'No'})`,
-          );
-          if (notes) {
-            sections.push(` - ${notes}`);
-          }
-          sections.push('\n');
-        });
-        sections.push('\n');
-      }
-
-      if (conductedLabs && conductedLabs.length > 0) {
-        sections.push(`Completed Tests:\n`);
-        conductedLabs.forEach(({ testName, notes }) => {
-          sections.push(`  • ${testName}${notes ? ` - ${notes}` : ''}\n`);
-        });
-        sections.push('\n');
-      }
-    }
-
-    // Radiology Tests
-    if (radiology) {
-      sections.push(`RADIOLOGY INVESTIGATIONS:\n`);
-      sections.push(`Procedure Request: ${radiology.procedureRequest}\n`);
-      sections.push(`Clinical History: ${radiology.history}\n\n`);
-
-      const requestedTests = radiology.tests.filter(({ fileUrl }) => !fileUrl);
-      const completedTests = radiology.tests.filter(({ fileUrl }) => fileUrl);
-
-      if (requestedTests.length > 0) {
-        sections.push(`Requested Studies:\n`);
-        requestedTests.forEach(({ testName }) => {
-          sections.push(`  • ${testName}\n`);
-        });
-        sections.push('\n');
-      }
-
-      if (completedTests.length > 0) {
-        sections.push(`Completed Studies:\n`);
-        completedTests.forEach(({ testName }) => {
-          sections.push(`  • ${testName}\n`);
-        });
-        sections.push('\n');
-      }
-
-      if (radiology.questions && radiology.questions.length > 0) {
-        sections.push(`Clinical Questions:\n`);
-        radiology.questions.forEach((question) => {
-          sections.push(`  • ${question}\n`);
-        });
-        sections.push('\n');
-      }
-    }
-
-    // Diagnosis and Treatment Plan
-    if (diagnoses && diagnoses.length > 0) {
-      sections.push(`ASSESSMENT AND DIAGNOSIS:\n`);
-      diagnoses.forEach(({ name, prescriptions, notes }, index) => {
-        sections.push(`${index + 1}. ${name}\n`);
-        if (notes) {
-          sections.push(`   Notes: ${notes}\n`);
-        }
-
-        if (prescriptions && prescriptions.length > 0) {
-          sections.push(`   Treatment Plan:\n`);
-          prescriptions.forEach(({ name: drugName, doses, doseRegimen, numOfDays, route }) => {
-            sections.push(
-              `   • ${drugName} ${doses} - ${doseRegimen} for ${numOfDays} days (${route})\n`,
-            );
-          });
-        }
-        sections.push('\n');
-      });
-    }
-
-    // Additional Notes/Plan
-    sections.push(`PLAN:\n`);
-    sections.push(
-      `[Doctor can add additional recommendations, follow-up instructions, or notes here]\n\n`,
-    );
-
-    // Signature
-    sections.push(`\n${'='.repeat(80)}\n`);
-    sections.push(`\nSigned by: Dr. ${doctorName}\n`);
-    sections.push(
-      `Date: ${new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })}\n`,
-    );
-
-    return sections.join('');
+    return [
+      generateHeader(appointment, doctorName),
+      generateChiefComplaints(appointment, complaints),
+      generateSymptoms(symptoms),
+      generateMedications(appointment),
+      generateLabs(requestedLabs, conductedLabs),
+      generateRadiology(radiology),
+      generateDiagnoses(diagnoses),
+      generatePlan(),
+      generateSignature(doctorName),
+    ].join('');
   }, [
     appointment,
     complaints,

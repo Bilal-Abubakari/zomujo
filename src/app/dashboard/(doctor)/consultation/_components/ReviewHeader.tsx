@@ -21,40 +21,39 @@ export const ReviewHeader = ({
   onSignatureToggle,
   onSendPrescription,
 }: ReviewHeaderProps): JSX.Element => (
-    <div className="from-primary/10 to-primary/5 flex flex-col gap-4 rounded-lg bg-linear-to-r p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex-1">
-        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-          {isPastConsultation ? 'Consultation Summary' : 'Consultation Review'}
-        </h1>
-        <p className="mt-1 text-xs text-gray-600 sm:text-sm">
-          {isPastConsultation
-            ? 'Summary of completed consultation'
-            : 'Review all consultation details before finalizing'}
-        </p>
-      </div>
-      {!isPastConsultation && (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:gap-4">
-          <div className="flex items-center justify-between space-x-2 rounded-md border bg-white px-3 py-2 sm:justify-start sm:px-4">
-            <Label htmlFor="signature" className="cursor-pointer text-xs font-medium sm:text-sm">
-              {hasSignature ? 'Edit Digital Signature' : 'Add Digital Signature'}
-            </Label>
-            <Switch checked={addSignature} id="signature" onCheckedChange={onSignatureToggle} />
-          </div>
-          <Button
-            variant="default"
-            onClick={onSendPrescription}
-            isLoading={isSendingPrescription}
-            disabled={isSendingPrescription || !hasSignature}
-            className="w-full sm:w-auto"
-            child={
-              <>
-                <MailCheck className="mr-2 h-4 w-4" />
-                <span>Send Prescription</span>
-              </>
-            }
-          />
-        </div>
-      )}
+  <div className="from-primary/10 to-primary/5 flex flex-col gap-4 rounded-lg bg-linear-to-r p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex-1">
+      <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+        {isPastConsultation ? 'Consultation Summary' : 'Consultation Review'}
+      </h1>
+      <p className="mt-1 text-xs text-gray-600 sm:text-sm">
+        {isPastConsultation
+          ? 'Summary of completed consultation'
+          : 'Review all consultation details before finalizing'}
+      </p>
     </div>
-  );
-
+    {!isPastConsultation && (
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:gap-4">
+        <div className="flex items-center justify-between space-x-2 rounded-md border bg-white px-3 py-2 sm:justify-start sm:px-4">
+          <Label htmlFor="signature" className="cursor-pointer text-xs font-medium sm:text-sm">
+            {hasSignature ? 'Edit Digital Signature' : 'Add Digital Signature'}
+          </Label>
+          <Switch checked={addSignature} id="signature" onCheckedChange={onSignatureToggle} />
+        </div>
+        <Button
+          variant="default"
+          onClick={onSendPrescription}
+          isLoading={isSendingPrescription}
+          disabled={isSendingPrescription || !hasSignature}
+          className="w-full sm:w-auto"
+          child={
+            <>
+              <MailCheck className="mr-2 h-4 w-4" />
+              <span>Send Prescription</span>
+            </>
+          }
+        />
+      </div>
+    )}
+  </div>
+);

@@ -53,15 +53,13 @@ const SelectSymptoms = memo(
       }
     }, [newlyAddedId]);
 
-    const handleSymptomClick = (
+    const handleAddSymptom = (
       item: ISymptom | IPatientSymptom,
-      isFromPatient: boolean,
       buttonElement: HTMLElement,
     ): void => {
+      const symptom = item as ISymptom;
       const startRect = buttonElement.getBoundingClientRect();
-      const targetContainer = isFromPatient
-        ? systemContainerRef.current
-        : patientContainerRef.current;
+      const targetContainer = patientContainerRef.current;
 
       if (!targetContainer) {
         return;
@@ -71,39 +69,62 @@ const SelectSymptoms = memo(
 
       // Create flying animation
       setFlyingItem({
-        id: 'id' in item ? item.id : item.name,
-        name: item.name,
+        id: symptom.id,
+        name: symptom.name,
         startRect,
         endRect,
-        direction: isFromPatient ? 'toSystem' : 'toPatient',
+        direction: 'toPatient',
       });
 
       // Wait for animation to complete before updating state
       setTimeout(() => {
-        if (isFromPatient) {
-          // Moving from patient to system
-          const symptomWithId: ISymptom = 'id' in item ? item : { ...item, id: item.name };
-          const alreadyInSymptoms = systemSymptoms.find((s) => s.id === symptomWithId.id);
-          if (!alreadyInSymptoms) {
-            const symptomIndex = selectedSymptoms.findIndex((s) => s.name === item.name);
-            if (symptomIndex !== -1) {
-              remove(symptomIndex);
-              void trigger();
-              setSystemSymptoms((prev) => [symptomWithId, ...prev]);
-            }
-          }
-        } else {
-          // Moving from system to patient
-          const alreadySelected = selectedSymptoms.find((s) => s.name === item.name);
-          if (!alreadySelected) {
-            const symptomItem = item as ISymptom;
-            setSystemSymptoms((prev) => prev.filter((s) => s.id !== symptomItem.id));
-            append({
-              ...symptomItem,
-              notes: '',
-            });
-            setNewlyAddedId(symptomItem.name); // Track the newly added symptom name
+        const alreadySelected = selectedSymptoms.find((s) => s.name === symptom.name);
+        if (!alreadySelected) {
+          setSystemSymptoms((prev) => prev.filter((s) => s.id !== symptom.id));
+          append({
+            ...symptom,
+            notes: '',
+          });
+          setNewlyAddedId(symptom.name); // Track the newly added symptom name
+          void trigger();
+        }
+        setFlyingItem(null);
+      }, 500);
+    };
+
+    const handleRemoveSymptom = (
+      item: ISymptom | IPatientSymptom,
+      buttonElement: HTMLElement,
+    ): void => {
+      const symptom = item as IPatientSymptom;
+      const startRect = buttonElement.getBoundingClientRect();
+      const targetContainer = systemContainerRef.current;
+
+      if (!targetContainer) {
+        return;
+      }
+
+      const endRect = targetContainer.getBoundingClientRect();
+
+      // Create flying animation
+      setFlyingItem({
+        id: symptom.name,
+        name: symptom.name,
+        startRect,
+        endRect,
+        direction: 'toSystem',
+      });
+
+      // Wait for animation to complete before updating state
+      setTimeout(() => {
+        const symptomWithId: ISymptom = { ...symptom, id: symptom.name };
+        const alreadyInSymptoms = systemSymptoms.find((s) => s.id === symptomWithId.id);
+        if (!alreadyInSymptoms) {
+          const symptomIndex = selectedSymptoms.findIndex((s) => s.name === symptom.name);
+          if (symptomIndex !== -1) {
+            remove(symptomIndex);
             void trigger();
+            setSystemSymptoms((prev) => [symptomWithId, ...prev]);
           }
         }
         setFlyingItem(null);
@@ -119,7 +140,7 @@ const SelectSymptoms = memo(
           symptoms={systemSymptoms}
           selectedSymptoms={selectedSymptoms}
           control={control}
-          onSymptomClick={handleSymptomClick}
+          onSymptomAction={handleAddSymptom}
           newlyAddedId={newlyAddedId}
         />
         <div className="flex items-center justify-center lg:block">
@@ -133,7 +154,7 @@ const SelectSymptoms = memo(
           symptoms={systemSymptoms}
           selectedSymptoms={selectedSymptoms}
           control={control}
-          onSymptomClick={handleSymptomClick}
+          onSymptomAction={handleRemoveSymptom}
           newlyAddedId={newlyAddedId} // Pass newlyAddedId to SymptomsContainer
         />
         {flyingItem && <FlyingSymptom flyingItem={flyingItem} />}
@@ -156,11 +177,7 @@ type SymptomsContainerProps = {
   selectedSymptoms?: IPatientSymptom[];
   id: string;
   control: Control<IConsultationSymptoms>;
-  onSymptomClick: (
-    item: ISymptom | IPatientSymptom,
-    isFromPatient: boolean,
-    element: HTMLElement,
-  ) => void;
+  onSymptomAction: (item: ISymptom | IPatientSymptom, element: HTMLElement) => void;
   newlyAddedId?: string | null;
 };
 
@@ -173,7 +190,7 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
       selectedSymptoms = [],
       control,
       id,
-      onSymptomClick,
+      onSymptomAction,
       newlyAddedId, // Destructure newlyAddedId
     },
     ref,
@@ -199,8 +216,8 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
             id={id}
             index={index}
             control={control}
-            onSymptomClick={onSymptomClick}
-            isFromPatient={false}
+            onSymptomAction={onSymptomAction}
+            patientSymptoms={false}
             newlyAddedId={newlyAddedId}
           />
         ))
@@ -209,14 +226,13 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
     const patientSelectedSymptoms = selectedSymptoms.length
       ? selectedSymptoms.map((symptom, index) => (
           <SymptomItem
-            patientSymptoms={patientSymptoms}
+            patientSymptoms={true}
             key={symptom.name}
             item={symptom}
             id={id}
             index={index}
             control={control}
-            onSymptomClick={onSymptomClick}
-            isFromPatient={true}
+            onSymptomAction={onSymptomAction}
             newlyAddedId={newlyAddedId}
           />
         ))
@@ -270,12 +286,7 @@ type SymptomItemProps = {
   patientSymptoms?: boolean;
   index: number;
   control: Control<IConsultationSymptoms>;
-  onSymptomClick: (
-    item: ISymptom | IPatientSymptom,
-    isFromPatient: boolean,
-    element: HTMLElement,
-  ) => void;
-  isFromPatient: boolean;
+  onSymptomAction: (item: ISymptom | IPatientSymptom, element: HTMLElement) => void;
   newlyAddedId?: string | null;
 };
 
@@ -285,8 +296,7 @@ const SymptomItem = ({
   patientSymptoms = false,
   index,
   control,
-  onSymptomClick,
-  isFromPatient,
+  onSymptomAction,
   newlyAddedId,
 }: SymptomItemProps): ReactElement | null => {
   const [showNotes, setShowNotes] = useState(false);
@@ -299,7 +309,7 @@ const SymptomItem = ({
     } else {
       // Single click moves the symptom
       if (buttonRef.current) {
-        onSymptomClick(item, isFromPatient, buttonRef.current);
+        onSymptomAction(item, buttonRef.current);
       }
     }
   };

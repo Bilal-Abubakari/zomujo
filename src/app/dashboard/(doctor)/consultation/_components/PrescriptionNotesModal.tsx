@@ -21,37 +21,41 @@ export const PrescriptionNotesModal = ({
   isSendingPrescription,
   onSendPrescription,
 }: PrescriptionNotesModalProps): JSX.Element => (
-    <Modal
-      setState={onClose}
-      open={open}
-      content={
-        <div className="space-y-4 p-6">
-          <h2 className="text-lg font-bold text-gray-900">Additional Prescription Notes</h2>
-          <Textarea
-            value={prescriptionNotes}
-            onChange={(e) => onNotesChange(e.target.value)}
-            rows={4}
-            placeholder="Enter any additional notes or instructions for the prescription..."
+  <Modal
+    setState={onClose}
+    open={open}
+    content={
+      <div className="space-y-4 p-6">
+        <h2 className="text-lg font-bold text-gray-900">Additional Prescription Notes</h2>
+        <Textarea
+          value={prescriptionNotes}
+          onChange={(e) => onNotesChange(e.target.value)}
+          rows={4}
+          placeholder="Enter any additional notes or instructions for the prescription..."
+        />
+        <div className="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="flex-1"
+            child={<span>Close</span>}
           />
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onClose} className="flex-1" child={<span>Close</span>} />
-            <Button
-              variant="default"
-              onClick={onSendPrescription}
-              isLoading={isSendingPrescription}
-              disabled={isSendingPrescription}
-              className="flex-1"
-              child={
-                <>
-                  <MailCheck className="mr-2 h-4 w-4" />
-                  <span>Send Prescription</span>
-                </>
-              }
-            />
-          </div>
+          <Button
+            variant="default"
+            onClick={onSendPrescription}
+            isLoading={isSendingPrescription}
+            disabled={isSendingPrescription}
+            className="flex-1"
+            child={
+              <>
+                <MailCheck className="mr-2 h-4 w-4" />
+                <span>Send Prescription</span>
+              </>
+            }
+          />
         </div>
-      }
-      showClose={true}
-    />
-  );
-
+      </div>
+    }
+    showClose={true}
+  />
+);

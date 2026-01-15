@@ -10,16 +10,12 @@ import { IAppointment } from '@/types/appointment.interface';
 import { ILab } from '@/types/labs.interface';
 import { IRadiology } from '@/types/radiology.interface';
 import { IDiagnosis } from '@/types/medical.interface';
-import { SymptomsType } from '@/types/consultation.interface';
+import { IPatientSymptomMap } from '@/types/consultation.interface';
 
 interface CardsViewProps {
   appointment: IAppointment | null | undefined;
   complaints: string[] | undefined;
-  symptoms:
-    | {
-        [key in SymptomsType]?: Array<{ name: string; notes?: string }>;
-      }
-    | undefined;
+  symptoms?: IPatientSymptomMap;
   requestedLabs: ILab[] | undefined;
   conductedLabs: ILab[] | undefined;
   radiology: IRadiology | undefined;
