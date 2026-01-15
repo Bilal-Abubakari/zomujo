@@ -1,7 +1,6 @@
 import { NotFound } from '@/assets/images';
 import SkeletonDoctorPatientCard from '@/components/skeleton/skeletonDoctorPatientCard';
 import { Button } from '@/components/ui/button';
-import { OptionsMenu } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { PaginationData } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
@@ -12,7 +11,7 @@ import { showErrorToast } from '@/lib/utils';
 import { IHospitalListItem } from '@/types/hospital.interface';
 import { AcceptDeclineStatus, OrderDirection } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
-import { ChevronUp, ListFilter, Search, SendHorizontal, Building2 } from 'lucide-react';
+import { ChevronUp, Search, SendHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import React, {
   FormEvent,
@@ -25,15 +24,7 @@ import React, {
 import HospitalCard from '@/app/dashboard/(patient)/_components/hospitalCardNew';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
-import { Combobox } from '@/components/ui/select';
-
-const organizationTypeOptions = [
-  { value: '', label: 'All' },
-  { value: 'private', label: 'Private' },
-  { value: 'public', label: 'Public' },
-  { value: 'teaching', label: 'Teaching' },
-  { value: 'clinic', label: 'Clinic' },
-];
+import HospitalFilters from './hospitalFilters';
 
 const Hospitals = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -44,7 +35,6 @@ const Hospitals = (): JSX.Element => {
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const [queryParameters, setQueryParameters] = useState<
     IQueryParams<AcceptDeclineStatus> & {
@@ -52,19 +42,31 @@ const Hospitals = (): JSX.Element => {
       organizationType?: string;
       hasEmergency?: boolean;
       telemedicine?: boolean;
+      serviceId?: string;
+      departmentId?: string;
+      insuranceCompanyId?: string;
+      languages?: string[];
+      minBedCount?: number;
+      maxBedCount?: number;
     }
   >({
     page: 1,
     orderDirection: OrderDirection.Descending,
     orderBy: 'createdAt',
     search: getQueryParam('search'),
-    pageSize: 20,
+    pageSize: 12,
     status: AcceptDeclineStatus.Accepted,
     isActive: true,
     city: getQueryParam('city') || '',
     organizationType: getQueryParam('organizationType') || '',
-    hasEmergency: getQueryParam('hasEmergency') === 'true',
-    telemedicine: getQueryParam('telemedicine') === 'true',
+    hasEmergency: getQueryParam('hasEmergency') === 'true' ? true : undefined,
+    telemedicine: getQueryParam('telemedicine') === 'true' ? true : undefined,
+    serviceId: getQueryParam('serviceId') || '',
+    departmentId: getQueryParam('departmentId') || '',
+    insuranceCompanyId: getQueryParam('insuranceCompanyId') || '',
+    languages: getQueryParam('languages') ? getQueryParam('languages').split(',') : undefined,
+    minBedCount: getQueryParam('minBedCount') ? Number(getQueryParam('minBedCount')) : undefined,
+    maxBedCount: getQueryParam('maxBedCount') ? Number(getQueryParam('maxBedCount')) : undefined,
   });
 
   const canLoadMorePages = (): boolean => {
@@ -146,137 +148,125 @@ const Hospitals = (): JSX.Element => {
     setShowScrollToTop(false);
   }
 
+  const handleFilterChange = (filters: {
+    city?: string;
+    organizationType?: string;
+    hasEmergency?: boolean;
+    telemedicine?: boolean;
+    serviceId?: string;
+    departmentId?: string;
+    insuranceCompanyId?: string;
+    languages?: string[];
+    minBedCount?: number;
+    maxBedCount?: number;
+  }) => {
+    setHospitals([]);
+    setQueryParameters((prev) => ({
+      ...prev,
+      ...filters,
+      page: 1,
+    }));
+  };
+
+  const handleResetFilters = () => {
+    setHospitals([]);
+    setQueryParameters((prev) => ({
+      ...prev,
+      city: '',
+      organizationType: '',
+      hasEmergency: undefined,
+      telemedicine: undefined,
+      serviceId: '',
+      departmentId: '',
+      insuranceCompanyId: '',
+      languages: undefined,
+      minBedCount: undefined,
+      maxBedCount: undefined,
+      page: 1,
+    }));
+  };
+
   return (
     <>
-      <div className="bg-grayscale-100 z-20 mb-6 flex w-full flex-col flex-wrap gap-2 rounded-md p-5 lg:sticky lg:top-0">
-        <div className="flex">
-          <form className="flex w-full max-w-2xl gap-2" onSubmit={handleSubmit}>
+      {/* Search and Filter Bar - Sticky below title, cards scroll underneath */}
+      <div className="sticky top-[56px] z-20 mb-6 pr-2">
+        <div className="bg-white flex w-full flex-col gap-4 rounded-lg border border-gray-200 p-4 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Search Bar */}
+          <form className="flex flex-1 gap-2" onSubmit={handleSubmit}>
             <Input
               error=""
-              placeholder={'Search for a Hospital'}
+              placeholder="Search hospitals by name, specialty, or location..."
               className="w-full"
               type="search"
               leftIcon={<Search className="text-gray-500" size={20} />}
               onChange={handleSearch}
               defaultMaxWidth={false}
             />
-            {searchTerm && <Button child={<SendHorizontal />} />}
+            {searchTerm && (
+              <Button type="submit" variant="default" child={<SendHorizontal />} />
+            )}
           </form>
-          <div className="ml-2 flex gap-2">
-            <Button
-              onClick={() => setShowAdvancedFilters((prev) => !prev)}
-              className="h-10 cursor-pointer bg-gray-50 sm:flex lg:hidden"
-              variant="outline"
-              child={
-                <>
-                  <ListFilter className="mr-2 h-4 w-4" /> Filters
-                </>
-              }
+          
+          {/* Filter Button */}
+          <div className="flex items-center gap-2">
+            <HospitalFilters
+              queryParameters={queryParameters}
+              onFilterChange={handleFilterChange}
+              onReset={handleResetFilters}
+              totalResults={paginationData?.total}
             />
           </div>
         </div>
-        <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-wrap gap-4 lg:flex`}>
-          <Input
-            labelName="City"
-            placeholder="Enter city"
-            wrapperClassName="max-w-52  max-h-[62px]"
-            defaultMaxWidth={false}
-            type="text"
-            value={queryParameters.city || ''}
-            onChange={(e) => {
-              setHospitals([]);
-              setQueryParameters((prev) => ({ ...prev, city: e.target.value, page: 1 }));
-            }}
-          />
-          <Combobox
-            onChange={(value) => {
-              setHospitals([]);
-              setQueryParameters((prev) => ({ ...prev, organizationType: value, page: 1 }));
-            }}
-            label="Organization Type"
-            options={organizationTypeOptions}
-            value={queryParameters?.organizationType ?? ''}
-            className="max-h-[62px] px-4"
-            placeholder="Select type..."
-            searchPlaceholder="Search for type..."
-            defaultMaxWidth={false}
-            wrapperClassName="text-left text-[#111111] max-w-52 max-h-[62px]"
-          />
-          <OptionsMenu
-            options={[
-              { value: '', label: 'All' },
-              { value: 'true', label: 'Has Emergency' },
-              { value: 'false', label: 'No Emergency' },
-            ]}
-            Icon={Building2}
-            menuTrigger="Emergency"
-            selected={queryParameters.hasEmergency?.toString() || ''}
-            setSelected={(value) => {
-              setQueryParameters((prev) => ({
-                ...prev,
-                page: 1,
-                hasEmergency: value === 'true' ? true : value === 'false' ? false : undefined,
-              }));
-              setHospitals([]);
-            }}
-            className="mt-[20px] h-10 max-h-[62px] cursor-pointer bg-gray-50 sm:flex"
-          />
-          <OptionsMenu
-            options={[
-              { value: '', label: 'All' },
-              { value: 'true', label: 'Telemedicine Available' },
-              { value: 'false', label: 'No Telemedicine' },
-            ]}
-            Icon={Building2}
-            menuTrigger="Telemedicine"
-            selected={queryParameters.telemedicine?.toString() || ''}
-            setSelected={(value) => {
-              setQueryParameters((prev) => ({
-                ...prev,
-                page: 1,
-                telemedicine: value === 'true' ? true : value === 'false' ? false : undefined,
-              }));
-              setHospitals([]);
-            }}
-            className="mt-[20px] h-10 max-h-[62px] cursor-pointer bg-gray-50 sm:flex"
-          />
-        </div>
+
+        {/* Results Summary */}
         {paginationData && paginationData.total > 0 && (
-          <div className="mt-3 flex items-center gap-2 border-t border-gray-200 pt-3 text-sm text-gray-600">
-            <span className="text-primary font-semibold">
-              {paginationData.total} {paginationData.total === 1 ? 'Hospital' : 'Hospitals'}
+          <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3 text-sm">
+            <span className="font-semibold text-gray-900">
+              {paginationData.total} {paginationData.total === 1 ? 'hospital' : 'hospitals'}
             </span>
-            <span>available</span>
-            {queryParameters.search && <span>matching &quot;{queryParameters.search}&quot;</span>}
+            <span className="text-gray-500">found</span>
+            {queryParameters.search && (
+              <>
+                <span className="text-gray-400">•</span>
+                <span className="text-gray-600">
+                  matching &quot;<span className="font-medium text-gray-900">{queryParameters.search}</span>&quot;
+                </span>
+              </>
+            )}
+            {(queryParameters.city || 
+              queryParameters.hasEmergency !== undefined || 
+              queryParameters.telemedicine !== undefined) && (
+              <>
+                <span className="text-gray-400">•</span>
+                <span className="text-gray-600">with active filters</span>
+              </>
+            )}
           </div>
         )}
+        </div>
       </div>
-      <Suggested title={'Hospitals'} showViewAll={false}>
-        {!isLoading &&
-          hospitals.map((hospital) => (
-            <div className="cursor-pointer" key={hospital.id}>
-              <HospitalCard key={hospital.id} hospital={hospital} />
-            </div>
-          ))}
-      </Suggested>
-      {isLoading && (
+      {isLoading ? (
         <div className="mt-2 flex flex-wrap gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
             <SkeletonDoctorPatientCard key={index} />
           ))}
         </div>
-      )}
-      {!isLoading && hospitals.length === 0 && (
+      ) : hospitals.length > 0 ? (
+        <Suggested title={'Hospitals'} showViewAll={false}>
+          {hospitals.map((hospital) => (
+            <HospitalCard key={hospital.id} hospital={hospital} />
+          ))}
+        </Suggested>
+      ) : (
         <section>
-          {
-            <Image
-              src={NotFound}
-              alt="Not Found"
-              width={100}
-              height={100}
-              className="m-auto h-[60vh] w-[60vw]"
-            />
-          }
+          <Image
+            src={NotFound}
+            alt="Not Found"
+            width={100}
+            height={100}
+            className="m-auto h-[60vh] w-[60vw]"
+          />
           <p className="mt-4 text-center text-lg md:text-xl"> Sorry nothing to find here </p>
         </section>
       )}
