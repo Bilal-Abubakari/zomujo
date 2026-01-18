@@ -10,7 +10,11 @@ import {
   IDiagnosisRequest,
 } from '@/types/consultation.interface';
 import { IAppointment } from '@/types/appointment.interface';
-import { setAppointment, updateSymptoms } from '@/lib/features/appointments/appointmentsSlice';
+import {
+  setAppointment,
+  updateAppointmentNotes,
+  updateSymptoms,
+} from '@/lib/features/appointments/appointmentsSlice';
 import { ILab, ILaboratoryRequestWithRecordId, IUploadLab } from '@/types/labs.interface';
 import { IRadiology, IRadiologyRequestWithRecordId } from '@/types/radiology.interface';
 
@@ -113,6 +117,7 @@ export const addLabRequests = createAsyncThunk(
       const {
         data: { message },
       } = await axios.post<IResponse>(`consultation/request-labs`, labRequests);
+
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -304,6 +309,27 @@ export const downloadRadiologyRequestPdf = createAsyncThunk(
         },
       );
       return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const updateNotes = createAsyncThunk(
+  'consultation/update-notes',
+  async (
+    { appointmentId, notes }: { appointmentId: string; notes: string },
+    { dispatch },
+  ): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.put<IResponse>(`consultation/update-notes`, {
+        appointmentId,
+        notes,
+      });
+      dispatch(updateAppointmentNotes(notes));
+      return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

@@ -81,3 +81,16 @@ export const selectReviewRecordId = createSelector(
   selectAppointments,
   (appointments) => appointments.reviewRecordId,
 );
+
+export const selectAppointmentRadiology = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.radiology,
+);
+
+export const selectRequestedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
+  radiology?.status === RequestStatus.Pending ? radiology : null,
+);
+
+export const selectConductedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
+  radiology?.tests?.some((test) => test.fileUrl) ? radiology : null,
+);

@@ -11,6 +11,7 @@ import { Control, Controller, FieldPath, TriggerConfig, useFieldArray } from 're
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import { Textarea } from '@/components/ui/textarea';
+import { TooltipComp } from '@/components/ui/tooltip';
 
 type FlyingItemData = {
   id: string;
@@ -35,6 +36,7 @@ const SelectSymptoms = memo(
   ({ symptoms, id, control, selectedSymptoms, trigger }: SelectSymptomsProps): JSX.Element => {
     const [systemSymptoms, setSystemSymptoms] = useState<ISymptom[]>(symptoms);
     const [flyingItem, setFlyingItem] = useState<FlyingItemData | null>(null);
+    const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
     const systemContainerRef = useRef<HTMLDivElement>(null);
     const patientContainerRef = useRef<HTMLDivElement>(null);
 
@@ -44,15 +46,20 @@ const SelectSymptoms = memo(
       name: `symptoms.${id as SymptomsType}`,
     });
 
-    const handleSymptomClick = (
+    useEffect(() => {
+      if (newlyAddedId) {
+        const timer = setTimeout(() => setNewlyAddedId(null), 500);
+        return (): void => clearTimeout(timer);
+      }
+    }, [newlyAddedId]);
+
+    const handleAddSymptom = (
       item: ISymptom | IPatientSymptom,
-      isFromPatient: boolean,
       buttonElement: HTMLElement,
     ): void => {
+      const symptom = item as ISymptom;
       const startRect = buttonElement.getBoundingClientRect();
-      const targetContainer = isFromPatient
-        ? systemContainerRef.current
-        : patientContainerRef.current;
+      const targetContainer = patientContainerRef.current;
 
       if (!targetContainer) {
         return;
@@ -62,38 +69,62 @@ const SelectSymptoms = memo(
 
       // Create flying animation
       setFlyingItem({
-        id: 'id' in item ? item.id : item.name,
-        name: item.name,
+        id: symptom.id,
+        name: symptom.name,
         startRect,
         endRect,
-        direction: isFromPatient ? 'toSystem' : 'toPatient',
+        direction: 'toPatient',
       });
 
       // Wait for animation to complete before updating state
       setTimeout(() => {
-        if (isFromPatient) {
-          // Moving from patient to system
-          const symptomWithId: ISymptom = 'id' in item ? item : { ...item, id: item.name };
-          const alreadyInSymptoms = systemSymptoms.find((s) => s.id === symptomWithId.id);
-          if (!alreadyInSymptoms) {
-            const symptomIndex = selectedSymptoms.findIndex((s) => s.name === item.name);
-            if (symptomIndex !== -1) {
-              remove(symptomIndex);
-              void trigger();
-              setSystemSymptoms((prev) => [symptomWithId, ...prev]);
-            }
-          }
-        } else {
-          // Moving from system to patient
-          const alreadySelected = selectedSymptoms.find((s) => s.name === item.name);
-          if (!alreadySelected) {
-            const symptomItem = item as ISymptom;
-            setSystemSymptoms((prev) => prev.filter((s) => s.id !== symptomItem.id));
-            append({
-              ...symptomItem,
-              notes: '',
-            });
+        const alreadySelected = selectedSymptoms.find((s) => s.name === symptom.name);
+        if (!alreadySelected) {
+          setSystemSymptoms((prev) => prev.filter((s) => s.id !== symptom.id));
+          append({
+            ...symptom,
+            notes: '',
+          });
+          setNewlyAddedId(symptom.name); // Track the newly added symptom name
+          void trigger();
+        }
+        setFlyingItem(null);
+      }, 500);
+    };
+
+    const handleRemoveSymptom = (
+      item: ISymptom | IPatientSymptom,
+      buttonElement: HTMLElement,
+    ): void => {
+      const symptom = item as IPatientSymptom;
+      const startRect = buttonElement.getBoundingClientRect();
+      const targetContainer = systemContainerRef.current;
+
+      if (!targetContainer) {
+        return;
+      }
+
+      const endRect = targetContainer.getBoundingClientRect();
+
+      // Create flying animation
+      setFlyingItem({
+        id: symptom.name,
+        name: symptom.name,
+        startRect,
+        endRect,
+        direction: 'toSystem',
+      });
+
+      // Wait for animation to complete before updating state
+      setTimeout(() => {
+        const symptomWithId: ISymptom = { ...symptom, id: symptom.name };
+        const alreadyInSymptoms = systemSymptoms.find((s) => s.id === symptomWithId.id);
+        if (!alreadyInSymptoms) {
+          const symptomIndex = selectedSymptoms.findIndex((s) => s.name === symptom.name);
+          if (symptomIndex !== -1) {
+            remove(symptomIndex);
             void trigger();
+            setSystemSymptoms((prev) => [symptomWithId, ...prev]);
           }
         }
         setFlyingItem(null);
@@ -109,7 +140,8 @@ const SelectSymptoms = memo(
           symptoms={systemSymptoms}
           selectedSymptoms={selectedSymptoms}
           control={control}
-          onSymptomClick={handleSymptomClick}
+          onSymptomAction={handleAddSymptom}
+          newlyAddedId={newlyAddedId}
         />
         <div className="flex items-center justify-center lg:block">
           <ArrowRight className="h-6 w-6 rotate-90 text-gray-400 lg:rotate-0" />
@@ -122,7 +154,8 @@ const SelectSymptoms = memo(
           symptoms={systemSymptoms}
           selectedSymptoms={selectedSymptoms}
           control={control}
-          onSymptomClick={handleSymptomClick}
+          onSymptomAction={handleRemoveSymptom}
+          newlyAddedId={newlyAddedId} // Pass newlyAddedId to SymptomsContainer
         />
         {flyingItem && <FlyingSymptom flyingItem={flyingItem} />}
       </div>
@@ -144,11 +177,8 @@ type SymptomsContainerProps = {
   selectedSymptoms?: IPatientSymptom[];
   id: string;
   control: Control<IConsultationSymptoms>;
-  onSymptomClick: (
-    item: ISymptom | IPatientSymptom,
-    isFromPatient: boolean,
-    element: HTMLElement,
-  ) => void;
+  onSymptomAction: (item: ISymptom | IPatientSymptom, element: HTMLElement) => void;
+  newlyAddedId?: string | null;
 };
 
 const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProps>(
@@ -160,7 +190,8 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
       selectedSymptoms = [],
       control,
       id,
-      onSymptomClick,
+      onSymptomAction,
+      newlyAddedId, // Destructure newlyAddedId
     },
     ref,
   ): ReactElement | null => {
@@ -185,8 +216,9 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
             id={id}
             index={index}
             control={control}
-            onSymptomClick={onSymptomClick}
-            isFromPatient={false}
+            onSymptomAction={onSymptomAction}
+            patientSymptoms={false}
+            newlyAddedId={newlyAddedId}
           />
         ))
       : emptyResults;
@@ -194,14 +226,14 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
     const patientSelectedSymptoms = selectedSymptoms.length
       ? selectedSymptoms.map((symptom, index) => (
           <SymptomItem
-            patientSymptoms={patientSymptoms}
+            patientSymptoms={true}
             key={symptom.name}
             item={symptom}
             id={id}
             index={index}
             control={control}
-            onSymptomClick={onSymptomClick}
-            isFromPatient={true}
+            onSymptomAction={onSymptomAction}
+            newlyAddedId={newlyAddedId}
           />
         ))
       : emptyResults;
@@ -227,7 +259,7 @@ const SymptomsContainer = React.forwardRef<HTMLDivElement, SymptomsContainerProp
             >
               <div className="relative flex h-[280px] flex-col gap-1 overflow-y-auto">
                 {!patientSymptoms && (
-                  <div className="sticky top-0 z-10 bg-white pb-2">
+                  <div className="sticky top-0 z-10 pb-2">
                     <Input
                       value={search}
                       onChange={({ target }) => setSearch(target.value)}
@@ -254,12 +286,8 @@ type SymptomItemProps = {
   patientSymptoms?: boolean;
   index: number;
   control: Control<IConsultationSymptoms>;
-  onSymptomClick: (
-    item: ISymptom | IPatientSymptom,
-    isFromPatient: boolean,
-    element: HTMLElement,
-  ) => void;
-  isFromPatient: boolean;
+  onSymptomAction: (item: ISymptom | IPatientSymptom, element: HTMLElement) => void;
+  newlyAddedId?: string | null;
 };
 
 const SymptomItem = ({
@@ -268,20 +296,20 @@ const SymptomItem = ({
   patientSymptoms = false,
   index,
   control,
-  onSymptomClick,
-  isFromPatient,
+  onSymptomAction,
+  newlyAddedId,
 }: SymptomItemProps): ReactElement | null => {
   const [showNotes, setShowNotes] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+  const handleClick = ({ detail }: React.MouseEvent<HTMLButtonElement>): void => {
     // If clicking on patient symptom and notes are showing, toggle notes
-    if (patientSymptoms && e.detail === 2) {
+    if (patientSymptoms && detail === 2) {
       setShowNotes((prev) => !prev);
     } else {
       // Single click moves the symptom
       if (buttonRef.current) {
-        onSymptomClick(item, isFromPatient, buttonRef.current);
+        onSymptomAction(item, buttonRef.current);
       }
     }
   };
@@ -293,7 +321,7 @@ const SymptomItem = ({
         type="button"
         onClick={handleClick}
         className={cn(
-          'hover:border-primaryLightBase flex w-full flex-row items-center justify-between gap-2 rounded-md border border-gray-200 bg-white px-2 py-2 text-left duration-100 hover:bg-blue-50 active:scale-95 sm:px-3 sm:py-2.5',
+          'hover:border-primaryLightBase flex w-full flex-row items-center justify-between gap-2 rounded-md border border-gray-200 bg-white px-2 py-2 text-left duration-100 hover:bg-blue-50 sm:px-3 sm:py-2.5',
         )}
       >
         <p className="text-xs leading-[14px] sm:text-sm">{item.name}</p>
@@ -304,12 +332,17 @@ const SymptomItem = ({
               e.stopPropagation();
               setShowNotes((prev) => !prev);
             }}
-            className="ml-auto text-gray-400 hover:text-gray-600"
+            className={cn(
+              'ml-auto rounded bg-gray-50 p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600',
+              newlyAddedId === item.name && 'animate-shake',
+            )}
           >
-            <CornerDownRight
-              size={16}
-              className={cn('transition-transform', showNotes && 'rotate-90')}
-            />
+            <TooltipComp tip="Toggle notes">
+              <CornerDownRight
+                size={20}
+                className={cn('transition-transform', showNotes && 'rotate-90')}
+              />
+            </TooltipComp>
           </button>
         )}
       </button>
