@@ -93,9 +93,12 @@ const ReviewConsultation = ({
       const duration = appointment.symptoms?.complaints?.find(
         (c) => c.complaint === complaint,
       )?.duration;
-      lines.push(
-        `• ${complaint}${duration ? ` (Duration: ${duration.value} ${duration.type})` : ''}\n`,
-      );
+      let complaintLine = `• ${complaint}`;
+      if (duration) {
+        complaintLine += ` (Duration: ${duration.value} ${duration.type})`;
+      }
+      complaintLine += '\n';
+      lines.push(complaintLine);
     });
     lines.push('\n');
     return lines.join('');
@@ -115,7 +118,12 @@ const ReviewConsultation = ({
       if (symptomList && symptomList.length > 0) {
         lines.push(`${capitalize(symptomType)} System:\n`);
         symptomList.forEach(({ name, notes }: { name: string; notes?: string }) => {
-          lines.push(`  • ${name}${notes ? ` - ${notes}` : ''}\n`);
+          let symptomLine = `  • ${name}`;
+          if (notes) {
+            symptomLine += ` - ${notes}`;
+          }
+          symptomLine += '\n';
+          lines.push(symptomLine);
         });
         lines.push('\n');
       }
@@ -159,9 +167,12 @@ const ReviewConsultation = ({
           fasting: boolean;
           notes?: string;
         }) => {
-          lines.push(
-            `  • ${testName} (Specimen: ${specimen}, Fasting: ${fasting ? 'Yes' : 'No'})${notes ? ` - ${notes}` : ''}\n`,
-          );
+          let labLine = `  • ${testName} (Specimen: ${specimen}, Fasting: ${fasting ? 'Yes' : 'No'})`;
+          if (notes) {
+            labLine += ` - ${notes}`;
+          }
+          labLine += '\n';
+          lines.push(labLine);
         },
       );
       lines.push('\n');
@@ -169,7 +180,12 @@ const ReviewConsultation = ({
     if (conductedLabs && conductedLabs.length > 0) {
       lines.push(`Completed Tests:\n`);
       conductedLabs.forEach(({ testName, notes }: { testName: string; notes?: string }) => {
-        lines.push(`  • ${testName}${notes ? ` - ${notes}` : ''}\n`);
+        let conductedLabLine = `  • ${testName}`;
+        if (notes) {
+          conductedLabLine += ` - ${notes}`;
+        }
+        conductedLabLine += '\n';
+        lines.push(conductedLabLine);
       });
       lines.push('\n');
     }
