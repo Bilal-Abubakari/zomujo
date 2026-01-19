@@ -13,6 +13,7 @@ import { IAppointment } from '@/types/appointment.interface';
 import {
   setAppointment,
   updateAppointmentNotes,
+  updateAppointmentHistoryNotes,
   updateSymptoms,
 } from '@/lib/features/appointments/appointmentsSlice';
 import { ILab, ILaboratoryRequestWithRecordId, IUploadLab } from '@/types/labs.interface';
@@ -329,6 +330,27 @@ export const updateNotes = createAsyncThunk(
         notes,
       });
       dispatch(updateAppointmentNotes(notes));
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const updateHistoryNotes = createAsyncThunk(
+  'consultation/update-history-notes',
+  async (
+    { appointmentId, notes }: { appointmentId: string; notes: string },
+    { dispatch },
+  ): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.put<IResponse>(`consultation/update-history-notes`, {
+        appointmentId,
+        notes,
+      });
+      dispatch(updateAppointmentHistoryNotes(notes));
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

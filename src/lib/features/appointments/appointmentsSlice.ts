@@ -30,6 +30,11 @@ const appointmentsSlice = createSlice({
         state.appointment.notes = action.payload;
       }
     },
+    updateAppointmentHistoryNotes: (state, action: PayloadAction<string>) => {
+      if (state.appointment) {
+        state.appointment.historyNotes = action.payload;
+      }
+    },
     updateSymptoms: (state, action: PayloadAction<IConsultationSymptoms>) => {
       if (state.appointment) {
         state.appointment.symptoms = {
@@ -72,6 +77,7 @@ export const {
   showReviewModal,
   hideReviewModal,
   updateAppointmentNotes,
+  updateAppointmentHistoryNotes,
 } = appointmentsSlice.actions;
 
 export default appointmentsSlice.reducer;
