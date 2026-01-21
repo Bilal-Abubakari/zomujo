@@ -254,7 +254,7 @@ const ProfileDropdownMenu = (): JSX.Element => {
   );
 };
 
-const getSidebarByRole = (role?: Role, type?: SidebarType): ISidebar => {
+export const getSidebarByRole = (role?: Role, type?: SidebarType): ISidebar => {
   if (type === SidebarType.Settings) {
     switch (role) {
       case Role.Admin:

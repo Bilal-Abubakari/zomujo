@@ -346,6 +346,11 @@ export const HOSPITAL_SIDE_BAR: ISidebar = {
           Icon: Home,
         },
         {
+          title: 'Analytics',
+          url: `${DASHBOARD_ROUTE}/analytics`,
+          Icon: ChartNoAxesCombined,
+        },
+        {
           title: 'Appointments',
           url: `${DASHBOARD_ROUTE}/appointment`,
           Icon: CalendarDays,

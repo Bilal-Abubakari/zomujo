@@ -13,14 +13,11 @@ import { selectExtra, selectOrganizationId, selectUser } from '@/lib/features/au
 import { IAppointment } from '@/types/appointment.interface';
 import { toast } from '@/hooks/use-toast';
 import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
+import { getHospitalAppointments } from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { AppointmentDate, useQueryParam } from '@/hooks/useQueryParam';
 import { INotification, NotificationEvent } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
-import {
-  DUMMY_HOSPITAL_APPOINTMENTS,
-  ENABLE_DUMMY_APPOINTMENTS,
-} from '@/app/dashboard/appointment/_components/dummyHospitalAppointments';
 
 type AppointmentProps = {
   customClass?: string;
@@ -49,11 +46,12 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
     selectedDateParam ? new Date(selectedDateParam) : new Date(),
   );
   const [now, setNow] = useState(moment());
+  const isHospital = user?.role === Role.Hospital;
   const [queryParams, setQueryParams] = useState<IQueryParams<AppointmentStatus | ''>>({
     orderDirection: OrderDirection.Ascending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
     patientId: user?.role === Role.Patient ? user?.id : undefined,
-    orgId: user?.role === Role.Hospital ? hospitalId : user?.role === Role.Admin ? organizationId : undefined,
+    orgId: user?.role === Role.Admin ? organizationId : undefined,
     startDate: startOfWeek.toDate(),
     endDate: endOfWeek.toDate(),
     pageSize: 100,
@@ -65,14 +63,9 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
       ...prev,
       doctorId: user?.role === Role.Doctor ? user?.id : undefined,
       patientId: user?.role === Role.Patient ? user?.id : undefined,
-      orgId:
-        user?.role === Role.Hospital
-          ? hospitalId
-          : user?.role === Role.Admin
-            ? organizationId
-            : undefined,
+      orgId: user?.role === Role.Admin ? organizationId : undefined,
     }));
-  }, [user?.role, user?.id, hospitalId, organizationId]);
+  }, [user?.role, user?.id, organizationId]);
 
   on(NotificationEvent.NewRequest, (data: unknown) => {
     const notification = data as INotification;
@@ -85,32 +78,36 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   useEffect(() => {
     async function getUpcomingAppointments(): Promise<void> {
       setLoading(true);
-      const { payload } = await dispatch(getAppointments(queryParams));
+      const fetchAction = isHospital ? getHospitalAppointments : getAppointments;
+      const { payload } = await dispatch(fetchAction(queryParams));
       setLoading(false);
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
-        if (ENABLE_DUMMY_APPOINTMENTS && user?.role === Role.Hospital) {
-          setUpcomingAppointment(DUMMY_HOSPITAL_APPOINTMENTS);
-        }
         return;
       }
 
       const { rows } = payload as IPagination<IAppointment>;
-
-      if (ENABLE_DUMMY_APPOINTMENTS && user?.role === Role.Hospital && rows.length === 0) {
-        setUpcomingAppointment(DUMMY_HOSPITAL_APPOINTMENTS);
-      } else {
-        setUpcomingAppointment(rows);
-      }
+      setUpcomingAppointment(rows);
     }
 
     void getUpcomingAppointments();
-  }, [queryParams]);
+  }, [queryParams, isHospital]);
 
-  const todayAppointmentsCount = upcomingAppointment.filter((appointment) =>
-    moment(appointment.slot.date).isSame(selectedDate, 'day'),
-  ).length;
+  const todayAppointmentsCount = upcomingAppointment.filter((appointment) => {
+    // Handle appointments without slots (hospital appointments)
+    if (appointment.slot?.date) {
+      return moment(appointment.slot.date).isSame(selectedDate, 'day');
+    }
+    // Try to extract date from additionalInfo or use createdAt
+    if (appointment.additionalInfo) {
+      const dateMatch = appointment.additionalInfo.match(/Appointment Date: (.+)/);
+      if (dateMatch) {
+        return moment(dateMatch[1]).isSame(selectedDate, 'day');
+      }
+    }
+    return moment(appointment.createdAt).isSame(selectedDate, 'day');
+  }).length;
 
   useEffect(() => {
     const selectedMoment = moment(selectedDate);

@@ -65,6 +65,14 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
 
   const bookAppointment = (): void => {
     const { slotId } = getValues();
+    if (!slotId) {
+      toast({
+        title: 'Error',
+        description: 'Please select a time slot',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (user) {
       if (user.role !== Role.Patient) {
         toast({

@@ -2,14 +2,14 @@ import { Dispatch, SetStateAction } from 'react';
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 export interface IInitializeAppointment {
-  slotId: string;
+  slotId?: string;
   reason: string;
   additionalInfo: string;
 }
 
 export interface IBookingForm extends IInitializeAppointment {
   date: string;
-  time: string;
+  time?: string;
   appointmentType: string;
 }
 

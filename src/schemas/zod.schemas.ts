@@ -69,3 +69,25 @@ export const stringInputOptionalNumberSchema = z
 >;
 
 export const booleanSchema = z.boolean();
+
+export const optionalStringSchema = z.string().optional();
+
+export const optionalEmailSchema = z.string().email('Invalid email format').optional().or(z.literal(''));
+
+export const optionalUrlSchema = z.string().url('Invalid URL format').optional().or(z.literal(''));
+
+export const optionalPhoneSchema = z
+  .string()
+  .regex(/^[\d\s\-\+\(\)]+$/, 'Invalid phone number format')
+  .optional()
+  .or(z.literal(''));
+
+export const optionalStringArraySchema = z.array(z.string()).optional();
+
+export const optionalPositiveIntegerSchema = z.coerce
+  .number()
+  .int('Must be a whole number')
+  .positive('Must be greater than zero')
+  .optional();
+
+export const organizationTypeSchema = z.enum(['private', 'public', 'teaching', 'clinic']).optional();

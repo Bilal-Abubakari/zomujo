@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useParams, useRouter } from 'next/navigation';
 import { IDoctor } from '@/types/doctor.interface';
-import { useAppDispatch } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
 import { toast } from '@/hooks/use-toast';
 import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
@@ -22,9 +22,11 @@ import { ICheckout } from '@/types/payment.interface';
 import { IHospital } from '@/types/hospital.interface';
 import { MedicalAppointmentType, useQueryParam } from '@/hooks/useQueryParam';
 import { getHospital } from '@/lib/features/hospitals/hospitalThunk';
+import { createHospitalAppointment } from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
 import Image from 'next/image';
 import { AppointmentType } from '@/types/slots.interface';
 import { bookingSchema } from '@/schemas/booking.schema';
+import { selectUser } from '@/lib/features/auth/authSelector';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -36,6 +38,9 @@ const AvailableAppointment = (): JSX.Element => {
   const { getQueryParam } = useQueryParam();
   const id = params.appointment as string;
   const dateToday = new Date();
+  const user = useAppSelector(selectUser);
+  const appointmentType = getQueryParam('appointmentType');
+  const isHospitalAppointment = appointmentType === MedicalAppointmentType.Hospital;
 
   const getAmount = useCallback((): number => {
     if (!information) {
@@ -63,15 +68,55 @@ const AvailableAppointment = (): JSX.Element => {
     defaultValues: {
       appointmentType: AppointmentType.Virtual,
       date: dateToday.toISOString(),
+      slotId: isHospitalAppointment ? '' : undefined,
     },
   });
 
-  const onSubmit = async ({ reason, additionalInfo, slotId }: IBookingForm): Promise<void> => {
+  const onSubmit = async ({ reason, additionalInfo, slotId, date, time }: IBookingForm): Promise<void> => {
     if (!information) {
       return;
     }
-    setIsPaymentInitiated(true);
 
+    // Hospital appointments don't use slots or payment - create directly
+    if (isHospitalAppointment && 'id' in information) {
+      setIsPaymentInitiated(true);
+      const { payload } = await dispatch(
+        createHospitalAppointment({
+          hospitalId: information.id,
+          name: user ? `${user.firstName} ${user.lastName}` : '',
+          telephone: user?.contact || '',
+          serviceType: reason,
+          additionalInfo,
+          date: date || new Date().toISOString(),
+        }),
+      );
+
+      if (payload && showErrorToast(payload)) {
+        toast(payload);
+        setIsPaymentInitiated(false);
+        return;
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Hospital appointment request submitted successfully',
+        variant: 'default',
+      });
+      router.push('/dashboard/appointment');
+      setIsPaymentInitiated(false);
+      return;
+    }
+
+    // Doctor appointments use payment flow with slots
+    if (!slotId || !time) {
+      toast({
+        title: 'Error',
+        description: 'Please select a date and time slot',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsPaymentInitiated(true);
     const { payload } = await dispatch(initiatePayment({ additionalInfo, reason, slotId }));
 
     if (payload && showErrorToast(payload)) {
@@ -86,14 +131,14 @@ const AvailableAppointment = (): JSX.Element => {
   };
 
   useEffect(() => {
-    const appointmentType = getQueryParam('appointmentType');
-    if (!appointmentType) {
+    const appointmentTypeParam = getQueryParam('appointmentType');
+    if (!appointmentTypeParam) {
       router.push('/dashboard/find-doctor');
       return;
     }
     async function getInfo(): Promise<void> {
       let payload: unknown;
-      if (appointmentType === MedicalAppointmentType.Doctor) {
+      if (appointmentTypeParam === MedicalAppointmentType.Doctor) {
         const { payload: doctorResponse } = await dispatch(doctorInfo(id));
         payload = doctorResponse;
       } else {
@@ -142,6 +187,7 @@ const AvailableAppointment = (): JSX.Element => {
             setValue={setValue}
             setCurrentStep={setCurrentStep}
             watch={watch}
+            isHospitalAppointment={isHospitalAppointment}
           />
         )}
         {currentStep === 2 && (
@@ -216,10 +262,12 @@ const AvailableAppointment = (): JSX.Element => {
               <div className="text-gray-500">Date</div>
               <div className="font-medium">{moment(getValues('date')).format('LL')}</div>
             </div>
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-gray-500">Time</div>
-              <div className="font-medium">{getValues('time')}</div>
-            </div>
+            {!isHospitalAppointment && (
+              <div className="mb-4 flex items-center justify-between">
+                <div className="text-gray-500">Time</div>
+                <div className="font-medium">{getValues('time')}</div>
+              </div>
+            )}
             <div className="mb-4 flex items-center justify-between gap-4">
               <div className="whitespace-nowrap text-gray-500">Reason for consult</div>
               <div className="truncate font-medium">{getValues('reason')}</div>
@@ -238,26 +286,30 @@ const AvailableAppointment = (): JSX.Element => {
               </div>
             )}
 
-            <div className="my-8 flex items-center justify-center">
-              <div className="w-full max-w-32 border-b border-dashed text-gray-400"></div>
-              <div className="rounded-2xl border p-1 text-gray-400">BILL DETAILS</div>
-              <div className="w-full max-w-32 border-b border-dashed text-gray-400"></div>
-            </div>
+            {!isHospitalAppointment && (
+              <>
+                <div className="my-8 flex items-center justify-center">
+                  <div className="w-full max-w-32 border-b border-dashed text-gray-400"></div>
+                  <div className="rounded-2xl border p-1 text-gray-400">BILL DETAILS</div>
+                  <div className="w-full max-w-32 border-b border-dashed text-gray-400"></div>
+                </div>
 
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-gray-500">Consultation Fee</div>
-              <div className="font-medium"> GHC {getAmount()}.00</div>
-            </div>
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-gray-500">Total</div>
-              <div className="text-lg font-bold"> GHC {getAmount()}.00</div>
-            </div>
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="text-gray-500">Consultation Fee</div>
+                  <div className="font-medium"> GHC {getAmount()}.00</div>
+                </div>
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="text-gray-500">Total</div>
+                  <div className="text-lg font-bold"> GHC {getAmount()}.00</div>
+                </div>
+              </>
+            )}
 
             <div className="mt-4 flex justify-between">
               <Button child={'Back'} variant={'outline'} onClick={() => setCurrentStep(2)} />
               <Button
-                child={'Make Payment'}
-                onClick={() => setCurrentStep(3)}
+                child={isHospitalAppointment ? 'Submit Request' : 'Make Payment'}
+                onClick={handleSubmit(onSubmit)}
                 disabled={!isValid || isPaymentInitiated}
                 isLoading={isPaymentInitiated}
               />

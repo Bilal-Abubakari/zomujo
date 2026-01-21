@@ -237,3 +237,29 @@ export const conditionStatusOptions = [
   { value: ConditionStatus.Controlled, label: 'Controlled' },
   { value: ConditionStatus.Chronic, label: 'Chronic' },
 ];
+
+export const organizationTypes: SelectOption[] = [
+  { value: 'private', label: 'Private' },
+  { value: 'public', label: 'Public' },
+  { value: 'teaching', label: 'Teaching' },
+  { value: 'clinic', label: 'Clinic' },
+];
+
+export const languages = [
+  // Ghanaian languages first
+  { value: 'twi', label: 'Twi' },
+  { value: 'ga', label: 'Ga' },
+  { value: 'ewe', label: 'Ewe' },
+  { value: 'english', label: 'English' },
+  // Other languages
+  { value: 'french', label: 'French' },
+  { value: 'spanish', label: 'Spanish' },
+  { value: 'arabic', label: 'Arabic' },
+  { value: 'chinese', label: 'Chinese' },
+  { value: 'hindi', label: 'Hindi' },
+  { value: 'portuguese', label: 'Portuguese' },
+  { value: 'swahili', label: 'Swahili' },
+  { value: 'hausa', label: 'Hausa' },
+  { value: 'yoruba', label: 'Yoruba' },
+  { value: 'igbo', label: 'Igbo' },
+];

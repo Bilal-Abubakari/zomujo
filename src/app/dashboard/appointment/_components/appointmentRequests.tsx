@@ -12,11 +12,17 @@ import {
   assignAppointment,
   declineAppointment,
   getAppointments,
-  rescheduleAppointment,
 } from '@/lib/features/appointments/appointmentsThunk';
+import {
+  acceptHospitalAppointment,
+  assignDoctorToHospitalAppointment,
+  declineHospitalAppointment,
+  getHospitalAppointments,
+} from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
 import { selectUser, selectExtra, selectOrganizationId } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { IAppointment } from '@/types/appointment.interface';
+import { IHospitalAppointment } from '@/types/hospital-appointment.interface';
 import { AcceptDeclineStatus, OrderDirection, Role } from '@/types/shared.enum';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { ColumnDef } from '@tanstack/react-table';
@@ -25,12 +31,11 @@ import {
   Calendar as CalendarIcon,
   ChevronDown,
   ChevronUp,
+  Eye,
   ListFilter,
-  RotateCcw,
   Search,
   SendHorizontal,
   Signature,
-  Waypoints,
 } from 'lucide-react';
 import moment from 'moment';
 import React, { FormEvent, JSX, useMemo, useState } from 'react';
@@ -43,32 +48,11 @@ import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { NotificationEvent } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { bookingSchema } from '@/schemas/booking.schema';
-import { IBookingForm } from '@/types/booking.interface';
-import { MODE } from '@/constants/constants';
-import { SlotSelectionModal } from '@/components/ui/slotSelectionModal';
-import { showErrorToast } from '@/lib/utils';
-import {
-  DUMMY_HOSPITAL_APPOINTMENTS,
-  DUMMY_HOSPITAL_APPOINTMENTS_PAGINATION,
-  ENABLE_DUMMY_APPOINTMENTS,
-} from '@/app/dashboard/appointment/_components/dummyHospitalAppointments';
+import PatientDetailsDrawer from './PatientDetailsDrawer';
 
 type SelectedAppointment = {
   date: Date;
   appointmentId: string;
-};
-
-type RescheduleAppointment = {
-  appointmentId: string;
-  doctorId: string;
-  doctorName: string;
-  doctorProfilePicture: string;
-  specializations?: string[];
-  experience?: number;
-  noOfConsultations?: number;
 };
 
 const AppointmentRequests = (): JSX.Element => {
@@ -88,21 +72,20 @@ const AppointmentRequests = (): JSX.Element => {
     date: new Date(),
     appointmentId: '',
   });
-  const [openRescheduleModal, setOpenRescheduleModal] = useState(false);
-  const [rescheduleAppointmentData, setRescheduleAppointmentData] =
-    useState<RescheduleAppointment | null>(null);
-  const [isRescheduling, setIsRescheduling] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedAppointmentForDetails, setSelectedAppointmentForDetails] = useState<
+    IAppointment | IHospitalAppointment | null
+  >(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-
-  const { register, setValue, getValues, watch, reset } = useForm<IBookingForm>({
-    resolver: zodResolver(bookingSchema),
-    mode: MODE.ON_TOUCH,
-  });
 
   // Get hospital ID from extra if user is a hospital
   const hospitalId =
     user?.role === Role.Hospital && extra && 'id' in extra ? (extra as { id: string }).id : undefined;
+
+  // Use hospital appointments endpoint for hospital role, doctor appointments for others
+  const isHospital = user?.role === Role.Hospital;
+  const fetchAction = isHospital ? getHospitalAppointments : getAppointments;
 
   const {
     isLoading,
@@ -112,12 +95,12 @@ const AppointmentRequests = (): JSX.Element => {
     tableData,
     updatePage,
     refetch,
-  } = useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
+  } = useFetchPaginatedData<IAppointment | IHospitalAppointment, AppointmentStatus | ''>(fetchAction, {
     orderBy: 'createdAt',
     orderDirection: OrderDirection.Descending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
     patientId: user?.role === Role.Patient ? user?.id : undefined,
-    orgId: user?.role === Role.Hospital ? hospitalId : user?.role === Role.Admin ? orgId : undefined,
+    orgId: user?.role === Role.Admin ? orgId : undefined,
     page: 1,
     search: '',
     status: '',
@@ -167,7 +150,20 @@ const AppointmentRequests = (): JSX.Element => {
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row: { original } }): string => moment(original.slot.date).format('LL'),
+      cell: ({ row: { original } }): string => {
+        // Handle appointments without slots (hospital appointments)
+        if (original.slot?.date) {
+          return moment(original.slot.date).format('LL');
+        }
+        // Try to extract date from additionalInfo or use createdAt
+        if (original.additionalInfo) {
+          const dateMatch = original.additionalInfo.match(/Appointment Date: (.+)/);
+          if (dateMatch) {
+            return moment(dateMatch[1]).format('LL');
+          }
+        }
+        return moment(original.createdAt).format('LL');
+      },
     },
     {
       accessorKey: 'status',
@@ -212,11 +208,11 @@ const AppointmentRequests = (): JSX.Element => {
                     'Accept',
                     `accept ${getName()}'s appointment request`,
                     id,
-                    acceptAppointment,
+                    isHospital ? acceptHospitalAppointment : acceptAppointment,
                     'Yes, accept',
                     'Cancel',
                   ),
-                visible: user?.role === Role.Doctor && isPending,
+                visible: (user?.role === Role.Doctor || user?.role === Role.Hospital) && isPending,
               },
               {
                 title: (
@@ -229,48 +225,26 @@ const AppointmentRequests = (): JSX.Element => {
                     'Decline',
                     `decline ${getName()}'s appointment request`,
                     id,
-                    declineAppointment,
+                    isHospital ? declineHospitalAppointment : declineAppointment,
                     'Yes, decline',
                     'Cancel',
                   ),
                 visible: !isDone && !isCancelled,
               },
-              // TODO: Is a refund functionality feasible???
               {
                 title: (
                   <>
-                    <RotateCcw /> Reschedule
+                    <Eye /> View Details
                   </>
                 ),
                 clickCommand: (): void => {
-                  setRescheduleAppointmentData({
-                    appointmentId: id,
-                    doctorId: doctor.id,
-                    doctorName: `${doctor.firstName} ${doctor.lastName}`,
-                    doctorProfilePicture: doctor.profilePicture,
-                    specializations: doctor.specializations,
-                    experience: doctor.experience,
-                    noOfConsultations: doctor.noOfConsultations,
-                  });
-                  setOpenRescheduleModal(true);
-                  reset();
+                  setSelectedAppointmentForDetails(original);
+                  setIsDrawerOpen(true);
                 },
-                visible: !isDone && !isCancelled && !isInProgress,
-              },
-              {
-                title: (
-                  <>
-                    <Waypoints /> Assign to a Doctor
-                  </>
-                ),
-                clickCommand: (): void => {
-                  setOpenModal(true);
-                  setSelectedAppointment({
-                    date: new Date(createdAt),
-                    appointmentId: id,
-                  });
-                },
-                visible: user?.role === Role.Admin || user?.role === Role.SuperAdmin,
+                visible:
+                  user?.role === Role.Admin ||
+                  user?.role === Role.SuperAdmin ||
+                  user?.role === Role.Hospital,
               },
             ]}
           />
@@ -287,36 +261,21 @@ const AppointmentRequests = (): JSX.Element => {
     });
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
-  const shouldUseDummyAppointments =
-    ENABLE_DUMMY_APPOINTMENTS &&
-    user?.role === Role.Hospital &&
-    !isLoading &&
-    tableData.length === 0 &&
-    !queryParameters.search &&
-    !queryParameters.status &&
-    !queryParameters.startDate &&
-    !queryParameters.endDate;
-
-  const baseAppointments = shouldUseDummyAppointments
-    ? DUMMY_HOSPITAL_APPOINTMENTS
-    : tableData;
-
   const displayAppointments = useMemo(() => {
     if (!dateSortDirection) {
-      return baseAppointments;
+      return tableData;
     }
-    const sorted = [...baseAppointments].sort((a, b) => {
-      const dateA = moment(a.slot.date).valueOf();
-      const dateB = moment(b.slot.date).valueOf();
+    const sorted = [...tableData].sort((a, b) => {
+      // Handle appointments without slots (hospital appointments)
+      const dateA = a.slot?.date ? moment(a.slot.date).valueOf() : moment(a.createdAt).valueOf();
+      const dateB = b.slot?.date ? moment(b.slot.date).valueOf() : moment(b.createdAt).valueOf();
       return dateSortDirection === OrderDirection.Ascending
         ? dateA - dateB
         : dateB - dateA;
     });
     return sorted;
-  }, [baseAppointments, dateSortDirection]);
-  const displayPaginationData = shouldUseDummyAppointments
-    ? DUMMY_HOSPITAL_APPOINTMENTS_PAGINATION
-    : paginationData;
+  }, [tableData, dateSortDirection]);
+  const displayPaginationData = paginationData;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
     event.preventDefault();
@@ -326,44 +285,6 @@ const AppointmentRequests = (): JSX.Element => {
       search: search ?? searchTerm,
     }));
   }
-
-  const handleReschedule = async (): Promise<void> => {
-    if (!rescheduleAppointmentData) {
-      return;
-    }
-
-    const { slotId } = getValues();
-    if (!slotId) {
-      toast({
-        title: 'Error',
-        description: 'Please select a time slot',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsRescheduling(true);
-
-    const { payload } = await dispatch(
-      rescheduleAppointment({
-        slotId,
-        appointmentId: rescheduleAppointmentData.appointmentId,
-      }),
-    );
-
-    if (payload && showErrorToast(payload)) {
-      toast(payload);
-      setIsRescheduling(false);
-      return;
-    }
-
-    toast(payload as Toast);
-    setIsRescheduling(false);
-    setOpenRescheduleModal(false);
-    setRescheduleAppointmentData(null);
-    reset();
-    void refetch();
-  };
 
   const handleDateChange = (type: 'start' | 'end', value: string): void => {
     const dateVal = value ? new Date(value) : null;
@@ -482,35 +403,25 @@ const AppointmentRequests = (): JSX.Element => {
           <AvailableDoctors
             closeModal={() => setOpenModal(false)}
             appointment={selectedAppointment}
+            isHospital={isHospital}
           />
         }
         showClose={true}
         setState={setOpenModal}
       />
 
-      {rescheduleAppointmentData && (
-        <SlotSelectionModal
-          open={openRescheduleModal}
-          onCloseAction={() => {
-            setOpenRescheduleModal(false);
-            setRescheduleAppointmentData(null);
-            reset();
-          }}
-          onConfirmAction={handleReschedule}
-          isLoading={isRescheduling}
-          doctorId={rescheduleAppointmentData.doctorId}
-          doctorName={rescheduleAppointmentData.doctorName}
-          doctorProfilePicture={rescheduleAppointmentData.doctorProfilePicture}
-          specializations={rescheduleAppointmentData.specializations}
-          experience={rescheduleAppointmentData.experience}
-          noOfConsultations={rescheduleAppointmentData.noOfConsultations}
-          registerAction={register}
-          setValueAction={setValue}
-          watch={watch}
-          title="Reschedule Appointment"
-          confirmButtonText="Reschedule"
-        />
-      )}
+      <PatientDetailsDrawer
+        open={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setSelectedAppointmentForDetails(null);
+        }}
+        appointment={selectedAppointmentForDetails}
+        isHospital={isHospital}
+        onActionComplete={() => {
+          void refetch();
+        }}
+      />
     </div>
   );
 };
@@ -520,8 +431,9 @@ export default AppointmentRequests;
 type AvailableDoctorsProps = {
   closeModal: () => void;
   appointment: SelectedAppointment;
+  isHospital?: boolean;
 };
-const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps): JSX.Element => {
+const AvailableDoctors = ({ closeModal, appointment, isHospital = false }: AvailableDoctorsProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const { date, appointmentId } = appointment;
   const [doctorId, setDoctorId] = useState('');
@@ -542,7 +454,10 @@ const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps): J
 
   async function assignDoctor(): Promise<void> {
     setIsAssignRequestLoading(true);
-    const { payload } = await dispatch(assignAppointment({ appointmentId, doctorId }));
+    const assignAction = isHospital
+      ? assignDoctorToHospitalAppointment({ appointmentId, doctorId })
+      : assignAppointment({ appointmentId, doctorId });
+    const { payload } = await dispatch(assignAction);
     toast(payload as Toast);
     setIsAssignRequestLoading(false);
     closeModal();

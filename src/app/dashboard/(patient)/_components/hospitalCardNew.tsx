@@ -7,7 +7,7 @@ import { IHospitalListItem } from '@/types/hospital.interface';
 import { useRouter } from 'next/navigation';
 import HospitalAppointmentModal, { HospitalAppointmentFormData } from '@/app/dashboard/(patient)/find-hospitals/_components/hospitalAppointmentModal';
 import { useAppDispatch } from '@/lib/hooks';
-import { createHospitalAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { createHospitalAppointment } from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
 import { toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 

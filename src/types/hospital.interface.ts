@@ -19,6 +19,26 @@ export interface IHospitalProfile {
   name: string;
   regularFee: number;
   image: string | null | File;
+  images?: (File | string)[];
+  // New fields
+  description?: string;
+  organizationType?: 'private' | 'public' | 'teaching' | 'clinic';
+  mainPhone?: string;
+  mainEmail?: string;
+  website?: string;
+  languages?: string[];
+  bedCount?: number;
+  telemedicine?: boolean;
+  hasEmergency?: boolean;
+  // Address fields
+  street?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+  fax?: string;
+  gpsLink?: string;
 }
 
 export interface INearByQueryParams {

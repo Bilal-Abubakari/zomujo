@@ -8,9 +8,10 @@ export type StatsCardsProps = {
   statsData: IStatsCard[];
   numberOfCards?: number;
   isLoading?: boolean;
+  onClick?: () => void;
 };
 
-const StatsCards = ({ statsData, numberOfCards = 3, isLoading }: StatsCardsProps): JSX.Element =>
+const StatsCards = ({ statsData, numberOfCards = 3, isLoading, onClick }: StatsCardsProps): JSX.Element =>
   isLoading ? (
     <>
       {Array.from({ length: numberOfCards }).map((_, index) => (
@@ -20,7 +21,14 @@ const StatsCards = ({ statsData, numberOfCards = 3, isLoading }: StatsCardsProps
   ) : (
     <>
       {statsData?.map(({ title, trend, value, percentage }) => (
-        <Card key={title} className="w-[380px] grow rounded-2xl">
+        <Card
+          key={title}
+          className={cn(
+            'w-[380px] grow rounded-2xl transition-all duration-200',
+            onClick && 'cursor-pointer hover:shadow-lg hover:scale-[1.02]',
+          )}
+          onClick={onClick}
+        >
           <div className="flex flex-row justify-between p-5">
             <CardTitle className="text-grayscale-500 text-base">{title}</CardTitle>
             <div>

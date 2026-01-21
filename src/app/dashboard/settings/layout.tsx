@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Navbar, SidebarLayout } from '../_components/sidebar/sidebarLayout';
-import { SidebarType } from '@/types/shared.enum';
+import SettingsNavigation from './_components/SettingsNavigation';
 
 export default function Layout({
   children,
@@ -12,16 +11,9 @@ export default function Layout({
       <div className="flex items-center justify-between px-6">
         <h2 className="text-xl font-bold sm:py-0 sm:text-[32px]">Settings</h2>
       </div>
-      <Navbar />
-      <div className="relative flex h-[calc(100vh-99px)] overflow-hidden">
-        <SidebarLayout
-          hideOnMobile={true}
-          type={SidebarType.Settings}
-          sidebarClassName="absolute left-2"
-          sidebarContentClassName="bg-gray-100 border-r"
-          sidebarTabClassName="data-[active=true]/menu-action:before:opacity-0"
-        />
-        <div className="w-full overflow-y-scroll bg-gray-50 px-4 pt-8 sm:px-8">{children}</div>
+      <SettingsNavigation />
+      <div className="relative flex-1 overflow-y-auto bg-gray-50 px-6 pt-8 pb-16 sm:px-12 sm:pb-20 lg:px-16 lg:pb-24">
+        {children}
       </div>
     </div>
   );
