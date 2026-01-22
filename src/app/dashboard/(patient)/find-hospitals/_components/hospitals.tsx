@@ -219,31 +219,6 @@ const Hospitals = (): JSX.Element => {
           </div>
         </div>
 
-        {/* Results Summary */}
-        {paginationData && paginationData.total > 0 && (
-          <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3 text-sm">
-            <span className="font-semibold text-gray-900">
-              {paginationData.total} {paginationData.total === 1 ? 'hospital' : 'hospitals'}
-            </span>
-            <span className="text-gray-500">found</span>
-            {queryParameters.search && (
-              <>
-                <span className="text-gray-400">•</span>
-                <span className="text-gray-600">
-                  matching &quot;<span className="font-medium text-gray-900">{queryParameters.search}</span>&quot;
-                </span>
-              </>
-            )}
-            {(queryParameters.city || 
-              queryParameters.hasEmergency !== undefined || 
-              queryParameters.telemedicine !== undefined) && (
-              <>
-                <span className="text-gray-400">•</span>
-                <span className="text-gray-600">with active filters</span>
-              </>
-            )}
-          </div>
-        )}
         </div>
       </div>
       {isLoading ? (
