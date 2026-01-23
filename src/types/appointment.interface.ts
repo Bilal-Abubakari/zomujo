@@ -30,6 +30,7 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   lab: ILab[];
   notes: string;
   historyNotes: string;
+  isAuthenticated: boolean;
   radiology: IRadiology;
   prescriptionUrl: string | null;
   diagnosis: IDiagnosis[];

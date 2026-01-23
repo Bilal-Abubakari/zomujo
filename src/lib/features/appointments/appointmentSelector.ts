@@ -99,3 +99,8 @@ export const selectRequestedRadiology = createSelector(selectAppointmentRadiolog
 export const selectConductedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
   radiology?.tests?.some((test) => test.fileUrl) ? radiology : null,
 );
+
+export const selectIsConsultationAuthenticated = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.isAuthenticated ?? false,
+);

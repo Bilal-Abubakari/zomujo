@@ -43,6 +43,11 @@ const appointmentsSlice = createSlice({
         };
       }
     },
+    setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
+      if (state.appointment) {
+        state.appointment.isAuthenticated = action.payload;
+      }
+    },
     showReviewModal: (
       state,
       action: PayloadAction<{ appointmentId: string; recordId: string }>,
@@ -74,6 +79,7 @@ const appointmentsSlice = createSlice({
 export const {
   setAppointment,
   updateSymptoms,
+  setIsAuthenticated,
   showReviewModal,
   hideReviewModal,
   updateAppointmentNotes,

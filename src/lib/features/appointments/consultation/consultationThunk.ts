@@ -15,6 +15,7 @@ import {
   updateAppointmentNotes,
   updateAppointmentHistoryNotes,
   updateSymptoms,
+  setIsAuthenticated,
 } from '@/lib/features/appointments/appointmentsSlice';
 import { ILab, ILaboratoryRequestWithRecordId, IUploadLab } from '@/types/labs.interface';
 import { IRadiology, IRadiologyRequestWithRecordId } from '@/types/radiology.interface';
@@ -185,13 +186,37 @@ export const startConsultation = createAsyncThunk(
   },
 );
 
-export const endConsultation = createAsyncThunk(
-  'consultation/end-consultation',
-  async (id: string): Promise<Toast> => {
+export const authenticateConsultation = createAsyncThunk(
+  'consultation/authenticate-consultation',
+  async (
+    { appointmentId, code }: { appointmentId: string; code: string },
+    { dispatch },
+  ): Promise<Toast> => {
     try {
       const {
         data: { message },
-      } = await axios.patch<IResponse>(`consultation/end/${id}`);
+      } = await axios.put<IResponse>(`consultation/authenticate`, {
+        appointmentId,
+        code,
+      });
+      dispatch(setIsAuthenticated(true));
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const endConsultation = createAsyncThunk(
+  'consultation/end-consultation',
+  async ({ appointmentId, code }: { appointmentId: string; code: string }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.patch<IResponse>(`consultation/end/${appointmentId}`, {
+        appointmentId,
+        code,
+      });
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
