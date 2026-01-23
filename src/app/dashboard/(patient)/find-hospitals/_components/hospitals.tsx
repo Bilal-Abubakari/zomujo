@@ -227,13 +227,13 @@ const Hospitals = (): JSX.Element => {
             <SkeletonDoctorPatientCard key={index} />
           ))}
         </div>
-      ) : hospitals.length > 0 ? (
-        <Suggested title={'Hospitals'} showViewAll={false}>
-          {hospitals.map((hospital) => (
-            <HospitalCard key={hospital.id} hospital={hospital} />
-          ))}
-        </Suggested>
-      ) : (
+        ) : hospitals.length > 0 ? (
+          <Suggested title={''} showViewAll={false}>
+            {hospitals.map((hospital) => (
+              <HospitalCard key={hospital.id} hospital={hospital} />
+            ))}
+          </Suggested>
+        ) : (
         <section>
           <Image
             src={NotFound}
