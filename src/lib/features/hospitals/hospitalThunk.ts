@@ -108,3 +108,60 @@ export const getHospitalBySlug = createAsyncThunk(
     }
   },
 );
+
+// Fetch services for filtering
+export const getServices = createAsyncThunk(
+  'hospitals/getServices',
+  async (): Promise<Array<{ id: string; name: string }> | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<Array<{ id: string; name: string; description?: string; category?: string }>>>('common/services');
+      return data.data.map((service) => ({ id: service.id, name: service.name }));
+    } catch (error) {
+      // Try alternative endpoint
+      try {
+        const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('services');
+        return data.data;
+      } catch (err) {
+        return axiosErrorHandler(error, true) as Toast;
+      }
+    }
+  },
+);
+
+// Fetch departments for filtering
+export const getDepartments = createAsyncThunk(
+  'hospitals/getDepartments',
+  async (): Promise<Array<{ id: string; name: string }> | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('common/departments');
+      return data.data;
+    } catch (error) {
+      // Try alternative endpoint
+      try {
+        const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('departments');
+        return data.data;
+      } catch (err) {
+        return axiosErrorHandler(error, true) as Toast;
+      }
+    }
+  },
+);
+
+// Fetch insurance companies for filtering
+export const getInsuranceCompanies = createAsyncThunk(
+  'hospitals/getInsuranceCompanies',
+  async (): Promise<Array<{ id: string; name: string }> | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<Array<{ id: string; name: string; code?: string; logo?: string }>>>('common/insurance-companies');
+      return data.data.map((company) => ({ id: company.id, name: company.name }));
+    } catch (error) {
+      // Try alternative endpoint
+      try {
+        const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('insurance-companies');
+        return data.data;
+      } catch (err) {
+        return axiosErrorHandler(error, true) as Toast;
+      }
+    }
+  },
+);

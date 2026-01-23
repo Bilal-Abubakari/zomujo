@@ -70,6 +70,64 @@ const cityOptions = [
   { value: 'Elmina', label: 'Elmina' },
 ];
 
+const serviceOptions = [
+  { value: '', label: 'All Services' },
+  { value: 'cardiology', label: 'Cardiology' },
+  { value: 'orthopedics', label: 'Orthopedics' },
+  { value: 'pediatrics', label: 'Pediatrics' },
+  { value: 'neurology', label: 'Neurology' },
+  { value: 'oncology', label: 'Oncology' },
+  { value: 'dermatology', label: 'Dermatology' },
+  { value: 'gynecology', label: 'Gynecology' },
+  { value: 'urology', label: 'Urology' },
+  { value: 'ophthalmology', label: 'Ophthalmology' },
+  { value: 'psychiatry', label: 'Psychiatry' },
+  { value: 'radiology', label: 'Radiology' },
+  { value: 'emergency', label: 'Emergency Medicine' },
+  { value: 'surgery', label: 'General Surgery' },
+  { value: 'anesthesia', label: 'Anesthesiology' },
+  { value: 'pathology', label: 'Pathology' },
+  { value: 'internal-medicine', label: 'Internal Medicine' },
+  { value: 'family-medicine', label: 'Family Medicine' },
+];
+
+const departmentOptions = [
+  { value: '', label: 'All Departments' },
+  { value: 'emergency', label: 'Emergency Department' },
+  { value: 'icu', label: 'Intensive Care Unit (ICU)' },
+  { value: 'surgery', label: 'Surgery Department' },
+  { value: 'maternity', label: 'Maternity & Obstetrics' },
+  { value: 'pediatric', label: 'Pediatric Department' },
+  { value: 'cardiac', label: 'Cardiac Care Unit' },
+  { value: 'oncology', label: 'Oncology Department' },
+  { value: 'radiology', label: 'Radiology Department' },
+  { value: 'laboratory', label: 'Laboratory Services' },
+  { value: 'pharmacy', label: 'Pharmacy' },
+  { value: 'outpatient', label: 'Outpatient Department' },
+  { value: 'inpatient', label: 'Inpatient Services' },
+  { value: 'rehabilitation', label: 'Rehabilitation Services' },
+  { value: 'mental-health', label: 'Mental Health Services' },
+];
+
+const insuranceCompanyOptions = [
+  { value: '', label: 'All Insurance Companies' },
+  { value: 'nhis', label: 'National Health Insurance Scheme (NHIS)' },
+  { value: 'acacia', label: 'Acacia Health Insurance Limited' },
+  { value: 'ace', label: 'Ace Medical Insurance' },
+  { value: 'apex', label: 'Apex Health Insurance Limited' },
+  { value: 'cosmopolitan', label: 'Cosmopolitan Health Insurance Limited' },
+  { value: 'dosh', label: 'Dosh Health Insurance Company Ltd' },
+  { value: 'equity', label: 'Equity Health Insurance Limited' },
+  { value: 'glico', label: 'GLICO Healthcare Limited' },
+  { value: 'health-insure', label: 'Health Insure Africa Limited' },
+  { value: 'metropolitan', label: 'Metropolitan Health Insurance Ghana Limited' },
+  { value: 'nmh', label: 'NMH Nationwide Medical Health Insurance Scheme Limited' },
+  { value: 'phoenix', label: 'Phoenix Health Insurance' },
+  { value: 'premier', label: 'Premier Health Insurance Company Limited' },
+  { value: 'vitality', label: 'Vitality Health Insurance Limited' },
+  { value: 'spectra', label: 'Spectra Health Mutual Insurance' },
+];
+
 const HospitalFilters = ({
   queryParameters,
   onFilterChange,
@@ -105,8 +163,6 @@ const HospitalFilters = ({
       departmentId: '',
       insuranceCompanyId: '',
       languages: undefined,
-      minBedCount: undefined,
-      maxBedCount: undefined,
     };
     setLocalFilters(resetFilters);
     onReset();
@@ -115,13 +171,10 @@ const HospitalFilters = ({
 
   const activeFilterCount = [
     queryParameters.city,
-    queryParameters.hasEmergency !== undefined,
     queryParameters.telemedicine !== undefined,
     queryParameters.serviceId,
     queryParameters.departmentId,
     queryParameters.insuranceCompanyId,
-    queryParameters.minBedCount,
-    queryParameters.maxBedCount,
   ].filter(Boolean).length;
 
   return (
@@ -179,21 +232,6 @@ const HospitalFilters = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between rounded-lg border p-3">
                 <div className="space-y-0.5">
-                  <Label htmlFor="emergency" className="text-sm font-medium">
-                    Emergency Services
-                  </Label>
-                  <p className="text-xs text-gray-500">24/7 emergency care available</p>
-                </div>
-                <Switch
-                  id="emergency"
-                  checked={localFilters.hasEmergency === true}
-                  onCheckedChange={(checked) =>
-                    handleFilterChange('hasEmergency', checked ? true : undefined)
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
                   <Label htmlFor="telemedicine" className="text-sm font-medium">
                     Telemedicine
                   </Label>
@@ -212,50 +250,50 @@ const HospitalFilters = ({
 
           <Separator />
 
-          {/* Bed Count Range */}
+          {/* Services Filter */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold">Bed Capacity</Label>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="minBeds" className="text-sm text-gray-600">
-                  Minimum
-                </Label>
-                <Input
-                  id="minBeds"
-                  type="number"
-                  placeholder="Min beds"
-                  value={localFilters.minBedCount || ''}
-                  onChange={(e) =>
-                    handleFilterChange('minBedCount', e.target.value ? Number(e.target.value) : undefined)
-                  }
-                  min={0}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="maxBeds" className="text-sm text-gray-600">
-                  Maximum
-                </Label>
-                <Input
-                  id="maxBeds"
-                  type="number"
-                  placeholder="Max beds"
-                  value={localFilters.maxBedCount || ''}
-                  onChange={(e) =>
-                    handleFilterChange('maxBedCount', e.target.value ? Number(e.target.value) : undefined)
-                  }
-                  min={0}
-                />
-              </div>
-            </div>
+            <Label className="text-base font-semibold">Services</Label>
+            <Combobox
+              onChange={(value) => handleFilterChange('serviceId', value)}
+              options={serviceOptions}
+              value={localFilters.serviceId || ''}
+              placeholder="Select service..."
+              searchPlaceholder="Search services..."
+              defaultMaxWidth={false}
+              className="w-full"
+            />
           </div>
 
+          <Separator />
 
-          {/* Additional Filters Placeholder */}
+          {/* Departments Filter */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold">Additional Filters</Label>
-            <p className="text-sm text-gray-500">
-              Services, departments, and insurance filters coming soon
-            </p>
+            <Label className="text-base font-semibold">Departments</Label>
+            <Combobox
+              onChange={(value) => handleFilterChange('departmentId', value)}
+              options={departmentOptions}
+              value={localFilters.departmentId || ''}
+              placeholder="Select department..."
+              searchPlaceholder="Search departments..."
+              defaultMaxWidth={false}
+              className="w-full"
+            />
+          </div>
+
+          <Separator />
+
+          {/* Insurance Companies Filter */}
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">Insurance Companies</Label>
+            <Combobox
+              onChange={(value) => handleFilterChange('insuranceCompanyId', value)}
+              options={insuranceCompanyOptions}
+              value={localFilters.insuranceCompanyId || ''}
+              placeholder="Select insurance company..."
+              searchPlaceholder="Search insurance companies..."
+              defaultMaxWidth={false}
+              className="w-full"
+            />
           </div>
         </div>
 
