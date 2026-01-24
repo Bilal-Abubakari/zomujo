@@ -22,7 +22,7 @@ import {
 } from '@/types/consultation.interface';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileText, List } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -39,6 +39,10 @@ const MedicationTaken = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/medicationTaken'),
   { loading: () => <LoadingFallback />, ssr: false },
 );
+const HistoryNotesView = dynamic(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/historyNotesView'),
+  { loading: () => <LoadingFallback />, ssr: false },
+);
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -47,9 +51,13 @@ import { requiredStringSchema } from '@/schemas/zod.schemas';
 import Loading from '@/components/loadingOverlay/loading';
 
 import { useParams } from 'next/navigation';
-import { selectSymptoms } from '@/lib/features/appointments/appointmentSelector';
+import {
+  selectSymptoms,
+  selectHistoryNotes,
+} from '@/lib/features/appointments/appointmentSelector';
 import _ from 'lodash';
 import { IAppointmentSymptoms } from '@/types/appointment.interface';
+import { HistoryView } from '@/types/history.enum';
 
 const symptomItemSchema = z.object({
   name: requiredStringSchema(),
@@ -112,6 +120,27 @@ const LoadingFallback = (): JSX.Element => (
 
 const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
+  const historyNotes = useAppSelector(selectHistoryNotes);
+  const params = useParams();
+
+  // View selection using enum
+  const [selectedView, setSelectedView] = useState<HistoryView | null>(null);
+  const [isViewLocked, setIsViewLocked] = useState(false);
+
+  // Determine if data exists and lock view accordingly
+  useEffect(() => {
+    if (historyNotes) {
+      setSelectedView(HistoryView.Notes);
+      setIsViewLocked(true);
+    } else if (symptoms) {
+      setSelectedView(HistoryView.Symptoms);
+      setIsViewLocked(true);
+    } else if (selectedView === null) {
+      // Default to notes view when no data exists
+      setSelectedView(HistoryView.Notes);
+    }
+  }, [historyNotes, symptoms, selectedView]);
+
   const [isLoading, setIsLoading] = useState(false);
   const {
     control,
@@ -153,23 +182,16 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const [otherComplaint, setOtherComplaint] = useState<string>('');
   const [systemSymptoms, setSystemSymptoms] = useState<ISymptomMap>();
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const params = useParams();
   const complaintsHFC = watch('complaints');
   const hasSetComplaintDurations = useRef(false);
   const complaintFieldsContainerRef = useRef<HTMLDivElement>(null);
 
-  const storageKey = useMemo(
-    () => `consultation_${params?.appointmentId}_symptoms_draft`,
-    [params],
-  );
+  const storageKey = useMemo(() => `consultation_${params?.appointmentId}_history_draft`, [params]);
 
-  // Restore draft if no server symptoms yet
   useEffect(() => {
     if (!symptoms) {
       const draft = LocalStorageManager.getJSON<IConsultationSymptoms>(storageKey);
-      console.log('Draft', draft);
       if (draft) {
-        // Apply draft values
         setValue('complaints', draft.complaints ?? []);
         setValue(
           'symptoms',
@@ -186,18 +208,16 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
         setValue('medicinesTaken', draft.medicinesTaken ?? []);
       }
     }
-  }, [symptoms, storageKey, setValue]);
+  }, [symptoms, storageKey]);
 
-  // Persist draft on any form value change (debounced via RAF batching)
   useEffect(() => {
     const subscription = watch((value) => {
-      // Only persist if not already saved on server (symptoms selector empty or undefined)
       if (!symptoms) {
         LocalStorageManager.setJSON(storageKey, value as IConsultationSymptoms);
       }
     });
     return (): void => subscription.unsubscribe();
-  }, [watch, symptoms, storageKey]);
+  }, [symptoms, storageKey]);
 
   const clearDraft = useCallback(() => {
     LocalStorageManager.removeJSON(storageKey);
@@ -223,7 +243,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
         }
       }
     },
-    [append, complaintsHFC, selectedComplaints],
+    [complaintsHFC, selectedComplaints],
   );
 
   const addComplaint = useCallback((): void => {
@@ -238,7 +258,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setOtherComplaint('');
       scrollToComplaintFields();
     }
-  }, [append, complaintSuggestions, otherComplaint, selectedComplaints]);
+  }, [complaintSuggestions, otherComplaint, selectedComplaints]);
 
   const scrollToComplaintFields = (): void => {
     // Scroll to the complaint fields after a short delay to ensure DOM is updated
@@ -347,17 +367,6 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
       hasSetComplaintDurations.current = true;
     }
 
-    if (!isLoadingComplaintSuggestions) {
-      complaints.forEach(({ complaint, duration }) => {
-        if (complaintSuggestions.includes(complaint)) {
-          handleSelectedComplaint(complaint, false);
-        } else {
-          setComplaintSuggestions((prev) => [...prev, complaint]);
-          append({ complaint, duration });
-        }
-      });
-    }
-
     if (systemSymptoms) {
       setValue('symptoms', patientSymptoms);
       const sectionsWithSymptoms = Object.keys(systemSymptoms).filter(
@@ -381,18 +390,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
         setSystemSymptoms(symptomsMap);
       }
     }
-  }, [
-    symptoms,
-    systemSymptoms,
-    isLoadingComplaintSuggestions,
-    setValue,
-    complaintSuggestions,
-    append,
-    handleSelectedComplaint,
-    setComplaintSuggestions,
-    setExpandedSections,
-    setSystemSymptoms,
-  ]);
+  }, [symptoms, systemSymptoms, isLoadingComplaintSuggestions, complaintSuggestions]);
 
   const [bulkDurationValue, setBulkDurationValue] = useState<string>('');
   const [bulkDurationType, setBulkDurationType] = useState<DurationType>(DurationType.Days);
@@ -409,158 +407,211 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
   }, [bulkDurationType, bulkDurationValue, complaintFields, setValue, trigger]);
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <form onSubmit={handleSubmit(handleSubmitAndGoToLabs)}>
-        <h1 className="text-xl font-bold">Complaint</h1>
-        <div className="mt-8 flex flex-wrap gap-5">
-          {isLoadingComplaintSuggestions ? (
-            <Loading message="Please wait. Loading complaint suggestions" />
-          ) : (
-            complaintSuggestions.map((suggestion) => (
-              <button
-                key={suggestion}
-                type="button"
-                onClick={() => handleSelectedComplaint(suggestion)}
-                className={cn(
-                  'cursor-pointer rounded-[100px] p-2.5',
-                  selectedComplaints.includes(suggestion) ? 'bg-primary text-white' : 'bg-gray-200',
-                )}
-              >
-                {suggestion}
-              </button>
-            ))
-          )}
-        </div>
-        <div className="mt-8 flex flex-wrap items-end gap-4">
-          <Input
-            value={otherComplaint}
-            onChange={({ target }) => setOtherComplaint(target.value)}
-            labelName="Add complaint if not part of suggestions"
-            className="max-w-xs bg-transparent"
-          />
-          <Button
-            disabled={!otherComplaint}
-            onClick={() => addComplaint()}
-            type="button"
-            className="self-end"
-            child="Add"
-          />
-        </div>
-        {complaintFields.length > 1 && (
-          <div className="mt-6 flex flex-wrap items-end gap-4 rounded-md bg-gray-50 p-4">
-            <Input
-              value={bulkDurationValue}
-              onChange={(e) => setBulkDurationValue(e.target.value)}
-              type="number"
-              placeholder="Duration"
-              labelName="Duration (All)"
-              className="w-32 bg-transparent"
-            />
-            <SelectInputV2
-              className="max-w-40"
-              options={durationTypes}
-              onChange={(value) => setBulkDurationType(value as DurationType)}
-              value={bulkDurationType}
-            />
-            <Button
+    <div>
+      {/* Compact View Selection UI - Only show if view is not locked */}
+      {!isViewLocked && selectedView && (
+        <div className="mb-6 flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">History Method:</span>
+            <span className="text-xs text-gray-500">(Cannot change after saving)</span>
+          </div>
+          <div className="flex gap-2">
+            <button
               type="button"
-              disabled={!bulkDurationValue || Number(bulkDurationValue) <= 0}
-              onClick={handleApplyBulkDuration}
-              child="Apply to All"
-            />
+              onClick={() => setSelectedView(HistoryView.Notes)}
+              className={cn(
+                'flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all',
+                selectedView === HistoryView.Notes
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-white text-gray-700 hover:bg-gray-100',
+              )}
+            >
+              <FileText size={16} />
+              Text Editor
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedView(HistoryView.Symptoms)}
+              className={cn(
+                'flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all',
+                selectedView === HistoryView.Symptoms
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-white text-gray-700 hover:bg-gray-100',
+              )}
+            >
+              <List size={16} />
+              Structured Form
+            </button>
           </div>
-        )}
-        {complaintFields.length > 0 && (
-          <div ref={complaintFieldsContainerRef} className="mt-10">
-            <h2 className="text-lg font-semibold">Set Duration Per Complaint</h2>
-            <div className="mt-4 space-y-6">
-              {complaintFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="flex flex-wrap items-end gap-4 rounded-md border p-4 shadow-sm"
-                >
-                  <div className="min-w-45 flex-1">
-                    <Input
-                      value={field.complaint}
-                      readOnly
-                      labelName="Complaint"
-                      className="bg-transparent"
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      {...register(`complaints.${index}.duration.value`)}
-                      placeholder="Duration"
-                      labelName="Duration"
-                      className="w-28 bg-transparent"
-                      error={errors?.complaints?.[index]?.duration?.value?.message}
-                    />
-                  </div>
-                  <SelectInput
-                    control={control}
-                    name={`complaints.${index}.duration.type`}
-                    options={durationTypes}
-                    placeholder="Type"
-                    className="w-32 bg-transparent"
-                    ref={register(`complaints.${index}.duration.type`).ref}
-                  />
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    onClick={() => remove(index)}
-                    child="Remove"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <h1 className="mt-12 text-xl font-bold">Symptoms</h1>
-        {isLoadingSymptoms ? (
-          <Loading message="Please wait. Loading System Symptoms.." />
-        ) : (
-          <Accordion
-            type="multiple"
-            value={expandedSections}
-            onValueChange={setExpandedSections}
-            className="mt-4"
-          >
-            {systemSymptomsEntries.map(([id, symptoms]) => (
-              <AccordionItem key={id} value={id} className="border-b">
-                <AccordionTrigger className="cursor-pointer text-left transition-colors hover:bg-gray-50 hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{getSystemTitle(id)}</span>
-                    {hasSelectedSymptoms(id) && (
-                      <span className="bg-primary rounded-full px-2 py-0.5 text-xs text-white">
-                        {(watch(`symptoms.${id as SymptomsType}`) as IPatientSymptom[])?.length ||
-                          0}
-                      </span>
-                    )}
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  {expandedSections.includes(id) && (
-                    <SelectSymptoms
-                      symptoms={symptoms}
-                      id={id}
-                      control={control}
-                      trigger={trigger}
-                      selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
-                    />
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        )}
-        <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
-        <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
-        <div className="mt-20"></div>
-        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
-          <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Go to Labs" />
         </div>
-      </form>
-    </DndProvider>
+      )}
+
+      {/* Render the selected view */}
+      {selectedView === HistoryView.Notes ? (
+        <HistoryNotesView
+          appointmentId={String(params.appointmentId)}
+          initialNotes={historyNotes}
+          goToLabs={goToLabs}
+        />
+      ) : selectedView === HistoryView.Symptoms ? (
+        <DndProvider backend={HTML5Backend}>
+          <form onSubmit={handleSubmit(handleSubmitAndGoToLabs)}>
+            <h1 className="text-xl font-bold">Complaint</h1>
+            <div className="mt-8 flex flex-wrap gap-5">
+              {isLoadingComplaintSuggestions ? (
+                <Loading message="Please wait. Loading complaint suggestions" />
+              ) : (
+                complaintSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => handleSelectedComplaint(suggestion)}
+                    className={cn(
+                      'cursor-pointer rounded-[100px] p-2.5',
+                      selectedComplaints.includes(suggestion)
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-200',
+                    )}
+                  >
+                    {suggestion}
+                  </button>
+                ))
+              )}
+            </div>
+            <div className="mt-8 flex flex-wrap items-end gap-4">
+              <Input
+                value={otherComplaint}
+                onChange={({ target }) => setOtherComplaint(target.value)}
+                labelName="Add complaint if not part of suggestions"
+                className="max-w-xs bg-transparent"
+              />
+              <Button
+                disabled={!otherComplaint}
+                onClick={() => addComplaint()}
+                type="button"
+                className="self-end"
+                child="Add"
+              />
+            </div>
+            {complaintFields.length > 1 && (
+              <div className="mt-6 flex flex-wrap items-end gap-4 rounded-md bg-gray-50 p-4">
+                <Input
+                  value={bulkDurationValue}
+                  onChange={(e) => setBulkDurationValue(e.target.value)}
+                  type="number"
+                  placeholder="Duration"
+                  labelName="Duration (All)"
+                  className="bg-transparent"
+                  wrapperClassName="max-w-32"
+                  defaultMaxWidth={false}
+                />
+                <SelectInputV2
+                  className="max-w-40"
+                  options={durationTypes}
+                  onChange={(value) => setBulkDurationType(value as DurationType)}
+                  value={bulkDurationType}
+                />
+                <Button
+                  type="button"
+                  disabled={!bulkDurationValue || Number(bulkDurationValue) <= 0}
+                  onClick={handleApplyBulkDuration}
+                  child="Apply to All"
+                />
+              </div>
+            )}
+            {complaintFields.length > 0 && (
+              <div ref={complaintFieldsContainerRef} className="mt-10">
+                <h2 className="text-lg font-semibold">Set Duration Per Complaint</h2>
+                <div className="mt-4 space-y-6">
+                  {complaintFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="flex flex-wrap items-end gap-4 rounded-md border p-4 shadow-sm"
+                    >
+                      <div className="min-w-45 flex-1">
+                        <Input
+                          value={field.complaint}
+                          readOnly
+                          labelName="Complaint"
+                          className="bg-transparent"
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          {...register(`complaints.${index}.duration.value`)}
+                          placeholder="Duration"
+                          labelName="Duration"
+                          className="w-28 bg-transparent"
+                          error={errors?.complaints?.[index]?.duration?.value?.message}
+                        />
+                      </div>
+                      <SelectInput
+                        control={control}
+                        name={`complaints.${index}.duration.type`}
+                        options={durationTypes}
+                        placeholder="Type"
+                        className="w-32 bg-transparent"
+                        ref={register(`complaints.${index}.duration.type`).ref}
+                      />
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={() => remove(index)}
+                        child="Remove"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <h1 className="mt-12 text-xl font-bold">Symptoms</h1>
+            {isLoadingSymptoms ? (
+              <Loading message="Please wait. Loading System Symptoms.." />
+            ) : (
+              <Accordion
+                type="multiple"
+                value={expandedSections}
+                onValueChange={setExpandedSections}
+                className="mt-4"
+              >
+                {systemSymptomsEntries.map(([id, symptoms]) => (
+                  <AccordionItem key={id} value={id} className="border-b">
+                    <AccordionTrigger className="cursor-pointer text-left transition-colors hover:bg-gray-50 hover:no-underline">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{getSystemTitle(id)}</span>
+                        {hasSelectedSymptoms(id) && (
+                          <span className="bg-primary rounded-full px-2 py-0.5 text-xs text-white">
+                            {(watch(`symptoms.${id as SymptomsType}`) as IPatientSymptom[])
+                              ?.length || 0}
+                          </span>
+                        )}
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {expandedSections.includes(id) && (
+                        <SelectSymptoms
+                          symptoms={symptoms}
+                          id={id}
+                          control={control}
+                          trigger={trigger}
+                          selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
+                        />
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
+            <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
+            <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
+            <div className="mt-20"></div>
+            <div className="fixed bottom-0 left-0 z-50 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
+              <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Go to Labs" />
+            </div>
+          </form>
+        </DndProvider>
+      ) : null}
+    </div>
   );
 };
 
