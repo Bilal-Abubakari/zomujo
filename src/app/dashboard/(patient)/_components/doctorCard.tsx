@@ -93,7 +93,6 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
 
   const handleConfirmAndProceed = (): void => {
     const { slotId } = getValues();
-    setShowPreview(false);
     void onSubmit(slotId);
   };
 
@@ -107,12 +106,12 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     if (payload && showErrorToast(payload)) {
       toast(payload);
       setIsInitiatingPayment(false);
+      setShowPreview(false);
       return;
     }
 
     const { authorization_url } = payload as ICheckout;
     window.location.replace(authorization_url);
-    setIsInitiatingPayment(false);
   };
 
   return (
@@ -188,10 +187,24 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
       />
       <Modal
         className="max-h-[95vh] max-w-xl overflow-y-auto p-5"
-        setState={setShowPreview}
+        setState={(value) => {
+          if (!isInitiatingPayment) {
+            setShowPreview(value);
+          }
+        }}
         open={showPreview}
         content={
           <div className="mt-5">
+            {isInitiatingPayment && (
+              <div className="mb-4 flex items-center justify-center rounded-lg bg-blue-50 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                  <p className="text-sm font-medium text-blue-700">
+                    Processing payment... Redirecting to Paystack
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
               <h3 className="mb-4 text-lg font-semibold text-gray-900">Appointment Preview</h3>
               <div className="space-y-4">
@@ -278,7 +291,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
           </div>
         }
         title="Confirm Appointment"
-        showClose={true}
+        showClose={!isInitiatingPayment}
       />
       <div className="hover:border-primary-100 flex h-full w-full max-w-[400px] flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
         <div className="flex flex-1 flex-col">

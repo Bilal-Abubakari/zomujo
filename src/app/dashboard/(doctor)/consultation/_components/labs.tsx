@@ -187,19 +187,6 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
         }
       } else {
         newMap.set(testName, { category, categoryType });
-
-        const specimenOptions = extractSpecimenOptions(testName);
-
-        if (specimenOptions?.length === 1) {
-          const singleSpecimen = specimenOptions[0];
-          setCategorySpecimens((specimens) => {
-            const newSpecimens = new Map(specimens);
-            if (!newSpecimens.has(category) || !newSpecimens.get(category)?.trim()) {
-              newSpecimens.set(category, singleSpecimen);
-            }
-            return newSpecimens;
-          });
-        }
       }
       return newMap;
     });
@@ -287,27 +274,25 @@ const Labs = ({ updateLabs, setUpdateLabs }: LabsProps): JSX.Element => {
     }
   }, [updateLabs, labs]);
 
-  // Populate selectedTests and categorySpecimens from currentRequestedLabs when modal opens
+  // Populate selectedTests from currentRequestedLabs when modal opens (but not specimens - they must be manually entered)
   useEffect(() => {
-    if (updateLabs && currentRequestedLabs.length > 0) {
-      const testsMap = new Map<string, { category: string; categoryType: string }>();
-      const specimensMap = new Map<string, string>();
+    if (updateLabs) {
+      if (currentRequestedLabs.length > 0) {
+        const testsMap = new Map<string, { category: string; categoryType: string }>();
 
-      currentRequestedLabs.forEach((lab) => {
-        testsMap.set(lab.testName, {
-          category: lab.category,
-          categoryType: lab.categoryType,
+        currentRequestedLabs.forEach((lab) => {
+          testsMap.set(lab.testName, {
+            category: lab.category,
+            categoryType: lab.categoryType,
+          });
         });
-        // Set specimen for the category if not already set
-        if (!specimensMap.has(lab.category)) {
-          specimensMap.set(lab.category, lab.specimen);
-        }
-      });
 
-      setSelectedTests(testsMap);
-      setCategorySpecimens(specimensMap);
+        setSelectedTests(testsMap);
+      }
+      // Always clear specimens when modal opens - they must be manually entered each time
+      setCategorySpecimens(new Map());
     }
-  }, [updateLabs]);
+  }, [updateLabs, currentRequestedLabs]);
 
   useEffect(() => {
     void fetchConsultationLabs();
