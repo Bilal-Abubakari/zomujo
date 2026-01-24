@@ -60,6 +60,16 @@ const SpecimenInput = ({
     return `Provide specimen for all ${mainCategory} tests`;
   };
 
+  const getPlaceholder = (): string => {
+    if (hasMultipleOptions) {
+      return `Enter specimen (e.g., ${optionsList})`;
+    }
+    if (hasSingleOption && singleOption) {
+      return `Enter specimen (e.g., ${singleOption})`;
+    }
+    return 'Enter specimen (e.g., Blood, Urine)';
+  };
+
   return (
     <div
       className={`mb-4 rounded-md border ${
@@ -68,13 +78,7 @@ const SpecimenInput = ({
     >
       <Input
         labelName={`Specimen for ${mainCategory} (required)`}
-        placeholder={
-          hasMultipleOptions
-            ? `Enter specimen (e.g., ${optionsList})`
-            : hasSingleOption && singleOption
-              ? `Enter specimen (e.g., ${singleOption})`
-              : 'Enter specimen (e.g., Blood, Urine)'
-        }
+        placeholder={getPlaceholder()}
         value={specimenValue}
         onChange={(e) => onSpecimenChange(e.target.value)}
         className="bg-white"
