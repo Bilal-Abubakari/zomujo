@@ -137,7 +137,7 @@ const PaymentMethod = ({ closeModal, paymentDetails }: PaymentMethodProps): JSX.
   }, []);
 
   useEffect(() => {
-    trigger('accountNumber');
+    void trigger('accountNumber');
   }, [paymentMethodType]);
 
   return (
