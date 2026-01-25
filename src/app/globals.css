@@ -313,9 +313,23 @@
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-  20%, 40%, 60%, 80% { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
 }
 
 .animate-shake {
@@ -341,7 +355,9 @@
 }
 
 /* Ensure headings in editor have proper spacing and styling */
-.tiptap h1, .tiptap h2, .tiptap h3 {
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
   font-weight: 700;
   line-height: 1.2;
   color: #1f2937;
@@ -381,7 +397,8 @@
   color: #374151;
 }
 
-.tiptap ul, .tiptap ol {
+.tiptap ul,
+.tiptap ol {
   padding-left: 1.5rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -436,4 +453,3 @@
 .tiptap p:empty {
   min-height: 1.5em;
 }
-

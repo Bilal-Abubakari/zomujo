@@ -18,7 +18,7 @@ const SpecimenInput = ({
   onSpecimenChange,
   extractSpecimenOptions,
 }: SpecimenInputProps): JSX.Element => {
-  const { hasMultipleOptions, hasSingleOption, optionsList } = useMemo(() => {
+  const { hasMultipleOptions, hasSingleOption, optionsList, singleOption } = useMemo(() => {
     const hasMultipleOptions = selectedTestsInCategory.some(([testName]) => {
       const options = extractSpecimenOptions(testName);
       return (options?.length ?? 0) > 1;
@@ -30,16 +30,21 @@ const SpecimenInput = ({
     });
 
     const allOptions = new Set<string>();
+    let foundSingleOption: string | null = null;
     selectedTestsInCategory.forEach(([testName]) => {
       const options = extractSpecimenOptions(testName);
-      if ((options?.length ?? 0) > 1) {
-        options?.forEach((opt) => allOptions.add(opt));
+      if (options) {
+        if (options.length === 1) {
+          foundSingleOption = options[0];
+        } else if (options.length > 1) {
+          options.forEach((opt) => allOptions.add(opt));
+        }
       }
     });
 
     const optionsList = Array.from(allOptions).join(', ');
 
-    return { hasMultipleOptions, hasSingleOption, optionsList };
+    return { hasMultipleOptions, hasSingleOption, optionsList, singleOption: foundSingleOption };
   }, [selectedTestsInCategory, extractSpecimenOptions]);
 
   const getHelpText = (): string => {
@@ -49,10 +54,20 @@ const SpecimenInput = ({
     if (hasMultipleOptions) {
       return `Please specify specimen type. Options: ${optionsList}`;
     }
-    if (hasSingleOption) {
-      return 'Specimen auto-filled from test name';
+    if (hasSingleOption && singleOption) {
+      return `Please specify specimen type. Suggested: ${singleOption}`;
     }
     return `Provide specimen for all ${mainCategory} tests`;
+  };
+
+  const getPlaceholder = (): string => {
+    if (hasMultipleOptions) {
+      return `Enter specimen (e.g., ${optionsList})`;
+    }
+    if (hasSingleOption && singleOption) {
+      return `Enter specimen (e.g., ${singleOption})`;
+    }
+    return 'Enter specimen (e.g., Blood, Urine)';
   };
 
   return (
@@ -63,11 +78,7 @@ const SpecimenInput = ({
     >
       <Input
         labelName={`Specimen for ${mainCategory} (required)`}
-        placeholder={
-          hasMultipleOptions
-            ? `Enter specimen (e.g., ${optionsList})`
-            : 'Enter specimen (e.g., Blood, Urine)'
-        }
+        placeholder={getPlaceholder()}
         value={specimenValue}
         onChange={(e) => onSpecimenChange(e.target.value)}
         className="bg-white"

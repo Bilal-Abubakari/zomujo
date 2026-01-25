@@ -187,12 +187,11 @@ function Calendar({
         hidden: _hiddenClassName,
       }}
       components={{
-        // eslint-disable-next-line react/prop-types
         Chevron: ({ orientation }) => {
           const Icon = orientation === 'left' ? ChevronLeft : ChevronRight;
           return <Icon className="h-4 w-4" />;
         },
-        // eslint-disable-next-line react/prop-types
+
         Nav: ({ className }) => (
           <Nav
             className={className}
@@ -213,7 +212,7 @@ function Calendar({
             {...props}
           />
         ),
-        // eslint-disable-next-line react/prop-types
+
         MonthGrid: ({ className, children, ...props }) => (
           <MonthGrid
             className={className}
