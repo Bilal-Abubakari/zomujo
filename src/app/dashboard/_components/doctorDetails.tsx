@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { GraduationCap } from 'lucide-react';
 import { IDoctor } from '@/types/doctor.interface';
-import { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
 import { showErrorToast } from '@/lib/utils';
@@ -59,24 +59,21 @@ const DoctorDetails = ({
   };
 
   return (
-    <div className="flex flex-col gap-[30px] md:flex-row">
-      <section className="max-w-[284px]">
+    <div className="flex flex-col gap-7.5 md:flex-row">
+      <section className="max-w-71">
         <Image
           src={doctor.profilePicture}
           alt="DoctorImage"
-          className="h-[258px] w-[284px] rounded-[32px] object-cover"
+          className="h-64.5 w-71 rounded-4xl object-cover"
           width={400}
           height={400}
         />
 
-        <div className="mt-[38px] flex items-center justify-between">
-          <p className="font-medium"> Consultation</p>
-
-          {!!doctor.fee && (
-            <p className="text-primary text-xl font-bold">
-              GHs {doctor.fee?.amount} <span className="text-base text-gray-400">Fee</span>
-            </p>
-          )}
+        <div className="mt-9.5 flex flex-col">
+          <p className="text-primary-dark text-base font-bold md:text-lg">
+            GHs {doctor.fee?.amount}
+          </p>
+          <p className="text-md font-medium text-gray-500">per consultation</p>
         </div>
       </section>
       <section className="w-full">
@@ -91,7 +88,7 @@ const DoctorDetails = ({
           {doctor.experience > 0 && (
             <div className="mt-8 flex gap-6 font-semibold">
               <p> 💼 {doctor.experience} years of experience</p>
-              <p>🤩 200+ Consultations</p>
+              {/*/!*<p>🤩 200+ Consultations</p>*!/ TODO: Bring once consultation statistics is ready*/}
             </div>
           )}
         </div>
@@ -151,14 +148,14 @@ const DoctorDetails = ({
                 alt="front Id"
                 width={409}
                 height={244}
-                className="h-[244px] w-[409px] rounded-lg object-cover"
+                className="h-61 w-102.25 rounded-lg object-cover"
               />
               <Image
                 src={doctor.IDs.back}
                 alt="back Id"
                 width={409}
                 height={244}
-                className="h-[244px] w-[409px] rounded-lg object-cover"
+                className="h-61 w-102.25 rounded-lg object-cover"
               />
             </div>
           </div>
@@ -172,7 +169,7 @@ export default DoctorDetails;
 
 const EducationCard = ({ school, degree }: { school: string; degree: string }): JSX.Element => (
   <div className="mt-6 flex items-center justify-start gap-3">
-    <div className="bg-light-orange flex h-[35px] w-[35px] items-center justify-center rounded-[6.74px]">
+    <div className="bg-light-orange flex h-8.75 w-8.75 items-center justify-center rounded-[6.74px]">
       <GraduationCap className="text-deep-orange" />
     </div>
     <div>
