@@ -187,12 +187,11 @@ function Calendar({
         hidden: _hiddenClassName,
       }}
       components={{
-         
         Chevron: ({ orientation }) => {
           const Icon = orientation === 'left' ? ChevronLeft : ChevronRight;
           return <Icon className="h-4 w-4" />;
         },
-         
+
         Nav: ({ className }) => (
           <Nav
             className={className}
@@ -213,7 +212,7 @@ function Calendar({
             {...props}
           />
         ),
-         
+
         MonthGrid: ({ className, children, ...props }) => (
           <MonthGrid
             className={className}
