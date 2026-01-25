@@ -67,6 +67,8 @@ const DoctorIdentification = (): JSX.Element => {
           <SingleImageDropzone
             height={280}
             width={300}
+            enableCamera={true}
+            cameraLabel="Take Photo"
             label="Front"
             className="w-full sm:w-auto"
             value={watch('front')}
@@ -76,6 +78,8 @@ const DoctorIdentification = (): JSX.Element => {
           <SingleImageDropzone
             height={280}
             width={300}
+            enableCamera={true}
+            cameraLabel="Take Photo"
             label="Back"
             className="w-full sm:w-auto"
             value={watch('back')}
