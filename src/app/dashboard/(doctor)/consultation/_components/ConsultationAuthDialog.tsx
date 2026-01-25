@@ -90,7 +90,7 @@ const ConsultationAuthDialog = ({
                 value={code}
                 onChange={(e) => handleCodeChange(e.target.value)}
                 disabled={isLoading}
-                className="text-center text-lg font-semibold tracking-wider uppercase"
+                className="text-center text-lg font-semibold tracking-wider"
                 maxLength={6}
                 autoComplete="off"
                 autoFocus
