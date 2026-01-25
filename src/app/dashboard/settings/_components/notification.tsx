@@ -4,14 +4,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { updateDoctorProfile } from '@/lib/features/doctors/doctorsThunk';
-import { useAppDispatch } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { selectUserRole } from '@/lib/features/auth/authSelector';
 import { NotificationInfo } from '@/types/doctor.interface';
+import { Role } from '@/types/shared.enum';
 import { JSX, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 const NotificationPreference = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const role = useAppSelector(selectUserRole);
 
   const { watch, setValue, handleSubmit } = useForm<NotificationInfo>({
     defaultValues: {
@@ -85,7 +88,11 @@ const NotificationPreference = (): JSX.Element => {
             <Checkbox
               name="confirm"
               labelClassName="text-gray-500 font-normal"
-              labelName="Receive notifications whenever your doctors send record requests"
+              labelName={
+                role === Role.Doctor
+                  ? 'Receive notifications whenever patients accept record requests'
+                  : 'Receive notifications whenever your doctors send record requests'
+              }
               title="File record requests"
               titleLabelClassName="font-medium -mt-1"
               containerClassName="items-start"
