@@ -42,14 +42,14 @@ const NotificationPreference = (): JSX.Element => {
         </p>
         <hr className="my-7 gap-4" />
       </div>
-      <div className="flex flex-col gap-2 sm:gap-[89px] md:flex-row">
-        <div className="max-w-[258px]">
+      <div className="flex flex-col gap-2 sm:gap-22.25 md:flex-row">
+        <div className="max-w-64.5">
           <p className="font-medium">Email Notification</p>
           <p className="text-sm text-gray-500">
             Manage your preferences anytime to tailor your email experience.
           </p>
         </div>
-        <form className="max-w-[321px]" onSubmit={handleSubmit(onSubmit)}>
+        <form className="max-w-80.25" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex justify-start gap-2">
             <Switch
               label="On"
@@ -60,7 +60,7 @@ const NotificationPreference = (): JSX.Element => {
             />
           </div>
 
-          <div className="mt-8 flex flex-col justify-start gap-[42px]">
+          <div className="mt-8 flex flex-col justify-start gap-10.5">
             <Checkbox
               name="confirm"
               labelClassName="text-gray-500 font-normal"
@@ -71,16 +71,17 @@ const NotificationPreference = (): JSX.Element => {
               checked={watch('notifications.appointments')}
               onCheckedChange={(checked) => setValue('notifications.appointments', !!checked)}
             />
-            <Checkbox
-              name="confirm"
-              labelClassName="text-gray-500 font-normal"
-              labelName="Receive updates, communicate with ease, and stay informed"
-              title="Messages"
-              titleLabelClassName="font-medium -mt-1"
-              containerClassName="items-start"
-              checked={watch('notifications.messages')}
-              onCheckedChange={(checked) => setValue('notifications.messages', !!checked)}
-            />
+            {/*TODO: Not planned for MVP*/}
+            {/*<Checkbox*/}
+            {/*  name="confirm"*/}
+            {/*  labelClassName="text-gray-500 font-normal"*/}
+            {/*  labelName="Receive updates, communicate with ease, and stay informed"*/}
+            {/*  title="Messages"*/}
+            {/*  titleLabelClassName="font-medium -mt-1"*/}
+            {/*  containerClassName="items-start"*/}
+            {/*  checked={watch('notifications.messages')}*/}
+            {/*  onCheckedChange={(checked) => setValue('notifications.messages', !!checked)}*/}
+            {/*/>*/}
             <Checkbox
               name="confirm"
               labelClassName="text-gray-500 font-normal"

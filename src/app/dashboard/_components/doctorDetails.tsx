@@ -166,7 +166,6 @@ const DoctorDetails = ({
 };
 
 export default DoctorDetails;
-
 const EducationCard = ({ school, degree }: { school: string; degree: string }): JSX.Element => (
   <div className="mt-6 flex items-center justify-start gap-3">
     <div className="bg-light-orange flex h-8.75 w-8.75 items-center justify-center rounded-[6.74px]">

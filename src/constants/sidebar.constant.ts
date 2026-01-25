@@ -9,7 +9,6 @@ import {
   Compass,
   Cross,
   Home,
-  MessageCircleMore,
   Settings,
   User,
   UserSearch,
@@ -107,11 +106,12 @@ export const DOCTOR_SIDE_BAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/patients`,
           Icon: User,
         },
-        {
-          title: 'Message',
-          url: '#',
-          Icon: MessageCircleMore,
-        },
+        // TODO: Not planned for MVP
+        // {
+        //   title: 'Message',
+        //   url: '#',
+        //   Icon: MessageCircleMore,
+        // },
       ],
     },
 
