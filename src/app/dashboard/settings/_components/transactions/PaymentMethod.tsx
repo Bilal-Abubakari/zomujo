@@ -136,10 +136,9 @@ const PaymentMethod = ({ closeModal, paymentDetails }: PaymentMethodProps): JSX.
     }
   }, []);
 
-  // Re-validate accountNumber when payment method type changes
   useEffect(() => {
     trigger('accountNumber');
-  }, [paymentMethodType, trigger]);
+  }, [paymentMethodType]);
 
   return (
     <div>
