@@ -104,3 +104,8 @@ export const selectIsConsultationAuthenticated = createSelector(
   selectAppointment,
   (appointment) => appointment?.isAuthenticated ?? false,
 );
+
+export const selectAppointmentDoctorId = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.doctor?.id,
+);

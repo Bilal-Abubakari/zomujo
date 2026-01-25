@@ -18,5 +18,28 @@ export interface IReviewRequest {
   communicationSkill: ICommunicationSkill;
   expertise: IExpertise;
   doctorId: string;
+  appointmentId: string;
+}
+
+export interface IReviewDoctor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profilePicture: string;
+}
+
+export interface IReview {
+  id: string;
+  status: string;
+  rating: number;
+  doctorId: IReviewDoctor;
   recordId: string;
+  comment: string;
+  communicationSkill: ICommunicationSkill;
+  expertise: IExpertise;
+}
+
+export interface ILandingPageReview {
+  rating: number;
+  comment: string;
 }
