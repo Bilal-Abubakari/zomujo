@@ -107,7 +107,7 @@ const DoctorDetails = ({
           <hr className="my-8" />
           {doctor.bio && (
             <div>
-              <h3 className="text-xl font-bold">Bio</h3>
+              <h3 className="text-xl font-bold">About</h3>
               <p className="mt-6 text-gray-500">{doctor.bio}</p>
             </div>
           )}
