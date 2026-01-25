@@ -48,10 +48,7 @@ const appointmentsSlice = createSlice({
         state.appointment.isAuthenticated = action.payload;
       }
     },
-    showReviewModal: (
-      state,
-      action: PayloadAction<{ appointmentId: string }>,
-    ) => {
+    showReviewModal: (state, action: PayloadAction<{ appointmentId: string }>) => {
       state.showReviewModal = true;
       state.reviewAppointmentId = action.payload.appointmentId;
       state.reviewRecordId = undefined;
