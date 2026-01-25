@@ -14,8 +14,10 @@ import { createReview } from '@/lib/features/reviews/reviewsThunk';
 import { toast } from '@/hooks/use-toast';
 import { ToastStatus } from '@/types/shared.enum';
 import { StarRating } from '@/components/ui/starRating';
-import { selectAppointment } from '@/lib/features/appointments/appointmentSelector';
-import { selectRecordId } from '@/lib/features/patients/patientsSelector';
+import {
+  selectReviewAppointmentId,
+  selectAppointmentDoctorId,
+} from '@/lib/features/appointments/appointmentSelector';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const reviewSchema = z.object({
@@ -44,8 +46,8 @@ interface ReviewProps {
 const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const appointment = useAppSelector(selectAppointment);
-  const recordId = useAppSelector(selectRecordId);
+  const reviewAppointmentId = useAppSelector(selectReviewAppointmentId);
+  const doctorId = useAppSelector(selectAppointmentDoctorId);
 
   const {
     handleSubmit,
@@ -80,10 +82,10 @@ const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
   const expertise = watch('expertise');
 
   const onSubmit = async (data: ReviewFormData): Promise<void> => {
-    if (!appointment?.doctor?.id || !recordId) {
+    if (!doctorId || !reviewAppointmentId) {
       toast({
         title: 'Error',
-        description: 'Missing required information (doctor or record ID)',
+        description: 'Missing required information (doctor or appointment ID)',
         variant: 'destructive',
       });
       return;
@@ -92,8 +94,8 @@ const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
     setIsLoading(true);
     const reviewData: IReviewRequest = {
       ...data,
-      doctorId: appointment.doctor.id,
-      appointmentId: recordId,
+      doctorId,
+      appointmentId: reviewAppointmentId,
     };
 
     const payload = await dispatch(createReview(reviewData)).unwrap();

@@ -50,11 +50,11 @@ const appointmentsSlice = createSlice({
     },
     showReviewModal: (
       state,
-      action: PayloadAction<{ appointmentId: string; recordId: string }>,
+      action: PayloadAction<{ appointmentId: string }>,
     ) => {
       state.showReviewModal = true;
       state.reviewAppointmentId = action.payload.appointmentId;
-      state.reviewRecordId = action.payload.recordId;
+      state.reviewRecordId = undefined;
     },
     hideReviewModal: (state) => {
       state.showReviewModal = false;
