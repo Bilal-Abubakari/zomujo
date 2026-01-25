@@ -18,7 +18,7 @@ export const InfoCard = ({
   return (
     <div className={`rounded-lg border p-4 ${bgColor}`}>
       <div className="flex items-start space-x-3">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <div
             className={`flex h-6 w-6 items-center justify-center rounded-full ${textColorClass}`}
           >

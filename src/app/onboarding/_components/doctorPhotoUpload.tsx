@@ -59,6 +59,8 @@ const DoctorPhotoUpload = (): JSX.Element => {
         <div className="flex flex-row items-center justify-center">
           <SingleImageDropzone
             height={200}
+            enableCamera={true}
+            cameraLabel="Take Photo"
             width={300}
             label="Passport Photo"
             className="w-full sm:w-auto"

@@ -2,12 +2,13 @@
 import React, { JSX, useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Clock, ClockFading, Loader2 } from 'lucide-react';
+import { CheckCircle, Clock, ClockFading, Loader2, ShieldCheck } from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   endConsultation as endConsultationRequest,
   getConsultationAppointment,
+  authenticateConsultation,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -18,6 +19,7 @@ import {
   selectIsLoading,
   selectRequestedLabs,
   selectSymptoms,
+  selectIsConsultationAuthenticated,
 } from '@/lib/features/appointments/appointmentSelector';
 import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
@@ -28,6 +30,7 @@ import { Button } from '@/components/ui/button';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+import ConsultationAuthDialog from './ConsultationAuthDialog';
 
 const History = dynamic(() => import('@/app/dashboard/(doctor)/consultation/_components/history'), {
   loading: () => <StageFallback />,
@@ -106,6 +109,10 @@ const Consultation = (): JSX.Element => {
   const [hasSavedLabs, setHasSavedLabs] = useState(false);
   const savedDiagnoses = useAppSelector(selectDiagnoses);
   const [hasSavedDiagnosis, setHasSavedDiagnosis] = useState(false);
+  const isConsultationAuthenticated = useAppSelector(selectIsConsultationAuthenticated);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showEndConsultationAuthDialog, setShowEndConsultationAuthDialog] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const canJumpToStage = useCallback(
     (stage: StageType): boolean => {
@@ -131,10 +138,39 @@ const Consultation = (): JSX.Element => {
     ],
   );
 
-  const endConsultation = async (): Promise<void> => {
+  const handleAuthenticateConsultation = async (code: string): Promise<void> => {
+    setIsAuthenticating(true);
+    const appointmentId = String(params.appointmentId);
+    const payload = await dispatch(authenticateConsultation({ appointmentId, code })).unwrap();
+    toast(payload);
+    setIsAuthenticating(false);
+
+    if (!showErrorToast(payload)) {
+      setShowAuthDialog(false);
+    }
+  };
+
+  const handleEndConsultationWithAuth = async (code: string): Promise<void> => {
     setIsEndingConsultation(true);
     const appointmentId = String(params.appointmentId);
-    const payload = await dispatch(endConsultationRequest(appointmentId)).unwrap();
+    const payload = await dispatch(endConsultationRequest({ appointmentId, code })).unwrap();
+    toast(payload);
+    setIsEndingConsultation(false);
+
+    if (!showErrorToast(payload)) {
+      setShowEndConsultationAuthDialog(false);
+      router.push('/dashboard');
+
+      if (recordId) {
+        dispatch(showReviewModal({ appointmentId, recordId }));
+      }
+    }
+  };
+
+  const handleEndConsultationWithoutAuth = async (): Promise<void> => {
+    setIsEndingConsultation(true);
+    const appointmentId = String(params.appointmentId);
+    const payload = await dispatch(endConsultationRequest({ appointmentId, code: '' })).unwrap();
     toast(payload);
     setIsEndingConsultation(false);
 
@@ -144,6 +180,16 @@ const Consultation = (): JSX.Element => {
       if (recordId) {
         dispatch(showReviewModal({ appointmentId, recordId }));
       }
+    }
+  };
+
+  const endConsultation = (): void => {
+    // If consultation is already authenticated, end without requiring code again
+    if (isConsultationAuthenticated) {
+      void handleEndConsultationWithoutAuth();
+    } else {
+      // Show authentication dialog when not authenticated
+      setShowEndConsultationAuthDialog(true);
     }
   };
 
@@ -264,7 +310,28 @@ const Consultation = (): JSX.Element => {
                   ))}
                 </div>
                 {isInProgress && (
-                  <div className="flex justify-end lg:block">
+                  <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+                    {!isConsultationAuthenticated && (
+                      <Button
+                        isLoading={isAuthenticating}
+                        disabled={isAuthenticating}
+                        onClick={() => setShowAuthDialog(true)}
+                        child={
+                          <span className="flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4" />
+                            <span className="hidden sm:inline">Authenticate</span>
+                          </span>
+                        }
+                        variant="outline"
+                        className="border-primary text-primary hover:bg-primary-light w-full text-sm sm:w-auto"
+                      />
+                    )}
+                    {isConsultationAuthenticated && (
+                      <Badge className="border-green-300 bg-green-100 px-3 py-2 text-xs text-green-700">
+                        <ShieldCheck className="mr-1 h-3 w-3" />
+                        Authenticated
+                      </Badge>
+                    )}
                     <Button
                       isLoading={isEndingConsultation}
                       disabled={isEndingConsultation}
@@ -280,6 +347,28 @@ const Consultation = (): JSX.Element => {
             </>
           )}
         </div>
+
+        {/* Authentication Dialog for authenticating without ending */}
+        <ConsultationAuthDialog
+          open={showAuthDialog}
+          onOpenChange={setShowAuthDialog}
+          onSubmit={handleAuthenticateConsultation}
+          isLoading={isAuthenticating}
+          title="Authenticate Consultation"
+          description="Enter the authentication code provided by the patient. This will authenticate the consultation session."
+          submitButtonText="Authenticate"
+        />
+
+        {/* Authentication Dialog for ending consultation */}
+        <ConsultationAuthDialog
+          open={showEndConsultationAuthDialog}
+          onOpenChange={setShowEndConsultationAuthDialog}
+          onSubmit={handleEndConsultationWithAuth}
+          isLoading={isEndingConsultation}
+          title="End Consultation"
+          description="To end this consultation, please enter the authentication code provided by the patient."
+          submitButtonText="End Consultation"
+        />
       </div>
     </RoleProvider>
   );

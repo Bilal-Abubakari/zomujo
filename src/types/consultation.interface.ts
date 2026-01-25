@@ -83,3 +83,8 @@ export interface ConsultationStatusRequest {
   status: ConsultationStatus;
   appointmentId: string;
 }
+
+export interface IConsultationAuthRequest {
+  appointmentId: string;
+  code: string;
+}
