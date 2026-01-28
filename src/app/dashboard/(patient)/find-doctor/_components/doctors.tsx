@@ -386,11 +386,11 @@ const Doctors = (): JSX.Element => {
           ))}
       </Suggested>
       {isLoading && (
-        <div className="mt-2 flex flex-wrap gap-6">
+        <Suggested className="" childrenWrapperClassName="justify-center" showViewAll={false}>
           {Array.from({ length: 8 }).map((_, index) => (
             <SkeletonDoctorPatientCard key={index} />
           ))}
-        </div>
+        </Suggested>
       )}
       {!isLoading && doctors.length === 0 && (
         <section>
