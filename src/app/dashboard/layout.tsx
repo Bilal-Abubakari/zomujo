@@ -205,7 +205,7 @@ export default function Layout({
       );
     }
 
-    // TODO: Difficult to handle this third scenario hence will handle later
+    // TODO: Difficult to handle this third scenario hence will handle later because sync between backend and frontend is complex
     // Scenario 3: Accepted doctor with complete profile
     // if (doctorStatus === AcceptDeclineStatus.Accepted && isComplete) {
     //   return (
@@ -247,25 +247,23 @@ export default function Layout({
   };
 
   return (
-    <>
-      <ScrollContext.Provider value={scrollContainerRef}>
-        <Modal open={patientMustUpdateMandatoryInfo} content={<UpdatePatientInfo />} />
-        <Modal className="max-w-xl" open={mustUpdatePassword} content={<UpdatePassword />} />
-        <Modal className="max-w-2xl" open={modalOpen} content={<OnboardingModalContent />} />
-        <DashboardProvider>
-          <SidebarProvider>
-            <SidebarLayout />
-            <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-4 2xl:px-6">
-              <Toolbar />
-              <div ref={scrollContainerRef} className="flex-1 overflow-auto">
-                {children}
-              </div>
-            </main>
-          </SidebarProvider>
-        </DashboardProvider>
-        <NotificationActions />
-        <DoctorReviewModal />
-      </ScrollContext.Provider>
-    </>
+    <ScrollContext.Provider value={scrollContainerRef}>
+      <Modal open={patientMustUpdateMandatoryInfo} content={<UpdatePatientInfo />} />
+      <Modal className="max-w-xl" open={mustUpdatePassword} content={<UpdatePassword />} />
+      <Modal className="max-w-2xl" open={modalOpen} content={<OnboardingModalContent />} />
+      <DashboardProvider>
+        <SidebarProvider>
+          <SidebarLayout />
+          <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-4 2xl:px-6">
+            <Toolbar />
+            <div ref={scrollContainerRef} className="flex-1 overflow-auto">
+              {children}
+            </div>
+          </main>
+        </SidebarProvider>
+      </DashboardProvider>
+      <NotificationActions />
+      <DoctorReviewModal />
+    </ScrollContext.Provider>
   );
 }
