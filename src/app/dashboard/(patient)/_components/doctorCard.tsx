@@ -293,7 +293,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         title="Confirm Appointment"
         showClose={!isInitiatingPayment}
       />
-      <div className="hover:border-primary-100 flex h-full w-full max-w-[400px] flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+      <div className="hover:border-primary-100 flex h-full w-full max-w-100 flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
         <div className="flex flex-1 flex-col">
           <div className="mb-4 flex w-full flex-row gap-4">
             <div className="relative shrink-0">
