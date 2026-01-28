@@ -23,7 +23,7 @@ const FindDoctorHospital = (): JSX.Element => (
       </p>
     </section>
 
-    <section className="mt-4">
+    <section>
       {/*<Tabs value={getQueryParam('tab')}>*/}
       {/*<TabsList>*/}
       {/*  <TabsTrigger*/}
