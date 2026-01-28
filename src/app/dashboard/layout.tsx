@@ -1,6 +1,6 @@
 'use client';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { JSX, ReactNode, useState, useEffect } from 'react';
+import { JSX, ReactNode, useState, useEffect, useRef } from 'react';
 import { SidebarLayout } from './_components/sidebar/sidebarLayout';
 import Toolbar from '@/app/dashboard/_components/toolbar';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
@@ -27,12 +27,14 @@ import {
   InfoCard,
 } from '@/app/dashboard/_components/onboardingGuide';
 import { BRANDING } from '@/constants/branding.constant';
+import { ScrollContext } from '@/context/scroll-context';
 
 export default function Layout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>): JSX.Element {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const mustUpdatePassword = useAppSelector(selectMustUpdatePassword);
@@ -246,20 +248,24 @@ export default function Layout({
 
   return (
     <>
-      <Modal open={patientMustUpdateMandatoryInfo} content={<UpdatePatientInfo />} />
-      <Modal className="max-w-xl" open={mustUpdatePassword} content={<UpdatePassword />} />
-      <Modal className="max-w-2xl" open={modalOpen} content={<OnboardingModalContent />} />
-      <DashboardProvider>
-        <SidebarProvider>
-          <SidebarLayout />
-          <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-4 2xl:px-6">
-            <Toolbar />
-            <div className="flex-1 overflow-auto">{children}</div>
-          </main>
-        </SidebarProvider>
-      </DashboardProvider>
-      <NotificationActions />
-      <DoctorReviewModal />
+      <ScrollContext.Provider value={scrollContainerRef}>
+        <Modal open={patientMustUpdateMandatoryInfo} content={<UpdatePatientInfo />} />
+        <Modal className="max-w-xl" open={mustUpdatePassword} content={<UpdatePassword />} />
+        <Modal className="max-w-2xl" open={modalOpen} content={<OnboardingModalContent />} />
+        <DashboardProvider>
+          <SidebarProvider>
+            <SidebarLayout />
+            <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-4 2xl:px-6">
+              <Toolbar />
+              <div ref={scrollContainerRef} className="flex-1 overflow-auto">
+                {children}
+              </div>
+            </main>
+          </SidebarProvider>
+        </DashboardProvider>
+        <NotificationActions />
+        <DoctorReviewModal />
+      </ScrollContext.Provider>
     </>
   );
 }

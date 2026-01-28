@@ -28,6 +28,7 @@ import { genderOptions, MAX_AMOUNT, MIN_AMOUNT, specialties } from '@/constants/
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
 import { Combobox } from '@/components/ui/select';
+import { useHybridScroll } from '@/hooks/useHybridScroll';
 
 const Doctors = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -41,6 +42,10 @@ const Doctors = (): JSX.Element => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const previousFiltersRef = useRef<Record<string, string>>({});
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showFilters, setShowFilters] = useState(true);
+  const { scrollToTop } = useHybridScroll({
+    onScrollTopVisibilityChange: setShowScrollToTop,
+  });
 
   const [filterInputs, setFilterInputs] = useState({
     priceMin: '',
@@ -209,18 +214,6 @@ const Doctors = (): JSX.Element => {
   }, [queryParameters]);
 
   useEffect(() => {
-    const handleScroll = (): void => {
-      const isAtBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight;
-      const isAtTop = window.scrollY === 0;
-
-      setShowScrollToTop(isAtBottom ? true : !isAtTop);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return (): void => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
     if (!observerRef.current) {
       return;
     }
@@ -229,7 +222,7 @@ const Doctors = (): JSX.Element => {
     observer.observe(observerRef.current);
 
     return (): void => observer.disconnect();
-  }, [observerRef.current, observerCallback]);
+  }, [observerRef.current]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
     event.preventDefault();
@@ -239,11 +232,6 @@ const Doctors = (): JSX.Element => {
       page: 1,
       search: search ?? searchTerm,
     }));
-  }
-
-  function scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setShowScrollToTop(false);
   }
 
   function handleValueChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -257,138 +245,141 @@ const Doctors = (): JSX.Element => {
 
   return (
     <>
-      <div className="bg-grayscale-100 z-20 mb-6 flex w-full flex-col flex-wrap gap-2 rounded-md p-5 lg:sticky lg:top-0">
-        <div className="flex">
-          <form className="flex w-full max-w-2xl gap-2" onSubmit={handleSubmit}>
+      {showFilters && (
+        <div className="bg-grayscale-100 top-0 z-20 mb-3 flex w-full flex-col flex-wrap gap-2 rounded-md p-5">
+          <div className="flex gap-3 max-sm:flex-wrap">
+            <form className="flex w-full max-w-2xl gap-2" onSubmit={handleSubmit}>
+              <Input
+                error=""
+                placeholder={'Search for a Doctor'}
+                className="w-full"
+                type="search"
+                leftIcon={<Search className="text-gray-500" size={20} />}
+                onChange={handleSearch}
+                defaultMaxWidth={false}
+              />
+              {searchTerm && <Button child={<SendHorizontal />} />}
+            </form>
+            <div className="ml-2 flex gap-2">
+              <Button
+                onClick={() => setShowAdvancedFilters((prev) => !prev)}
+                className="h-10 cursor-pointer bg-gray-50 sm:flex"
+                variant="outline"
+                child={
+                  <>
+                    <ListFilter className="mr-2 h-4 w-4" /> {showAdvancedFilters ? 'Hide' : 'Show'}{' '}
+                    Advanced Filters
+                  </>
+                }
+              />
+            </div>
+          </div>
+          <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-wrap gap-4`}>
             <Input
-              error=""
-              placeholder={'Search for a Doctor'}
-              className="w-full"
-              type="search"
-              leftIcon={<Search className="text-gray-500" size={20} />}
-              onChange={handleSearch}
+              labelName="Min Price"
+              placeholder={`GHS ${MIN_AMOUNT}`}
+              wrapperClassName="max-w-52  max-h-[62px]"
               defaultMaxWidth={false}
+              type="number"
+              name="priceMin"
+              min={MIN_AMOUNT}
+              max={MAX_AMOUNT}
+              value={filterInputs.priceMin}
+              onChange={handleValueChange}
             />
-            {searchTerm && <Button child={<SendHorizontal />} />}
-          </form>
-          <div className="ml-2 flex gap-2">
-            <Button
-              onClick={() => setShowAdvancedFilters((prev) => !prev)}
-              className="h-10 cursor-pointer bg-gray-50 sm:flex lg:hidden"
-              variant="outline"
-              child={
-                <>
-                  <ListFilter className="mr-2 h-4 w-4" /> Filters
-                </>
-              }
+            <Input
+              labelName="Max Price"
+              placeholder={`GHS ${MAX_AMOUNT}`}
+              wrapperClassName="max-w-52  max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="priceMax"
+              min={MIN_AMOUNT}
+              max={MAX_AMOUNT}
+              value={filterInputs.priceMax}
+              onChange={handleValueChange}
+            />
+            <Input
+              labelName="Min Rating"
+              placeholder="0"
+              wrapperClassName="max-w-52  max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="rateMin"
+              value={filterInputs.rateMin}
+              onChange={handleValueChange}
+            />
+            <Input
+              labelName="Max Rating"
+              placeholder="5"
+              wrapperClassName="max-w-52  max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="rateMax"
+              value={filterInputs.rateMax}
+              onChange={handleValueChange}
+            />
+            <Input
+              labelName="Min Experience"
+              placeholder="0 year"
+              wrapperClassName="max-w-52  max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="experienceMin"
+              value={filterInputs.experienceMin}
+              onChange={handleValueChange}
+            />
+            <Input
+              labelName="Max Experience"
+              placeholder="10 years"
+              wrapperClassName="max-w-52  max-h-[62px]"
+              defaultMaxWidth={false}
+              type="number"
+              name="experienceMax"
+              value={filterInputs.experienceMax}
+              onChange={handleValueChange}
+            />
+            <Combobox
+              onChange={(value) => {
+                setDoctors([]);
+                setQueryParameters((prev) => ({ ...prev, specialty: value, page: 1 }));
+              }}
+              label="Specialty"
+              options={[{ value: '', label: 'All' }, ...specialties]}
+              value={queryParameters?.specialty ?? ''}
+              className="max-h-15.5 px-4"
+              placeholder="Search by specialty..."
+              searchPlaceholder="Search for specialty..."
+              defaultMaxWidth={false}
+              wrapperClassName="text-left text-[#111111] max-w-52 max-h-[62px]"
+            />
+            <OptionsMenu
+              options={genderOptions}
+              Icon={UserRound}
+              menuTrigger="Gender"
+              selected={queryParameters.gender}
+              setSelected={(value) => {
+                setQueryParameters((prev) => ({
+                  ...prev,
+                  page: 1,
+                  gender: value,
+                }));
+                setDoctors([]);
+              }}
+              className="mt-5 h-10 max-h-15.5 cursor-pointer bg-gray-50 sm:flex"
             />
           </div>
+          {paginationData && paginationData.total > 0 && (
+            <div className="mt-3 flex items-center gap-2 border-t border-gray-200 pt-3 text-sm text-gray-600">
+              <span className="text-primary font-semibold">
+                {paginationData.total} {paginationData.total === 1 ? 'Doctor' : 'Doctors'}
+              </span>
+              <span>available</span>
+              {queryParameters.search && <span>matching &quot;{queryParameters.search}&quot;</span>}
+            </div>
+          )}
         </div>
-        <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-wrap gap-4 lg:flex`}>
-          <Input
-            labelName="Min Price"
-            placeholder={`GHS ${MIN_AMOUNT}`}
-            wrapperClassName="max-w-52  max-h-[62px]"
-            defaultMaxWidth={false}
-            type="number"
-            name="priceMin"
-            min={MIN_AMOUNT}
-            max={MAX_AMOUNT}
-            value={filterInputs.priceMin}
-            onChange={handleValueChange}
-          />
-          <Input
-            labelName="Max Price"
-            placeholder={`GHS ${MAX_AMOUNT}`}
-            wrapperClassName="max-w-52  max-h-[62px]"
-            defaultMaxWidth={false}
-            type="number"
-            name="priceMax"
-            min={MIN_AMOUNT}
-            max={MAX_AMOUNT}
-            value={filterInputs.priceMax}
-            onChange={handleValueChange}
-          />
-          <Input
-            labelName="Min Rating"
-            placeholder="0"
-            wrapperClassName="max-w-52  max-h-[62px]"
-            defaultMaxWidth={false}
-            type="number"
-            name="rateMin"
-            value={filterInputs.rateMin}
-            onChange={handleValueChange}
-          />
-          <Input
-            labelName="Max Rating"
-            placeholder="5"
-            wrapperClassName="max-w-52  max-h-[62px]"
-            defaultMaxWidth={false}
-            type="number"
-            name="rateMax"
-            value={filterInputs.rateMax}
-            onChange={handleValueChange}
-          />
-          <Input
-            labelName="Min Experience"
-            placeholder="0 year"
-            wrapperClassName="max-w-52  max-h-[62px]"
-            defaultMaxWidth={false}
-            type="number"
-            name="experienceMin"
-            value={filterInputs.experienceMin}
-            onChange={handleValueChange}
-          />
-          <Input
-            labelName="Max Experience"
-            placeholder="10 years"
-            wrapperClassName="max-w-52  max-h-[62px]"
-            defaultMaxWidth={false}
-            type="number"
-            name="experienceMax"
-            value={filterInputs.experienceMax}
-            onChange={handleValueChange}
-          />
-          <Combobox
-            onChange={(value) => {
-              setDoctors([]);
-              setQueryParameters((prev) => ({ ...prev, specialty: value, page: 1 }));
-            }}
-            label="Specialty"
-            options={[{ value: '', label: 'All' }, ...specialties]}
-            value={queryParameters?.specialty ?? ''}
-            className="max-h-[62px] px-4"
-            placeholder="Search by specialty..."
-            searchPlaceholder="Search for specialty..."
-            defaultMaxWidth={false}
-            wrapperClassName="text-left text-[#111111] max-w-52 max-h-[62px]"
-          />
-          <OptionsMenu
-            options={genderOptions}
-            Icon={UserRound}
-            menuTrigger="Gender"
-            selected={queryParameters.gender}
-            setSelected={(value) => {
-              setQueryParameters((prev) => ({
-                ...prev,
-                page: 1,
-                gender: value,
-              }));
-              setDoctors([]);
-            }}
-            className="mt-[20px] h-10 max-h-[62px] cursor-pointer bg-gray-50 sm:flex"
-          />
-        </div>
-        {paginationData && paginationData.total > 0 && (
-          <div className="mt-3 flex items-center gap-2 border-t border-gray-200 pt-3 text-sm text-gray-600">
-            <span className="text-primary font-semibold">
-              {paginationData.total} {paginationData.total === 1 ? 'Doctor' : 'Doctors'}
-            </span>
-            <span>available</span>
-            {queryParameters.search && <span>matching &quot;{queryParameters.search}&quot;</span>}
-          </div>
-        )}
-      </div>
+      )}
       <Suggested title={'Doctors'} showViewAll={false}>
         {!isLoading &&
           doctors.map((doctor) => (
@@ -419,13 +410,24 @@ const Doctors = (): JSX.Element => {
         </section>
       )}
       <button
+        type="button"
         onClick={scrollToTop}
-        className={`bg-primary fixed right-6 bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition-opacity ${
-          showScrollToTop ? 'opacity-100' : 'pointer-events-none opacity-0'
+        className={`bg-primary fixed right-6 bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-xl active:scale-95 ${
+          showScrollToTop
+            ? 'translate-y-0 opacity-100'
+            : 'pointer-events-none translate-y-16 opacity-0'
         }`}
       >
         <ChevronUp size={24} />
       </button>
+      {!showFilters && (
+        <button
+          onClick={() => setShowFilters(true)}
+          className="bg-primary fixed right-6 bottom-20 z-50 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg"
+        >
+          <ListFilter size={24} />
+        </button>
+      )}
       <div ref={observerRef} className="h-10" />
     </>
   );
