@@ -377,7 +377,7 @@ const Doctors = (): JSX.Element => {
           </div>
         )}
       </div>
-      <Suggested title={'Doctors'} showViewAll={false}>
+      <Suggested className="" childrenWrapperClassName="justify-center" showViewAll={false}>
         {!isLoading &&
           doctors.map((doctor) => (
             <div className="cursor-pointer" key={doctor.id}>
