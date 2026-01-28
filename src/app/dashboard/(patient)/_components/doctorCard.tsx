@@ -298,6 +298,15 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         <div
           className="relative h-40 w-full cursor-pointer overflow-hidden bg-gray-100"
           onClick={() => setOpenDoctorDetails(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setOpenDoctorDetails(true);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`View details for Dr. ${fullName}`}
         >
           {profilePicture ? (
             <img
@@ -328,6 +337,15 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
               title={`Dr. ${fullName}`}
               className="hover:text-primary-600 cursor-pointer truncate text-lg font-bold text-gray-900 transition-colors"
               onClick={() => setOpenDoctorDetails(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setOpenDoctorDetails(true);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label={`View details for Dr. ${fullName}`}
             >
               Dr. {fullName}
             </h3>
