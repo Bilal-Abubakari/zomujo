@@ -17,7 +17,7 @@ const FindDoctorHospital = (): JSX.Element => (
 
   <div>
     <section>
-      <p className="text-2xl font-bold md:text-[32px]">
+      <p className="ml-5 text-2xl font-bold md:text-[32px]">
         {/*{getQueryParam('tab') === Tab.Doctors ? 'Find Doctors' : 'Find Hospitals'}*/}
         Find Doctors
       </p>
