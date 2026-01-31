@@ -113,7 +113,7 @@ export default function Layout({
     }
 
     // If all previous steps are complete, go to availability
-    router.push('/dashboard/settings/availability');
+    router.push('/dashboard/availability');
     handleDismissOnboarding();
   };
 
