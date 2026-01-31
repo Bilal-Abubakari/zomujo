@@ -188,9 +188,9 @@ const Hospitals = (): JSX.Element => {
 
   return (
     <>
-      {/* Search and Filter Bar - Sticky below title, cards scroll underneath */}
-      <div className="sticky top-[56px] z-20 mb-6 pr-2">
-        <div className="bg-white flex w-full flex-col gap-4 rounded-lg border border-gray-200 p-4 shadow-sm">
+      {/* Search and Filter Bar - Sticky at top like title */}
+      <div className="sticky top-0 z-40 mb-4 sm:mb-6 -mx-4 px-4 2xl:-mx-6 2xl:px-6 bg-grayscale-100 pb-2 pt-2">
+        <div className="bg-white flex w-full flex-col gap-3 sm:gap-4 rounded-lg border border-gray-200 p-3 sm:p-4 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Search Bar */}
           <form className="flex flex-1 gap-2" onSubmit={handleSubmit}>

@@ -182,7 +182,7 @@ const HospitalFilters = ({
       <SheetTrigger asChild>
         <Button
           variant="outline"
-          className="relative h-10 min-w-[120px] cursor-pointer border-2 border-gray-300 bg-white font-semibold text-gray-700 shadow-sm transition-all hover:border-primary hover:bg-primary/5 hover:text-primary sm:flex"
+          className="relative h-10 min-w-[120px] cursor-pointer border-2 border-gray-300 bg-white font-semibold text-gray-700 shadow-sm transition-all hover:!border-primary hover:!bg-primary/5 hover:!text-primary sm:flex"
           child={
             <>
               <ListFilter className="h-4 w-4" />

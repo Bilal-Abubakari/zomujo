@@ -83,7 +83,6 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
     addresses,
     images,
     services,
-    departments,
     amenities,
     tags,
     openingHours,
@@ -97,19 +96,30 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
   const photoImages = images?.filter((img) => img.type === 'photo') || [];
 
   return (
-    <div className="flex flex-col gap-8 pb-8">
-      {/* Back Button */}
-      <Button
-        onClick={() => router.back()}
-        variant="ghost"
-        child={
-          <>
-            <ChevronLeft size={18} />
-            <span>Back</span>
-          </>
-        }
-        className="w-fit -ml-2 text-gray-600 hover:text-gray-900"
-      />
+    <div className="flex flex-col gap-8 pb-8 pr-4">
+      {/* Back Button - Fixed at top like notification bell */}
+      <div 
+        className="fixed top-[56px] z-30 bg-grayscale-100 px-4 py-3 2xl:px-6" 
+        style={{ 
+          left: 'max(1rem, calc(var(--sidebar-width, 16.563rem) + 1rem))',
+          right: '1rem',
+        }}
+      >
+        <Button
+          onClick={() => router.back()}
+          variant="ghost"
+          child={
+            <>
+              <ChevronLeft size={18} />
+              <span>Back</span>
+            </>
+          }
+          className="w-fit text-gray-600 hover:text-gray-900"
+        />
+      </div>
+      
+      {/* Spacer to prevent content from going under fixed button */}
+      <div className="h-[56px]"></div>
 
       {/* Header Section - Enhanced with Card Inspiration */}
       <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition-all duration-300 hover:shadow-2xl">
@@ -215,7 +225,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
 
       {/* Images Gallery - Enhanced with Card Inspiration */}
       {photoImages.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
               <Tag size={20} />
@@ -242,14 +252,14 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
 
       {/* Addresses - Enhanced with Card Inspiration */}
       {addresses && addresses.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-600">
               <MapPin size={20} />
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Locations</h2>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {addresses.map((address) => (
               <div
                 key={address.id}
@@ -306,7 +316,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
 
       {/* Opening Hours - Enhanced with Card Inspiration */}
       {openingHours && openingHours.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
               <Clock size={20} />
@@ -347,7 +357,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
 
       {/* Services - Enhanced with Card Inspiration */}
       {services && services.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600">
               <Stethoscope size={20} />
@@ -390,31 +400,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         </div>
       )}
 
-      {/* Departments - Enhanced with Card Inspiration */}
-      {departments && departments.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
-              <Building2 size={20} />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">Departments</h2>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {departments.map((dept) => (
-              <span
-                key={dept.id}
-                className="rounded-xl border-2 border-purple-300 bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-md"
-              >
-                {dept.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Amenities - Enhanced with Card Inspiration */}
       {amenities && amenities.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
               <CheckCircle2 size={20} />
@@ -502,7 +490,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         if (accreditationsList.length === 0) return null;
 
         return (
-          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+          <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
             <div className="mb-6 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-teal-600">
                 <Shield size={20} />

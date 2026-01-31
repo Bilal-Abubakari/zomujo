@@ -72,9 +72,9 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
         </div>
       )}
 
-      <div className="group relative flex w-[300px] flex-shrink-0 flex-col overflow-hidden rounded-3xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] sm:w-[350px] md:w-[380px]">
+      <div className="group relative flex w-full max-w-full sm:max-w-[350px] md:max-w-[380px] flex-shrink-0 flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         {/* Image Section with Frosted Glass Overlay */}
-        <div className="relative h-[400px] w-full overflow-hidden">
+        <div className="relative h-[250px] sm:h-[320px] md:h-[380px] w-full overflow-hidden">
           {primaryImage ? (
             <div className="relative h-full w-full cursor-pointer" onClick={() => setShowPreview(true)}>
               <Image
@@ -102,20 +102,6 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
                 <DropdownMenuItem onClick={handleViewDetails}>
                   View Details
                 </DropdownMenuItem>
-                {website && (
-                  <DropdownMenuItem
-                    onClick={() => window.open(website, '_blank')}
-                  >
-                    Visit Website
-                  </DropdownMenuItem>
-                )}
-                {mainPhone && (
-                  <DropdownMenuItem
-                    onClick={() => window.open(`tel:${mainPhone}`, '_self')}
-                  >
-                    Call Hospital
-                  </DropdownMenuItem>
-                )}
                 {primaryAddress && primaryAddress.city && (
                   <DropdownMenuItem
                     onClick={() => {
@@ -133,11 +119,11 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           {/* Frosted Glass Overlay with Content - Bottom 50% */}
           <div className="absolute bottom-0 left-0 right-0 z-10 h-[50%] overflow-hidden">
             {/* Solid white background layer extending slightly beyond to cover rounded corners */}
-            <div className="absolute -bottom-1 -left-1 -right-1 top-0 bg-white rounded-b-3xl"></div>
+            <div className="absolute -bottom-1 -left-1 -right-1 top-0 bg-white rounded-b-2xl sm:rounded-b-3xl"></div>
             
             {/* Frosted Glass Background with gradient overlay */}
             <div 
-              className="relative h-full rounded-b-3xl"
+              className="relative h-full rounded-b-2xl sm:rounded-b-3xl"
               style={{
                 background: 'linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 30%, rgba(255, 255, 255, 0.95) 60%, rgba(255, 255, 255, 0.85) 100%)',
                 backdropFilter: 'blur(20px) saturate(180%)',
@@ -145,57 +131,57 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
               }}
             >
               {/* Content on Frosted Glass */}
-              <div className="flex h-full flex-col justify-between px-4 py-4 sm:px-5 sm:py-5 relative z-10">
+              <div className="flex h-full flex-col justify-between px-3 py-2.5 sm:px-4 sm:py-4 md:px-5 md:py-5 relative z-20">
                 {/* Top Section - Title and Description */}
-                <div className="flex-1 min-w-0 flex flex-col overflow-visible">
-                  <h3 className="mb-2 text-xl font-bold text-gray-900 line-clamp-2 leading-tight">
+                <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+                  <h3 className="mb-1.5 sm:mb-2 text-lg sm:text-xl font-bold text-gray-900 line-clamp-2 leading-tight">
                     {name}
                   </h3>
                   {description && (
-                    <p className="text-xs leading-normal text-gray-600 line-clamp-2">
+                    <p className="text-xs sm:text-sm leading-relaxed text-gray-600 line-clamp-2 sm:line-clamp-3 break-words">
                       {description}
                     </p>
                   )}
                 </div>
 
                 {/* Bottom Section - Location, Button, and Badges */}
-                <div className="space-y-3 pt-2">
+                <div className="space-y-2 sm:space-y-3 pt-2">
                   {/* Location Row */}
                   {primaryAddress && (primaryAddress.city || primaryAddress.state) && (
-                    <div className="flex items-center gap-1.5 text-sm text-gray-700 min-w-0">
-                      <MapPin size={14} className="text-gray-500 flex-shrink-0" />
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 min-w-0">
+                      <MapPin size={12} className="text-gray-500 flex-shrink-0 sm:w-[14px] sm:h-[14px]" />
                       <span className="font-medium truncate">{primaryAddress.city || primaryAddress.state}</span>
                     </div>
                   )}
 
                   {/* Bottom Row - Organization Type Button and Feature Badges */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                     {/* Organization Type Button */}
                     <button
                       onClick={handleViewDetails}
-                      className="rounded-xl border-2 border-purple-300 bg-purple-50 px-3 py-2 text-xs font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-md active:scale-95 whitespace-nowrap flex-shrink-0"
+                      className="rounded-xl border-2 border-purple-300 bg-purple-50 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-md active:scale-95 whitespace-nowrap flex-shrink-0"
                     >
                       {getOrganizationTypeLabel(organizationType)}
                     </button>
 
                     {/* Feature Badges */}
                     {(hasEmergency || telemedicine || bedCount) && (
-                      <div className="flex items-center gap-1.5 flex-1 justify-end overflow-visible">
+                      <div className="flex items-center gap-1 sm:gap-1.5 flex-1 justify-end overflow-visible flex-wrap">
                         {hasEmergency && (
-                          <span className="flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-[10px] font-semibold text-red-700 whitespace-nowrap flex-shrink-0">
-                            <Clock size={10} />
+                          <span className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-red-100 px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-red-700 whitespace-nowrap flex-shrink-0">
+                            <Clock size={9} className="sm:w-[10px] sm:h-[10px]" />
                             24/7
                           </span>
                         )}
                         {telemedicine && (
-                          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-700 whitespace-nowrap flex-shrink-0">
-                            <Globe size={10} />
+                          <span className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-green-100 px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-green-700 whitespace-nowrap flex-shrink-0">
+                            <Globe size={9} className="sm:w-[10px] sm:h-[10px]" />
                             Virtual
                           </span>
                         )}
                         {bedCount && (
-                          <span className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                            <BedDouble size={10} />
+                          <span className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-blue-100 px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                            <BedDouble size={9} className="sm:w-[10px] sm:h-[10px]" />
                             {bedCount}
                           </span>
                         )}
