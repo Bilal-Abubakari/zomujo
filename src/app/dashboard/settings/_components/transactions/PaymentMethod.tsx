@@ -95,7 +95,7 @@ const PaymentMethod = ({ closeModal, paymentDetails }: PaymentMethodProps): JSX.
         toast(dataCompletionToast('pricing'));
       }
       if (!doctorInfo?.hasSlot) {
-        router.push('/dashboard/settings/availability');
+        router.push('/dashboard/availability');
         toast(dataCompletionToast('availability'));
       }
     }
