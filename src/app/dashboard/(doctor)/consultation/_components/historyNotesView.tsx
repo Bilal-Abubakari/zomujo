@@ -153,6 +153,8 @@ const HistoryNotesView = ({
       if (draft) {
         setNotes(draft);
       }
+    } else {
+      setNotes(parseInitialNotes(initialNotes));
     }
   }, [initialNotes, storageKey]);
 
@@ -168,11 +170,24 @@ const HistoryNotesView = ({
   }, []);
 
   const handleSaveAndContinue = async (): Promise<void> => {
+    const currentNotesJson = JSON.stringify(notes);
+
+    if (initialNotes) {
+      const parsedInitialNotes = parseInitialNotes(initialNotes);
+      const initialNotesJson = JSON.stringify(parsedInitialNotes);
+
+      if (currentNotesJson === initialNotesJson) {
+        LocalStorageManager.removeJSON(storageKey);
+        goToLabs();
+        return;
+      }
+    }
+
     setIsLoading(true);
     const { payload } = await dispatch(
       updateHistoryNotes({
         appointmentId,
-        notes: JSON.stringify(notes),
+        notes: currentNotesJson,
       }),
     );
     toast(payload as Toast);

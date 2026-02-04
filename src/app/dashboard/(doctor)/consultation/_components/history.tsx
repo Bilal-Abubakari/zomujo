@@ -22,7 +22,7 @@ import {
 } from '@/types/consultation.interface';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
-import { Loader2, FileText, List } from 'lucide-react';
+import { Loader2, FileText, List, Trash2 } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -109,7 +109,9 @@ const symptomsSchema = z
   });
 
 type SymptomsProps = {
-  goToLabs: () => void;
+  goToNext: () => void;
+  updateSymptoms: boolean;
+  setUpdateSymptoms: (value: boolean) => void;
 };
 
 const LoadingFallback = (): JSX.Element => (
@@ -118,12 +120,11 @@ const LoadingFallback = (): JSX.Element => (
   </div>
 );
 
-const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
+const History = ({ goToNext }: SymptomsProps): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
   const historyNotes = useAppSelector(selectHistoryNotes);
   const params = useParams();
-
-  // View selection using enum
+  const goToLabs = goToNext;
   const [selectedView, setSelectedView] = useState<HistoryView | null>(null);
   const [isViewLocked, setIsViewLocked] = useState(false);
 
@@ -136,7 +137,6 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setSelectedView(HistoryView.Symptoms);
       setIsViewLocked(true);
     } else if (selectedView === null) {
-      // Default to notes view when no data exists
       setSelectedView(HistoryView.Notes);
     }
   }, [historyNotes, symptoms, selectedView]);
@@ -144,7 +144,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const {
     control,
-    formState: { isValid, errors },
+    formState: { errors }, // removed isValid
     register,
     watch,
     setValue,
@@ -176,7 +176,9 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
     name: 'complaints',
   });
   const dispatch = useAppDispatch();
-  const [isLoadingSymptoms, setIsLoadingSymptoms] = useState(false);
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  const [_isLoadingSymptoms, setIsLoadingSymptoms] = useState(false); // prefixed unused
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   const [isLoadingComplaintSuggestions, setIsLoadingComplaintSuggestions] = useState(false);
   const [complaintSuggestions, setComplaintSuggestions] = useState<string[]>([]);
   const [otherComplaint, setOtherComplaint] = useState<string>('');
@@ -293,7 +295,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
       appointmentId,
     };
     if (_.isEqual(existingSymptoms, consultationSymptomsRequest)) {
-      goToLabs();
+      goToNext();
       clearDraft();
       setIsLoading(false);
       return;
@@ -304,7 +306,7 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
     setIsLoading(false);
     if (!showErrorToast(payload)) {
       clearDraft();
-      goToLabs();
+      goToNext();
     }
   };
 
@@ -404,11 +406,10 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
       setValue(`complaints.${idx}.duration.type`, bulkDurationType);
     });
     void trigger('complaints');
-  }, [bulkDurationType, bulkDurationValue, complaintFields, setValue, trigger]);
+  }, [bulkDurationType, bulkDurationValue, complaintFields]);
 
   return (
     <div>
-      {/* Compact View Selection UI - Only show if view is not locked */}
       {!isViewLocked && selectedView && (
         <div className="mb-6 flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
@@ -549,64 +550,77 @@ const History = ({ goToLabs }: SymptomsProps): JSX.Element => {
                         control={control}
                         name={`complaints.${index}.duration.type`}
                         options={durationTypes}
-                        placeholder="Type"
-                        className="w-32 bg-transparent"
-                        ref={register(`complaints.${index}.duration.type`).ref}
+                        label="Type"
+                        className="w-28 bg-transparent"
+                        ref={register(`complaints.${index}.duration.type`).ref} // Added ref
                       />
                       <Button
-                        variant="ghost"
-                        type="button"
+                        variant="destructive"
+                        size="icon"
                         onClick={() => remove(index)}
-                        child="Remove"
+                        child={<Trash2 size={16} />}
                       />
                     </div>
                   ))}
                 </div>
               </div>
             )}
-            <h1 className="mt-12 text-xl font-bold">Symptoms</h1>
-            {isLoadingSymptoms ? (
-              <Loading message="Please wait. Loading System Symptoms.." />
-            ) : (
+
+            <div className="mt-10">
+              <h2 className="mb-4 text-lg font-semibold">Review of Systems</h2>
               <Accordion
                 type="multiple"
                 value={expandedSections}
                 onValueChange={setExpandedSections}
-                className="mt-4"
+                className="w-full space-y-4"
               >
                 {systemSymptomsEntries.map(([id, symptoms]) => (
-                  <AccordionItem key={id} value={id} className="border-b">
-                    <AccordionTrigger className="cursor-pointer text-left transition-colors hover:bg-gray-50 hover:no-underline">
+                  <AccordionItem key={id} value={id} className="rounded-lg border px-4">
+                    <AccordionTrigger className="py-3 hover:no-underline">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{getSystemTitle(id)}</span>
+                        <span
+                          className={cn(
+                            'font-medium',
+                            hasSelectedSymptoms(id) ? 'text-primary' : 'text-gray-700',
+                          )}
+                        >
+                          {getSystemTitle(id)}
+                        </span>
                         {hasSelectedSymptoms(id) && (
-                          <span className="bg-primary rounded-full px-2 py-0.5 text-xs text-white">
-                            {(watch(`symptoms.${id as SymptomsType}`) as IPatientSymptom[])
-                              ?.length || 0}
+                          <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs">
+                            Selected
                           </span>
                         )}
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent>
-                      {expandedSections.includes(id) && (
-                        <SelectSymptoms
-                          symptoms={symptoms}
-                          id={id}
-                          control={control}
-                          trigger={trigger}
-                          selectedSymptoms={watch(`symptoms.${id as SymptomsType}`)}
-                        />
-                      )}
+                    <AccordionContent className="pt-2 pb-4">
+                      <SelectSymptoms
+                        id={id}
+                        symptoms={symptoms}
+                        control={control}
+                        trigger={trigger}
+                        selectedSymptoms={
+                          watch(`symptoms.${id as SymptomsType}`) as IPatientSymptom[]
+                        }
+                      />
                     </AccordionContent>
                   </AccordionItem>
                 ))}
               </Accordion>
-            )}
-            <h1 className="mt-12 text-xl font-bold">Medication Taken</h1>
-            <MedicationTaken medicationsTaken={watch('medicinesTaken')} control={control} />
-            <div className="mt-20"></div>
-            <div className="fixed bottom-0 left-0 z-50 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
-              <Button isLoading={isLoading} disabled={!isValid || isLoading} child="Go to Labs" />
+            </div>
+
+            <div className="mt-10">
+              <MedicationTaken control={control} medicationsTaken={watch('medicinesTaken') || []} />
+            </div>
+
+            <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white p-4 shadow-md">
+              <div></div>
+              <Button
+                isLoading={isLoading}
+                disabled={isLoading}
+                child="Continue to Labs"
+                type="submit"
+              />
             </div>
           </form>
         </DndProvider>
