@@ -54,14 +54,54 @@ export const getNearByHospitals = createAsyncThunk(
   },
 );
 
+/** Build FormData with correct field names for multer (image, images) */
+function buildFormData(payload: Record<string, unknown>): FormData {
+  const formData = new FormData();
+
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined) continue;
+
+    if (key === 'images' && Array.isArray(value)) {
+      const files = value.filter((v): v is File => v instanceof File);
+      for (const file of files) {
+        formData.append('images', file, file.name);
+      }
+      continue;
+    }
+    if (key === 'image' && value instanceof File) {
+      formData.append('image', value, value.name);
+      continue;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        formData.append(key, String(item));
+      }
+      continue;
+    }
+    if (typeof value === 'boolean') {
+      formData.append(key, String(value));
+      continue;
+    }
+    if (typeof value === 'number' || typeof value === 'string') {
+      formData.append(key, String(value));
+      continue;
+    }
+  }
+
+  return formData;
+}
+
 export const updateHospitalDetails = createAsyncThunk(
   'hospitals/updateHospitalDetails',
   async (hospitalProfile: Partial<IHospitalProfile>): Promise<Toast> => {
     try {
-      const { data } = await axios.patchForm<IResponse<IHospitalProfile>>(
-        'admins/update-org',
-        hospitalProfile,
-      );
+      const hasFiles =
+        (Array.isArray(hospitalProfile.images) && hospitalProfile.images.some((v) => v instanceof File)) ||
+        hospitalProfile.image instanceof File;
+
+      const body = hasFiles ? buildFormData(hospitalProfile as Record<string, unknown>) : hospitalProfile;
+
+      const { data } = await axios.patchForm<IResponse<IHospitalProfile>>('orgs', body);
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
