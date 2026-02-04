@@ -193,11 +193,12 @@ const HistoryNotesView = ({
     toast(payload as Toast);
     setIsLoading(false);
 
-    if (!showErrorToast(payload)) {
-      setHasUnsavedChanges(false);
-      LocalStorageManager.removeJSON(storageKey);
-      goToLabs();
+    if (showErrorToast(payload)) {
+      return;
     }
+    setHasUnsavedChanges(false);
+    LocalStorageManager.removeJSON(storageKey);
+    goToLabs();
   };
 
   const isValid = Object.values(notes).some((value) => value.trim().length > 0);
