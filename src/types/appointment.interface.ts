@@ -4,7 +4,7 @@ import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
 import { IHospital } from './hospital.interface';
 import { IConsultationSymptomsRequest } from '@/types/consultation.interface';
-import { IDiagnosis } from '@/types/medical.interface';
+import { IDiagnosis, IPrescription } from '@/types/medical.interface';
 import { ILab } from '@/types/labs.interface';
 import { ISlot, ISlotBase } from '@/types/slots.interface';
 import { IRadiology } from '@/types/radiology.interface';
@@ -27,13 +27,14 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   reason: string;
   additionalInfo: string;
   symptoms: IAppointmentSymptoms;
-  lab: ILab[];
+  lab: ILab;
   notes: string;
   historyNotes: string;
   isAuthenticated: boolean;
   radiology: IRadiology;
   prescriptionUrl: string | null;
   diagnosis: IDiagnosis[];
+  prescriptions: IPrescription[];
 }
 
 export interface IRecordRequest extends IBaseAppointment {
