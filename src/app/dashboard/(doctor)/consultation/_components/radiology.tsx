@@ -1,17 +1,12 @@
 'use client';
-import React, { JSX, useCallback, useEffect, useMemo, useState } from 'react';
-import { Info, Microscope, Search, Trash2, X } from 'lucide-react';
+import React, { JSX, useEffect, useMemo, useState } from 'react';
+import { Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
-import {
-  IRadiology,
-  IRadiologyRequest,
-  RadiologyCategoryType,
-  RadiologyTest,
-} from '@/types/radiology.interface';
+import { IRadiology, RadiologyCategoryType, RadiologyTest } from '@/types/radiology.interface';
 import { z } from 'zod';
 import {
   InterventionalRadiologyCategory,
@@ -24,20 +19,19 @@ import { fetchRadiology } from '@/lib/features/appointments/consultation/fetchRa
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import AddCardButton from '@/components/ui/addCardButton';
 import { Toast, toast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
 import { Modal } from '@/components/ui/dialog';
-import { LocalStorageManager } from '@/lib/localStorage';
 import { Textarea } from '@/components/ui/textarea';
-import { generateUUID, showErrorToast } from '@/lib/utils';
+import { showErrorToast } from '@/lib/utils';
 import { requiredStringSchema } from '@/schemas/zod.schemas';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectCurrentRadiologyRequest } from '@/lib/features/appointments/consultation/consultationSelector';
-import { setCurrentRadiologyRequest } from '@/lib/features/appointments/consultation/consultationSlice';
-import { getConsultationRadiology } from '@/lib/features/appointments/consultation/consultationThunk';
-import { RadiologyCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
-import { RequestStatus } from '@/types/shared.enum';
+import {
+  getConsultationRadiology,
+  downloadRadiologyRequestPdf,
+  addRadiologyRequests,
+} from '@/lib/features/appointments/consultation/consultationThunk';
+import { selectRecordId } from '@/lib/features/patients/patientsSelector';
 
 const radiologySchema = z.object({
   tests: z
@@ -63,11 +57,6 @@ const radiologySchema = z.object({
     .max(3, 'Maximum 3 questions allowed')
     .min(1, 'At least one question'),
 });
-
-type RadiologyProps = {
-  updateRadiology: boolean;
-  setUpdateRadiology: (value: boolean) => void;
-};
 
 type TestItemProps = {
   test: string;
@@ -177,36 +166,45 @@ const MainCategorySection = ({
   </div>
 );
 
-const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX.Element => {
+export interface RadiologyRef {
+  hasUnsavedChanges: boolean;
+}
+
+const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
   const dispatch = useAppDispatch();
-  const currentRequestedRadiology = useAppSelector(selectCurrentRadiologyRequest);
+  const recordId = useAppSelector(selectRecordId);
   const [radiologyTests, setRadiologyTests] = useState<RadiologyTest | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [questionsTracker, setQuestionsTracker] = useState<string[]>([generateUUID()]);
+
   const [consultationRadiology, setConsultationRadiology] = useState<IRadiology[]>([]);
   const [isLoadingRadiology, setIsLoadingRadiology] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isAddingRadiology, setIsAddingRadiology] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  const params = useParams();
+
+  React.useImperativeHandle(ref, () => ({
+    hasUnsavedChanges,
+  }));
 
   const {
-    reset,
     register,
-    control,
-    trigger,
-    watch,
-    setValue,
     handleSubmit,
-    formState: { isValid, errors },
-  } = useForm<IRadiologyRequest>({
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<z.infer<typeof radiologySchema>>({
     resolver: zodResolver(radiologySchema),
     mode: MODE.ON_TOUCH,
+    defaultValues: {
+      tests: [],
+      questions: [''],
+    },
   });
 
-  const { append, remove } = useFieldArray({
-    control,
-    name: `tests`,
-  });
-  const params = useParams();
-  const storageKey = `consultation_${params?.appointmentId}_radiology_draft`;
-  const testsWatch = watch('tests');
+  const selectedTests = watch('tests');
 
   const getRadiologyData = async (): Promise<void> => {
     const response = await fetchRadiology();
@@ -218,303 +216,309 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
   const fetchConsultationRadiology = async (): Promise<void> => {
     setIsLoadingRadiology(true);
     const { payload } = await dispatch(getConsultationRadiology(String(params.appointmentId)));
+
     if (showErrorToast(payload)) {
       toast(payload as Toast);
-      setIsLoadingRadiology(false);
-      return;
+    } else {
+      const rads = payload as IRadiology[];
+      setConsultationRadiology(rads);
+      if (rads.length > 0) {
+        const latest = rads[0];
+        setValue('tests', latest.tests || []);
+        setValue('procedureRequest', latest.procedureRequest || '');
+        setValue('history', latest.history || '');
+        setValue(
+          'questions',
+          latest.questions && latest.questions.length > 0 ? latest.questions : [''],
+        );
+      }
     }
-    setConsultationRadiology(payload as IRadiology[]);
     setIsLoadingRadiology(false);
   };
 
-  const saveRadiologyRequest = async (data: IRadiologyRequest): Promise<void> => {
-    dispatch(setCurrentRadiologyRequest(data));
-    setUpdateRadiology(false);
-    reset();
-    setSearchQuery('');
-    toast({
-      title: 'Radiology request added',
-      description: `${data.tests.length} test(s) added successfully`,
-    });
-  };
-
-  const addRadiologyQuestionTree = async (): Promise<void> => {
-    const isCurrentQuestionFieldValid = await trigger('questions');
-    if (!isCurrentQuestionFieldValid) {
-      toast({
-        title: 'Invalid question',
-        description: 'Please enter a valid question before adding another one.',
-        variant: 'default',
-      });
-    }
-    if (questionsTracker.length < 3 && isCurrentQuestionFieldValid) {
-      setQuestionsTracker((prev) => [...prev, generateUUID()]);
-    }
-  };
-
-  const removeRadiologyQuestionTree = (index: number, tracker: string): void => {
-    if (questionsTracker.length > 1) {
-      setQuestionsTracker((prev) => prev.filter((item) => item !== tracker));
-      const questions = watch('questions');
-      questions.splice(index, 1);
-      setValue('questions', questions, { shouldValidate: true });
+  const fetchPdf = async (): Promise<void> => {
+    const result = await dispatch(
+      downloadRadiologyRequestPdf(String(params.appointmentId)),
+    ).unwrap();
+    if (showErrorToast(result)) {
+      toast(result as Toast);
       return;
     }
-    toast({
-      title: 'You must have at least one question',
-      description: 'Please add another question before removing this one.',
-      variant: 'default',
-    });
+    const url = URL.createObjectURL(result as Blob);
+    setPdfUrl(url);
+    setShowPreview(true);
   };
 
-  const testExists = useCallback(
-    (test: string) => testsWatch.some(({ testName }) => testName === test),
-    [testsWatch],
-  );
+  const handleSaveRadiology = async (data: z.infer<typeof radiologySchema>): Promise<void> => {
+    setIsAddingRadiology(true);
+    const payload = {
+      appointmentId: String(params.appointmentId),
+      recordId,
+      ...data,
+    };
 
-  const toggleTestSelection = (
+    const result = await dispatch(addRadiologyRequests(payload)); // PUT
+    if (showErrorToast(result.payload)) {
+      toast(result.payload as Toast);
+      setIsAddingRadiology(false);
+      return;
+    }
+
+    void fetchConsultationRadiology();
+    setIsAddingRadiology(false);
+    setHasUnsavedChanges(false);
+    toast({
+      title: 'Success',
+      description: 'Radiology request updated successfully',
+      variant: 'default',
+    });
+
+    // Open preview automatically
+    void fetchPdf();
+  };
+
+  const toggleTest = (
     testName: string,
     category: RadiologySection,
     categoryType: RadiologyCategoryType,
   ): void => {
-    if (testExists(testName)) {
-      const index = testsWatch.findIndex(({ testName: name }) => name === testName);
-      remove(index);
-      return;
+    const currentTests = watch('tests') || [];
+    const exists = currentTests.find((t) => t.testName === testName);
+
+    if (exists) {
+      setValue(
+        'tests',
+        currentTests.filter((t) => t.testName !== testName),
+        { shouldValidate: true, shouldDirty: true },
+      );
+    } else {
+      setValue('tests', [...currentTests, { testName, category, categoryType }], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
-    append({
-      testName,
-      category,
-      categoryType,
-    });
+    setHasUnsavedChanges(true);
   };
 
-  const filterTestsByQuery = useCallback(
-    (tests: string[], query: string, subCategory: string, mainCategory: string): string[] =>
-      tests.filter(
-        (test: string) =>
-          test.toLowerCase().includes(query) ||
-          subCategory.toLowerCase().includes(query) ||
-          mainCategory.toLowerCase().includes(query),
-      ),
-    [],
-  );
-
-  const filterSubCategories = useCallback(
-    (subCategories: Record<string, string[]>, query: string, mainCategory: string) => {
-      const filteredSubCategories: Record<string, string[]> = {};
-
-      Object.entries(subCategories).forEach(([subCategory, tests]) => {
-        const filteredTests = filterTestsByQuery(tests, query, subCategory, mainCategory);
-        if (filteredTests.length > 0) {
-          filteredSubCategories[subCategory] = filteredTests;
-        }
-      });
-
-      return filteredSubCategories;
-    },
-    [filterTestsByQuery],
-  );
-
-  const filteredRadiologyTests = useMemo(() => {
+  const filteredRadiology = useMemo(() => {
     if (!radiologyTests) {
       return null;
     }
-
     const query = searchQuery.toLowerCase().trim();
     if (!query) {
       return radiologyTests;
     }
 
-    const filtered: Partial<RadiologyTest> = {};
-
-    Object.entries(radiologyTests).forEach(([mainCategory, subCategories]) => {
-      const filteredSubCategories = filterSubCategories(
-        subCategories as Record<string, string[]>,
-        query,
-        mainCategory,
-      );
-
-      if (Object.keys(filteredSubCategories).length > 0) {
-        filtered[mainCategory as RadiologySection] = filteredSubCategories as Record<
-          RadiologyCategoryType,
-          string[]
-        >;
+    const filtered: Record<string, Record<string, string[]>> = {};
+    Object.entries(radiologyTests).forEach(([mainCat, subCats]) => {
+      const filteredSubs: Record<string, string[]> = {};
+      Object.entries(subCats as Record<string, string[]>).forEach(([subCat, tests]) => {
+        const ft = tests.filter(
+          (x) =>
+            x.toLowerCase().includes(query) ||
+            mainCat.toLowerCase().includes(query) ||
+            subCat.toLowerCase().includes(query),
+        );
+        if (ft.length) {
+          filteredSubs[subCat] = ft;
+        }
+      });
+      if (Object.keys(filteredSubs).length) {
+        filtered[mainCat] = filteredSubs;
       }
     });
-
-    return filtered as RadiologyTest;
-  }, [radiologyTests, searchQuery, filterSubCategories]);
-
-  // Persist draft
-  useEffect(() => {
-    const draft = {
-      currentRequestedRadiology,
-      // selectedTests: Array.from(selectedTests.entries()),
-    };
-    LocalStorageManager.setJSON(storageKey, draft);
-  }, [currentRequestedRadiology, storageKey]);
+    return filtered as unknown as RadiologyTest;
+  }, [radiologyTests, searchQuery]);
 
   useEffect(() => {
-    if (updateRadiology && !radiologyTests) {
+    if (!radiologyTests) {
       void getRadiologyData();
     }
-  }, [updateRadiology, radiologyTests]);
+  }, [radiologyTests]);
 
   useEffect(() => {
     void fetchConsultationRadiology();
-  }, []);
+  }, [params.appointmentId]);
 
-  const renderRadiologyContent = (): JSX.Element => {
-    if (isLoadingRadiology) {
-      return (
-        <div className="mt-5 flex items-center justify-center py-10">
-          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
-          <span className="ml-3 text-gray-500">Loading radiology...</span>
-        </div>
-      );
+  useEffect(() => {
+    if (watch('questions').length === 0) {
+      setValue('questions', ['']);
     }
+  }, [watch('questions')]);
 
-    if (consultationRadiology?.length) {
-      return (
-        <div className="mt-5 flex flex-wrap gap-5">
-          {consultationRadiology.map(
-            ({ id, tests, createdAt, procedureRequest, history, questions }) =>
-              tests.map((test, index) => {
-                const additionalInfo = [
-                  procedureRequest && `Procedure: ${procedureRequest}`,
-                  history && `History: ${history}`,
-                  questions && questions.length > 0 && `Questions: ${questions.join(', ')}`,
-                ]
-                  .filter(Boolean)
-                  .join('\n');
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent): void => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+      }
+    };
 
-                return (
-                  <RadiologyCard
-                    key={`${id}-${index}`}
-                    testName={test.testName}
-                    fileUrl={test.fileUrl ?? null}
-                    status={test.fileUrl ? RequestStatus.Completed : RequestStatus.Pending}
-                    date={createdAt}
-                    additionalInfo={additionalInfo}
-                  />
-                );
-              }),
-          )}
-        </div>
-      );
-    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
-    return <div className="mt-5 text-gray-500">No radiology tests conducted yet</div>;
-  };
+    return (): void => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  useEffect(
+    () => (): void => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    },
+    [pdfUrl],
+  );
 
   return (
     <>
-      <div>
-        <h1 className="text-xl font-bold">Radiology Investigations</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Request imaging and radiology studies for the patient
-        </p>
-
-        <h2 className="mt-10 flex items-center font-bold max-sm:text-sm">
-          Requested Radiology <Info className="ml-2" size={20} />
-        </h2>
-        {renderRadiologyContent()}
-
-        <h2 className="mt-10 flex items-center font-bold max-sm:text-sm">
-          Request Radiology <Info className="ml-2" size={20} />
-        </h2>
-        <div className="mt-5 mb-20 flex flex-wrap gap-5">
-          <AddCardButton onClick={() => setUpdateRadiology(true)} />
-          {currentRequestedRadiology && (
-            <div className="relative w-56 rounded-[8px] bg-[linear-gradient(180deg,rgba(197,216,255,0.306)_0%,rgba(197,216,255,0.6)_61.43%)] p-4">
-              <div className="mb-3 flex justify-between">
-                <span className="text-grayscale-600 flex items-center gap-2">
-                  <Microscope size={16} /> Radiology Request
-                </span>
-                <button
-                  onClick={() => dispatch(setCurrentRadiologyRequest(null))}
-                  className="text-red-500"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-              <div className="text-sm text-gray-700">
-                <p className="font-semibold">Tests:</p>
-                <ul className="list-inside list-disc">
-                  {currentRequestedRadiology.tests.map((test, index) => (
-                    <li key={`${index}-${test.testName}`}>{test.testName}</li>
-                  ))}
-                </ul>
-              </div>
-              <div
-                className="mt-2 cursor-pointer text-xs text-gray-500"
-                title={`Procedure: ${currentRequestedRadiology.procedureRequest}\nHistory: ${currentRequestedRadiology.history}\nQuestions: ${currentRequestedRadiology.questions.join(', ')}`}
-              >
-                Hover for details
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
       <Modal
-        setState={(value) =>
-          setUpdateRadiology(typeof value === 'function' ? value(updateRadiology) : value)
-        }
-        open={updateRadiology}
+        open={showPreview}
+        className="h-full w-full max-w-7xl"
+        setState={setShowPreview}
         showClose={true}
-        className="h-full w-full max-w-[90%] p-5"
         content={
-          <div className="w-full overflow-y-auto p-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold">Add Radiology Request</h2>
-              <p className="mt-1 text-gray-600">
-                Select radiology investigations for the patient. Provide clinical indication and
-                other relevant details.
-              </p>
-            </div>
+          <div className="h-full w-full">
+            {pdfUrl ? (
+              <iframe src={pdfUrl} className="mt-5 h-full w-full" />
+            ) : (
+              <div className="flex h-full items-center justify-center">Loading PDF...</div>
+            )}
+          </div>
+        }
+      />
 
-            <form className="space-y-6" onSubmit={handleSubmit(saveRadiologyRequest)}>
-              <div>
-                <Textarea
-                  labelName={`Examination / Procedure Request`}
-                  placeholder="Enter the examination or procedure being requested"
-                  className="min-h-12.5 bg-white"
-                  {...register('procedureRequest')}
-                  error={errors?.procedureRequest?.message}
-                />
-              </div>
-              <div>
-                <Textarea
-                  labelName={`History/Relevant/Symptoms`}
-                  placeholder="Enter the examination or procedure being requested"
-                  className="min-h-12.5 bg-white"
-                  {...register('history')}
-                  error={errors?.history?.message}
-                />
-              </div>
-              <div className="flex items-center space-x-3">
-                <span>Questions to be answered by this examination</span>
-                {questionsTracker.length < 3 && (
-                  <Button
+      {isLoadingRadiology && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
+        </div>
+      )}
+
+      <div className="relative h-full w-full">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold">Radiology Request</h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Select radiology tests and provide details. Changes are saved when you click
+              &quot;Save and Preview&quot;.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {consultationRadiology && consultationRadiology.length > 0 && (
+              <Button
+                onClick={() => void fetchPdf()}
+                child="Preview Request PDF"
+                variant="outline"
+                size="sm"
+              />
+            )}
+            <Button
+              onClick={handleSubmit(handleSaveRadiology)}
+              disabled={isAddingRadiology || selectedTests.length === 0}
+              isLoading={isAddingRadiology}
+              child="Save and Preview"
+              size="sm"
+            />
+          </div>
+        </div>
+
+        <form
+          onSubmit={handleSubmit(handleSaveRadiology)}
+          className="max-h-125 space-y-6 overflow-y-auto"
+        >
+          <div className="mb-40 space-y-6">
+            <div>
+              <Label>Examination/Procedure Request</Label>
+              <Textarea
+                placeholder="Describe the examination or procedure..."
+                {...register('procedureRequest')}
+                className={errors.procedureRequest ? 'border-red-500' : ''}
+              />
+              {errors.procedureRequest && (
+                <p className="text-sm text-red-500">{errors.procedureRequest.message}</p>
+              )}
+            </div>
+            <div>
+              <Label>History/Clinical Information</Label>
+              <Textarea
+                placeholder="Relevant clinical history..."
+                {...register('history')}
+                className={errors.history ? 'border-red-500' : ''}
+              />
+              {errors.history && <p className="text-sm text-red-500">{errors.history.message}</p>}
+            </div>
+            <div>
+              <Label>Clinical Questions</Label>
+              <div className="space-y-2">
+                {watch('questions').map(
+                  (
+                    _,
+                    index, // Use watch to iterate over array length
+                  ) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        placeholder={`Question ${index + 1}`}
+                        {...register(`questions.${index}`)}
+                      />
+                      {watch('questions').length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const currentQ = watch('questions');
+                            setValue(
+                              'questions',
+                              currentQ.filter((_, i) => i !== index),
+                            );
+                          }}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                    </div>
+                  ),
+                )}
+                {watch('questions').length < 3 && (
+                  <button
                     type="button"
-                    onClick={() => void addRadiologyQuestionTree()}
-                    variant="link"
-                    child="Add Question"
-                  />
+                    onClick={() => setValue('questions', [...watch('questions'), ''])}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    + Add Question
+                  </button>
                 )}
               </div>
-              {questionsTracker.map((tracker, index) => (
-                <div className="flex items-center space-x-2" key={tracker}>
-                  <span>{index + 1}.</span>
-                  <Input {...register(`questions.${index}`)} className="w-full max-w-full" />
-                  <Trash2
-                    onClick={() => removeRadiologyQuestionTree(index, tracker)}
-                    className="cursor-pointer text-red-400"
-                  />
+              {errors.questions && (
+                <p className="text-sm text-red-500">{errors.questions?.message}</p>
+              )}
+            </div>
+
+            {/* Selected Tests Summary */}
+            {selectedTests && selectedTests.length > 0 && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-blue-900">
+                    {selectedTests.length} test{selectedTests.length !== 1 ? 's' : ''} selected
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValue('tests', [], { shouldValidate: true, shouldDirty: true });
+                      setHasUnsavedChanges(true);
+                    }}
+                    className="text-sm text-blue-600 underline hover:text-blue-800"
+                  >
+                    Clear all selections
+                  </button>
                 </div>
-              ))}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {selectedTests.map((test) => (
+                    <Badge key={test.testName} variant="secondary" className="px-3 py-1">
+                      {test.testName}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-4 overflow-auto rounded-lg border bg-white p-4">
               {/* Search Bar */}
               <div className="relative">
                 <Search
@@ -523,101 +527,34 @@ const Radiology = ({ updateRadiology, setUpdateRadiology }: RadiologyProps): JSX
                 />
                 <Input
                   type="text"
-                  placeholder="Search for radiology tests, imaging modalities..."
+                  placeholder="Search radiology tests..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pr-10 pl-10"
                 />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={20} />
-                  </button>
-                )}
               </div>
 
-              {/* Selected Tests Summary */}
-              {testsWatch?.length > 0 && (
-                <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-purple-900">
-                      {testsWatch.length} test{testsWatch.length === 1 ? '' : 's'} selected
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setValue('tests', [], { shouldValidate: true })}
-                      className="text-sm text-purple-600 underline hover:text-purple-800"
-                    >
-                      Clear all
-                    </button>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {testsWatch.map(({ testName }) => (
-                      <Badge key={testName} variant="secondary" className="px-3 py-1">
-                        {testName}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Radiology Tests Grid */}
-              <div className="max-h-[50vh] overflow-y-auto rounded-lg border">
-                {filteredRadiologyTests && Object.entries(filteredRadiologyTests).length > 0 ? (
-                  Object.entries(filteredRadiologyTests).map(([mainCategory, subCategories]) => (
+              <div className="relative overflow-y-auto">
+                {filteredRadiology &&
+                  Object.entries(filteredRadiology).map(([mainCat, subCats]) => (
                     <MainCategorySection
-                      key={mainCategory}
-                      mainCategory={mainCategory}
-                      subCategories={subCategories as Record<string, string[]>}
-                      selectedTests={testsWatch}
-                      onToggleTest={toggleTestSelection}
+                      key={mainCat}
+                      mainCategory={mainCat}
+                      subCategories={subCats as Record<string, string[]>}
+                      selectedTests={selectedTests}
+                      onToggleTest={toggleTest}
                     />
-                  ))
-                ) : (
-                  <div className="p-8 text-center text-gray-500">
-                    {searchQuery ? (
-                      <>
-                        <Search className="mx-auto mb-2 text-gray-400" size={40} />
-                        <p>No tests found matching &quot;{searchQuery}&quot;</p>
-                      </>
-                    ) : (
-                      <p>Loading radiology tests...</p>
-                    )}
-                  </div>
-                )}
+                  ))}
+                {errors.tests && <p className="text-sm text-red-500">{errors.tests.message}</p>}
               </div>
-
-              {/* Sticky Action Buttons */}
-              <div className="sticky -bottom-6 z-20 flex justify-end space-x-3 border-t bg-white/95 p-4 backdrop-blur">
-                <Button
-                  onClick={() => {
-                    reset();
-                    setUpdateRadiology(false);
-                    setSearchQuery('');
-                  }}
-                  child="Cancel"
-                  type="button"
-                  variant="secondary"
-                />
-                <Button
-                  disabled={!isValid}
-                  child={
-                    testsWatch?.length > 0
-                      ? `Add ${testsWatch.length} Test${testsWatch.length === 1 ? '' : 's'}`
-                      : 'Add Tests'
-                  }
-                  type="submit"
-                />
-              </div>
-            </form>
+            </div>
           </div>
-        }
-      />
+        </form>
+      </div>
     </>
   );
-};
+});
+
+Radiology.displayName = 'Radiology';
 
 export default Radiology;
