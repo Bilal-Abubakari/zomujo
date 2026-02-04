@@ -144,7 +144,7 @@ const History = ({ goToNext }: SymptomsProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const {
     control,
-    formState: { errors }, // removed isValid
+    formState: { errors },
     register,
     watch,
     setValue,
@@ -176,9 +176,6 @@ const History = ({ goToNext }: SymptomsProps): JSX.Element => {
     name: 'complaints',
   });
   const dispatch = useAppDispatch();
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const [_isLoadingSymptoms, setIsLoadingSymptoms] = useState(false); // prefixed unused
-  /* eslint-enable @typescript-eslint/no-unused-vars */
   const [isLoadingComplaintSuggestions, setIsLoadingComplaintSuggestions] = useState(false);
   const [complaintSuggestions, setComplaintSuggestions] = useState<string[]>([]);
   const [otherComplaint, setOtherComplaint] = useState<string>('');
@@ -273,10 +270,8 @@ const History = ({ goToNext }: SymptomsProps): JSX.Element => {
   };
 
   const fetchSymptoms = useCallback(async (): Promise<void> => {
-    setIsLoadingSymptoms(true);
     const { payload } = await dispatch(getSystemSymptoms());
     setSystemSymptoms(payload as ISymptomMap);
-    setIsLoadingSymptoms(false);
   }, [dispatch]);
 
   const handleSubmitAndGoToLabs = async (data: IConsultationSymptoms): Promise<void> => {
