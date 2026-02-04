@@ -18,7 +18,7 @@ export const ConnectivityBanner = (): JSX.Element | null => {
         dismiss(networkToast.id);
       }
     }
-  }, [isOnline, toasts, dismiss]);
+  }, [isOnline, toasts]);
 
   if (isOnline) {
     return null;
