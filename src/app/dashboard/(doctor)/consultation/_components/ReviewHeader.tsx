@@ -2,7 +2,7 @@ import React, { JSX } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { MailCheck } from 'lucide-react';
+import { MailCheck, Share2 } from 'lucide-react';
 
 interface ReviewHeaderProps {
   isPastConsultation: boolean;
@@ -11,6 +11,7 @@ interface ReviewHeaderProps {
   isSendingPrescription: boolean;
   onSignatureToggle: () => void;
   onSendPrescription: () => void;
+  onAddReferral?: () => void;
 }
 
 export const ReviewHeader = ({
@@ -20,6 +21,7 @@ export const ReviewHeader = ({
   isSendingPrescription,
   onSignatureToggle,
   onSendPrescription,
+  onAddReferral,
 }: ReviewHeaderProps): JSX.Element => (
   <div className="from-primary/10 to-primary/5 flex flex-col gap-4 rounded-lg bg-linear-to-r p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
     <div className="flex-1">
@@ -40,6 +42,19 @@ export const ReviewHeader = ({
           </Label>
           <Switch checked={addSignature} id="signature" onCheckedChange={onSignatureToggle} />
         </div>
+        {onAddReferral && (
+          <Button
+            variant="outline"
+            onClick={onAddReferral}
+            className="w-full sm:w-auto"
+            child={
+              <>
+                <Share2 className="mr-2 h-4 w-4" />
+                Refer Patient
+              </>
+            }
+          />
+        )}
         <Button
           variant="default"
           onClick={onSendPrescription}
