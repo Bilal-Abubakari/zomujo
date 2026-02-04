@@ -252,7 +252,7 @@ const Prescription = ({
         <div className="flex flex-col gap-4">
           {combinedPrescriptions.map((p, index) => (
             <div
-              key={index}
+              key={`${index}-${p.name}`}
               className="flex items-center justify-between rounded-md border bg-white p-4 shadow-sm"
             >
               <div>
