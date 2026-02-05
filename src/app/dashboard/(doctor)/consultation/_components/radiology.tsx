@@ -218,8 +218,6 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
         ref={ref}
         title="Radiology Request"
         description="Select radiology tests and provide details. Changes are saved when you click Save and Preview."
-        data={radiologyTests}
-        selectedTests={selectedTests || []}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onClearSelections={() => {
