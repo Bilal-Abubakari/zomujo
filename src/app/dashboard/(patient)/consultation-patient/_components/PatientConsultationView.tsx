@@ -65,7 +65,7 @@ const PatientConsultationView = (): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [downloadingLabRequest, setDownloadingLabRequest] = useState(false);
   const [downloadingRadiologyRequest, setDownloadingRadiologyRequest] = useState(false);
-  const [downloadingReferral, setDownloadingReferral] = useState<string | null>(null); // State for tracking referral download
+  const [downloadingReferral, setDownloadingReferral] = useState<string | null>(null);
 
   const handleFileChange = ({ target }: ChangeEvent<HTMLInputElement>, labId: string): void => {
     const file = target.files?.[0];
@@ -216,7 +216,7 @@ const PatientConsultationView = (): JSX.Element => {
       test.testName === testName ? { ...test, fileUrl: payload as string } : test,
     );
     if (updatedTests) {
-      const radiology = { ...consultationDetails!.radiology!, tests: updatedTests };
+      const radiology = { ...consultationDetails!.radiology, tests: updatedTests };
       setConsultationDetails({ ...consultationDetails!, radiology });
     }
     setSelectedRadiologyFiles((prev) => ({ ...prev, [key]: null }));
@@ -675,7 +675,7 @@ const PatientConsultationView = (): JSX.Element => {
             {consultationDetails?.referrals && consultationDetails.referrals.length > 0 ? (
               consultationDetails.referrals.map((referral, index) => (
                 <div
-                  key={index}
+                  key={`${index}-${referral.doctorName}`}
                   className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
                 >
                   <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">

@@ -272,8 +272,6 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         ref={ref}
         title="Laboratory Request"
         description="Select laboratory tests for the patient. Changes are saved when you click Save and Preview."
-        data={labs}
-        selectedTests={selectedTests}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onClearSelections={() => {
