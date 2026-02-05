@@ -10,11 +10,9 @@ export interface InvestigationBaseRef {
   hasUnsavedChanges: boolean;
 }
 
-interface InvestigationBaseProps<TData, TTest> {
+interface InvestigationBaseProps {
   title: string;
   description: string;
-  data: TData | null;
-  selectedTests: TTest[] | Map<string, { category: string; categoryType: string }>;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onClearSelections: () => void;
@@ -34,8 +32,8 @@ interface InvestigationBaseProps<TData, TTest> {
   previewButtonText?: string;
 }
 
-function InvestigationBase<TData, TTest>(
-  props: InvestigationBaseProps<TData, TTest>,
+function InvestigationBase(
+  props: InvestigationBaseProps,
   ref: React.Ref<InvestigationBaseRef>,
 ): JSX.Element {
   const {
@@ -97,7 +95,12 @@ function InvestigationBase<TData, TTest>(
         content={
           <div className="h-full w-full">
             {pdfUrl ? (
-              <iframe src={pdfUrl} className="mt-5 h-full w-full" />
+              <iframe
+                title="Investigation pdf"
+                id="investigation-pdf"
+                src={pdfUrl}
+                className="mt-5 h-full w-full"
+              />
             ) : (
               <div className="flex h-full items-center justify-center">Loading PDF...</div>
             )}
@@ -166,7 +169,7 @@ function InvestigationBase<TData, TTest>(
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-blue-900">
-                  {selectedCount} test{selectedCount !== 1 ? 's' : ''} selected
+                  {selectedCount} test{selectedCount === 1 ? '' : 's'} selected
                 </span>
                 <button
                   type="button"
@@ -194,6 +197,6 @@ function InvestigationBase<TData, TTest>(
   );
 }
 
-export default React.forwardRef(InvestigationBase) as <TData, TTest>(
-  props: InvestigationBaseProps<TData, TTest> & { ref?: React.Ref<InvestigationBaseRef> },
+export default React.forwardRef(InvestigationBase) as (
+  props: InvestigationBaseProps & { ref?: React.Ref<InvestigationBaseRef> },
 ) => JSX.Element;

@@ -32,7 +32,6 @@ export const TestItem = ({
   </div>
 );
 
-// Generic SubCategorySection
 export type SubCategorySectionProps<TTest> = {
   subCategory: string;
   tests: string[];
@@ -49,7 +48,7 @@ export function SubCategorySection<TTest>({
   selectedTests,
   onToggleTest,
   isTestSelected,
-}: SubCategorySectionProps<TTest>): JSX.Element {
+}: Readonly<SubCategorySectionProps<TTest>>): JSX.Element {
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
@@ -85,7 +84,7 @@ export function MainCategorySection<TTest>({
   onToggleTest,
   isTestSelected,
   additionalContent,
-}: MainCategorySectionProps<TTest>): JSX.Element {
+}: Readonly<MainCategorySectionProps<TTest>>): JSX.Element {
   return (
     <div className="border-b last:border-b-0">
       <div className="sticky top-0 z-10 bg-gray-50 px-4 py-3">
