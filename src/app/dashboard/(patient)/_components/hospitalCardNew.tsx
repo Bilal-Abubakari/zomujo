@@ -116,8 +116,8 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
             </DropdownMenu>
           </div>
 
-          {/* Frosted Glass Overlay with Content - Bottom 50% */}
-          <div className="absolute bottom-0 left-0 right-0 z-10 h-[50%] overflow-hidden">
+          {/* Frosted Glass Overlay with Content - Bottom 60% */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 h-[60%] overflow-hidden">
             {/* Solid white background layer extending slightly beyond to cover rounded corners */}
             <div className="absolute -bottom-1 -left-1 -right-1 top-0 bg-white rounded-b-2xl sm:rounded-b-3xl"></div>
             
@@ -133,19 +133,19 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
               {/* Content on Frosted Glass */}
               <div className="flex h-full flex-col justify-between px-3 py-2.5 sm:px-4 sm:py-4 md:px-5 md:py-5 relative z-20">
                 {/* Top Section - Title and Description */}
-                <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-                  <h3 className="mb-1.5 sm:mb-2 text-lg sm:text-xl font-bold text-gray-900 line-clamp-2 leading-tight">
+                <div className="flex-1 min-w-0 flex flex-col overflow-hidden min-h-0">
+                  <h3 className="mb-1.5 sm:mb-2 text-lg sm:text-xl font-bold text-gray-900 line-clamp-2 leading-tight break-words">
                     {name}
                   </h3>
                   {description && (
-                    <p className="text-xs sm:text-sm leading-relaxed text-gray-600 line-clamp-2 sm:line-clamp-3 break-words">
+                    <p className="text-xs sm:text-sm leading-relaxed text-gray-600 line-clamp-3 sm:line-clamp-4 break-words min-h-0">
                       {description}
                     </p>
                   )}
                 </div>
 
                 {/* Bottom Section - Location, Button, and Badges */}
-                <div className="space-y-2 sm:space-y-3 pt-2">
+                <div className="space-y-2 sm:space-y-3 pt-2 flex-shrink-0">
                   {/* Location Row */}
                   {primaryAddress && (primaryAddress.city || primaryAddress.state) && (
                     <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 min-w-0">
