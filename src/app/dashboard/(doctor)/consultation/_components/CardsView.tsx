@@ -6,22 +6,27 @@ import { MedicationsTakenCard } from './MedicationsTakenCard';
 import { LabTestsCard } from './LabTestsCard';
 import { RadiologyTestsCard } from './RadiologyTestsCard';
 import { DiagnosisCard } from './DiagnosisCard';
+import { PrescriptionsCard } from './PrescriptionsCard';
+import { ReferralsCard } from './ReferralsCard';
 import { IAppointment } from '@/types/appointment.interface';
-import { ILab } from '@/types/labs.interface';
+import { ILaboratoryRequest } from '@/types/labs.interface';
 import { IRadiology } from '@/types/radiology.interface';
-import { IDiagnosis } from '@/types/medical.interface';
-import { IPatientSymptomMap } from '@/types/consultation.interface';
+import { IDiagnosis, IPrescription } from '@/types/medical.interface';
+import { IPatientSymptomMap, IReferral } from '@/types/consultation.interface';
 
 interface CardsViewProps {
   appointment: IAppointment | null | undefined;
   complaints: string[] | undefined;
   symptoms?: IPatientSymptomMap;
-  requestedLabs: ILab[] | undefined;
-  conductedLabs: ILab[] | undefined;
+  requestedLabs: ILaboratoryRequest[] | undefined;
+  conductedLabs: ILaboratoryRequest[] | undefined;
   radiology: IRadiology | undefined;
   requestedRadiology: IRadiology | null;
   conductedRadiology: IRadiology | null;
   diagnoses: IDiagnosis[];
+  prescriptions: IPrescription[];
+  referrals: IReferral[];
+  onRemoveReferral?: (index: number) => void;
   doctorName: string;
 }
 
@@ -35,6 +40,9 @@ export const CardsView = ({
   requestedRadiology,
   conductedRadiology,
   diagnoses,
+  prescriptions,
+  referrals,
+  onRemoveReferral,
   doctorName,
 }: CardsViewProps): JSX.Element => (
   <>
@@ -44,6 +52,8 @@ export const CardsView = ({
         <ChiefComplaintsCard complaints={complaints} appointment={appointment} />
         <SymptomsCard symptoms={symptoms} />
         <MedicationsTakenCard medicinesTaken={appointment?.symptoms?.medicinesTaken} />
+        <PrescriptionsCard prescriptions={prescriptions} />
+        <ReferralsCard referrals={referrals} onRemove={onRemoveReferral} />
       </div>
 
       {/* Right Column */}

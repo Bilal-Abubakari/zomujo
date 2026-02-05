@@ -10,10 +10,11 @@ import {
   selectPatientSymptoms,
   selectRequestedLabs,
   selectRequestedRadiology,
+  selectPrescriptions,
 } from '@/lib/features/appointments/appointmentSelector';
 import { FileText, LayoutGrid } from 'lucide-react';
 import { selectUserName } from '@/lib/features/auth/authSelector';
-import { IPatientSymptomMap, SymptomsType } from '@/types/consultation.interface';
+import { IPatientSymptomMap, SymptomsType, IReferral } from '@/types/consultation.interface';
 import { capitalize, showErrorToast } from '@/lib/utils';
 import { Modal } from '@/components/ui/dialog';
 import Signature from '@/components/signature/signature';
@@ -32,10 +33,11 @@ import { CardsView } from './CardsView';
 import { DoctorNotesView } from './DoctorNotesView';
 import { IncompleteConsultationModal } from './IncompleteConsultationModal';
 import { PrescriptionNotesModal } from './PrescriptionNotesModal';
+import { ReferralModal } from './ReferralModal';
 import { IAppointment } from '@/types/appointment.interface';
-import { ILab } from '@/types/labs.interface';
+import { ILaboratoryRequest } from '@/types/labs.interface';
 import { IRadiology } from '@/types/radiology.interface';
-import { IDiagnosis } from '@/types/medical.interface';
+import { IDiagnosis, IPrescription } from '@/types/medical.interface';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
@@ -49,6 +51,7 @@ const ReviewConsultation = ({
   const router = useRouter();
   const doctorSignature = useAppSelector(selectDoctorSignature);
   const diagnoses = useAppSelector(selectDiagnoses);
+  const prescriptions = useAppSelector(selectPrescriptions); // Imported selectPrescriptions
   const complaints = useAppSelector(selectComplaints);
   const doctorName = useAppSelector(selectUserName);
   const symptoms = useAppSelector(selectPatientSymptoms);
@@ -64,6 +67,8 @@ const ReviewConsultation = ({
   const [showIncompleteModal, setShowIncompleteModal] = useState(false);
   const [isStartingConsultation, setIsStartingConsultation] = useState(false);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [showReferralModal, setShowReferralModal] = useState(false); // Add state
+  const [referrals, setReferrals] = useState<IReferral[]>([]); // Add state for referrals
   const [prescriptionNotes, setPrescriptionNotes] = useState('');
   const [doctorNotes, setDoctorNotes] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'notes'>('cards');
@@ -145,7 +150,10 @@ const ReviewConsultation = ({
     return lines.join('');
   };
 
-  const generateLabs = (requestedLabs?: ILab[], conductedLabs?: ILab[]): string => {
+  const generateLabs = (
+    requestedLabs?: ILaboratoryRequest[],
+    conductedLabs?: ILaboratoryRequest[],
+  ): string => {
     if (
       (!requestedLabs || requestedLabs.length === 0) &&
       (!conductedLabs || conductedLabs.length === 0)
@@ -227,25 +235,49 @@ const ReviewConsultation = ({
     return lines.join('');
   };
 
-  const generateDiagnoses = (diagnoses: IDiagnosis[]): string => {
-    if (!diagnoses || diagnoses.length === 0) {
-      return '';
+  const generateDiagnosesAndTreatment = (
+    diagnoses: IDiagnosis[],
+    prescriptions: IPrescription[],
+    referrals: IReferral[],
+  ): string => {
+    const lines: string[] = [];
+    if (diagnoses && diagnoses.length > 0) {
+      lines.push(`DIAGNOSIS:\n`);
+      diagnoses.forEach(({ name, status, notes }) => {
+        let line = `• ${name} (${status})`;
+        if (notes) {
+          line += `\n  Notes: ${notes}`;
+        }
+        lines.push(line + '\n');
+      });
+      lines.push('\n');
     }
-    const lines: string[] = [`ASSESSMENT AND DIAGNOSIS:\n`];
-    diagnoses.forEach(({ name, prescriptions, notes }, index: number) => {
-      let diagnosisText = `${index + 1}. ${name}\n`;
-      if (notes) {
-        diagnosisText += `   Notes: ${notes}\n`;
-      }
-      if (prescriptions && prescriptions.length > 0) {
-        diagnosisText += `   Treatment Plan:\n`;
-        prescriptions.forEach(({ name: drugName, doses, doseRegimen, numOfDays, route }) => {
-          diagnosisText += `   • ${drugName} ${doses} - ${doseRegimen} for ${numOfDays} days (${route})\n`;
-        });
-      }
-      diagnosisText += '\n';
-      lines.push(diagnosisText);
-    });
+
+    if (prescriptions && prescriptions.length > 0) {
+      lines.push(`TREATMENT / PRESCRIPTIONS:\n`);
+      prescriptions.forEach(({ name, doses, route, doseRegimen, numOfDays }) => {
+        lines.push(`• ${name} ${doses} via ${route} (${doseRegimen}) for ${numOfDays} days\n`);
+      });
+      lines.push('\n');
+    }
+
+    if (referrals && referrals.length > 0) {
+      lines.push(`REFERRALS:\n`);
+      referrals.forEach((referral) => {
+        if (referral.type === 'internal' && referral.doctor) {
+          lines.push(
+            `• Referred to Dr. ${referral.doctor.firstName} ${referral.doctor.lastName} (${referral.doctor.specializations?.[0] || 'General'}) at ${'Zomujo Platform'}\n`,
+          );
+        } else {
+          lines.push(`• Referred to ${referral.doctorName} at ${referral.facility}\n`);
+          if (referral.notes) {
+            lines.push(`  Note: ${referral.notes}\n`);
+          }
+        }
+      });
+      lines.push('\n');
+    }
+
     return lines.join('');
   };
 
@@ -277,7 +309,11 @@ const ReviewConsultation = ({
       generateMedications(appointment),
       generateLabs(requestedLabs, conductedLabs),
       generateRadiology(radiology),
-      generateDiagnoses(diagnoses),
+      generateDiagnosesAndTreatment(
+        diagnoses,
+        prescriptions || appointment.prescriptions,
+        referrals,
+      ),
       generatePlan(),
       generateSignature(doctorName),
     ].join('');
@@ -289,6 +325,8 @@ const ReviewConsultation = ({
     conductedLabs,
     radiology,
     diagnoses,
+    prescriptions,
+    referrals,
     doctorName,
   ]);
 
@@ -339,10 +377,34 @@ const ReviewConsultation = ({
 
   // Generate doctor's notes when appointment data is available
   useEffect(() => {
-    if (appointment && !doctorNotes) {
-      setDoctorNotes(appointment.notes || generateDoctorNotes());
+    if (appointment && doctorName) {
+      const notes = [
+        generateHeader(appointment, doctorName),
+        generateChiefComplaints(appointment, complaints),
+        generateSymptoms(symptoms),
+        generateMedications(appointment),
+        generateLabs(requestedLabs, conductedLabs),
+        generateRadiology(radiology),
+        generateDiagnosesAndTreatment(
+          diagnoses,
+          prescriptions || appointment.prescriptions,
+          referrals,
+        ),
+      ].join('');
+      setDoctorNotes(notes);
     }
-  }, [appointment, doctorNotes, generateDoctorNotes]);
+  }, [
+    appointment,
+    doctorName,
+    complaints,
+    symptoms,
+    requestedLabs,
+    conductedLabs,
+    radiology,
+    diagnoses,
+    prescriptions,
+    referrals,
+  ]);
 
   return (
     <>
@@ -378,6 +440,12 @@ const ReviewConsultation = ({
         }}
       />
 
+      <ReferralModal
+        open={showReferralModal}
+        onClose={() => setShowReferralModal(false)}
+        onSave={(referral) => setReferrals((prev) => [...prev, referral])}
+      />
+
       <div className="space-y-6 pb-20">
         <ReviewHeader
           isPastConsultation={isPastConsultation}
@@ -386,6 +454,7 @@ const ReviewConsultation = ({
           isSendingPrescription={isSendingPrescription}
           onSignatureToggle={() => setAddSignature((prev) => !prev)}
           onSendPrescription={() => setShowPrescriptionModal(true)}
+          onAddReferral={() => setShowReferralModal(true)} // Pass onAddReferral
         />
 
         {!isPastConsultation && (
@@ -408,18 +477,32 @@ const ReviewConsultation = ({
           </TabsList>
 
           <TabsContent value="cards" className="mt-6">
-            <CardsView
-              appointment={appointment}
-              complaints={complaints}
-              symptoms={symptoms}
-              requestedLabs={requestedLabs}
-              conductedLabs={conductedLabs}
-              radiology={radiology}
-              requestedRadiology={requestedRadiology}
-              conductedRadiology={conductedRadiology}
-              diagnoses={diagnoses}
-              doctorName={doctorName}
-            />
+            {viewMode === 'cards' ? (
+              <CardsView
+                doctorName={doctorName}
+                complaints={complaints}
+                symptoms={symptoms}
+                appointment={appointment}
+                requestedLabs={requestedLabs}
+                conductedLabs={conductedLabs}
+                radiology={radiology}
+                requestedRadiology={requestedRadiology}
+                conductedRadiology={conductedRadiology}
+                diagnoses={diagnoses}
+                prescriptions={prescriptions || appointment?.prescriptions || []}
+                referrals={referrals} // Pass referrals
+                onRemoveReferral={(index) =>
+                  setReferrals((prev) => prev.filter((_, i) => i !== index))
+                } // Pass remove handler
+              />
+            ) : (
+              <DoctorNotesView
+                doctorNotes={doctorNotes}
+                onNotesChange={setDoctorNotes}
+                appointmentId={appointment?.id ?? ''}
+                onResetNotes={() => setDoctorNotes(appointment?.notes || generateDoctorNotes())} // Fix props mismatch
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="notes" className="mt-6">

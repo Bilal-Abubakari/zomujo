@@ -256,7 +256,7 @@ export default function Layout({
           <SidebarLayout />
           <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-4 2xl:px-6">
             <Toolbar />
-            <div ref={scrollContainerRef} className="flex-1 overflow-auto">
+            <div ref={scrollContainerRef} className="min-h-fit flex-1 overflow-auto">
               {children}
             </div>
           </main>

@@ -1,9 +1,10 @@
 import { DurationType } from '@/types/shared.enum';
 import { IExtraBase } from '@/types/shared.interface';
-import { IMedicineWithoutId, IDiagnosis } from '@/types/medical.interface';
-import { IPatientLab } from '@/types/labs.interface';
+import { IMedicineWithoutId, IDiagnosis, IPrescription } from '@/types/medical.interface';
+import { ILaboratoryRequest } from '@/types/labs.interface';
 import { ISlot } from '@/types/slots.interface';
 import { IRadiology } from '@/types/radiology.interface';
+import { IDoctor } from './doctor.interface';
 
 interface IName {
   name: string;
@@ -41,9 +42,11 @@ export interface IConsultationDetails {
   doctor: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
   patient: Pick<IExtraBase, 'firstName' | 'lastName' | 'profilePicture'>;
   prescriptionUrl: string;
-  lab: IPatientLab[];
+  lab: ILaboratoryRequest[];
   radiology: IRadiology;
   diagnosis: IDiagnosis[];
+  prescriptions: IPrescription[];
+  referrals: IReferral[];
   slot: ISlot;
 }
 
@@ -67,6 +70,16 @@ export interface IDuration {
   type: DurationType;
 }
 
+export interface IDiagnosisOnlyRequest {
+  diagnoses: Omit<IDiagnosis, 'prescriptions'>[];
+  appointmentId: string;
+}
+
+export interface IPrescriptionRequest {
+  prescriptions: (IPrescription & { appointmentId: string })[];
+  appointmentId: string;
+}
+
 export interface IDiagnosisRequest {
   diagnoses: IDiagnosis[];
   appointmentId: string;
@@ -87,4 +100,18 @@ export interface ConsultationStatusRequest {
 export interface IConsultationAuthRequest {
   appointmentId: string;
   code: string;
+}
+
+export type ReferralType = 'internal' | 'external';
+
+export interface IReferral {
+  id?: string;
+  type: ReferralType;
+  doctorName?: string;
+  facility?: string;
+  email?: string;
+  notes?: string;
+  doctorId?: string;
+  doctor?: IDoctor;
+  createdAt?: string;
 }

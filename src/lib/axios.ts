@@ -63,7 +63,7 @@ axios.interceptors.response.use(
 
 export const axiosErrorHandler = (error: unknown, toast = false): string | Toast => {
   const message = isAxiosError(error)
-    ? (error.response?.data.message ?? networkFailureErrorMessage)
+    ? (error.response?.data.message ?? error.message ?? networkFailureErrorMessage)
     : error instanceof Error
       ? error.message
       : networkFailureErrorMessage;

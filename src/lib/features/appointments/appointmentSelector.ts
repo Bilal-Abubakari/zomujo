@@ -11,6 +11,11 @@ export const selectAppointment = createSelector(
   (appointments) => appointments.appointment,
 );
 
+export const selectIsLoading = createSelector(
+  selectAppointments,
+  (appointments) => appointments.isLoading,
+);
+
 export const consultationStatus = createSelector(
   selectAppointment,
   (appointment) => appointment?.status,
@@ -50,21 +55,23 @@ export const selectAppointmentLabs = createSelector(
   (appointment) => appointment?.lab,
 );
 
-export const selectConductedLabs = createSelector(selectAppointmentLabs, (labs) =>
-  labs?.filter(({ fileUrl }) => !!fileUrl),
+export const selectLabIds = createSelector(selectAppointmentLabs, (lab) =>
+  lab?.data?.map((l) => l.id),
 );
 
-export const selectRequestedLabs = createSelector(selectAppointmentLabs, (labs) =>
-  labs?.filter(({ status }) => status === RequestStatus.Pending),
+export const selectConductedLabs = createSelector(
+  selectAppointmentLabs,
+  (lab) => lab?.data?.filter((test) => !!test.fileUrl) || [],
 );
 
-export const selectLabIds = createSelector(selectAppointmentLabs, (labs) =>
-  labs?.map(({ id }) => id),
+export const selectRequestedLabs = createSelector(
+  selectAppointmentLabs,
+  (lab) => lab?.data?.filter((test) => !test.fileUrl) || [],
 );
 
-export const selectIsLoading = createSelector(
-  selectAppointments,
-  (appointments) => appointments.isLoading,
+export const selectPrescriptions = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.prescriptions ?? [],
 );
 
 export const selectDiagnoses = createSelector(
