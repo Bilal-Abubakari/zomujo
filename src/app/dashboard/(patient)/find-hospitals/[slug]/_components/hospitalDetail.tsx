@@ -95,14 +95,36 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
   const logoImage = images?.find((img) => img.type === 'logo');
   const photoImages = images?.filter((img) => img.type === 'photo') || [];
 
+  // Map known insurance companies to their static logo assets in /public/images/insurance
+  const insuranceLogoMap: Record<string, string> = {
+    nhis: '/images/insurance/nhis.jpeg',
+    acacia: '/images/insurance/acacia.jpeg',
+    ace: '/images/insurance/ace.png',
+    apex: '/images/insurance/apex.png',
+    cosmopolitan: '/images/insurance/cosmopolitan.jpeg',
+    dosh: '/images/insurance/dosh.jpeg',
+    equity: '/images/insurance/equity.jpeg',
+    glico: '/images/insurance/glico.png',
+  };
+
+  // Map known accreditation bodies to their logo assets
+  const accreditationLogoMap: Record<string, string> = {
+    'ministry of health': '/images/insurance/moh.jpeg',
+    'medical council': '/images/insurance/medicalcouncil.jpeg',
+  };
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
-    <div className="flex flex-col gap-8 pb-8 pr-4">
+    <div className="flex flex-col gap-6 pb-8">
       {/* Back Button - Fixed at top like notification bell */}
-      <div 
-        className="fixed top-[56px] z-30 bg-grayscale-100 px-4 py-3 2xl:px-6" 
-        style={{ 
-          left: 'max(1rem, calc(var(--sidebar-width, 16.563rem) + 1rem))',
-          right: '1rem',
+      <div
+        className="fixed top-[56px] z-30 bg-grayscale-100 px-3 py-2 sm:px-4 sm:py-3 2xl:px-6"
+        style={{
+          left: isMobile
+            ? '0.75rem'
+            : 'max(1rem, calc(var(--sidebar-width, 16.563rem) + 1rem))',
+          right: '0.75rem',
         }}
       >
         <Button
@@ -117,17 +139,16 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           className="w-fit text-gray-600 hover:text-gray-900"
         />
       </div>
-      
       {/* Spacer to prevent content from going under fixed button */}
-      <div className="h-[56px]"></div>
+      <div className="h-[52px] sm:h-[56px]" />
 
-      {/* Header Section - Enhanced with Card Inspiration */}
-      <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition-all duration-300 hover:shadow-2xl">
+      {/* Header Section */}
+      <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white">
         {/* Hero Section with Gradient Background - Inspired by Card */}
-        <div className="relative bg-gradient-to-br from-purple-100 via-blue-100 to-indigo-100 px-8 py-10">
+        <div className="relative bg-gradient-to-br from-purple-100 via-blue-100 to-indigo-100 px-4 py-6 sm:px-8 sm:py-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-start">
             {logoImage && (
-              <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-2xl border-4 border-white shadow-xl">
+              <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-2xl border-4 border-white">
                 <Image
                   src={logoImage.url}
                   alt={name}
@@ -146,7 +167,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                 )}
               </div>
               <div className="flex flex-wrap gap-3">
-                <span className="rounded-xl border-2 border-purple-300 bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-md capitalize">
+                <span className="rounded-xl border-2 border-purple-300 bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 capitalize">
                   {organizationType}
                 </span>
                 {hasEmergency && (
@@ -177,7 +198,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           {mainPhone && (
             <a
               href={`tel:${mainPhone}`}
-              className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 transition-all hover:border-blue-300 hover:bg-blue-50 hover:shadow-md"
+              className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-200">
                 <Phone size={20} />
@@ -191,7 +212,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           {mainEmail && (
             <a
               href={`mailto:${mainEmail}`}
-              className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 transition-all hover:border-green-300 hover:bg-green-50 hover:shadow-md"
+              className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600 transition-colors group-hover:bg-green-200">
                 <Mail size={20} />
@@ -207,7 +228,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
               href={website}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 transition-all hover:border-purple-300 hover:bg-purple-50 hover:shadow-md"
+              className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-600 transition-colors group-hover:bg-purple-200">
                 <Globe size={20} />
@@ -223,9 +244,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         </div>
       </div>
 
-      {/* Images Gallery - Enhanced with Card Inspiration */}
+      {/* Images Gallery */}
       {photoImages.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
               <Tag size={20} />
@@ -236,13 +257,13 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
             {photoImages.map((img) => (
               <div
                 key={img.id}
-                className="group relative aspect-square overflow-hidden rounded-3xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+                className="relative aspect-square overflow-hidden rounded-3xl"
               >
                 <Image
                   src={img.url}
                   alt={name}
                   fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="object-cover"
                 />
               </div>
             ))}
@@ -250,9 +271,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         </div>
       )}
 
-      {/* Addresses - Enhanced with Card Inspiration */}
+      {/* Addresses */}
       {addresses && addresses.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-600">
               <MapPin size={20} />
@@ -263,7 +284,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
             {addresses.map((address) => (
               <div
                 key={address.id}
-                className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-sm transition-all duration-300 hover:border-purple-300 hover:shadow-lg"
+                className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6"
               >
                 {address.label && (
                   <h3 className="mb-3 text-lg font-semibold text-gray-900">{address.label}</h3>
@@ -314,9 +335,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         </div>
       )}
 
-      {/* Opening Hours - Enhanced with Card Inspiration */}
+      {/* Opening Hours */}
       {openingHours && openingHours.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
               <Clock size={20} />
@@ -328,7 +349,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
               {openingHours.map((hour) => (
                 <div
                   key={hour.id}
-                  className="flex items-center justify-between rounded-lg bg-white px-4 py-3 shadow-sm"
+                  className="flex items-center justify-between rounded-lg bg-white px-4 py-3"
                 >
                   <span className="capitalize font-semibold text-gray-900">{hour.weekday}</span>
                   <span
@@ -355,9 +376,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         </div>
       )}
 
-      {/* Services - Enhanced with Card Inspiration */}
+      {/* Services */}
       {services && services.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600">
               <Stethoscope size={20} />
@@ -368,7 +389,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
             {services.map((service) => (
               <div
                 key={service.id}
-                className="group rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-5 shadow-sm transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:scale-[1.01]"
+                className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-5"
               >
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">{service.service.name}</h3>
@@ -400,9 +421,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         </div>
       )}
 
-      {/* Amenities - Enhanced with Card Inspiration */}
+      {/* Amenities */}
       {amenities && amenities.length > 0 && (
-        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
+        <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
               <CheckCircle2 size={20} />
@@ -413,7 +434,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
             {amenities.map((amenity) => (
               <div
                 key={amenity.id}
-                className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white px-4 py-3 transition-all duration-300 hover:border-purple-300 hover:shadow-md hover:scale-[1.02]"
+                className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white px-4 py-3"
               >
                 <CheckCircle2 size={20} className="text-green-600 flex-shrink-0" />
                 <span className="text-sm font-medium text-gray-700">{amenity.name}</span>
@@ -423,9 +444,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         </div>
       )}
 
-      {/* Insurance Networks - Enhanced */}
+      {/* Insurance Networks */}
       {insuranceNetworks && insuranceNetworks.length > 0 && (
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+        <div className="rounded-2xl border border-gray-200 bg-white p-8">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
               <Shield size={20} />
@@ -433,34 +454,104 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
             <h2 className="text-2xl font-bold text-gray-900">Accepted Insurance</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {insuranceNetworks.map((network) => (
-              <div
-                key={network.id}
-                className="group flex items-center gap-4 rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:scale-[1.02]"
-              >
-                {network.insuranceCompany.logo && (
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 border-gray-200 bg-white p-1">
-                    <Image
-                      src={network.insuranceCompany.logo}
-                      alt={network.insuranceCompany.name}
-                      fill
-                      className="object-contain"
-                    />
+            {insuranceNetworks.map((network) => {
+              const codeKey = network.insuranceCompany.code?.toLowerCase() || '';
+              const nameKey = network.insuranceCompany.name?.toLowerCase() || '';
+              const mappedLogo =
+                insuranceLogoMap[codeKey] || insuranceLogoMap[nameKey];
+              const logoSrc = mappedLogo || network.insuranceCompany.logo;
+              const isPrivateGroup =
+                nameKey === 'private health insurance' || codeKey === 'private';
+
+              // Special handling: for the generic "Private Health Insurance" entry,
+              // show all the specific private insurance logos so users see the exact insurers.
+              if (isPrivateGroup) {
+                const privateInsurers = [
+                  { key: 'acacia', label: 'Acacia Health Insurance Limited' },
+                  { key: 'ace', label: 'Ace Medical Insurance' },
+                  { key: 'apex', label: 'Apex Health Insurance Limited' },
+                  { key: 'cosmopolitan', label: 'Cosmopolitan Health Insurance Limited' },
+                  { key: 'dosh', label: 'Dosh Health Insurance Company Ltd' },
+                  { key: 'equity', label: 'Equity Health Insurance Limited' },
+                  { key: 'glico', label: 'GLICO Healthcare Limited' },
+                ];
+
+                return (
+                  <div
+                    key={network.id}
+                    className="flex flex-col gap-3 rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4"
+                  >
+                    <span className="font-semibold text-gray-900">
+                      Private Health Insurance
+                    </span>
+                    <div className="flex flex-wrap gap-3">
+                      {privateInsurers.map((insurer) => {
+                        const src = insuranceLogoMap[insurer.key];
+                        return (
+                          <div
+                            key={insurer.key}
+                            className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-2"
+                          >
+                            {src && (
+                              <div className="relative h-8 w-8 overflow-hidden rounded-md bg-white">
+                                <Image
+                                  src={src}
+                                  alt={insurer.label}
+                                  fill
+                                  className="object-contain"
+                                />
+                              </div>
+                            )}
+                            <span className="text-xs font-medium text-gray-700">
+                              {insurer.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {network.planNotes && (
+                      <span className="mt-1 text-xs text-gray-500">
+                        {network.planNotes}
+                      </span>
+                    )}
                   </div>
-                )}
-                <div className="flex flex-1 flex-col">
-                  <span className="font-semibold text-gray-900">{network.insuranceCompany.name}</span>
-                  {network.planNotes && (
-                    <span className="mt-1 text-xs text-gray-500">{network.planNotes}</span>
+                );
+              }
+
+              // Default: show the single insurer with its logo
+              return (
+                <div
+                  key={network.id}
+                  className="flex items-center gap-4 rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4"
+                >
+                  {logoSrc && (
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 border-gray-200 bg-white p-1">
+                      <Image
+                        src={logoSrc}
+                        alt={network.insuranceCompany.name}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                   )}
+                  <div className="flex flex-1 flex-col">
+                    <span className="font-semibold text-gray-900">
+                      {network.insuranceCompany.name}
+                    </span>
+                    {network.planNotes && (
+                      <span className="mt-1 text-xs text-gray-500">
+                        {network.planNotes}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Accreditations - Enhanced with Card Inspiration */}
+      {/* Accreditations */}
       {accreditations && (() => {
         // Parse accreditations - handle both object with accreditations array and direct array
         let accreditationsList: any[] = [];
@@ -490,7 +581,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
         if (accreditationsList.length === 0) return null;
 
         return (
-          <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10 shadow-lg transition-all duration-300 hover:shadow-2xl">
+          <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
             <div className="mb-6 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-teal-600">
                 <Shield size={20} />
@@ -499,17 +590,33 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {accreditationsList.map((acc: any, index: number) => {
-                const body = acc.body || acc.name || acc.title || (typeof acc === 'string' ? acc : 'Accreditation');
+                const body =
+                  acc.body ||
+                  acc.name ||
+                  acc.title ||
+                  (typeof acc === 'string' ? acc : 'Accreditation');
                 const date = acc.date || acc.issuedDate || acc.year;
+                const bodyKey = typeof body === 'string' ? body.toLowerCase() : '';
+                const logoSrc = accreditationLogoMap[bodyKey];
                 
                 return (
                   <div
                     key={index}
-                    className="group rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-teal-50 p-5 shadow-sm transition-all duration-300 hover:border-teal-300 hover:shadow-md"
+                    className="rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-teal-50 p-5"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-600 transition-colors group-hover:bg-teal-200">
-                        <CheckCircle2 size={20} />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-600 transition-colors group-hover:bg-teal-200 overflow-hidden">
+                        {logoSrc ? (
+                          <Image
+                            src={logoSrc}
+                            alt={body}
+                            width={32}
+                            height={32}
+                            className="object-contain"
+                          />
+                        ) : (
+                          <CheckCircle2 size={20} />
+                        )}
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{body}</h3>
