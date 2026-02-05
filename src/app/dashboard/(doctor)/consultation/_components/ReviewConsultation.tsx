@@ -33,7 +33,7 @@ import { CardsView } from './CardsView';
 import { DoctorNotesView } from './DoctorNotesView';
 import { IncompleteConsultationModal } from './IncompleteConsultationModal';
 import { PrescriptionNotesModal } from './PrescriptionNotesModal';
-import { ReferralModal } from './ReferralModal'; // Import
+import { ReferralModal } from './ReferralModal';
 import { IAppointment } from '@/types/appointment.interface';
 import { ILaboratoryRequest } from '@/types/labs.interface';
 import { IRadiology } from '@/types/radiology.interface';
@@ -41,7 +41,6 @@ import { IDiagnosis, IPrescription } from '@/types/medical.interface';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
-  updateReview?: ((show: boolean) => void) | boolean; // Updated prop type or just unused for now if logic moved
 }
 
 const ReviewConsultation = ({

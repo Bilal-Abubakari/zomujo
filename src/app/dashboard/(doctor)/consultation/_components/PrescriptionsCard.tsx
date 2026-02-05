@@ -27,7 +27,7 @@ export const PrescriptionsCard = ({ prescriptions }: PrescriptionsCardProps): JS
       {prescriptions && prescriptions.length > 0 ? (
         <div className="space-y-4">
           {prescriptions.map((p, index) => (
-            <div key={index} className="rounded-md border bg-white p-3 shadow-sm">
+            <div key={`${index}-${p.name}`} className="rounded-md border bg-white p-3 shadow-sm">
               <p className="font-semibold">{p.name}</p>
               <p className="text-sm text-gray-500">
                 {p.doses} - {p.route} - {p.doseRegimen} for {p.numOfDays} days

@@ -30,7 +30,7 @@ export const ReferralsCard = ({ referrals, onRemove }: ReferralsCardProps): JSX.
         <div className="space-y-3">
           {referrals.map((referral, index) => (
             <div
-              key={index}
+              key={`${index}-${referral.type}-${referral.doctorName}`}
               className="flex flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm"
             >
               <div className="flex items-start justify-between">

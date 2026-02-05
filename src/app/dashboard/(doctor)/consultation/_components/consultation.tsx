@@ -217,7 +217,7 @@ const Consultation = (): JSX.Element => {
           />
         );
       case 'review':
-        return <ReviewConsultation updateReview={showEndConsultationAuthDialog} />;
+        return <ReviewConsultation />;
       case 'history':
       default:
         return (
@@ -245,7 +245,7 @@ const Consultation = (): JSX.Element => {
       getConsultationAppointment(String(params.appointmentId)),
     ).unwrap();
     if (showErrorToast(payload)) {
-      toast(payload as Toast);
+      toast(payload);
     }
     setIsLoadingConsultation(false);
   };
