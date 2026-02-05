@@ -26,7 +26,7 @@ export const radiologySchema = z.object({
   procedureRequest: z
     .string()
     .min(5, 'Examination/Procedure Request is required (minimum 5 characters)'),
-  history: z.string().min(5, 'History/Relevant/Symptoms is required (minimum 5 characters)'),
+  history: z.string().min(5, 'History/Relevant Symptoms is required (minimum 5 characters)'),
   questions: z
     .array(requiredStringSchema())
     .max(3, 'Maximum 3 questions allowed')

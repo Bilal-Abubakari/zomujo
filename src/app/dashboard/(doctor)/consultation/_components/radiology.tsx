@@ -91,7 +91,6 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
       if (rads.length > 0) {
         const latest = rads[0];
         setValue('tests', latest.tests || []);
-        setValue('procedureRequest', latest.procedureRequest || '');
         setValue('history', latest.history || '');
         setValue(
           'questions',
@@ -241,17 +240,6 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
             className="max-h-125 space-y-6 overflow-y-auto"
           >
             <div className="mb-40 space-y-6">
-              <div>
-                <Label>Examination/Procedure Request</Label>
-                <Textarea
-                  placeholder="Describe the examination or procedure..."
-                  {...register('procedureRequest')}
-                  className={errors.procedureRequest ? 'border-red-500' : ''}
-                />
-                {errors.procedureRequest && (
-                  <p className="text-sm text-red-500">{errors.procedureRequest.message}</p>
-                )}
-              </div>
               <div>
                 <Label>History/Clinical Information</Label>
                 <Textarea
