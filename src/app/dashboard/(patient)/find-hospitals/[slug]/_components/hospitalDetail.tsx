@@ -113,20 +113,10 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
     'medical council': '/images/insurance/medicalcouncil.jpeg',
   };
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
   return (
     <div className="flex flex-col gap-6 pb-8">
-      {/* Back Button - Fixed at top like notification bell */}
-      <div
-        className="fixed top-[56px] z-30 bg-grayscale-100 px-3 py-2 sm:px-4 sm:py-3 2xl:px-6"
-        style={{
-          left: isMobile
-            ? '0.75rem'
-            : 'max(1rem, calc(var(--sidebar-width, 16.563rem) + 1rem))',
-          right: '0.75rem',
-        }}
-      >
+      {/* Back Button - Positioned at top left of content */}
+      <div className="mb-2">
         <Button
           onClick={() => router.back()}
           variant="ghost"
@@ -139,8 +129,6 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           className="w-fit text-gray-600 hover:text-gray-900"
         />
       </div>
-      {/* Spacer to prevent content from going under fixed button */}
-      <div className="h-[52px] sm:h-[56px]" />
 
       {/* Header Section */}
       <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white">
