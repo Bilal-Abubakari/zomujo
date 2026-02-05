@@ -87,44 +87,50 @@ export const ReferralModal = ({ open, onClose, onSave }: ReferralModalProps): JS
     onClose();
   };
 
-  const doctorListContent = loadingDoctors ? (
-    <div className="flex justify-center p-4">
-      <Loader2 className="animate-spin" />
-    </div>
-  ) : doctors.length > 0 ? (
-    doctors.map((doc) => (
-      <button
-        key={doc.id}
-        type="button"
-        onClick={() => setSelectedDoctor(doc)}
-        className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
-          selectedDoctor?.id === doc.id
-            ? 'border-primary bg-primary/5'
-            : 'border-gray-200 hover:bg-gray-50'
-        }`}
-      >
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={doc.profilePicture || ''} />
-          <AvatarFallback>
-            {doc.firstName?.[0]}
-            {doc.lastName?.[0]}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <p className="text-sm font-medium">
-            Dr. {doc.firstName} {doc.lastName}
-          </p>
-          <p className="text-xs text-gray-500">
-            {doc.specializations?.[0] || 'General Practitioner'}
-          </p>
-          {/* <p className="text-xs text-gray-400">{doc.hospital?.name}</p> */}
+  const getDoctorListContent = (): React.ReactNode => {
+    if (loadingDoctors) {
+      return (
+        <div className="flex justify-center p-4">
+          <Loader2 className="animate-spin" />
         </div>
-        {selectedDoctor?.id === doc.id && <Check className="text-primary h-5 w-5" />}
-      </button>
-    ))
-  ) : (
-    <p className="mt-4 text-center text-sm text-gray-500">No doctors found.</p>
-  );
+      );
+    }
+    if (doctors.length > 0) {
+      return doctors.map((doc) => (
+        <button
+          key={doc.id}
+          type="button"
+          onClick={() => setSelectedDoctor(doc)}
+          className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
+            selectedDoctor?.id === doc.id
+              ? 'border-primary bg-primary/5'
+              : 'border-gray-200 hover:bg-gray-50'
+          }`}
+        >
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={doc.profilePicture || ''} />
+            <AvatarFallback>
+              {doc.firstName?.[0]}
+              {doc.lastName?.[0]}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <p className="text-sm font-medium">
+              Dr. {doc.firstName} {doc.lastName}
+            </p>
+            <p className="text-xs text-gray-500">
+              {doc.specializations?.[0] || 'General Practitioner'}
+            </p>
+            {/* <p className="text-xs text-gray-400">{doc.hospital?.name}</p> */}
+          </div>
+          {selectedDoctor?.id === doc.id && <Check className="text-primary h-5 w-5" />}
+        </button>
+      ));
+    }
+    return <p className="mt-4 text-center text-sm text-gray-500">No doctors found.</p>;
+  };
+
+  const doctorListContent = getDoctorListContent();
 
   return (
     <Modal

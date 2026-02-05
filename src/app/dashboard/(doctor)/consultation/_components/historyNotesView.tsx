@@ -148,13 +148,13 @@ const HistoryNotesView = ({
   const storageKey = `consultation_${appointmentId}_history_notes_draft`;
 
   useEffect(() => {
-    if (!initialNotes) {
-      const draft = LocalStorageManager.getJSON<HistoryNotesData>(storageKey);
-      if (draft) {
-        setNotes(draft);
-      }
-    } else {
+    if (initialNotes) {
       setNotes(parseInitialNotes(initialNotes));
+      return;
+    }
+    const draft = LocalStorageManager.getJSON<HistoryNotesData>(storageKey);
+    if (draft) {
+      setNotes(draft);
     }
   }, [initialNotes, storageKey]);
 
