@@ -1,7 +1,6 @@
 import { NotFound } from '@/assets/images';
 import SkeletonDoctorPatientCard from '@/components/skeleton/skeletonDoctorPatientCard';
 import { Button } from '@/components/ui/button';
-import { OptionsMenu } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { PaginationData } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
@@ -12,183 +11,30 @@ import { showErrorToast } from '@/lib/utils';
 import { IHospitalListItem } from '@/types/hospital.interface';
 import { AcceptDeclineStatus, OrderDirection } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
-import { ChevronUp, ListFilter, Search, SendHorizontal, Building2 } from 'lucide-react';
+import { ChevronUp, Search, SendHorizontal } from 'lucide-react';
 import Image from 'next/image';
-import React, { FormEvent, JSX, useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  FormEvent,
+  JSX,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import HospitalCard from '@/app/dashboard/(patient)/_components/hospitalCardNew';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
-import { Combobox } from '@/components/ui/select';
-
-const organizationTypeOptions = [
-  { value: '', label: 'All' },
-  { value: 'private', label: 'Private' },
-  { value: 'public', label: 'Public' },
-  { value: 'teaching', label: 'Teaching' },
-  { value: 'clinic', label: 'Clinic' },
-];
-
-// Accra coordinates as fallback
-const ACCRA_COORDINATES = { lat: 5.6037, lng: -0.187 };
-
-// Extended hospital type with mock data
-type HospitalWithMockData = IHospitalListItem & {
-  mockPrice?: number;
-  mockRating?: number;
-  mockDistance?: number;
-};
-
-// Generate consistent mock data based on hospital ID
-function generateMockData(hospital: IHospitalListItem, index: number): HospitalWithMockData {
-  // Simple fixed price distribution between 50-1000 based on index
-  // This ensures even distribution across the price range
-  const priceStep = 95; // (1000 - 50) / 10 ≈ 95
-  const mockPrice = 50 + index * priceStep;
-
-  // Fixed rating distribution between 2.5-5.0
-  const ratingStep = 0.25; // (5.0 - 2.5) / 10 = 0.25
-  const mockRating = 2.5 + index * ratingStep;
-
-  // Calculate or generate mock distance from Accra
-  let mockDistance: number;
-
-  if (hospital.primaryAddress?.city) {
-    // Rough estimates based on major cities (in km)
-    const cityDistances: Record<string, number> = {
-      accra: 5,
-      kumasi: 250,
-      takoradi: 200,
-      tamale: 600,
-      'cape coast': 150,
-      tema: 30,
-      sunyani: 350,
-      koforidua: 80,
-      ho: 150,
-    };
-
-    const cityName = hospital.primaryAddress.city.toLowerCase();
-    mockDistance = cityDistances[cityName] || 50 + index * 40;
-  } else {
-    // Fixed distance based on index if no city info
-    mockDistance = 10 + index * 50;
-  }
-
-  return {
-    ...hospital,
-    mockPrice: Math.round(mockPrice),
-    mockRating: Math.round(mockRating * 10) / 10,
-    mockDistance: Math.round(mockDistance),
-  };
-}
-
-// Client-side filtering function
-function applyClientSideFilters(
-  hospitals: HospitalWithMockData[],
-  filters: {
-    priceMin?: string;
-    priceMax?: string;
-    rateMin?: string;
-    rateMax?: string;
-    distanceKm?: string;
-  },
-): HospitalWithMockData[] {
-  return hospitals.filter((hospital) => {
-    // Price filter
-    if (
-      filters.priceMin &&
-      hospital.mockPrice &&
-      hospital.mockPrice < Number.parseFloat(filters.priceMin)
-    ) {
-      return false;
-    }
-    if (
-      filters.priceMax &&
-      hospital.mockPrice &&
-      hospital.mockPrice > Number.parseFloat(filters.priceMax)
-    ) {
-      return false;
-    }
-
-    // Rating filter
-    if (
-      filters.rateMin &&
-      hospital.mockRating &&
-      hospital.mockRating < Number.parseFloat(filters.rateMin)
-    ) {
-      return false;
-    }
-    if (
-      filters.rateMax &&
-      hospital.mockRating &&
-      hospital.mockRating > Number.parseFloat(filters.rateMax)
-    ) {
-      return false;
-    }
-
-    // Distance filter
-    if (
-      filters.distanceKm &&
-      hospital.mockDistance &&
-      hospital.mockDistance > Number.parseFloat(filters.distanceKm)
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-}
+import HospitalFilters from './hospitalFilters';
 
 const Hospitals = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
   const [isLoading, setIsLoading] = useState(true);
-  const [hospitals, setHospitals] = useState<HospitalWithMockData[]>([]);
-  const [filteredHospitals, setFilteredHospitals] = useState<HospitalWithMockData[]>([]);
+  const [hospitals, setHospitals] = useState<IHospitalListItem[]>([]);
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-
-  const [filterInputs, setFilterInputs] = useState({
-    priceMin: '',
-    priceMax: '',
-    rateMin: '',
-    rateMax: '',
-    distanceKm: '',
-  });
-  const validationTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-
-  const validateNumber = (value: string): boolean => {
-    if (!value) return true;
-    return !Number.isNaN(Number.parseFloat(value));
-  };
-
-  // Client-side filtering effect for price, rating, and distance
-  React.useEffect(() => {
-    if (validationTimeoutRef.current) clearTimeout(validationTimeoutRef.current);
-    validationTimeoutRef.current = setTimeout(() => {
-      // basic validation
-      if (
-        !validateNumber(filterInputs.priceMin) ||
-        !validateNumber(filterInputs.priceMax) ||
-        !validateNumber(filterInputs.rateMin) ||
-        !validateNumber(filterInputs.rateMax) ||
-        !validateNumber(filterInputs.distanceKm)
-      ) {
-        // don't apply invalid filters
-        return;
-      }
-
-      // Apply client-side filters
-      const filtered = applyClientSideFilters(hospitals, filterInputs);
-      setFilteredHospitals(filtered);
-    }, 300);
-
-    return () => {
-      if (validationTimeoutRef.current) clearTimeout(validationTimeoutRef.current);
-    };
-  }, [filterInputs, hospitals]);
 
   const [queryParameters, setQueryParameters] = useState<
     IQueryParams<AcceptDeclineStatus> & {
@@ -196,20 +42,31 @@ const Hospitals = (): JSX.Element => {
       organizationType?: string;
       hasEmergency?: boolean;
       telemedicine?: boolean;
-      isActive?: boolean;
+      serviceId?: string;
+      departmentId?: string;
+      insuranceCompanyId?: string;
+      languages?: string[];
+      minBedCount?: number;
+      maxBedCount?: number;
     }
   >({
     page: 1,
     orderDirection: OrderDirection.Descending,
     orderBy: 'createdAt',
     search: getQueryParam('search'),
-    pageSize: 20,
+    pageSize: 12,
     status: AcceptDeclineStatus.Accepted,
     isActive: true,
-    city: (getQueryParam as any)('city') || '',
-    organizationType: (getQueryParam as any)('organizationType') || '',
-    hasEmergency: (getQueryParam as any)('hasEmergency') === 'true',
-    telemedicine: (getQueryParam as any)('telemedicine') === 'true',
+    city: getQueryParam('city') || '',
+    organizationType: getQueryParam('organizationType') || '',
+    hasEmergency: getQueryParam('hasEmergency') === 'true' ? true : undefined,
+    telemedicine: getQueryParam('telemedicine') === 'true' ? true : undefined,
+    serviceId: getQueryParam('serviceId') || '',
+    departmentId: getQueryParam('departmentId') || '',
+    insuranceCompanyId: getQueryParam('insuranceCompanyId') || '',
+    languages: getQueryParam('languages') ? getQueryParam('languages').split(',') : undefined,
+    minBedCount: getQueryParam('minBedCount') ? Number(getQueryParam('minBedCount')) : undefined,
+    maxBedCount: getQueryParam('maxBedCount') ? Number(getQueryParam('maxBedCount')) : undefined,
   });
 
   const canLoadMorePages = (): boolean => {
@@ -245,29 +102,7 @@ const Hospitals = (): JSX.Element => {
         return;
       }
       const { rows, ...pagination } = payload as IPagination<IHospitalListItem>;
-
-      // Enrich hospitals with mock data (pass index for fixed price distribution)
-      const enrichedRows = rows.map((hospital, index) => generateMockData(hospital, index));
-
-      // Debug: Log mock data for verification
-      console.log(
-        'Hospitals with mock data:',
-        enrichedRows.map((h) => ({
-          name: h.name,
-          price: h.mockPrice,
-          rating: h.mockRating,
-          distance: h.mockDistance,
-        })),
-      );
-
-      const updatedHospitals =
-        queryParameters.page === 1 ? enrichedRows : [...hospitals, ...enrichedRows];
-      setHospitals(updatedHospitals);
-
-      // Apply client-side filters
-      const filtered = applyClientSideFilters(updatedHospitals, filterInputs);
-      setFilteredHospitals(filtered);
-
+      setHospitals((prev) => (queryParameters.page === 1 ? rows : [...prev, ...rows]));
       setPaginationData(pagination);
       setIsLoading(false);
     }
@@ -313,207 +148,100 @@ const Hospitals = (): JSX.Element => {
     setShowScrollToTop(false);
   }
 
+  const handleFilterChange = (filters: {
+    city?: string;
+    organizationType?: string;
+    hasEmergency?: boolean;
+    telemedicine?: boolean;
+    serviceId?: string;
+    departmentId?: string;
+    insuranceCompanyId?: string;
+    languages?: string[];
+    minBedCount?: number;
+    maxBedCount?: number;
+  }) => {
+    setHospitals([]);
+    setQueryParameters((prev) => ({
+      ...prev,
+      ...filters,
+      page: 1,
+    }));
+  };
+
+  const handleResetFilters = () => {
+    setHospitals([]);
+    setQueryParameters((prev) => ({
+      ...prev,
+      city: '',
+      organizationType: '',
+      hasEmergency: undefined,
+      telemedicine: undefined,
+      serviceId: '',
+      departmentId: '',
+      insuranceCompanyId: '',
+      languages: undefined,
+      minBedCount: undefined,
+      maxBedCount: undefined,
+      page: 1,
+    }));
+  };
+
   return (
     <>
-      <div className="bg-grayscale-100 z-20 mb-6 flex w-full flex-col flex-wrap gap-2 rounded-md p-5 lg:sticky lg:top-0">
-        <div className="flex">
-          <form className="flex w-full max-w-2xl gap-2" onSubmit={handleSubmit}>
+      {/* Search and Filter Bar - Sticky at top like title */}
+      <div className="sticky top-0 z-40 mb-4 sm:mb-6 -mx-4 px-4 2xl:-mx-6 2xl:px-6 bg-grayscale-100 pb-2 pt-2">
+        <div className="bg-white flex w-full flex-col gap-3 sm:gap-4 rounded-lg border border-gray-200 p-3 sm:p-4 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Search Bar */}
+          <form className="flex flex-1 gap-2" onSubmit={handleSubmit}>
             <Input
               error=""
-              placeholder={'Search for a Hospital'}
+              placeholder="Search hospitals by name, specialty, or location..."
               className="w-full"
               type="search"
               leftIcon={<Search className="text-gray-500" size={20} />}
               onChange={handleSearch}
               defaultMaxWidth={false}
             />
-            {searchTerm && <Button child={<SendHorizontal />} />}
-          </form>
-          <div className="ml-2 flex gap-2">
-            <Button
-              onClick={() => setShowAdvancedFilters((prev) => !prev)}
-              className="h-10 cursor-pointer bg-gray-50 sm:flex lg:hidden"
-              variant="outline"
-              child={
-                <>
-                  <ListFilter className="mr-2 h-4 w-4" /> Filters
-                </>
-              }
-            />
-          </div>
-        </div>
-        <div className={`${showAdvancedFilters ? 'flex' : 'hidden'} mt-2 flex-col gap-3 lg:flex`}>
-          {/* Row 1: Location and Organization Filters */}
-          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:flex-wrap lg:flex-nowrap">
-            <Input
-              labelName="City"
-              placeholder="Enter city"
-              wrapperClassName="w-full sm:flex-1 lg:w-auto"
-              defaultMaxWidth={false}
-              type="text"
-              value={queryParameters.city || ''}
-              onChange={(e) => {
-                setHospitals([]);
-                setQueryParameters((prev) => ({ ...prev, city: e.target.value, page: 1 }));
-              }}
-            />
-            <Input
-              labelName="Distance (km)"
-              placeholder="10"
-              wrapperClassName="w-full sm:flex-1 lg:w-auto"
-              defaultMaxWidth={false}
-              type="number"
-              name="distanceKm"
-              value={filterInputs.distanceKm}
-              onChange={(e) => setFilterInputs((p) => ({ ...p, distanceKm: e.target.value }))}
-            />
-            <Combobox
-              onChange={(value) => {
-                setHospitals([]);
-                setQueryParameters((prev) => ({ ...prev, organizationType: value, page: 1 }));
-              }}
-              label="Organization Type"
-              options={organizationTypeOptions}
-              value={queryParameters?.organizationType ?? ''}
-              className="px-4"
-              placeholder="Select type..."
-              searchPlaceholder="Search for type..."
-              defaultMaxWidth={false}
-              wrapperClassName="col-span-2 w-full text-left text-[#111111] sm:col-span-1 sm:flex-1 lg:w-auto"
-            />
-            <div className="w-full sm:flex-1 lg:w-auto">
-              <label className="mb-1 block text-sm font-medium text-gray-700">Emergency</label>
-              <OptionsMenu
-                options={[
-                  { value: '', label: 'All' },
-                  { value: 'true', label: 'Has Emergency' },
-                  { value: 'false', label: 'No Emergency' },
-                ]}
-                Icon={Building2}
-                menuTrigger="Emergency"
-                selected={queryParameters.hasEmergency?.toString() || ''}
-                setSelected={(value) => {
-                  setQueryParameters((prev) => ({
-                    ...prev,
-                    page: 1,
-                    hasEmergency: value === 'true' ? true : value === 'false' ? false : undefined,
-                  }));
-                  setHospitals([]);
-                }}
-                className="h-10 w-full cursor-pointer bg-gray-50"
-              />
-            </div>
-            <div className="w-full sm:flex-1 lg:w-auto">
-              <label className="mb-1 block text-sm font-medium text-gray-700">Telemedicine</label>
-              <OptionsMenu
-                options={[
-                  { value: '', label: 'All' },
-                  { value: 'true', label: 'Telemedicine Available' },
-                  { value: 'false', label: 'No Telemedicine' },
-                ]}
-                Icon={Building2}
-                menuTrigger="Telemedicine"
-                selected={queryParameters.telemedicine?.toString() || ''}
-                setSelected={(value) => {
-                  setQueryParameters((prev) => ({
-                    ...prev,
-                    page: 1,
-                    telemedicine: value === 'true' ? true : value === 'false' ? false : undefined,
-                  }));
-                  setHospitals([]);
-                }}
-                className="h-10 w-full cursor-pointer bg-gray-50"
-              />
-            </div>
-          </div>
-
-          {/* Row 2: Price, Rating, and Distance Filters */}
-          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:flex-wrap lg:flex-nowrap">
-            <Input
-              labelName="Min Price"
-              placeholder="GHC 0"
-              wrapperClassName="w-full sm:flex-1 lg:w-auto"
-              defaultMaxWidth={false}
-              type="number"
-              name="priceMin"
-              value={filterInputs.priceMin}
-              onChange={(e) => setFilterInputs((p) => ({ ...p, priceMin: e.target.value }))}
-            />
-            <Input
-              labelName="Max Price"
-              placeholder="GHC 1000"
-              wrapperClassName="w-full sm:flex-1 lg:w-auto"
-              defaultMaxWidth={false}
-              type="number"
-              name="priceMax"
-              value={filterInputs.priceMax}
-              onChange={(e) => setFilterInputs((p) => ({ ...p, priceMax: e.target.value }))}
-            />
-            <Input
-              labelName="Min Rating"
-              placeholder="0"
-              wrapperClassName="w-full sm:flex-1 lg:w-auto"
-              defaultMaxWidth={false}
-              type="number"
-              name="rateMin"
-              min={0}
-              max={5}
-              value={filterInputs.rateMin}
-              onChange={(e) => setFilterInputs((p) => ({ ...p, rateMin: e.target.value }))}
-            />
-            <Input
-              labelName="Max Rating"
-              placeholder="5"
-              wrapperClassName="w-full sm:flex-1 lg:w-auto"
-              defaultMaxWidth={false}
-              type="number"
-              name="rateMax"
-              min={0}
-              max={5}
-              value={filterInputs.rateMax}
-              onChange={(e) => setFilterInputs((p) => ({ ...p, rateMax: e.target.value }))}
-            />
-          </div>
-        </div>
-        {paginationData && paginationData.total > 0 && (
-          <div className="mt-3 flex items-center gap-2 border-t border-gray-200 pt-3 text-sm text-gray-600">
-            <span className="text-primary font-semibold">
-              {filteredHospitals.length} {filteredHospitals.length === 1 ? 'Hospital' : 'Hospitals'}
-            </span>
-            <span>found</span>
-            {filteredHospitals.length < hospitals.length && (
-              <span className="text-gray-500">(filtered from {hospitals.length})</span>
+            {searchTerm && (
+              <Button type="submit" variant="default" child={<SendHorizontal />} />
             )}
-            {queryParameters.search && <span>matching &quot;{queryParameters.search}&quot;</span>}
+          </form>
+          
+          {/* Filter Button */}
+          <div className="flex items-center gap-2">
+            <HospitalFilters
+              queryParameters={queryParameters}
+              onFilterChange={handleFilterChange}
+              onReset={handleResetFilters}
+              totalResults={paginationData?.total}
+            />
           </div>
-        )}
+        </div>
+
+        </div>
       </div>
-      <Suggested title={'Hospitals'} showViewAll={false}>
-        {!isLoading &&
-          filteredHospitals.map((hospital) => (
-            <div className="cursor-pointer" key={hospital.id}>
-              <HospitalCard key={hospital.id} hospital={hospital} />
-            </div>
-          ))}
-      </Suggested>
-      {isLoading && (
+      {isLoading ? (
         <div className="mt-2 flex flex-wrap gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
             <SkeletonDoctorPatientCard key={index} />
           ))}
         </div>
-      )}
-      {!isLoading && filteredHospitals.length === 0 && (
+        ) : hospitals.length > 0 ? (
+          <Suggested title={''} showViewAll={false}>
+            {hospitals.map((hospital) => (
+              <HospitalCard key={hospital.id} hospital={hospital} />
+            ))}
+          </Suggested>
+        ) : (
         <section>
-          {
-            <Image
-              src={NotFound}
-              alt="Not Found"
-              width={100}
-              height={100}
-              className="m-auto h-[60vh] w-[60vw]"
-            />
-          }
+          <Image
+            src={NotFound}
+            alt="Not Found"
+            width={100}
+            height={100}
+            className="m-auto h-[60vh] w-[60vw]"
+          />
           <p className="mt-4 text-center text-lg md:text-xl"> Sorry nothing to find here </p>
         </section>
       )}
@@ -531,3 +259,4 @@ const Hospitals = (): JSX.Element => {
 };
 
 export default Hospitals;
+

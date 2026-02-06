@@ -1,15 +1,17 @@
 'use client';
-import { MapPin, CalendarCheck, Building2, X, Phone, Mail } from 'lucide-react';
+import { MapPin, ExternalLink, Building2, X, Phone, Globe, Mail, MoreVertical, Clock, BedDouble } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { IHospitalListItem } from '@/types/hospital.interface';
 import { useRouter } from 'next/navigation';
-import HospitalAppointmentModal, { HospitalAppointmentFormData } from '@/app/dashboard/(patient)/find-hospitals/_components/hospitalAppointmentModal';
-import { useAppDispatch } from '@/lib/hooks';
-import { createHospitalAppointment } from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
-import { toast } from '@/hooks/use-toast';
-import { showErrorToast } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface HospitalCardProps {
   hospital: IHospitalListItem;
@@ -17,23 +19,8 @@ interface HospitalCardProps {
 
 const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
   const [showPreview, setShowPreview] = useState(false);
-  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const {
-    id,
-    name,
-    slug,
-    description,
-    organizationType,
-    hasEmergency,
-    telemedicine,
-    primaryAddress,
-    images,
-    mainPhone,
-    website,
-    mainEmail,
-  } = hospital;
+  const { name, slug, description, organizationType, hasEmergency, telemedicine, primaryAddress, images, mainPhone, website, mainEmail, bedCount } = hospital;
 
   const primaryImage = images && images.length > 0 ? images[0] : null;
 
@@ -45,23 +32,18 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
     router.push(`/dashboard/find-hospitals/${slug}`);
   };
 
-  const handleAppointmentSubmit = async (formData: HospitalAppointmentFormData): Promise<void> => {
-    const { payload } = await dispatch(
-      createHospitalAppointment({
-        hospitalId: id,
-        name: formData.name,
-        telephone: formData.telephone,
-        serviceType: formData.serviceType,
-        additionalInfo: formData.additionalInfo,
-        date: formData.date,
-      }),
-    );
-
-    if (showErrorToast(payload)) {
-      toast(payload);
-      throw new Error('Failed to submit appointment request');
-    } else {
-      toast(payload);
+  const getOrganizationTypeLabel = (type?: string) => {
+    switch (type) {
+      case 'private':
+        return 'Private Hospital';
+      case 'public':
+        return 'Public Hospital';
+      case 'teaching':
+        return 'Teaching Hospital';
+      case 'clinic':
+        return 'Clinic';
+      default:
+        return 'Hospital';
     }
   };
 
@@ -69,13 +51,13 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
     <>
       {showPreview && primaryImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
           onClick={() => setShowPreview(false)}
         >
           <div className="relative max-h-[90vh] max-w-[90vw]">
             <button
               onClick={() => setShowPreview(false)}
-              className="absolute -top-4 -right-4 rounded-full bg-white p-2 shadow-lg"
+              className="absolute -top-4 -right-4 z-10 rounded-full bg-white p-2 shadow-lg transition-all hover:scale-110"
             >
               <X size={20} />
             </button>
@@ -84,97 +66,137 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
               alt={name}
               width={800}
               height={600}
-              className="rounded-lg object-contain"
+              className="rounded-lg object-contain shadow-2xl"
             />
           </div>
         </div>
       )}
 
-      <div className="flex w-full max-w-[360px] shrink-0 flex-col rounded-[14px] border border-gray-200 bg-white">
-        {primaryImage ? (
-          <div className="relative h-48 w-full cursor-pointer" onClick={() => setShowPreview(true)}>
-            <Image
-              src={primaryImage.url}
-              alt={name}
-              fill
-              className="rounded-t-[14px] object-cover transition-opacity duration-200 hover:opacity-90"
-            />
-          </div>
-        ) : (
-          <div className="bg-primary/10 flex h-48 w-full items-center justify-center rounded-t-[14px] border border-gray-100">
-            <Building2 size={48} className="text-primary" />
-          </div>
-        )}
-        <div className="flex flex-col gap-2 p-6">
-          <div className="flex flex-col">
-            <div className="mb-4 flex w-full flex-col gap-2">
-              <p className="text-lg font-bold">{name}</p>
-              {primaryAddress && (
-                <div className="flex items-center gap-1 text-sm font-medium text-gray-400">
-                  <MapPin size={14} />
-                  {primaryAddress.city && primaryAddress.state
-                    ? `${primaryAddress.city}, ${primaryAddress.state}`
-                    : primaryAddress.city || primaryAddress.state || primaryAddress.street}
-                </div>
-              )}
-              {description && <p className="line-clamp-2 text-sm text-gray-600">{description}</p>}
-              <div className="mt-2 flex flex-wrap gap-2">
-                <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
-                  {organizationType}
-                </span>
-                {hasEmergency && (
-                  <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
-                    Emergency
-                  </span>
-                )}
-                {telemedicine && (
-                  <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-                    Telemedicine
-                  </span>
-                )}
-              </div>
-              <hr className="mt-2 w-full" />
+      <div className="group relative flex w-full max-w-full sm:max-w-[350px] md:max-w-[380px] flex-shrink-0 flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+        {/* Image Section with Frosted Glass Overlay */}
+        <div className="relative h-[250px] sm:h-[320px] md:h-[380px] w-full overflow-hidden">
+          {primaryImage ? (
+            <div className="relative h-full w-full cursor-pointer" onClick={() => setShowPreview(true)}>
+              <Image
+                src={primaryImage.url}
+                alt={name}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
             </div>
-            {(mainPhone || mainEmail) && (
-              <div className="mb-4 flex flex-col gap-2 text-sm text-gray-600">
-                {mainPhone && (
-                  <div className="flex items-center gap-2">
-                    <Phone size={14} />
-                    <span>{mainPhone}</span>
-                  </div>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-100 via-blue-100 to-indigo-100">
+              <Building2 size={80} className="text-purple-400" />
+            </div>
+          )}
+
+          {/* Ellipsis Menu Button - Top Right */}
+          <div className="absolute top-4 right-4 z-20">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/95 backdrop-blur-md shadow-lg transition-all hover:bg-white hover:scale-110 hover:shadow-xl">
+                  <MoreVertical size={20} className="text-gray-800" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleViewDetails}>
+                  View Details
+                </DropdownMenuItem>
+                {primaryAddress && primaryAddress.city && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const query = encodeURIComponent(`${name} ${primaryAddress.city} ${primaryAddress.state || ''}`);
+                      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                    }}
+                  >
+                    Open in Maps
+                  </DropdownMenuItem>
                 )}
-                {mainEmail && (
-                  <div className="flex items-center gap-2">
-                    <Mail size={14} />
-                    <span>{mainEmail}</span>
-                  </div>
-                )}
-              </div>
-            )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <div className="flex flex-row items-center justify-between">
-            <Button variant="secondary" onClick={handleViewDetails} child="View Details" />
-            <Button
-              onClick={() => setShowAppointmentModal(true)}
-              child={
-                <>
-                  <CalendarCheck size={14} />
-                  Book Appointment
-                </>
-              }
-            />
+
+          {/* Frosted Glass Overlay with Content - Bottom 60% */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 h-[60%] overflow-hidden">
+            {/* Solid white background layer extending slightly beyond to cover rounded corners */}
+            <div className="absolute -bottom-1 -left-1 -right-1 top-0 bg-white rounded-b-2xl sm:rounded-b-3xl"></div>
+            
+            {/* Frosted Glass Background with gradient overlay */}
+            <div 
+              className="relative h-full rounded-b-2xl sm:rounded-b-3xl"
+              style={{
+                background: 'linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 30%, rgba(255, 255, 255, 0.95) 60%, rgba(255, 255, 255, 0.85) 100%)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              }}
+            >
+              {/* Content on Frosted Glass */}
+              <div className="flex h-full flex-col justify-between px-3 py-2.5 sm:px-4 sm:py-4 md:px-5 md:py-5 relative z-20">
+                {/* Top Section - Title and Description */}
+                <div className="flex-1 min-w-0 flex flex-col overflow-hidden min-h-0">
+                  <h3 className="mb-1.5 sm:mb-2 text-lg sm:text-xl font-bold text-gray-900 line-clamp-2 leading-tight break-words">
+                    {name}
+                  </h3>
+                  {description && (
+                    <p className="text-xs sm:text-sm leading-relaxed text-gray-600 line-clamp-3 sm:line-clamp-4 break-words min-h-0">
+                      {description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Bottom Section - Location, Button, and Badges */}
+                <div className="space-y-2 sm:space-y-3 pt-2 flex-shrink-0">
+                  {/* Location Row */}
+                  {primaryAddress && (primaryAddress.city || primaryAddress.state) && (
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 min-w-0">
+                      <MapPin size={12} className="text-gray-500 flex-shrink-0 sm:w-[14px] sm:h-[14px]" />
+                      <span className="font-medium truncate">{primaryAddress.city || primaryAddress.state}</span>
+                    </div>
+                  )}
+
+                  {/* Bottom Row - Organization Type Button and Feature Badges */}
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    {/* Organization Type Button */}
+                    <button
+                      onClick={handleViewDetails}
+                      className="rounded-xl border-2 border-purple-300 bg-purple-50 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-md active:scale-95 whitespace-nowrap flex-shrink-0"
+                    >
+                      {getOrganizationTypeLabel(organizationType)}
+                    </button>
+
+                    {/* Feature Badges */}
+                    {(hasEmergency || telemedicine || bedCount) && (
+                      <div className="flex items-center gap-1 sm:gap-1.5 flex-1 justify-end overflow-visible flex-wrap">
+                        {hasEmergency && (
+                          <span className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-red-100 px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-red-700 whitespace-nowrap flex-shrink-0">
+                            <Clock size={9} className="sm:w-[10px] sm:h-[10px]" />
+                            24/7
+                          </span>
+                        )}
+                        {telemedicine && (
+                          <span className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-green-100 px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-green-700 whitespace-nowrap flex-shrink-0">
+                            <Globe size={9} className="sm:w-[10px] sm:h-[10px]" />
+                            Virtual
+                          </span>
+                        )}
+                        {bedCount && (
+                          <span className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-blue-100 px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                            <BedDouble size={9} className="sm:w-[10px] sm:h-[10px]" />
+                            {bedCount}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <HospitalAppointmentModal
-        open={showAppointmentModal}
-        setOpen={setShowAppointmentModal}
-        hospitalId={id}
-        hospitalName={name}
-        onSubmit={handleAppointmentSubmit}
-      />
     </>
   );
 };
 
 export default HospitalCard;
+

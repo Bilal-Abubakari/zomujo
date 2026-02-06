@@ -252,9 +252,12 @@ export default function Layout({
       <DashboardProvider>
         <SidebarProvider>
           <SidebarLayout />
-          <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-4 2xl:px-6">
+          <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-2 sm:px-4 2xl:px-6">
             <Toolbar />
-            <div className="flex-1 overflow-auto">{children}</div>
+            {/* Scroll container: add a small right gutter so the scrollbar hugs the wall and cards have more space */}
+            <div className="flex-1 overflow-auto pr-0.5 sm:pr-2 -mr-0.5 sm:-mr-2">
+              {children}
+            </div>
           </main>
         </SidebarProvider>
       </DashboardProvider>
