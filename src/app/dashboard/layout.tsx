@@ -20,14 +20,8 @@ import DoctorReviewModal from '@/app/dashboard/_components/doctorReviewModal';
 import { IDoctor } from '@/types/doctor.interface';
 import { useRouter } from 'next/navigation';
 import { PaymentTab } from '@/hooks/useQueryParam';
-import { AcceptDeclineStatus } from '@/types/shared.enum';
-import {
-  ActionButtons,
-  CheckboxSection,
-  InfoCard,
-} from '@/app/dashboard/_components/onboardingGuide';
-import { BRANDING } from '@/constants/branding.constant';
 import { ScrollContext } from '@/context/scroll-context';
+import OnboardingModalContent from '@/app/dashboard/_components/onboardingModalContent';
 
 export default function Layout({
   children,
@@ -117,146 +111,30 @@ export default function Layout({
     handleDismissOnboarding();
   };
 
-  const OnboardingModalContent = (): JSX.Element => {
-    if (!extra) {
-      return <div></div>;
-    }
-
-    const doctorStatus = extra.status;
-    const { isComplete } = getProfileCompletionStatus(extra);
-
-    // Scenario 1: Pending doctor with incomplete profile
-    if (doctorStatus === AcceptDeclineStatus.Pending && !isComplete) {
-      return (
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-gray-900">Welcome to {BRANDING.APP_NAME}!</h2>
-            <p className="text-sm text-gray-600">
-              Get ready to start receiving patient bookings by completing these important steps.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <InfoCard
-              icon="1"
-              title="Account Verification"
-              description="Your account is currently pending verification based on the information you submitted. Once approved by our admin team, patients will be able to start booking appointments with you."
-              bgColor="border-yellow-200 bg-yellow-50"
-              textColor="text-yellow-800"
-            />
-            <InfoCard
-              icon="2"
-              title="Complete Your Profile"
-              description="While waiting for verification, you can complete your profile to be fully ready for bookings. This includes adding your experience, education, specializations, consultation fees, payment methods, and availability slots."
-              bgColor="border-gray-200 bg-blue-50"
-              textColor="text-gray-800"
-            />
-          </div>
-
-          <CheckboxSection
-            dontShowAgain={dontShowAgain}
-            setDontShowAgain={(value) => setDontShowAgain(value)}
-          />
-          <ActionButtons
-            handleDismissOnboarding={handleDismissOnboarding}
-            handleCompleteProfileClick={handleCompleteProfileClick}
-          />
-        </div>
-      );
-    }
-
-    // Scenario 2: Accepted doctor with incomplete profile
-    if (doctorStatus === AcceptDeclineStatus.Accepted && !isComplete) {
-      return (
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-gray-900">🎉 Account Approved!</h2>
-            <p className="text-sm text-gray-600">
-              Great news! Your account has been verified and approved by our admin team.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <InfoCard
-              icon="✓"
-              title="Account Verified"
-              description="Your account has been successfully verified! You're almost ready to start receiving patient bookings."
-              bgColor="border-green-200 bg-green-50"
-              textColor="text-green-800"
-            />
-            <InfoCard
-              icon="!"
-              title="Complete Your Profile"
-              description="To start receiving bookings, please complete your profile by adding your experience, education, specializations, consultation fees, payment methods, and availability slots."
-              bgColor="border-blue-200 bg-blue-50"
-              textColor="text-blue-800"
-            />
-          </div>
-
-          <CheckboxSection
-            dontShowAgain={dontShowAgain}
-            setDontShowAgain={(value) => setDontShowAgain(value)}
-          />
-          <ActionButtons
-            handleDismissOnboarding={handleDismissOnboarding}
-            handleCompleteProfileClick={handleCompleteProfileClick}
-          />
-        </div>
-      );
-    }
-
-    // TODO: Difficult to handle this third scenario hence will handle later because sync between backend and frontend is complex
-    // Scenario 3: Accepted doctor with complete profile
-    // if (doctorStatus === AcceptDeclineStatus.Accepted && isComplete) {
-    //   return (
-    //     <div className="space-y-6">
-    //       <div className="space-y-2">
-    //         <h2 className="text-xl font-semibold text-gray-900">🎉 You&#39;re All Set!</h2>
-    //         <p className="text-sm text-gray-600">
-    //           Congratulations! Your account is verified and your profile is complete.
-    //         </p>
-    //       </div>
-    //
-    //       <div className="space-y-4">
-    //         <InfoCard
-    //           icon="✓"
-    //           title="Profile Complete & Approved"
-    //           description="Excellent! You have successfully completed your profile setup and your account has been approved by our admin team."
-    //           bgColor="border-green-200 bg-green-50"
-    //           textColor="text-green-800"
-    //         />
-    //         <InfoCard
-    //           icon="⏳"
-    //           title="Setting Up Your Availability"
-    //           description="We are currently setting up your appointment slots based on the availability pattern you provided. This process will be completed shortly, and you should expect to receive patient bookings soon."
-    //           bgColor="border-blue-200 bg-blue-50"
-    //           textColor="text-blue-800"
-    //         />
-    //       </div>
-    //
-    //       <ActionButtons
-    //         showCompleteProfile={false}
-    //         handleDismissOnboarding={() => handleDismissOnboarding(true)}
-    //         handleCompleteProfileClick={handleCompleteProfileClick}
-    //       />
-    //     </div>
-    //   );
-    // }
-
-    return <div></div>;
-  };
-
   return (
     <ScrollContext.Provider value={scrollContainerRef}>
       <Modal open={patientMustUpdateMandatoryInfo} content={<UpdatePatientInfo />} />
       <Modal className="max-w-xl" open={mustUpdatePassword} content={<UpdatePassword />} />
-      <Modal className="max-w-2xl" open={modalOpen} content={<OnboardingModalContent />} />
+      <Modal
+        className="max-w-2xl"
+        open={modalOpen}
+        content={
+          <OnboardingModalContent
+            extra={extra}
+            isComplete={getProfileCompletionStatus(extra).isComplete}
+            dontShowAgain={dontShowAgain}
+            setDontShowAgain={setDontShowAgain}
+            handleDismissOnboarding={handleDismissOnboarding}
+            handleCompleteProfileClick={handleCompleteProfileClick}
+          />
+        }
+      />
       <DashboardProvider>
         <SidebarProvider>
           <SidebarLayout />
           <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-4 2xl:px-6">
             <Toolbar />
-            <div ref={scrollContainerRef} className="min-h-fit flex-1 overflow-auto">
+            <div ref={scrollContainerRef} className="flex-1 overflow-auto">
               {children}
             </div>
           </main>
