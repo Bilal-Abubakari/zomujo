@@ -3,13 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SelectInputV2 } from '@/components/ui/select';
 import { doseRegimenOptions, routeOptions } from '@/constants/constants';
-import { IPrescription } from '@/types/medical.interface';
+import { IPrescription, IPrescriptionResponse } from '@/types/medical.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { useParams } from 'next/navigation';
 import {
   savePrescriptions,
   generatePrescription,
-  getConsultationDetail,
+  deletePrescription,
+  getConsultationAppointment,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { selectPrescriptions } from '@/lib/features/appointments/appointmentSelector';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -67,8 +68,9 @@ const Prescription = ({
   const appointmentId = String(params.appointmentId);
   const existingPrescriptions = useAppSelector(selectPrescriptions);
   const [localPrescriptions, setLocalPrescriptions] = useState<IPrescription[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSavingAndGenerating, setIsSavingAndGenerating] = useState(false);
+  const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+  const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
 
   const {
     register,
@@ -85,7 +87,6 @@ const Prescription = ({
 
   const storageKey = `consultation_${appointmentId}_prescription_draft`;
 
-  // Restore draft
   useEffect(() => {
     if (existingPrescriptions.length === 0 && localPrescriptions.length === 0) {
       const draft = LocalStorageManager.getJSON<IPrescription[]>(storageKey);
@@ -93,7 +94,7 @@ const Prescription = ({
         setLocalPrescriptions(draft);
       }
     }
-  }, [existingPrescriptions.length, localPrescriptions.length, storageKey]);
+  }, []);
 
   // Save draft
   useEffect(() => {
@@ -106,7 +107,7 @@ const Prescription = ({
     LocalStorageManager.removeJSON(storageKey);
   };
 
-  const combinedPrescriptions = useMemo(
+  const combinedPrescriptions: (IPrescriptionResponse | IPrescription)[] = useMemo(
     () => [...existingPrescriptions, ...localPrescriptions],
     [existingPrescriptions, localPrescriptions],
   );
@@ -123,52 +124,87 @@ const Prescription = ({
     setLocalPrescriptions(newPrescriptions);
   };
 
-  const handleSave = async (): Promise<void> => {
-    if (combinedPrescriptions.length === 0) {
-      goToNext();
+  const handleDeletePrescription = async (index: number, id?: string): Promise<void> => {
+    if (index >= existingPrescriptions.length) {
+      removeLocalPrescription(index - existingPrescriptions.length);
       return;
     }
 
-    const prescriptionsPayload = combinedPrescriptions.map((p) => ({
-      ...p,
-      appointmentId,
-    }));
+    if (!id) {
+      return;
+    }
 
-    setIsLoading(true);
-    const request: IPrescriptionRequest = {
-      appointmentId,
-      prescriptions: prescriptionsPayload,
-    };
-
-    const { payload } = await dispatch(savePrescriptions(request));
+    setDeletingIndex(index);
+    const { payload } = await dispatch(deletePrescription(id));
     toast(payload as Toast);
 
     if (!showErrorToast(payload)) {
-      clearDraft();
-      setLocalPrescriptions([]);
-      dispatch(getConsultationDetail(appointmentId));
-      if (isGenerating) {
-        /* empty */
-      } else {
-        goToNext();
-      }
+      await dispatch(getConsultationAppointment(appointmentId));
     }
-    setIsLoading(false);
+    setDeletingIndex(null);
   };
 
-  const handleGenerate = async (): Promise<void> => {
-    if (localPrescriptions.length > 0) {
-      toast({ title: 'Please save prescriptions before generating.', variant: 'destructive' });
+  const handleSaveAndGenerate = async (): Promise<void> => {
+    if (combinedPrescriptions.length === 0) {
+      toast({ title: 'Please add prescriptions first.', variant: 'destructive' });
       return;
     }
 
-    setIsGenerating(true);
-    const { payload } = await dispatch(generatePrescription({ appointmentId, notes: '' }));
-    toast(payload as Toast);
-    if (!showErrorToast(payload)) {
-      dispatch(getConsultationDetail(appointmentId));
+    setIsSavingAndGenerating(true);
+
+    if (localPrescriptions.length > 0) {
+      const prescriptionsPayload = combinedPrescriptions
+        .map((p) => ({
+          ...p,
+          appointmentId,
+        }))
+        .filter((p) => !('id' in p));
+
+      const request: IPrescriptionRequest = {
+        appointmentId,
+        prescriptions: prescriptionsPayload,
+      };
+
+      const saveResult = await dispatch(savePrescriptions(request));
+      toast(saveResult.payload as Toast);
+
+      if (showErrorToast(saveResult.payload)) {
+        setIsSavingAndGenerating(false);
+        return;
+      }
+
+      clearDraft();
+      setLocalPrescriptions([]);
+      await dispatch(getConsultationAppointment(appointmentId));
     }
-    setIsGenerating(false);
+
+    const result = await dispatch(generatePrescription({ appointmentId, notes: '' })).unwrap();
+
+    if (showErrorToast(result)) {
+      setIsSavingAndGenerating(false);
+      return;
+    }
+
+    window.open(result as string, '_blank');
+
+    toast({ title: 'Prescription generated and opened successfully!', variant: 'default' });
+
+    await dispatch(getConsultationAppointment(appointmentId));
+
+    setIsSavingAndGenerating(false);
+  };
+
+  const handleNextWithWarning = (): void => {
+    if (localPrescriptions.length > 0) {
+      setShowUnsavedWarning(true);
+    } else {
+      goToNext();
+    }
+  };
+
+  const handleProceedWithoutSaving = (): void => {
+    setShowUnsavedWarning(false);
+    goToNext();
   };
 
   const addPrescriptionDrawer = (
@@ -240,7 +276,16 @@ const Prescription = ({
     <div className="mb-24 flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Prescriptions</h3>
-        <Button onClick={() => setUpdatePrescription(true)} child="Add Prescription" />
+        <div className="flex gap-2">
+          <Button
+            onClick={handleSaveAndGenerate}
+            isLoading={isSavingAndGenerating}
+            disabled={isSavingAndGenerating || combinedPrescriptions.length === 0}
+            child="Save & Generate PDF"
+            variant="outline"
+          />
+          <Button onClick={() => setUpdatePrescription(true)} child="Add Prescription" />
+        </div>
       </div>
 
       {combinedPrescriptions.length === 0 ? (
@@ -261,15 +306,15 @@ const Prescription = ({
                   {p.doses} - {p.route} - {p.doseRegimen} for {p.numOfDays} days
                 </p>
               </div>
-              {/* Only allow deleting local ones or if we implement delete endpoint */}
-              {index >= existingPrescriptions.length && (
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => removeLocalPrescription(index - existingPrescriptions.length)}
-                  child={<Trash2 size={16} />}
-                />
-              )}
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() => handleDeletePrescription(index, 'id' in p ? p.id : undefined)}
+                isLoading={deletingIndex === index}
+                disabled={deletingIndex === index}
+                showChildWhenLoading={false}
+                child={<Trash2 size={16} />}
+              />
             </div>
           ))}
         </div>
@@ -277,18 +322,35 @@ const Prescription = ({
 
       {addPrescriptionDrawer}
 
-      <div className="fixed bottom-0 left-0 flex w-full justify-end gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
-        <Button
-          onClick={handleGenerate}
-          isLoading={isGenerating}
-          disabled={
-            isGenerating || combinedPrescriptions.length === 0 || localPrescriptions.length > 0
-          }
-          child="Generate Prescription"
-          variant="outline"
-        />
+      <Drawer direction="bottom" open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-sm p-4">
+            <DrawerHeader>
+              <DrawerTitle className="text-center text-lg">Unsaved Prescriptions</DrawerTitle>
+              <DrawerDescription className="text-center text-sm">
+                You have {localPrescriptions.length} unsaved prescription
+                {localPrescriptions.length > 1 ? 's' : ''}. Are you sure you want to proceed without
+                saving?
+              </DrawerDescription>
+            </DrawerHeader>
+            <DrawerFooter className="flex flex-row gap-2">
+              <Button
+                onClick={() => setShowUnsavedWarning(false)}
+                child="Go Back & Save"
+                variant="outline"
+              />
+              <Button
+                onClick={handleProceedWithoutSaving}
+                child="Proceed Without Saving"
+                variant="destructive"
+              />
+            </DrawerFooter>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
-        <Button onClick={handleSave} isLoading={isLoading} child="Next: Diagnosis" />
+      <div className="fixed bottom-0 left-0 flex w-full justify-end gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
+        <Button onClick={handleNextWithWarning} child="Next: Diagnosis" />
 
         <Button onClick={goToNext} child="Skip" variant="secondary" />
       </div>

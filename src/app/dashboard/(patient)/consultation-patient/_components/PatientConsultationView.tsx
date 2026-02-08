@@ -67,6 +67,8 @@ const PatientConsultationView = (): JSX.Element => {
   const [downloadingRadiologyRequest, setDownloadingRadiologyRequest] = useState(false);
   const [downloadingReferral, setDownloadingReferral] = useState<string | null>(null);
 
+  const consultationLabData = consultationDetails?.lab.data ?? [];
+
   const handleFileChange = ({ target }: ChangeEvent<HTMLInputElement>, labId: string): void => {
     const file = target.files?.[0];
     if (file) {
@@ -187,11 +189,17 @@ const PatientConsultationView = (): JSX.Element => {
       return;
     }
 
-    const lab = consultationDetails?.lab.map((lab) =>
+    const lab = consultationDetails?.lab.data.map((lab) =>
       lab.id === labId ? { ...lab, fileUrl: payload as string } : lab,
     );
     if (lab && consultationDetails) {
-      setConsultationDetails({ ...consultationDetails, lab });
+      setConsultationDetails({
+        ...consultationDetails,
+        lab: {
+          ...consultationDetails.lab,
+          data: lab,
+        },
+      });
     }
     setSelectedFiles((prev) => ({ ...prev, [labId]: null }));
     setUploading(null);
@@ -406,7 +414,7 @@ const PatientConsultationView = (): JSX.Element => {
                 <TestTubeDiagonal className="text-primary" />
                 Lab Requests
               </CardTitle>
-              {consultationDetails?.lab && consultationDetails.lab.length > 0 && (
+              {consultationLabData.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -424,8 +432,8 @@ const PatientConsultationView = (): JSX.Element => {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            {consultationDetails?.lab && consultationDetails.lab.length > 0 ? (
-              consultationDetails.lab.map((lab) => (
+            {consultationLabData.length > 0 ? (
+              consultationLabData.map((lab) => (
                 <div key={lab.id}>
                   <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                     <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -500,7 +508,7 @@ const PatientConsultationView = (): JSX.Element => {
                       )}
                     </div>
                   </div>
-                  {consultationDetails.lab.length > 1 && <Separator className="mt-6" />}
+                  {consultationLabData.length > 1 && <Separator className="mt-6" />}
                 </div>
               ))
             ) : (

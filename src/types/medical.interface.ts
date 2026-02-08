@@ -36,6 +36,10 @@ export interface IPrescription {
   doseRegimen: string;
 }
 
+export interface IPrescriptionResponse extends IPrescription {
+  id: string;
+}
+
 export interface IDiagnosis {
   name: string;
   diagnosedAt: string;
