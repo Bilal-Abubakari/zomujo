@@ -3,7 +3,7 @@
     "Anaemia Studies": ["Ferritin", "Iron", "TIBC", "Transferrin Saturation"],
     "Blood Glucose": ["FBS", "2HR OGTT", "RBS", "HbA1C"],
     "Cardiac": ["CK-MB", "Troponin I", "Troponin T", "AST (SGOT)"],
-    "Gen. Chemistry": ["Urea", "Creatinine", "Electrolytes", "Calcium", "Phosphate", "Magnesium"],
+    "Renal": ["Urea", "Creatinine", "Sodium and Potassium", "Calcium", "Phosphate", "Magnesium"],
     "Lipid Profile": ["Cholesterol", "HDL Chol", "LDL Chol", "Triglycerides", "Lipid Card"],
     "Liver Function Tests": [
       "ALT (SGPT)",
@@ -40,7 +40,7 @@
       "CSF Protein",
       "Serum Protein Electrophoresis"
     ],
-    "Renal": [
+    "Gen. Chemistry": [
       "Uric Acid",
       "Bicarbonate",
       "Calcium: Creatinine",
@@ -48,7 +48,7 @@
       "Urine Urea",
       "Urine Creatinine",
       "Creatinine Clearance",
-      "Carbam dioxide"
+      "Carbon dioxide"
     ],
     "Tumor Markers": ["PSA", "CEA", "CA-125", "AFP", "β-HCG (Quantitative)"],
     "Urine Chemistry": [

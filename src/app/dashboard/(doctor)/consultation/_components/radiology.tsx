@@ -66,6 +66,7 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
     defaultValues: {
       tests: [],
       questions: [''],
+      procedureRequest: ' ',
     },
   });
 
