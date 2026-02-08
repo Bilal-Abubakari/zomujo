@@ -4,7 +4,7 @@ import { Role, Status, AcceptDeclineStatus } from '@/types/shared.enum';
 import { IDoctor } from '@/types/doctor.interface';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const selectAuthentication = ({ authentication }: RootState) => authentication;
+export const selectAuthentication = ({ authentication }: RootState) => authentication;
 
 export const selectUserRole = createSelector(selectAuthentication, ({ user }) => user?.role);
 
@@ -50,6 +50,8 @@ export const selectUserFirstName = createSelector(
 );
 
 export const selectUser = createSelector(selectAuthentication, ({ user }) => user);
+
+export const selectIsOAuthOnly = createSelector(selectUser, (user) => !!user?.isOAuthOnly);
 
 export const selectMustUpdatePassword = createSelector(
   selectAuthentication,
