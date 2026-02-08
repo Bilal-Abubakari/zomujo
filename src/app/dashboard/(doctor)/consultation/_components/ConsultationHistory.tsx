@@ -156,13 +156,14 @@ const ConsultationHistory = (): JSX.Element => {
           <div>
             <h3 className="mb-3 font-semibold text-gray-700">Conducted Labs</h3>
             <div className="flex flex-wrap gap-4">
-              {conductedLabs.map(({ testName, id, fileUrl, status, createdAt, notes }) => (
+              re{' '}
+              {conductedLabs.map(({ testName, id, fileUrl, status, notes }) => (
                 <LabCard
                   key={id}
                   testName={testName}
-                  fileUrl={fileUrl}
+                  fileUrl={fileUrl || null}
                   status={status}
-                  date={createdAt}
+                  date={''}
                   notes={notes}
                 />
               ))}

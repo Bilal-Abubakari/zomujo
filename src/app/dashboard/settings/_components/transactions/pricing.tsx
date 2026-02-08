@@ -51,7 +51,7 @@ const Pricing = (): JSX.Element => {
           return;
         }
         if (!doctorInfo?.hasSlot) {
-          router.push('/dashboard/settings/availability');
+          router.push('/dashboard/availability');
           toast(dataCompletionToast('availability'));
           return;
         }
@@ -73,7 +73,7 @@ const Pricing = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="flex w-full flex-col items-end gap-24 sm:ml-6 sm:w-[454px]">
+    <div className="flex w-full flex-col items-end gap-24 sm:ml-6 sm:w-113.5">
       <div className="relative flex w-full flex-1 flex-col gap-4">
         <p className="text-sm">Select amount</p>
         <Slider

@@ -1,5 +1,5 @@
 'use client';
-import { Calendar, Clock, Medal, Users } from 'lucide-react';
+import { Calendar, Clock, Medal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useState } from 'react';
 import { IDoctor } from '@/types/doctor.interface';
@@ -293,98 +293,96 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         title="Confirm Appointment"
         showClose={!isInitiatingPayment}
       />
-      <div className="hover:border-primary-100 flex h-full w-full max-w-[400px] flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
-        <div className="flex flex-1 flex-col">
-          <div className="mb-4 flex w-full flex-row gap-4">
-            <div className="relative shrink-0">
-              <AvatarComp imageSrc={profilePicture} name={fullName} className="h-14 w-14" />
-              <div className="absolute -right-1 bottom-1 h-4 w-4 rounded-full border-2 border-white bg-green-400"></div>
+      <div className="group flex h-full w-62.5 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
+        {/* Image Section - Top Half */}
+        <div
+          className="relative h-40 w-full cursor-pointer overflow-hidden bg-gray-100"
+          onClick={() => setOpenDoctorDetails(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setOpenDoctorDetails(true);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`View details for Dr. ${fullName}`}
+        >
+          {profilePicture ? (
+            <img
+              src={profilePicture}
+              alt={`Dr. ${fullName}`}
+              className="h-40 w-full object-center transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div className="from-primary-100 to-primary-200 flex h-48 w-full items-center justify-center bg-linear-to-br">
+              <span className="text-primary-600 text-4xl font-bold">
+                {firstName[0]}
+                {lastName[0]}
+              </span>
             </div>
-            <div className="flex w-full flex-col justify-center overflow-hidden">
-              <div className="flex items-center gap-2">
-                <span
-                  title={`Dr. ${fullName}`}
-                  className="truncate text-base font-bold text-gray-900 md:text-lg"
-                >
-                  Dr. {fullName}
-                </span>
-              </div>
-              <p
-                title={specializations ? specializations[0] : 'General Practitioner'}
-                className="text-primary-600 truncate text-xs font-medium md:text-sm"
-              >
-                {specializations ? capitalize(specializations[0]) : 'General Practitioner'}
-              </p>
-            </div>
-          </div>
-
-          <hr className="mb-4 w-full border-gray-100" />
-
-          <div className="mb-5 flex w-full flex-wrap gap-y-3">
-            <div className="flex w-1/2 items-center gap-2 pr-2">
-              <Medal size={16} className="text-primary-500" />
-              <p
-                title={`${experience ?? 1} year(s) experience`}
-                className="truncate text-xs text-gray-700 md:text-sm"
-              >
-                {experience ?? 1} year(s) experience
-              </p>
-            </div>
-
-            {noOfConsultations && (
-              <div className="flex w-1/2 items-center gap-2 pl-2">
-                <Users size={16} className="text-primary-500" />
-                <p
-                  title={`${noOfConsultations} consultations`}
-                  className="truncate text-xs text-gray-700 md:text-sm"
-                >
-                  {noOfConsultations} consultations
-                </p>
-              </div>
-            )}
-
-            <div className="flex w-1/2 items-center gap-2 pr-2">
-              <Clock size={16} className="text-primary-500" />
-              <p
-                title={`${fee?.lengthOfSession} session`}
-                className="truncate text-xs text-gray-700 md:text-sm"
-              >
-                {fee?.lengthOfSession} session
-              </p>
-            </div>
-
-            <div className="flex w-full items-start gap-2 pt-3">
-              <Calendar size={16} className="text-primary-500 mt-0.5" />
-              <div>
-                <p className="text-sm text-gray-700">Next available:</p>
-                <p className="text-sm text-gray-700">
-                  {getAvailability()}{' '}
-                  <Button onClick={() => setShowSlots(true)} variant="link" child="See more" />
-                </p>
-              </div>
-            </div>
-          </div>
+          )}
+          {/* Online Status Badge */}
+          {/*<div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-sm">*/}
+          {/*  <div className="h-2 w-2 rounded-full bg-green-500"></div>*/}
+          {/*  <span className="text-xs font-medium text-gray-700">Available</span>*/}
+          {/*</div>*/}
         </div>
-        <div>
-          <Button
-            onClick={() => setOpenDoctorDetails(true)}
-            variant="link"
-            child="View Doctor Details"
-            className="text-sm"
-          />
-        </div>
-        <div className="mt-auto flex flex-row items-center justify-between border-t border-gray-100 pt-2">
-          <div className="flex flex-col">
-            <p className="text-primary-dark text-base font-bold md:text-lg">GHs {fee?.amount}</p>
-            <p className="text-xs font-medium text-gray-500">per session</p>
+
+        {/* Information Section */}
+        <div className="flex flex-1 flex-col p-4">
+          {/* Doctor Name and Specialty */}
+          <div className="mb-3">
+            <h3
+              title={`Dr. ${fullName}`}
+              className="hover:text-primary-600 cursor-pointer truncate text-lg font-bold text-gray-900 transition-colors"
+              onClick={() => setOpenDoctorDetails(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setOpenDoctorDetails(true);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label={`View details for Dr. ${fullName}`}
+            >
+              Dr. {fullName}
+            </h3>
+            <p
+              title={specializations ? specializations[0] : 'General Practitioner'}
+              className="text-primary-600 truncate text-xs font-medium"
+            >
+              {specializations ? capitalize(specializations[0]) : 'General Practitioner'}
+            </p>
           </div>
 
+          {/* Compact Info Lines */}
+          <div className="mb-3 flex items-center gap-2 text-xs text-gray-600">
+            <Medal size={14} className="text-primary-500 shrink-0" />
+            <span className="truncate">{experience ?? 1} years experience</span>
+          </div>
+          <div className="mb-3 flex items-center gap-2 text-sm text-gray-600">
+            <span className="text-gray-400">•</span>
+            <span className="text-primary font-semibold">GH&#8373; {fee?.amount} / session</span>
+          </div>
+
+          {/* Next Available */}
+          <div className="mb-4 flex items-center gap-2 rounded-md bg-gray-50 px-3 py-2">
+            <Calendar size={14} className="text-primary-500 shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs text-gray-500">Next available</p>
+              <p className="text-sm font-medium text-gray-900">{getAvailability()}</p>
+            </div>
+          </div>
+
+          {/* Book Appointment Button */}
           <Button
             disabled={appointmentSlots.length === 0}
             title={appointmentSlots.length === 0 ? 'No available slots' : 'Book Appointment'}
             onClick={handleBookAppointment}
-            className="bg-primary hover:bg-primary-600 h-10 shrink-0 rounded-md px-3 text-sm font-medium text-white transition-colors duration-300 md:px-4"
-            child="Book Appointment"
+            className="bg-primary hover:bg-primary-600 mt-auto w-full rounded-md py-2.5 text-sm font-medium text-white transition-colors duration-300 disabled:cursor-not-allowed disabled:opacity-50"
+            child={appointmentSlots.length === 0 ? 'No Slots Available' : 'Book Appointment'}
           />
         </div>
       </div>

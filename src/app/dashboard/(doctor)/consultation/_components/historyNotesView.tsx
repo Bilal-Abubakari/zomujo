@@ -148,11 +148,13 @@ const HistoryNotesView = ({
   const storageKey = `consultation_${appointmentId}_history_notes_draft`;
 
   useEffect(() => {
-    if (!initialNotes) {
-      const draft = LocalStorageManager.getJSON<HistoryNotesData>(storageKey);
-      if (draft) {
-        setNotes(draft);
-      }
+    if (initialNotes) {
+      setNotes(parseInitialNotes(initialNotes));
+      return;
+    }
+    const draft = LocalStorageManager.getJSON<HistoryNotesData>(storageKey);
+    if (draft) {
+      setNotes(draft);
     }
   }, [initialNotes, storageKey]);
 
@@ -168,21 +170,35 @@ const HistoryNotesView = ({
   }, []);
 
   const handleSaveAndContinue = async (): Promise<void> => {
+    const currentNotesJson = JSON.stringify(notes);
+
+    if (initialNotes) {
+      const parsedInitialNotes = parseInitialNotes(initialNotes);
+      const initialNotesJson = JSON.stringify(parsedInitialNotes);
+
+      if (currentNotesJson === initialNotesJson) {
+        LocalStorageManager.removeJSON(storageKey);
+        goToLabs();
+        return;
+      }
+    }
+
     setIsLoading(true);
     const { payload } = await dispatch(
       updateHistoryNotes({
         appointmentId,
-        notes: JSON.stringify(notes),
+        notes: currentNotesJson,
       }),
     );
     toast(payload as Toast);
     setIsLoading(false);
 
-    if (!showErrorToast(payload)) {
-      setHasUnsavedChanges(false);
-      LocalStorageManager.removeJSON(storageKey);
-      goToLabs();
+    if (showErrorToast(payload)) {
+      return;
     }
+    setHasUnsavedChanges(false);
+    LocalStorageManager.removeJSON(storageKey);
+    goToLabs();
   };
 
   const isValid = Object.values(notes).some((value) => value.trim().length > 0);

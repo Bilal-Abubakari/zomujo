@@ -9,7 +9,6 @@ import {
   Compass,
   Cross,
   Home,
-  MessageCircleMore,
   Settings,
   User,
   UserSearch,
@@ -109,10 +108,16 @@ export const DOCTOR_SIDE_BAR: ISidebar = {
           Icon: User,
         },
         {
-          title: 'Message',
-          url: '#',
-          Icon: MessageCircleMore,
+          title: 'Availability',
+          url: `${DASHBOARD_ROUTE}/availability`,
+          Icon: BetweenHorizontalStart,
         },
+        // TODO: Not planned for MVP
+        // {
+        //   title: 'Message',
+        //   url: '#',
+        //   Icon: MessageCircleMore,
+        // },
       ],
     },
 
@@ -248,11 +253,6 @@ export const DOCTOR_SETTINGS_SIDEBAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/identification`,
           Icon: CreditCard,
         },
-        {
-          title: 'Availability',
-          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/availability`,
-          Icon: BetweenHorizontalStart,
-        },
       ],
     },
   ],
@@ -272,11 +272,6 @@ export const ADMIN_SETTINGS_SIDEBAR: ISidebar = {
           title: 'Payment',
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/payment`,
           Icon: Banknote,
-        },
-        {
-          title: 'Availability',
-          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/availability`,
-          Icon: BetweenHorizontalStart,
         },
       ],
     },

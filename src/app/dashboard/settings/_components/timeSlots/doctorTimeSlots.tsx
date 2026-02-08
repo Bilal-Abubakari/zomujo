@@ -16,7 +16,7 @@ const DoctorTimeSlots = (): JSX.Element => {
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <TabsList className="grid h-auto w-full grid-cols-1 sm:grid-cols-3">
         <TabsTrigger value="create" className="py-2 whitespace-normal">
-          Create Pattern
+          Create Slots
         </TabsTrigger>
         <TabsTrigger value="view-patterns" className="py-2 whitespace-normal">
           View Patterns

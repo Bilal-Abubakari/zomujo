@@ -14,12 +14,15 @@ export type CategoryType =
   | MicrobiologyCategory;
 
 export interface ILaboratoryRequest {
+  id: string;
   category: LabTestSection;
   categoryType: CategoryType;
   testName: string;
   notes: string;
   fasting: boolean;
   specimen: string;
+  fileUrl?: string;
+  status: RequestStatus;
 }
 
 export interface ILaboratoryRequestWithRecordId {
@@ -28,10 +31,9 @@ export interface ILaboratoryRequestWithRecordId {
   labs: ILaboratoryRequest[];
 }
 
-export interface ILab extends ILaboratoryRequest {
+export interface ILab {
   id: string;
-  fileUrl: string | null;
-  status: RequestStatus;
+  data: ILaboratoryRequest[];
   createdAt: string;
   updatedAt: string;
 }

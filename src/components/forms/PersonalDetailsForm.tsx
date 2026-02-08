@@ -235,7 +235,7 @@ const DoctorPersonalDetailsForm = ({
   <form className="pb-20" onSubmit={onSubmit}>
     <BasicFields register={register} errors={errors}>
       <Input
-        labelName="Experience"
+        labelName="Experience (In Years)"
         className="bg-transparent"
         placeholder="5"
         error={errors.experience?.message || ''}

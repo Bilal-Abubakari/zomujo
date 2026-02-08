@@ -23,6 +23,7 @@ import { Toast, useToast } from '@/hooks/use-toast';
 import { getPatientMedicalHistory } from '@/lib/features/patients/patientsThunk';
 import { IPatientMedicalHistory } from '@/types/patient.interface';
 import { RequestStatus } from '@/types/shared.enum';
+import { ILaboratoryRequest } from '@/types/labs.interface';
 
 const MyMedicalRecord = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -414,11 +415,30 @@ const MyMedicalRecord = (): JSX.Element => {
         </Card>
       )}
 
-      {/* Lab Results - Combined from both sources */}
       {((): JSX.Element | null => {
-        const allLabs = [...(record?.lab || []), ...(medicalHistory?.labResults || [])];
+        type LabItemWithTimestamp = ILaboratoryRequest & { createdAt: string };
 
-        const renderLabItem = (lab: (typeof allLabs)[0]): JSX.Element => (
+        const labsFromRecord: LabItemWithTimestamp[] = record?.lab
+          ? record.lab.flatMap((l) =>
+              (l.data || []).map((labItem) => ({
+                ...labItem,
+                createdAt: l.createdAt,
+              })),
+            )
+          : [];
+
+        const labsFromHistory: LabItemWithTimestamp[] = medicalHistory?.labResults
+          ? medicalHistory.labResults.flatMap((l) =>
+              (l.data || []).map((labItem) => ({
+                ...labItem,
+                createdAt: l.createdAt,
+              })),
+            )
+          : [];
+
+        const allLabs = [...labsFromRecord, ...labsFromHistory];
+
+        const renderLabItem = (lab: LabItemWithTimestamp): JSX.Element => (
           <div key={lab.id} className="border-b pb-3 last:border-0">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -501,48 +521,30 @@ const MyMedicalRecord = (): JSX.Element => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(record.lifestyle as any).alcohol && (
+              {record.lifestyle.alcohol && (
                 <div className="space-y-1">
                   <p className="text-sm text-gray-500">Alcohol Consumption</p>
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  <p className="font-medium">{(record.lifestyle as any).alcohol.level}</p>
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {(record.lifestyle as any).alcohol.description && (
-                    <p className="text-sm text-gray-400">
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(record.lifestyle as any).alcohol.description}
-                    </p>
+                  <p className="font-medium">{record.lifestyle.alcohol.level}</p>
+                  {record.lifestyle.alcohol.description && (
+                    <p className="text-sm text-gray-400">{record.lifestyle.alcohol.description}</p>
                   )}
                 </div>
               )}
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(record.lifestyle as any).smoking && (
+              {record.lifestyle.smoking && (
                 <div className="space-y-1">
                   <p className="text-sm text-gray-500">Smoking</p>
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  <p className="font-medium">{(record.lifestyle as any).smoking.level}</p>
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {(record.lifestyle as any).smoking.description && (
-                    <p className="text-sm text-gray-400">
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(record.lifestyle as any).smoking.description}
-                    </p>
+                  <p className="font-medium">{record.lifestyle.smoking.level}</p>
+                  {record.lifestyle.smoking.description && (
+                    <p className="text-sm text-gray-400">{record.lifestyle.smoking.description}</p>
                   )}
                 </div>
               )}
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(record.lifestyle as any).stress && (
+              {record.lifestyle.stress && (
                 <div className="space-y-1">
                   <p className="text-sm text-gray-500">Stress Level</p>
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  <p className="font-medium">{(record.lifestyle as any).stress.level}</p>
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {(record.lifestyle as any).stress.description && (
-                    <p className="text-sm text-gray-400">
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(record.lifestyle as any).stress.description}
-                    </p>
+                  <p className="font-medium">{record.lifestyle.stress.level}</p>
+                  {record.lifestyle.stress.description && (
+                    <p className="text-sm text-gray-400">{record.lifestyle.stress.description}</p>
                   )}
                 </div>
               )}

@@ -1,38 +1,10 @@
 {
   "Chemical Pathology": {
-    "Anaemia Studies": [
-      "Ferritin",
-      "Iron",
-      "TIBC",
-      "Transferrin Saturation"
-    ],
-    "Blood Glucose": [
-      "FBS",
-      "2HR OGTT",
-      "RBS",
-      "HbA1C"
-    ],
-    "Cardiac": [
-      "CK-MB",
-      "Troponin I",
-      "Troponin T",
-      "AST (SGOT)"
-    ],
-    "Gen. Chemistry": [
-      "Urea",
-      "Creatinine",
-      "Electrolytes",
-      "Calcium",
-      "Phosphate",
-      "Magnesium"
-    ],
-    "Lipid Profile": [
-      "Cholesterol",
-      "HDL Chol",
-      "LDL Chol",
-      "Triglycerides",
-      "Lipid Card"
-    ],
+    "Anaemia Studies": ["Ferritin", "Iron", "TIBC", "Transferrin Saturation"],
+    "Blood Glucose": ["FBS", "2HR OGTT", "RBS", "HbA1C"],
+    "Cardiac": ["CK-MB", "Troponin I", "Troponin T", "AST (SGOT)"],
+    "Renal": ["Urea", "Creatinine", "Sodium", "Potassium", "Calcium", "Phosphate", "Magnesium"],
+    "Lipid Profile": ["Cholesterol", "HDL Chol", "LDL Chol", "Triglycerides", "Lipid Card"],
     "Liver Function Tests": [
       "ALT (SGPT)",
       "AST (SGOT)",
@@ -68,7 +40,7 @@
       "CSF Protein",
       "Serum Protein Electrophoresis"
     ],
-    "Renal": [
+    "Gen. Chemistry": [
       "Uric Acid",
       "Bicarbonate",
       "Calcium: Creatinine",
@@ -76,15 +48,9 @@
       "Urine Urea",
       "Urine Creatinine",
       "Creatinine Clearance",
-      "Carbam dioxide"
+      "Carbon dioxide"
     ],
-    "Tumor Markers": [
-      "PSA",
-      "CEA",
-      "CA-125",
-      "AFP",
-      "β-HCG (Quantitative)"
-    ],
+    "Tumor Markers": ["PSA", "CEA", "CA-125", "AFP", "β-HCG (Quantitative)"],
     "Urine Chemistry": [
       "24hr Protein",
       "24hr Creatinine",
@@ -92,9 +58,7 @@
       "Urine Proteins",
       "Urine Glucose"
     ],
-    "Others": [
-      "Specify"
-    ]
+    "Others": ["Specify"]
   },
   "Haematology": {
     "General Haematology": [
@@ -151,47 +115,18 @@
     ]
   },
   "Microbiology": {
-    "Aspirates": [
-      "AFB/Z N",
-      "C/S"
-    ],
-    "Blood": [
-      "C/S",
-      "AFB",
-      "Malaria Parasites",
-      "Trypanosomes"
-    ],
-    "Cerebrospinal Fluid (CSF)": [
-      "AFB/Z N",
-      "C/S",
-      "India Ink",
-      "Gram",
-      "Ziehl Neelsen"
-    ],
-    "Corneal Scraping": [
-      "C/S",
-      "Gram"
-    ],
-    "Intravenous Catheter Tip": [
-      "C/S"
-    ],
-    "Seminal Fluid": [
-      "Analysis",
-      "C/S"
-    ],
-    "Skin": [
-      "KOH",
-      "Fungal Test"
-    ],
-    "Sputum": [
-      "Gram",
-      "C/S",
-      "AFB"
-    ],
+    "Aspirates": ["AFB/Z N", "C/S (Aspirates)"],
+    "Blood": ["C/S (Blood)", "AFB", "Malaria Parasites", "Trypanosomes"],
+    "Cerebrospinal Fluid (CSF)": ["AFB/Z N", "C/S (CSF)", "India Ink", "Gram", "Ziehl Neelsen"],
+    "Corneal Scraping": ["C/S (Corneal Scraping)", "Gram"],
+    "Intravenous Catheter Tip": ["C/S (Intravenous Catheter Tip)"],
+    "Seminal Fluid": ["Analysis", "C/S (Seminal Fluid)"],
+    "Skin": ["KOH", "Fungal Test"],
+    "Sputum": ["Gram", "C/S (Sputum)", "AFB", "GeneXpert"],
     "Stool": [
       "Routine Exam",
       "Occult Blood",
-      "C/S",
+      "C/S (Stool)",
       "Reducing Substance",
       "Porphyrobilinogen"
     ],
@@ -205,7 +140,7 @@
       "Cervical Swab",
       "AFB/Z N",
       "Gram",
-      "C/S"
+      "C/S (Swabs)"
     ]
   }
 }
