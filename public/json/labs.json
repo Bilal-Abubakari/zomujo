@@ -3,7 +3,7 @@
     "Anaemia Studies": ["Ferritin", "Iron", "TIBC", "Transferrin Saturation"],
     "Blood Glucose": ["FBS", "2HR OGTT", "RBS", "HbA1C"],
     "Cardiac": ["CK-MB", "Troponin I", "Troponin T", "AST (SGOT)"],
-    "Renal": ["Urea", "Creatinine", "Sodium and Potassium", "Calcium", "Phosphate", "Magnesium"],
+    "Renal": ["Urea", "Creatinine", "Sodium", "Potassium", "Calcium", "Phosphate", "Magnesium"],
     "Lipid Profile": ["Cholesterol", "HDL Chol", "LDL Chol", "Triglycerides", "Lipid Card"],
     "Liver Function Tests": [
       "ALT (SGPT)",
