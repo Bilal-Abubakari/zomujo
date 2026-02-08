@@ -22,7 +22,7 @@ export const QuestionsSection = ({
     <Label>Clinical Questions</Label>
     <div className="space-y-2">
       {questions.map((question, index) => (
-        <div key={`${index}-${question}`} className="flex gap-2">
+        <div key={index} className="flex gap-2">
           <Input
             placeholder={`Question ${index + 1}`}
             {...register(`questions.${index}` as const)}
