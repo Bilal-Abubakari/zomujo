@@ -1,7 +1,7 @@
 import { DurationType } from '@/types/shared.enum';
 import { IExtraBase } from '@/types/shared.interface';
 import { IMedicineWithoutId, IDiagnosis, IPrescription } from '@/types/medical.interface';
-import { ILaboratoryRequest } from '@/types/labs.interface';
+import { ILab } from '@/types/labs.interface';
 import { ISlot } from '@/types/slots.interface';
 import { IRadiology } from '@/types/radiology.interface';
 import { IDoctor } from './doctor.interface';
@@ -42,7 +42,7 @@ export interface IConsultationDetails {
   doctor: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
   patient: Pick<IExtraBase, 'firstName' | 'lastName' | 'profilePicture'>;
   prescriptionUrl: string;
-  lab: ILaboratoryRequest[];
+  lab: ILab;
   radiology: IRadiology;
   diagnosis: IDiagnosis[];
   prescriptions: IPrescription[];

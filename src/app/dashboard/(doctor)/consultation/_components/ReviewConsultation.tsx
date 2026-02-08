@@ -24,7 +24,7 @@ import {
   startConsultation,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams, useRouter } from 'next/navigation';
-import { toast } from '@/hooks/use-toast';
+import { Toast, toast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { ReviewHeader } from './ReviewHeader';
@@ -38,6 +38,7 @@ import { IAppointment } from '@/types/appointment.interface';
 import { ILaboratoryRequest } from '@/types/labs.interface';
 import { IRadiology } from '@/types/radiology.interface';
 import { IDiagnosis, IPrescription } from '@/types/medical.interface';
+import { ToastStatus } from '@/types/shared.enum';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
@@ -335,7 +336,15 @@ const ReviewConsultation = ({
     const result = await dispatch(
       generatePrescription({ appointmentId: String(params.appointmentId), notes }),
     ).unwrap();
-    toast(result);
+    if (showErrorToast(result)) {
+      toast(result as Toast);
+    } else {
+      toast({
+        title: ToastStatus.Success,
+        description: 'Prescription sent successfully!',
+        variant: 'success',
+      });
+    }
     setIsSendingPrescription(false);
     setPrescriptionNotes('');
   };

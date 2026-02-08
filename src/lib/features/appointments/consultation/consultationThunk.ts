@@ -187,15 +187,21 @@ export const saveDiagnosis = createAsyncThunk(
 
 export const generatePrescription = createAsyncThunk(
   'consultation/generate-prescription',
-  async ({ appointmentId, notes }: { appointmentId: string; notes: string }): Promise<Toast> => {
+  async ({
+    appointmentId,
+    notes,
+  }: {
+    appointmentId: string;
+    notes: string;
+  }): Promise<Toast | string> => {
     try {
       const {
-        data: { message },
-      } = await axios.post<IResponse>(`consultation/generate-prescription`, {
+        data: { data },
+      } = await axios.post<IResponse<{ url: string }>>(`consultation/generate-prescription`, {
         appointmentId,
         notes,
       });
-      return generateSuccessToast(message);
+      return data.url;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
@@ -364,6 +370,20 @@ export const downloadRadiologyRequestPdf = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.log('Error', error);
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const deletePrescription = createAsyncThunk(
+  'consultation/delete-prescription',
+  async (id: string): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.delete<IResponse>(`consultation/prescription/${id}`);
+      return generateSuccessToast(message);
+    } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
   },

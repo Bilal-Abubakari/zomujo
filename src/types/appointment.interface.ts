@@ -4,7 +4,7 @@ import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
 import { IHospital } from './hospital.interface';
 import { IConsultationSymptomsRequest } from '@/types/consultation.interface';
-import { IDiagnosis, IPrescription } from '@/types/medical.interface';
+import { IDiagnosis, IPrescriptionResponse } from '@/types/medical.interface';
 import { ILab } from '@/types/labs.interface';
 import { ISlot, ISlotBase } from '@/types/slots.interface';
 import { IRadiology } from '@/types/radiology.interface';
@@ -34,7 +34,7 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   radiology: IRadiology;
   prescriptionUrl: string | null;
   diagnosis: IDiagnosis[];
-  prescriptions: IPrescription[];
+  prescriptions: IPrescriptionResponse[];
 }
 
 export interface IRecordRequest extends IBaseAppointment {
