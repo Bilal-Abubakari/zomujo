@@ -51,11 +51,14 @@ export type LabsRef = InvestigationBaseRef;
 const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   const { on } = useWebSocket();
   const [labs, setLabs] = useState<LaboratoryTest | null>(null);
-  const [selectedTests, setSelectedTests] = useState<
-    Map<string, { category: string; categoryType: string }>
-  >(new Map());
+  const [state, setState] = useState<{
+    selectedTests: Map<string, { category: string; categoryType: string }>;
+    categorySpecimens: Map<string, string>;
+  }>({
+    selectedTests: new Map(),
+    categorySpecimens: new Map(),
+  });
   const [searchQuery, setSearchQuery] = useState('');
-  const [categorySpecimens, setCategorySpecimens] = useState<Map<string, string>>(new Map());
   const { handleSubmit } = useForm<LabFormData>({
     resolver: zodResolver(labsSchema),
     mode: MODE.ON_TOUCH,
@@ -116,10 +119,10 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
 
   const handleSaveLabs = async (data: LabFormData): Promise<void> => {
     const selectedCategories = Array.from(
-      new Set(Array.from(selectedTests.values()).map((m) => m.category)),
+      new Set(Array.from(state.selectedTests.values()).map((m) => m.category)),
     );
     const missingCategories = selectedCategories.filter(
-      (cat) => !categorySpecimens.get(cat)?.trim(),
+      (cat) => !state.categorySpecimens.get(cat)?.trim(),
     );
 
     if (missingCategories.length > 0) {
@@ -131,9 +134,9 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       return;
     }
 
-    const newLabRequests: ILaboratoryRequest[] = Array.from(selectedTests.entries()).map(
+    const newLabRequests: ILaboratoryRequest[] = Array.from(state.selectedTests.entries()).map(
       ([testName, meta]) => {
-        const specimenToUse = categorySpecimens.get(meta.category)!.trim();
+        const specimenToUse = state.categorySpecimens.get(meta.category)!.trim();
 
         let existingId = '';
         let existingStatus = RequestStatus.Pending;
@@ -208,37 +211,64 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   };
 
   const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
-    setSelectedTests((prev) => {
-      const newMap = new Map(prev);
-      if (newMap.has(testName)) {
-        newMap.delete(testName);
-
-        const remainingTestsInCategory = Array.from(newMap.values()).some(
+    setState((prev) => {
+      const newSelectedTests = new Map(prev.selectedTests);
+      const newCategorySpecimens = new Map(prev.categorySpecimens);
+      if (newSelectedTests.has(testName)) {
+        newSelectedTests.delete(testName);
+        const remainingTestsInCategory = Array.from(newSelectedTests.values()).some(
           (meta) => meta.category === category,
         );
         if (!remainingTestsInCategory) {
-          setCategorySpecimens((specimens) => {
-            const newSpecimens = new Map(specimens);
-            newSpecimens.delete(category);
-            return newSpecimens;
-          });
+          newCategorySpecimens.delete(category);
         }
       } else {
-        newMap.set(testName, { category, categoryType });
+        newSelectedTests.set(testName, { category, categoryType });
       }
-      return newMap;
+      return { selectedTests: newSelectedTests, categorySpecimens: newCategorySpecimens };
+    });
+    setHasUnsavedChanges(true);
+  };
+
+  const toggleSubCategorySelection = (
+    subCategory: string,
+    mainCategory: string,
+    tests: string[],
+    checked: boolean,
+  ): void => {
+    setState((prev) => {
+      const newSelectedTests = new Map(prev.selectedTests);
+      const newCategorySpecimens = new Map(prev.categorySpecimens);
+      tests.forEach((test) => {
+        if (checked) {
+          newSelectedTests.set(test, { category: mainCategory, categoryType: subCategory });
+        } else {
+          newSelectedTests.delete(test);
+        }
+      });
+      if (!checked) {
+        const remainingTestsInCategory = Array.from(newSelectedTests.values()).some(
+          (meta) => meta.category === mainCategory,
+        );
+        if (!remainingTestsInCategory) {
+          newCategorySpecimens.delete(mainCategory);
+        }
+      }
+      return { selectedTests: newSelectedTests, categorySpecimens: newCategorySpecimens };
     });
     setHasUnsavedChanges(true);
   };
 
   const handleSpecimenChange = (category: string, value: string): void => {
-    const newSpecimens = new Map(categorySpecimens);
-    if (value) {
-      newSpecimens.set(category, value);
-    } else {
-      newSpecimens.delete(category);
-    }
-    setCategorySpecimens(newSpecimens);
+    setState((prev) => {
+      const newCategorySpecimens = new Map(prev.categorySpecimens);
+      if (value) {
+        newCategorySpecimens.set(category, value);
+      } else {
+        newCategorySpecimens.delete(category);
+      }
+      return { ...prev, categorySpecimens: newCategorySpecimens };
+    });
     setHasUnsavedChanges(true);
   };
 
@@ -250,8 +280,10 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         prevTests.set(lab.testName, { category: lab.category, categoryType: lab.categoryType });
         prevSpecimens.set(lab.category, lab.specimen);
       });
-      setSelectedTests(prevTests);
-      setCategorySpecimens(prevSpecimens);
+      setState({
+        selectedTests: prevTests,
+        categorySpecimens: prevSpecimens,
+      });
       setHasUnsavedChanges(false);
     }
   }, [requestedAppointmentLabs]);
@@ -275,8 +307,10 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onClearSelections={() => {
-          setSelectedTests(new Map());
-          setCategorySpecimens(new Map());
+          setState({
+            selectedTests: new Map(),
+            categorySpecimens: new Map(),
+          });
           setHasUnsavedChanges(true);
         }}
         onSubmit={() => handleSubmit(handleSaveLabs)()}
@@ -287,8 +321,8 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         showPreview={showPreview}
         setShowPreview={setShowPreview}
         hasUnsavedChanges={hasUnsavedChanges}
-        getSelectedCount={() => selectedTests.size}
-        getSelectedTestNames={() => Array.from(selectedTests.keys())}
+        getSelectedCount={() => state.selectedTests.size}
+        getSelectedTestNames={() => Array.from(state.selectedTests.keys())}
         renderContent={() => (
           <div className="mb-20 max-h-125 overflow-y-auto rounded-lg border bg-white p-4">
             {filteredLabs && Object.entries(filteredLabs).length > 0 ? (
@@ -297,10 +331,11 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
                   key={mainCategory}
                   mainCategory={mainCategory}
                   subCategories={subCategories}
-                  selectedTests={selectedTests}
-                  categorySpecimens={categorySpecimens}
+                  selectedTests={state.selectedTests}
+                  categorySpecimens={state.categorySpecimens}
                   onSpecimenChange={handleSpecimenChange}
                   onToggleTest={toggleTestSelection}
+                  onToggleSubCategory={toggleSubCategorySelection}
                   extractSpecimenOptions={extractSpecimenOptions}
                 />
               ))

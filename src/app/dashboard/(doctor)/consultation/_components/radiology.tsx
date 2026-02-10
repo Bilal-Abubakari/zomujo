@@ -171,6 +171,32 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
     setHasUnsavedChanges(true);
   };
 
+  const toggleSubCategory = (
+    subCategory: string,
+    mainCategory: string,
+    tests: string[],
+    checked: boolean,
+  ): void => {
+    const currentTests = watch('tests') || [];
+    let newTests = [...currentTests];
+
+    tests.forEach((test) => {
+      const exists = newTests.find((t) => t.testName === test);
+      if (checked && !exists) {
+        newTests.push({
+          testName: test,
+          category: mainCategory as RadiologySection,
+          categoryType: subCategory as RadiologyCategoryType,
+        });
+      } else if (!checked && exists) {
+        newTests = newTests.filter((t) => t.testName !== test);
+      }
+    });
+
+    setValue('tests', newTests, { shouldValidate: true, shouldDirty: true });
+    setHasUnsavedChanges(true);
+  };
+
   const radiologyTestSection = (
     <div className="relative overflow-y-auto">
       {filteredRadiology &&
@@ -186,6 +212,9 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
                 mainCategory as RadiologySection,
                 subCategory as RadiologyCategoryType,
               )
+            }
+            onToggleSubCategory={(subCategory, mainCategory, tests, checked) =>
+              toggleSubCategory(subCategory, mainCategory, tests, checked)
             }
             isTestSelected={(testName, tests) =>
               Array.isArray(tests) ? tests.some((t) => t.testName === testName) : false
