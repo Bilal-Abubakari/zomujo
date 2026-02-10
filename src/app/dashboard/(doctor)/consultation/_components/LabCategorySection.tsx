@@ -9,6 +9,12 @@ type LabCategorySectionProps = {
   categorySpecimens: Map<string, string>;
   onSpecimenChange: (category: string, value: string) => void;
   onToggleTest: (test: string, category: string, categoryType: string) => void;
+  onToggleSubCategory: (
+    subCategory: string,
+    mainCategory: string,
+    tests: string[],
+    checked: boolean,
+  ) => void;
   extractSpecimenOptions: (testName: string) => string[] | null;
 };
 
@@ -19,6 +25,7 @@ const LabCategorySection = ({
   categorySpecimens,
   onSpecimenChange,
   onToggleTest,
+  onToggleSubCategory,
   extractSpecimenOptions,
 }: LabCategorySectionProps): JSX.Element => {
   const hasSelectedTestsInCategory = Array.from(selectedTests.values()).some(
@@ -54,6 +61,7 @@ const LabCategorySection = ({
             mainCategory={mainCategory}
             selectedTests={selectedTests}
             onToggleTest={onToggleTest}
+            onToggleSubCategory={onToggleSubCategory}
           />
         ))}
       </div>

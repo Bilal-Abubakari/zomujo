@@ -231,6 +231,36 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
     setHasUnsavedChanges(true);
   };
 
+  const toggleSubCategorySelection = (
+    subCategory: string,
+    mainCategory: string,
+    tests: string[],
+    checked: boolean,
+  ): void => {
+    setSelectedTests((prev) => {
+      const newMap = new Map(prev);
+      tests.forEach((test) => {
+        if (checked) {
+          newMap.set(test, { category: mainCategory, categoryType: subCategory });
+        } else {
+          newMap.delete(test);
+          const remainingTestsInCategory = Array.from(newMap.values()).some(
+            (meta) => meta.category === mainCategory,
+          );
+          if (!remainingTestsInCategory) {
+            setCategorySpecimens((specimens) => {
+              const newSpecimens = new Map(specimens);
+              newSpecimens.delete(mainCategory);
+              return newSpecimens;
+            });
+          }
+        }
+      });
+      return newMap;
+    });
+    setHasUnsavedChanges(true);
+  };
+
   const handleSpecimenChange = (category: string, value: string): void => {
     const newSpecimens = new Map(categorySpecimens);
     if (value) {
@@ -301,6 +331,7 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
                   categorySpecimens={categorySpecimens}
                   onSpecimenChange={handleSpecimenChange}
                   onToggleTest={toggleTestSelection}
+                  onToggleSubCategory={toggleSubCategorySelection}
                   extractSpecimenOptions={extractSpecimenOptions}
                 />
               ))
