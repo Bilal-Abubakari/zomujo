@@ -1,5 +1,5 @@
 'use client';
-import { MapPin, ExternalLink, Building2, X, Phone, Globe, Mail, MoreVertical, Clock, BedDouble } from 'lucide-react';
+import { MapPin, X, MoreVertical, Clock, Globe, BedDouble } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Logo } from '@/assets/images';
 
 interface HospitalCardProps {
   hospital: IHospitalListItem;
@@ -20,9 +21,16 @@ interface HospitalCardProps {
 const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
   const [showPreview, setShowPreview] = useState(false);
   const router = useRouter();
-  const { name, slug, description, organizationType, hasEmergency, telemedicine, primaryAddress, images, mainPhone, website, mainEmail, bedCount } = hospital;
+  const { name, slug, organizationType, hasEmergency, telemedicine, primaryAddress, images, bedCount } = hospital;
 
-  const primaryImage = images && images.length > 0 ? images[0] : null;
+  // Primary display = first gallery image (type 'photo') sorted by displayOrder; logo = type 'logo'
+  const galleryImages = (images?.filter((img) => img.type === 'photo') ?? []).sort((a, b) => {
+    const orderA = (a.meta as { displayOrder?: number })?.displayOrder ?? 999;
+    const orderB = (b.meta as { displayOrder?: number })?.displayOrder ?? 999;
+    return orderA - orderB;
+  });
+  const primaryImage = galleryImages.length > 0 ? galleryImages[0] : null;
+  const logoImage = images?.find((img) => img.type === 'logo') ?? null;
 
   const handleViewDetails = () => {
     if (!slug) {
@@ -72,9 +80,9 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
         </div>
       )}
 
-      <div className="group relative flex w-full max-w-full sm:max-w-[350px] md:max-w-[380px] flex-shrink-0 flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      <div className="group relative flex w-full max-w-full sm:max-w-[350px] md:max-w-[380px] flex-shrink-0 flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 select-none">
         {/* Image Section with Frosted Glass Overlay */}
-        <div className="relative h-[250px] sm:h-[320px] md:h-[380px] w-full overflow-hidden">
+        <div className="relative h-[240px] sm:h-[290px] md:h-[350px] w-full overflow-hidden">
           {primaryImage ? (
             <div className="relative h-full w-full cursor-pointer" onClick={() => setShowPreview(true)}>
               <Image
@@ -85,8 +93,8 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
               />
             </div>
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-100 via-blue-100 to-indigo-100">
-              <Building2 size={80} className="text-purple-400" />
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-100 via-blue-100 to-indigo-100 p-8">
+              <Image src={Logo} alt="Fornix Link" className="h-auto w-full max-w-[180px] object-contain" />
             </div>
           )}
 
@@ -94,7 +102,7 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           <div className="absolute top-4 right-4 z-20">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/95 backdrop-blur-md shadow-lg transition-all hover:bg-white hover:scale-110 hover:shadow-xl">
+                <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/95 backdrop-blur-md shadow-lg transition-all hover:bg-white hover:scale-110 hover:shadow-xl cursor-pointer">
                   <MoreVertical size={20} className="text-gray-800" />
                 </button>
               </DropdownMenuTrigger>
@@ -116,8 +124,8 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
             </DropdownMenu>
           </div>
 
-          {/* Frosted Glass Overlay with Content - Bottom 60% */}
-          <div className="absolute bottom-0 left-0 right-0 z-10 h-[60%] overflow-hidden">
+          {/* Frosted Glass Overlay with Content - Bottom 55% */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 h-[55%] overflow-hidden">
             {/* Solid white background layer extending slightly beyond to cover rounded corners */}
             <div className="absolute -bottom-1 -left-1 -right-1 top-0 bg-white rounded-b-2xl sm:rounded-b-3xl"></div>
             
@@ -131,21 +139,27 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
               }}
             >
               {/* Content on Frosted Glass */}
-              <div className="flex h-full flex-col justify-between px-3 py-2.5 sm:px-4 sm:py-4 md:px-5 md:py-5 relative z-20">
-                {/* Top Section - Title and Description */}
-                <div className="flex-1 min-w-0 flex flex-col overflow-hidden min-h-0">
-                  <h3 className="mb-1.5 sm:mb-2 text-lg sm:text-xl font-bold text-gray-900 line-clamp-2 leading-tight break-words">
+              <div className="flex h-full flex-col justify-between px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 relative z-20">
+                {/* Top Section - Hospital name (left) and logo (right) */}
+                <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0 min-h-[3em]">
+                  <h3 className="flex-1 min-w-0 text-base sm:text-lg font-bold text-gray-900 line-clamp-2 leading-snug break-words pt-0.5">
                     {name}
                   </h3>
-                  {description && (
-                    <p className="text-xs sm:text-sm leading-relaxed text-gray-600 line-clamp-3 sm:line-clamp-4 break-words min-h-0">
-                      {description}
-                    </p>
+                  {logoImage && (
+                    <div className="relative h-12 w-12 sm:h-14 sm:w-14 md:h-[56px] md:w-[56px] rounded-full overflow-hidden border-2 border-white shadow-lg bg-white flex-shrink-0">
+                      <Image
+                        src={logoImage.url}
+                        alt={`${name} logo`}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                      />
+                    </div>
                   )}
                 </div>
 
                 {/* Bottom Section - Location, Button, and Badges */}
-                <div className="space-y-2 sm:space-y-3 pt-2 flex-shrink-0">
+                <div className="space-y-1.5 sm:space-y-2 pt-1.5 flex-shrink-0">
                   {/* Location Row */}
                   {primaryAddress && (primaryAddress.city || primaryAddress.state) && (
                     <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 min-w-0">
@@ -156,13 +170,10 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
 
                   {/* Bottom Row - Organization Type Button and Feature Badges */}
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                    {/* Organization Type Button */}
-                    <button
-                      onClick={handleViewDetails}
-                      className="rounded-xl border-2 border-purple-300 bg-purple-50 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-md active:scale-95 whitespace-nowrap flex-shrink-0"
-                    >
+                    {/* Organization Type Tag */}
+                    <span className="rounded-xl border-2 border-green-300 bg-green-50 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold text-green-700 shadow-sm whitespace-nowrap flex-shrink-0">
                       {getOrganizationTypeLabel(organizationType)}
-                    </button>
+                    </span>
 
                     {/* Feature Badges */}
                     {(hasEmergency || telemedicine || bedCount) && (

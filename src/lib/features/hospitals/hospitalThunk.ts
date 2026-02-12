@@ -54,7 +54,10 @@ export const getNearByHospitals = createAsyncThunk(
   },
 );
 
-/** Build FormData with correct field names for multer (image, images) */
+/**
+ * Build FormData for PATCH: only include keys present in payload.
+ * null values are sent as empty string so backend can set fields to null (e.g. clear logo).
+ */
 function buildFormData(payload: Record<string, unknown>): FormData {
   const formData = new FormData();
 
@@ -68,8 +71,21 @@ function buildFormData(payload: Record<string, unknown>): FormData {
       }
       continue;
     }
-    if (key === 'image' && value instanceof File) {
-      formData.append('image', value, value.name);
+    if (key === 'imageOrder' && Array.isArray(value)) {
+      // Send image order as JSON string
+      formData.append('imageOrder', JSON.stringify(value));
+      continue;
+    }
+    if (key === 'image') {
+      if (value instanceof File) {
+        formData.append('image', value, value.name);
+      } else if (value === null) {
+        formData.append('clearLogo', 'true');
+      }
+      continue;
+    }
+    if (value === null) {
+      formData.append(key, '');
       continue;
     }
     if (Array.isArray(value)) {
@@ -99,9 +115,16 @@ export const updateHospitalDetails = createAsyncThunk(
         (Array.isArray(hospitalProfile.images) && hospitalProfile.images.some((v) => v instanceof File)) ||
         hospitalProfile.image instanceof File;
 
-      const body = hasFiles ? buildFormData(hospitalProfile as Record<string, unknown>) : hospitalProfile;
-
-      const { data } = await axios.patchForm<IResponse<IHospitalProfile>>('orgs', body);
+      // Always use FormData if we have files OR imageOrder (since imageOrder needs special handling in multipart)
+      if (hasFiles || hospitalProfile.imageOrder) {
+        const formData = buildFormData(hospitalProfile as Record<string, unknown>);
+        const { data } = await axios.patchForm<IResponse<IHospitalProfile>>('orgs', formData);
+        return generateSuccessToast(data.message);
+      }
+      // No files and no imageOrder: send JSON so null values are preserved (PATCH semantics)
+      const { data } = await axios.patch<IResponse<IHospitalProfile>>('orgs', hospitalProfile, {
+        headers: { 'Content-Type': 'application/json' },
+      });
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -117,6 +140,7 @@ export const getAllHospitals = createAsyncThunk(
     ...rest
   }: IQueryParams<AcceptDeclineStatus | ''> & {
     city?: string;
+    nearMe?: boolean;
     organizationType?: string;
     hasEmergency?: boolean;
     telemedicine?: boolean;
@@ -125,6 +149,13 @@ export const getAllHospitals = createAsyncThunk(
     insuranceCompanyId?: string;
     languages?: string[];
     isActive?: boolean;
+    minConsultationFee?: number;
+    maxConsultationFee?: number;
+    openNow?: boolean;
+    open24_7?: boolean;
+    onsitePharmacy?: boolean;
+    onsiteLabs?: boolean;
+    ambulanceServices?: boolean;
   }): Promise<IPagination<IHospitalListItem> | Toast> => {
     try {
       const { data } = await axios.get<IResponse<IPagination<IHospitalListItem>>>(

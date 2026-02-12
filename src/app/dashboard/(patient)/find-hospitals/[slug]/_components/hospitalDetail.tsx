@@ -94,7 +94,11 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
   } = hospital;
 
   const logoImage = images?.find((img) => img.type === 'logo');
-  const photoImages = images?.filter((img) => img.type === 'photo') || [];
+  const photoImages = (images?.filter((img) => img.type === 'photo') || []).sort((a, b) => {
+    const orderA = (a.meta as { displayOrder?: number })?.displayOrder ?? 999;
+    const orderB = (b.meta as { displayOrder?: number })?.displayOrder ?? 999;
+    return orderA - orderB;
+  });
 
   // Map known insurance companies to their static logo assets in /public/images/insurance
   const insuranceLogoMap: Record<string, string> = {

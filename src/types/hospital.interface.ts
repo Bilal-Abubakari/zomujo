@@ -20,6 +20,7 @@ export interface IHospitalProfile {
   regularFee: number;
   image: string | null | File;
   images?: (File | string)[];
+  imageOrder?: string[];
   // New fields
   description?: string;
   organizationType?: 'private' | 'public' | 'teaching' | 'clinic';

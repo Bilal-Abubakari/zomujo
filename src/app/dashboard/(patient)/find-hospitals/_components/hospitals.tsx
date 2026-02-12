@@ -39,6 +39,7 @@ const Hospitals = (): JSX.Element => {
   const [queryParameters, setQueryParameters] = useState<
     IQueryParams<AcceptDeclineStatus> & {
       city?: string;
+      nearMe?: boolean;
       organizationType?: string;
       hasEmergency?: boolean;
       telemedicine?: boolean;
@@ -46,8 +47,13 @@ const Hospitals = (): JSX.Element => {
       departmentId?: string;
       insuranceCompanyId?: string;
       languages?: string[];
-      minBedCount?: number;
-      maxBedCount?: number;
+      minConsultationFee?: number;
+      maxConsultationFee?: number;
+      openNow?: boolean;
+      open24_7?: boolean;
+      onsitePharmacy?: boolean;
+      onsiteLabs?: boolean;
+      ambulanceServices?: boolean;
     }
   >({
     page: 1,
@@ -58,6 +64,7 @@ const Hospitals = (): JSX.Element => {
     status: AcceptDeclineStatus.Accepted,
     isActive: true,
     city: getQueryParam('city') || '',
+    nearMe: getQueryParam('nearMe') === 'true' ? true : undefined,
     organizationType: getQueryParam('organizationType') || '',
     hasEmergency: getQueryParam('hasEmergency') === 'true' ? true : undefined,
     telemedicine: getQueryParam('telemedicine') === 'true' ? true : undefined,
@@ -65,8 +72,13 @@ const Hospitals = (): JSX.Element => {
     departmentId: getQueryParam('departmentId') || '',
     insuranceCompanyId: getQueryParam('insuranceCompanyId') || '',
     languages: getQueryParam('languages') ? getQueryParam('languages').split(',') : undefined,
-    minBedCount: getQueryParam('minBedCount') ? Number(getQueryParam('minBedCount')) : undefined,
-    maxBedCount: getQueryParam('maxBedCount') ? Number(getQueryParam('maxBedCount')) : undefined,
+    minConsultationFee: getQueryParam('minConsultationFee') ? Number(getQueryParam('minConsultationFee')) : undefined,
+    maxConsultationFee: getQueryParam('maxConsultationFee') ? Number(getQueryParam('maxConsultationFee')) : undefined,
+    openNow: getQueryParam('openNow') === 'true' ? true : undefined,
+    open24_7: getQueryParam('open24_7') === 'true' ? true : undefined,
+    onsitePharmacy: getQueryParam('onsitePharmacy') === 'true' ? true : undefined,
+    onsiteLabs: getQueryParam('onsiteLabs') === 'true' ? true : undefined,
+    ambulanceServices: getQueryParam('ambulanceServices') === 'true' ? true : undefined,
   });
 
   const canLoadMorePages = (): boolean => {
@@ -150,6 +162,7 @@ const Hospitals = (): JSX.Element => {
 
   const handleFilterChange = (filters: {
     city?: string;
+    nearMe?: boolean;
     organizationType?: string;
     hasEmergency?: boolean;
     telemedicine?: boolean;
@@ -157,8 +170,13 @@ const Hospitals = (): JSX.Element => {
     departmentId?: string;
     insuranceCompanyId?: string;
     languages?: string[];
-    minBedCount?: number;
-    maxBedCount?: number;
+    minConsultationFee?: number;
+    maxConsultationFee?: number;
+    openNow?: boolean;
+    open24_7?: boolean;
+    onsitePharmacy?: boolean;
+    onsiteLabs?: boolean;
+    ambulanceServices?: boolean;
   }) => {
     setHospitals([]);
     setQueryParameters((prev) => ({
@@ -173,6 +191,7 @@ const Hospitals = (): JSX.Element => {
     setQueryParameters((prev) => ({
       ...prev,
       city: '',
+      nearMe: undefined,
       organizationType: '',
       hasEmergency: undefined,
       telemedicine: undefined,
@@ -180,8 +199,13 @@ const Hospitals = (): JSX.Element => {
       departmentId: '',
       insuranceCompanyId: '',
       languages: undefined,
-      minBedCount: undefined,
-      maxBedCount: undefined,
+      minConsultationFee: undefined,
+      maxConsultationFee: undefined,
+      openNow: undefined,
+      open24_7: undefined,
+      onsitePharmacy: undefined,
+      onsiteLabs: undefined,
+      ambulanceServices: undefined,
       page: 1,
     }));
   };
