@@ -98,7 +98,22 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
             </div>
           )}
 
-          {/* Ellipsis Menu Button - Top Right */}
+          {/* Logo - Top Left of primary image */}
+          {logoImage && (
+            <div className="absolute top-4 left-4 z-20">
+              <div className="relative h-10 w-10 sm:h-11 sm:w-11 md:h-12 md:w-12 rounded-full overflow-hidden border-2 border-white shadow-lg bg-white">
+                <Image
+                  src={logoImage.url}
+                  alt={`${name} logo`}
+                  fill
+                  className="object-cover"
+                  sizes="48px"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Ellipsis Menu - Top Right */}
           <div className="absolute top-4 right-4 z-20">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -140,22 +155,11 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
             >
               {/* Content on Frosted Glass */}
               <div className="flex h-full flex-col justify-between px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 relative z-20">
-                {/* Top Section - Hospital name (left) and logo (right) */}
-                <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0 min-h-[3em]">
-                  <h3 className="flex-1 min-w-0 text-base sm:text-lg font-bold text-gray-900 line-clamp-2 leading-snug break-words pt-0.5">
+                {/* Top Section - Hospital name */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center min-h-[3em]">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 line-clamp-2 leading-snug break-words">
                     {name}
                   </h3>
-                  {logoImage && (
-                    <div className="relative h-12 w-12 sm:h-14 sm:w-14 md:h-[56px] md:w-[56px] rounded-full overflow-hidden border-2 border-white shadow-lg bg-white flex-shrink-0">
-                      <Image
-                        src={logoImage.url}
-                        alt={`${name} logo`}
-                        fill
-                        className="object-cover"
-                        sizes="56px"
-                      />
-                    </div>
-                  )}
                 </div>
 
                 {/* Bottom Section - Location, Button, and Badges */}
