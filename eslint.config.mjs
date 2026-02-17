@@ -55,5 +55,10 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'error',
       'import/no-cycle': 'off',
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
   },
 );
