@@ -444,7 +444,6 @@ const MyMedicalRecord = (): JSX.Element => {
               <div className="flex-1">
                 <p className="font-medium">{lab.testName}</p>
                 <p className="text-sm text-gray-500">Category: {lab.category}</p>
-                {lab.notes && <p className="mt-1 text-sm text-gray-500">{lab.notes}</p>}
                 {lab.fileUrl && (
                   <a
                     href={lab.fileUrl}

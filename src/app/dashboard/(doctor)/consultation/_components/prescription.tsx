@@ -165,10 +165,10 @@ const Prescription = ({
         prescriptions: prescriptionsPayload,
       };
 
-      const saveResult = await dispatch(savePrescriptions(request));
-      toast(saveResult.payload as Toast);
+      const saveResult = await dispatch(savePrescriptions(request)).unwrap();
+      toast(saveResult);
 
-      if (showErrorToast(saveResult.payload)) {
+      if (showErrorToast(saveResult)) {
         setIsSavingAndGenerating(false);
         return;
       }

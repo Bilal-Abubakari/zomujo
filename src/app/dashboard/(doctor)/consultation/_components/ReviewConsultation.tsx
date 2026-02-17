@@ -164,37 +164,15 @@ const ReviewConsultation = ({
     const lines: string[] = [`LABORATORY INVESTIGATIONS:\n`];
     if (requestedLabs && requestedLabs.length > 0) {
       lines.push(`Requested Tests:\n`);
-      requestedLabs.forEach(
-        ({
-          testName,
-          specimen,
-          fasting,
-          notes,
-        }: {
-          testName: string;
-          specimen: string;
-          fasting: boolean;
-          notes?: string;
-        }) => {
-          let labLine = `  • ${testName} (Specimen: ${specimen}, Fasting: ${fasting ? 'Yes' : 'No'})`;
-          if (notes) {
-            labLine += ` - ${notes}`;
-          }
-          labLine += '\n';
-          lines.push(labLine);
-        },
-      );
+      requestedLabs.forEach(({ testName, categoryType }) => {
+        lines.push(`  • ${testName} (Category: ${categoryType})`);
+      });
       lines.push('\n');
     }
     if (conductedLabs && conductedLabs.length > 0) {
       lines.push(`Completed Tests:\n`);
-      conductedLabs.forEach(({ testName, notes }: { testName: string; notes?: string }) => {
-        let conductedLabLine = `  • ${testName}`;
-        if (notes) {
-          conductedLabLine += ` - ${notes}`;
-        }
-        conductedLabLine += '\n';
-        lines.push(conductedLabLine);
+      conductedLabs.forEach(({ testName }) => {
+        lines.push(`  • ${testName}\n`);
       });
       lines.push('\n');
     }
@@ -223,13 +201,6 @@ const ReviewConsultation = ({
       lines.push(`Completed Studies:\n`);
       completedTests.forEach(({ testName }: { testName: string }) => {
         lines.push(`  • ${testName}\n`);
-      });
-      lines.push('\n');
-    }
-    if (radiology.questions && radiology.questions.length > 0) {
-      lines.push(`Clinical Questions:\n`);
-      radiology.questions.forEach((question: string) => {
-        lines.push(`  • ${question}\n`);
       });
       lines.push('\n');
     }

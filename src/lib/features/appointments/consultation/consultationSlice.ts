@@ -19,14 +19,9 @@ export const consultationSlice = createSlice({
     setCurrentLabRequest: (state: ConsultationState, action: { payload: ILaboratoryRequest[] }) => {
       state.currentLabRequest = action.payload;
     },
-    removeLabRequest: (
-      state: ConsultationState,
-      action: { payload: { name: string; requestSpecimen: string } },
-    ) => {
-      const { name, requestSpecimen } = action.payload;
-      state.currentLabRequest = state.currentLabRequest.filter(
-        ({ testName, specimen }) => !(testName === name && specimen === requestSpecimen),
-      );
+    removeLabRequest: (state: ConsultationState, action: { payload: { name: string } }) => {
+      const { name } = action.payload;
+      state.currentLabRequest = state.currentLabRequest.filter(({ testName }) => testName !== name);
     },
     setCurrentRadiologyRequest: (
       state: ConsultationState,

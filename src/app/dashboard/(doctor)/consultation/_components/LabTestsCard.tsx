@@ -1,6 +1,5 @@
 import React, { JSX } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { TestTubeDiagonal } from 'lucide-react';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
 import { ILaboratoryRequest } from '@/types/labs.interface';
@@ -24,15 +23,11 @@ export const LabTestsCard = ({ requestedLabs, conductedLabs }: LabTestsCardProps
         <div>
           <h4 className="mb-3 text-sm font-semibold text-gray-700">Requested Tests</h4>
           <div className="space-y-2">
-            {requestedLabs.map(({ testName, notes, fasting, specimen, id }) => (
+            {requestedLabs.map(({ testName, categoryType, id }) => (
               <div key={id} className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <div className="mb-1 font-medium text-gray-900">{testName}</div>
-                {notes && <p className="mb-2 text-xs text-gray-600">{notes}</p>}
-                <div className="flex items-center gap-3 text-xs text-gray-600">
-                  <span>Specimen: {specimen}</span>
-                  <Badge variant={fasting ? 'default' : 'secondary'} className="text-xs">
-                    Fasting: {fasting ? 'Yes' : 'No'}
-                  </Badge>
+                <div className="text-xs text-gray-600">
+                  <span>Category: {categoryType}</span>
                 </div>
               </div>
             ))}
@@ -45,14 +40,14 @@ export const LabTestsCard = ({ requestedLabs, conductedLabs }: LabTestsCardProps
         <div>
           <h4 className="mb-3 text-sm font-semibold text-gray-700">Completed Tests</h4>
           <div className="space-y-2">
-            {conductedLabs.map(({ testName, id, fileUrl, status, notes }) => (
+            {conductedLabs.map(({ testName, id, fileUrl, status }) => (
               <LabCard
                 key={id}
                 testName={testName}
                 fileUrl={fileUrl || null}
                 status={status}
                 date={''}
-                notes={notes}
+                notes={''}
               />
             ))}
           </div>

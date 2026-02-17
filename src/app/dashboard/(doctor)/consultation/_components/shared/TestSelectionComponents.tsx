@@ -64,15 +64,15 @@ export function SubCategorySection<TTest>({
     <div className="space-y-2">
       {onToggleSubCategory ? (
         <div className="flex items-center space-x-2">
-          <Label className="cursor-pointer text-sm font-semibold text-gray-700">
-            {subCategory}
-          </Label>
           <Checkbox
             checked={isSubCategoryChecked}
             onCheckedChange={(checked) =>
               onToggleSubCategory(subCategory, mainCategory, tests, checked as boolean)
             }
           />
+          <Label className="cursor-pointer text-sm font-semibold text-gray-700">
+            {subCategory}
+          </Label>
         </div>
       ) : (
         <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
