@@ -1,5 +1,4 @@
 import eslintJs from '@eslint/js';
-import reactPlugin from 'eslint-plugin-react';
 import nextPlugin from 'eslint-config-next';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
@@ -27,14 +26,9 @@ const eslintConfig = defineConfig([
   {
     files: ['src/**/*.{js,jsx,ts,tsx}'],
     plugins: {
-      react: reactPlugin,
       '@next/next': nextPlugin,
     },
     rules: {
-      ...reactPlugin.configs.recommended.rules,
-      ...reactPlugin.configs['jsx-runtime'].rules,
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs['core-web-vitals'].rules,
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'react-hooks/preserve-manual-memoization': 'off',
