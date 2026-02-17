@@ -53,12 +53,17 @@ export default tseslint.config(
       '@typescript-eslint/explicit-function-return-type': ['error'],
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
-      'import/no-cycle': 'off',
     },
     settings: {
       react: {
         version: 'detect',
       },
+    },
+  },
+  {
+    files: ['**/*Slice.ts', '**/*Thunk.ts', '**/store.ts'],
+    rules: {
+      'import/no-cycle': 'off',
     },
   },
 );
