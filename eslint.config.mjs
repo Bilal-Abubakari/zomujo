@@ -1,7 +1,6 @@
 import eslintJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
-// import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import nextPlugin from '@next/eslint-plugin-next';
 
 export default tseslint.config(
@@ -42,6 +41,18 @@ export default tseslint.config(
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/incompatible-library': 'off',
+      'arrow-body-style': 'error',
+      curly: 'error',
+      'no-else-return': 'error',
+      'no-useless-return': 'error',
+      'no-useless-catch': 'error',
+      'no-unreachable': 'error',
+      'no-duplicate-imports': ['error'],
+      '@typescript-eslint/explicit-function-return-type': ['error'],
+      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
       'import/no-cycle': 'off',
     },
   },
