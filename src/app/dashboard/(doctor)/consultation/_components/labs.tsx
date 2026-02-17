@@ -99,11 +99,10 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       toast(response as Toast);
       return;
     }
-    const lab = response as ILab[];
-    console.log('Lab', lab);
-    setValue('labs', lab[0].data);
-    setValue('history', lab[0].history, { shouldValidate: true });
-    setValue('instructions', lab[0].instructions, { shouldValidate: true });
+    const lab = (response as ILab[])[0];
+    setValue('labs', lab.data, { shouldValidate: true });
+    setValue('history', lab.history, { shouldValidate: true });
+    setValue('instructions', lab.instructions, { shouldValidate: true });
   };
 
   const fetchPdf = async (): Promise<void> => {
@@ -122,7 +121,6 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   };
 
   const handleSaveLabs = async (data: LabFormData): Promise<void> => {
-    console.log('Saving lab data', data);
     setIsSubmitting(true);
     const newLabRequests: ILaboratoryRequest[] = Array.from(state.selectedTests.entries()).map(
       ([testName, meta]) => {
