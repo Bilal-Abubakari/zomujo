@@ -351,8 +351,6 @@ const Prescription = ({
 
       <div className="fixed bottom-0 left-0 flex w-full justify-end gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
         <Button onClick={handleNextWithWarning} child="Next: Diagnosis" />
-
-        <Button onClick={goToNext} child="Skip" variant="secondary" />
       </div>
     </div>
   );
