@@ -194,7 +194,7 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
   };
 
   const radiologyTestSection = (
-    <div className="relative overflow-y-auto">
+    <div className="relative">
       {filteredRadiology &&
         Object.entries(filteredRadiology).map(([mainCat, subCats]) => (
           <MainCategorySection
@@ -237,8 +237,6 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
         ref={ref}
         title="Radiology Request"
         description="Select radiology tests and provide details. Changes are saved when you click Save and Preview."
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         onClearSelections={() => {
           setValue('tests', [], { shouldValidate: true, shouldDirty: true });
           setHasUnsavedChanges(true);
@@ -278,7 +276,7 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
                 />
               </div>
 
-              <div className="space-y-4 overflow-auto rounded-lg border bg-white p-4">
+              <div className="space-y-4 rounded-lg border bg-white p-4">
                 <div className="relative">
                   <Search
                     className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-400"

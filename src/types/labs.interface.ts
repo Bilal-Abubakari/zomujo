@@ -61,3 +61,11 @@ export type Haematology = Record<HaematologyCategory, string[]>;
 export type Immunology = Record<ImmunologyCategory, string[]>;
 
 export type Microbiology = Record<MicrobiologyCategory, string[]>;
+
+export interface SelectedTest {
+  testName: string;
+  category: LabTestSection;
+  categoryType: CategoryType;
+}
+
+export type SelectedTests = Map<string, SelectedTest>;
