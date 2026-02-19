@@ -197,11 +197,11 @@ export const generatePrescription = createAsyncThunk(
     try {
       const {
         data: { data },
-      } = await axios.post<IResponse<{ url: string }>>(`consultation/generate-prescription`, {
+      } = await axios.post<IResponse<string>>(`consultation/generate-prescription`, {
         appointmentId,
         notes,
       });
-      return data.url;
+      return data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

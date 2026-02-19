@@ -55,18 +55,6 @@ export const RadiologyTestsCard = ({
                     ))}
                 </div>
               </div>
-              {radiology.questions && radiology.questions.length > 0 && (
-                <div>
-                  <span className="text-xs font-semibold text-gray-700">Questions:</span>
-                  <ul className="mt-1 list-inside list-disc space-y-1">
-                    {radiology.questions.map((question, index) => (
-                      <li key={`${index}-${question}`} className="text-xs text-gray-600">
-                        {question}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           </div>
         </div>

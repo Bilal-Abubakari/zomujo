@@ -3,8 +3,7 @@ import { Search } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
-import { CategoryType, ILaboratoryRequest, LaboratoryTest } from '@/types/labs.interface';
-import { z } from 'zod';
+import { CategoryType, ILab, ILaboratoryRequest, LaboratoryTest } from '@/types/labs.interface';
 import { LabTestSection } from '@/types/labs.enum';
 import { RequestStatus } from '@/types/shared.enum';
 import { fetchLabs } from '@/lib/features/appointments/consultation/fetchLabs';
@@ -35,16 +34,12 @@ import {
   useInvestigationFilter,
   usePdfPreview,
 } from '@/app/dashboard/(doctor)/consultation/_components/shared/investigationHooks';
+import { LabsForm, labsSchema } from '@/schemas/labs.schema';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
-const labsSchema = z.object({
-  fasting: z.boolean(),
-  testName: z.string().optional(),
-  notes: z.string().optional(),
-  category: z.string().optional(),
-  categoryType: z.string().optional(),
-});
-
-type LabFormData = z.infer<typeof labsSchema>;
+type LabFormData = LabsForm;
 
 export type LabsRef = InvestigationBaseRef;
 
@@ -53,18 +48,18 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   const [labs, setLabs] = useState<LaboratoryTest | null>(null);
   const [state, setState] = useState<{
     selectedTests: Map<string, { category: string; categoryType: string }>;
-    categorySpecimens: Map<string, string>;
   }>({
     selectedTests: new Map(),
-    categorySpecimens: new Map(),
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const { handleSubmit } = useForm<LabFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<LabFormData>({
     resolver: zodResolver(labsSchema),
     mode: MODE.ON_TOUCH,
-    defaultValues: {
-      fasting: false,
-    },
   });
   const dispatch = useAppDispatch();
   const requestedAppointmentLabs = useAppSelector(
@@ -76,6 +71,8 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   const recordId = useAppSelector(selectRecordId);
   const params = useParams();
   const [showPreview, setShowPreview] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Use shared hooks
   const filteredLabs = useInvestigationFilter(labs, searchQuery);
@@ -92,14 +89,20 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
     const response = await fetchLabs();
     if (response) {
       setLabs(response);
+      setIsLoading(false);
     }
   };
 
   const fetchConsultationLabs = async (): Promise<void> => {
-    const { payload } = await dispatch(getConsultationLabs(String(params.appointmentId)));
-    if (showErrorToast(payload)) {
-      toast(payload as Toast);
+    const response = await dispatch(getConsultationLabs(String(params.appointmentId))).unwrap();
+    if (showErrorToast(response)) {
+      toast(response as Toast);
+      return;
     }
+    const lab = (response as ILab[])[0];
+    setValue('labs', lab.data, { shouldValidate: true });
+    setValue('history', lab.history, { shouldValidate: true });
+    setValue('instructions', lab.instructions, { shouldValidate: true });
   };
 
   const fetchPdf = async (): Promise<void> => {
@@ -118,26 +121,9 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   };
 
   const handleSaveLabs = async (data: LabFormData): Promise<void> => {
-    const selectedCategories = Array.from(
-      new Set(Array.from(state.selectedTests.values()).map((m) => m.category)),
-    );
-    const missingCategories = selectedCategories.filter(
-      (cat) => !state.categorySpecimens.get(cat)?.trim(),
-    );
-
-    if (missingCategories.length > 0) {
-      toast({
-        title: 'Specimen required',
-        description: `Please provide specimen for: ${missingCategories.join(', ')}`,
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    setIsSubmitting(true);
     const newLabRequests: ILaboratoryRequest[] = Array.from(state.selectedTests.entries()).map(
       ([testName, meta]) => {
-        const specimenToUse = state.categorySpecimens.get(meta.category)!.trim();
-
         let existingId = '';
         let existingStatus = RequestStatus.Pending;
 
@@ -156,9 +142,6 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
           testName,
           category: meta.category as LabTestSection,
           categoryType: meta.categoryType as CategoryType,
-          notes: '',
-          fasting: data.fasting || false,
-          specimen: specimenToUse,
           status: existingStatus,
         };
       },
@@ -168,10 +151,14 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       appointmentId: String(params.appointmentId),
       labs: newLabRequests,
       recordId,
+      instructions: data.instructions,
+      history: data.history,
     };
 
     // Uses PUT endpoint now
     const result = await dispatch(addLabRequests(payload));
+
+    setIsSubmitting(false);
 
     if (showErrorToast(result.payload)) {
       toast(result.payload as Toast);
@@ -190,43 +177,24 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
     setHasUnsavedChanges(false);
   };
 
-  const extractSpecimenOptions = (testName: string): string[] | null => {
-    const MAX_INPUT_LENGTH = 1000;
-    if (testName.length > MAX_INPUT_LENGTH) {
-      return null;
-    }
-    const openParenIndex = testName.indexOf('(');
-    const closeParenIndex = testName.indexOf(')', openParenIndex);
-    if (openParenIndex === -1 || closeParenIndex === -1 || closeParenIndex <= openParenIndex) {
-      return null;
-    }
-    const content = testName.slice(openParenIndex + 1, closeParenIndex).trim();
-    if (!content) {
-      return null;
-    }
-    return content
-      .split(',')
-      .map((option) => option.trim())
-      .filter((option) => option.length > 0);
-  };
+  const buildLabsArray = (): Pick<ILaboratoryRequest, 'categoryType' | 'category' | 'testName'>[] =>
+    Array.from(state.selectedTests.entries()).map(([testName, meta]) => ({
+      testName,
+      category: meta.category as LabTestSection,
+      categoryType: meta.categoryType as CategoryType,
+    }));
 
   const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
     setState((prev) => {
       const newSelectedTests = new Map(prev.selectedTests);
-      const newCategorySpecimens = new Map(prev.categorySpecimens);
       if (newSelectedTests.has(testName)) {
         newSelectedTests.delete(testName);
-        const remainingTestsInCategory = Array.from(newSelectedTests.values()).some(
-          (meta) => meta.category === category,
-        );
-        if (!remainingTestsInCategory) {
-          newCategorySpecimens.delete(category);
-        }
       } else {
         newSelectedTests.set(testName, { category, categoryType });
       }
-      return { selectedTests: newSelectedTests, categorySpecimens: newCategorySpecimens };
+      return { selectedTests: newSelectedTests };
     });
+    setValue('labs', buildLabsArray(), { shouldValidate: true });
     setHasUnsavedChanges(true);
   };
 
@@ -238,7 +206,6 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   ): void => {
     setState((prev) => {
       const newSelectedTests = new Map(prev.selectedTests);
-      const newCategorySpecimens = new Map(prev.categorySpecimens);
       tests.forEach((test) => {
         if (checked) {
           newSelectedTests.set(test, { category: mainCategory, categoryType: subCategory });
@@ -246,43 +213,20 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
           newSelectedTests.delete(test);
         }
       });
-      if (!checked) {
-        const remainingTestsInCategory = Array.from(newSelectedTests.values()).some(
-          (meta) => meta.category === mainCategory,
-        );
-        if (!remainingTestsInCategory) {
-          newCategorySpecimens.delete(mainCategory);
-        }
-      }
-      return { selectedTests: newSelectedTests, categorySpecimens: newCategorySpecimens };
+      return { selectedTests: newSelectedTests };
     });
-    setHasUnsavedChanges(true);
-  };
-
-  const handleSpecimenChange = (category: string, value: string): void => {
-    setState((prev) => {
-      const newCategorySpecimens = new Map(prev.categorySpecimens);
-      if (value) {
-        newCategorySpecimens.set(category, value);
-      } else {
-        newCategorySpecimens.delete(category);
-      }
-      return { ...prev, categorySpecimens: newCategorySpecimens };
-    });
+    setValue('labs', buildLabsArray(), { shouldValidate: true });
     setHasUnsavedChanges(true);
   };
 
   useEffect(() => {
     if (requestedAppointmentLabs) {
       const prevTests = new Map<string, { category: string; categoryType: string }>();
-      const prevSpecimens = new Map<string, string>();
       requestedAppointmentLabs.forEach((lab) => {
         prevTests.set(lab.testName, { category: lab.category, categoryType: lab.categoryType });
-        prevSpecimens.set(lab.category, lab.specimen);
       });
       setState({
         selectedTests: prevTests,
-        categorySpecimens: prevSpecimens,
       });
       setHasUnsavedChanges(false);
     }
@@ -309,13 +253,13 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         onClearSelections={() => {
           setState({
             selectedTests: new Map(),
-            categorySpecimens: new Map(),
           });
+          setValue('labs', [], { shouldValidate: true });
           setHasUnsavedChanges(true);
         }}
         onSubmit={() => handleSubmit(handleSaveLabs)()}
         onPreviewPdf={fetchPdf}
-        isSubmitting={false}
+        isSubmitting={isSubmitting}
         hasExistingData={requestedAppointmentLabs !== null && requestedAppointmentLabs.length > 0}
         pdfUrl={pdfUrl}
         showPreview={showPreview}
@@ -323,35 +267,71 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         hasUnsavedChanges={hasUnsavedChanges}
         getSelectedCount={() => state.selectedTests.size}
         getSelectedTestNames={() => Array.from(state.selectedTests.keys())}
+        isLoading={isLoading}
         renderContent={() => (
-          <div className="mb-20 max-h-125 overflow-y-auto rounded-lg border bg-white p-4">
-            {filteredLabs && Object.entries(filteredLabs).length > 0 ? (
-              Object.entries(filteredLabs).map(([mainCategory, subCategories]) => (
-                <LabCategorySection
-                  key={mainCategory}
-                  mainCategory={mainCategory}
-                  subCategories={subCategories}
-                  selectedTests={state.selectedTests}
-                  categorySpecimens={state.categorySpecimens}
-                  onSpecimenChange={handleSpecimenChange}
-                  onToggleTest={toggleTestSelection}
-                  onToggleSubCategory={toggleSubCategorySelection}
-                  extractSpecimenOptions={extractSpecimenOptions}
+          <form
+            onSubmit={handleSubmit(handleSaveLabs)}
+            className="max-h-125 space-y-6 overflow-y-auto"
+          >
+            <div className="mb-40 space-y-6">
+              <div>
+                <Label>Clinical History</Label>
+                <Textarea
+                  placeholder="Relevant clinical history..."
+                  {...register('history')}
+                  className={errors.history ? 'border-red-500' : ''}
                 />
-              ))
-            ) : (
-              <div className="p-8 text-center text-gray-500">
-                {searchQuery ? (
-                  <>
-                    <Search className="mx-auto mb-2 text-gray-400" size={40} />
-                    <p>No tests found matching &quot;{searchQuery}&quot;</p>
-                  </>
+                {errors.history && <p className="text-sm text-red-500">{errors.history.message}</p>}
+              </div>
+
+              <div>
+                <Label>Instructions</Label>
+                <Textarea
+                  placeholder="Special instructions for the laboratory tests..."
+                  {...register('instructions')}
+                />
+              </div>
+
+              <div className="space-y-4 overflow-auto rounded-lg border bg-white p-4">
+                <div className="relative">
+                  <Search
+                    className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-400"
+                    size={20}
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Search laboratory tests..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pr-10 pl-10"
+                  />
+                </div>
+                {filteredLabs && Object.entries(filteredLabs).length > 0 ? (
+                  Object.entries(filteredLabs).map(([mainCategory, subCategories]) => (
+                    <LabCategorySection
+                      key={mainCategory}
+                      mainCategory={mainCategory}
+                      subCategories={subCategories}
+                      selectedTests={state.selectedTests}
+                      onToggleTest={toggleTestSelection}
+                      onToggleSubCategory={toggleSubCategorySelection}
+                    />
+                  ))
                 ) : (
-                  <p>Loading laboratory tests...</p>
+                  <div className="p-8 text-center text-gray-500">
+                    {searchQuery ? (
+                      <>
+                        <Search className="mx-auto mb-2 text-gray-400" size={40} />
+                        <p>No tests found matching &quot;{searchQuery}&quot;</p>
+                      </>
+                    ) : (
+                      <p>Loading laboratory tests...</p>
+                    )}
+                  </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          </form>
         )}
       />
       {isLoadingPdf && <LoadingOverlay message="Generating PDF..." />}

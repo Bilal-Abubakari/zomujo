@@ -18,21 +18,22 @@ export interface ILaboratoryRequest {
   category: LabTestSection;
   categoryType: CategoryType;
   testName: string;
-  notes: string;
-  fasting: boolean;
-  specimen: string;
-  fileUrl?: string;
   status: RequestStatus;
+  fileUrl?: string;
 }
 
 export interface ILaboratoryRequestWithRecordId {
   recordId: string;
   appointmentId: string;
   labs: ILaboratoryRequest[];
+  instructions?: string;
+  history?: string;
 }
 
 export interface ILab {
   id: string;
+  instructions?: string;
+  history?: string;
   data: ILaboratoryRequest[];
   createdAt: string;
   updatedAt: string;

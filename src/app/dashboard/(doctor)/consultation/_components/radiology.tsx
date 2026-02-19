@@ -30,7 +30,6 @@ import {
   usePdfPreview,
 } from '@/app/dashboard/(doctor)/consultation/_components/shared/investigationHooks';
 import { MainCategorySection } from '@/app/dashboard/(doctor)/consultation/_components/shared/TestSelectionComponents';
-import { QuestionsSection } from '@/app/dashboard/(doctor)/consultation/_components/shared/QuestionsSection';
 import { RadiologyForm, radiologySchema } from '@/schemas/radiology.schema';
 
 export type RadiologyRef = InvestigationBaseRef;
@@ -65,13 +64,13 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
     mode: MODE.ON_TOUCH,
     defaultValues: {
       tests: [],
-      questions: [''],
       procedureRequest: ' ',
+      history: '',
+      instructions: '',
     },
   });
 
   const selectedTests = watch('tests');
-  const questions = watch('questions');
 
   const getRadiologyData = async (): Promise<void> => {
     const response = await fetchRadiology();
@@ -93,10 +92,7 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
         const latest = rads[0];
         setValue('tests', latest.tests || []);
         setValue('history', latest.history || '');
-        setValue(
-          'questions',
-          latest.questions && latest.questions.length > 0 ? latest.questions : [''],
-        );
+        setValue('instructions', latest.instructions || '');
       }
     }
     setIsLoadingRadiology(false);
@@ -235,12 +231,6 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
     void fetchConsultationRadiology();
   }, [params.appointmentId]);
 
-  useEffect(() => {
-    if (questions.length === 0) {
-      setValue('questions', ['']);
-    }
-  }, [questions]);
-
   return (
     <>
       <InvestigationBase
@@ -280,12 +270,13 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
                 {errors.history && <p className="text-sm text-red-500">{errors.history.message}</p>}
               </div>
 
-              <QuestionsSection
-                questions={questions}
-                register={register}
-                setValue={setValue}
-                errors={errors}
-              />
+              <div>
+                <Label>Instructions</Label>
+                <Textarea
+                  placeholder="Special instructions for the radiology procedure..."
+                  {...register('instructions')}
+                />
+              </div>
 
               <div className="space-y-4 overflow-auto rounded-lg border bg-white p-4">
                 <div className="relative">
