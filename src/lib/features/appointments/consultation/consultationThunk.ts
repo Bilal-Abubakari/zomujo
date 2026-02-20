@@ -185,6 +185,20 @@ export const saveDiagnosis = createAsyncThunk(
   },
 );
 
+export const deleteDiagnosis = createAsyncThunk(
+  'consultation/delete-diagnosis',
+  async (id: string): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.delete<IResponse>(`consultation/diagnosis/${id}`);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const generatePrescription = createAsyncThunk(
   'consultation/generate-prescription',
   async ({

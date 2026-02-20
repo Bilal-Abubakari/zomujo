@@ -59,7 +59,7 @@ const ConsultationHistory = dynamic(
   { loading: () => <StageFallback />, ssr: false },
 );
 
-const stages = ['history', 'investigation', 'prescription', 'diagnosis', 'review'] as const;
+const stages = ['history', 'investigation', 'prescription', 'impression', 'review'] as const;
 
 type StageType = (typeof stages)[number];
 
@@ -128,7 +128,7 @@ const Consultation = (): JSX.Element => {
         return symptomsPassed;
       }
 
-      if (stage === 'diagnosis') {
+      if (stage === 'impression') {
         // Can go to diagnosis if prescriptions passed? Or just linear?
         // Let's assume linear progression for simplicity or check previous steps
         return symptomsPassed;
@@ -205,10 +205,10 @@ const Consultation = (): JSX.Element => {
           <Prescription
             updatePrescription={update}
             setUpdatePrescription={setUpdate}
-            goToNext={() => setCurrentStage('diagnosis')}
+            goToNext={() => setCurrentStage('impression')}
           />
         );
-      case 'diagnosis':
+      case 'impression':
         return (
           <Diagnosis
             updateDiagnosis={update}
