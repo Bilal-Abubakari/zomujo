@@ -1,7 +1,7 @@
 import React, { JSX, useEffect, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SelectInputV2 } from '@/components/ui/select';
+import { SelectInputV2, Combobox, SelectOption } from '@/components/ui/select';
 import { doseRegimenOptions, routeOptions } from '@/constants/constants';
 import { IPrescription, IPrescriptionResponse } from '@/types/medical.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -12,6 +12,7 @@ import {
   deletePrescription,
   getConsultationAppointment,
 } from '@/lib/features/appointments/consultation/consultationThunk';
+import { getDrugs } from '@/lib/features/records/recordsThunk';
 import { selectPrescriptions } from '@/lib/features/appointments/appointmentSelector';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
@@ -32,6 +33,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Modal } from '@/components/ui/dialog';
+import { useDebounce } from 'use-debounce';
 
 const prescriptionSchema = z.object({
   name: requiredStringSchema(),
@@ -73,6 +75,11 @@ const Prescription = ({
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
 
+  const [search, setSearch] = useState('');
+  const [value] = useDebounce(search, 500);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
+  const [drugOptions, setDrugOptions] = useState<SelectOption[]>([]);
+
   const {
     register,
     handleSubmit,
@@ -87,6 +94,16 @@ const Prescription = ({
   });
 
   const storageKey = `consultation_${appointmentId}_prescription_draft`;
+
+  useEffect(() => {
+    const handleSearch = async (): Promise<void> => {
+      setIsLoadingSearch(true);
+      const { payload } = await dispatch(getDrugs(value));
+      setDrugOptions(payload as SelectOption[]);
+      setIsLoadingSearch(false);
+    };
+    void handleSearch();
+  }, [value]);
 
   useEffect(() => {
     if (existingPrescriptions.length === 0 && localPrescriptions.length === 0) {
@@ -116,6 +133,7 @@ const Prescription = ({
   const onAddPrescription = (data: PrescriptionFormValues): void => {
     setLocalPrescriptions([...localPrescriptions, data]);
     setUpdatePrescription(false);
+    setSearch('');
     reset();
   };
 
@@ -221,11 +239,16 @@ const Prescription = ({
             </div>
           </DrawerHeader>
           <form className="space-y-4" onSubmit={handleSubmit(onAddPrescription)}>
-            <Input
-              labelName="Name of Drug"
-              placeholder="Enter name of drug"
-              {...register('name')}
-              error={errors.name?.message}
+            <Combobox
+              label="Name of Drug"
+              onChange={(value) => setValue('name', value, { shouldValidate: true })}
+              options={drugOptions}
+              value={search}
+              placeholder="Search name of drug"
+              searchPlaceholder="Search for drug..."
+              defaultMaxWidth={false}
+              onSearchChange={(value) => setSearch(value)}
+              isLoadingResults={isLoadingSearch}
             />
             <Input
               labelName="Dose Taken"

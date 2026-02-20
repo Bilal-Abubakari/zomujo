@@ -222,8 +222,10 @@ const SelectInputV2 = ({
   onChange,
   value,
   selectLabel,
+  label,
 }: SelectInputV2Props): JSX.Element => (
   <Select value={value} onValueChange={onChange}>
+    {label && <Label>{label}</Label>}
     <SelectTrigger className={className}>
       <SelectValue placeholder={placeholder} />
     </SelectTrigger>

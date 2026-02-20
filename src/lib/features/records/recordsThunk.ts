@@ -173,6 +173,17 @@ export const getProcedures = createAsyncThunk(
   },
 );
 
+export const getDrugs = createAsyncThunk('record/get-drugs', async (searchTerm: string) => {
+  try {
+    const { data } = await axiosBase.get<Array<Array<Array<string>>>>(
+      `${process.env.NEXT_PUBLIC_CLINICAL_TABLES}/rxterms/v3/search?terms=${searchTerm}`,
+    );
+    return data[3].map((item) => ({ label: item[0], value: item[0] }));
+  } catch (error) {
+    return axiosErrorHandler(error, true) as Toast;
+  }
+});
+
 export const addSurgery = createAsyncThunk(
   'record/add-surgery',
   async (data: ISurgeryWithoutId, { dispatch }): Promise<Toast> => {
