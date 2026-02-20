@@ -3,11 +3,17 @@ import { Search } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
-import { CategoryType, ILab, ILaboratoryRequest, LaboratoryTest } from '@/types/labs.interface';
+import {
+  CategoryType,
+  ILab,
+  ILaboratoryRequest,
+  LaboratoryTest,
+  SelectedTests,
+} from '@/types/labs.interface';
 import { LabTestSection } from '@/types/labs.enum';
 import { RequestStatus } from '@/types/shared.enum';
 import { fetchLabs } from '@/lib/features/appointments/consultation/fetchLabs';
-import { showErrorToast } from '@/lib/utils';
+import { getTestKey, showErrorToast } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   getConsultationLabs,
@@ -47,7 +53,7 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   const { on } = useWebSocket();
   const [labs, setLabs] = useState<LaboratoryTest | null>(null);
   const [state, setState] = useState<{
-    selectedTests: Map<string, { category: string; categoryType: string }>;
+    selectedTests: SelectedTests;
   }>({
     selectedTests: new Map(),
   });
@@ -122,14 +128,18 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
 
   const handleSaveLabs = async (data: LabFormData): Promise<void> => {
     setIsSubmitting(true);
-    const newLabRequests: ILaboratoryRequest[] = Array.from(state.selectedTests.entries()).map(
-      ([testName, meta]) => {
+    const newLabRequests: ILaboratoryRequest[] = Array.from(state.selectedTests.values()).map(
+      ({ testName, category, categoryType }) => {
         let existingId = '';
         let existingStatus = RequestStatus.Pending;
 
         if (requestedAppointmentLabs) {
           for (const lab of requestedAppointmentLabs) {
-            if (lab.testName === testName) {
+            if (
+              lab.testName === testName &&
+              lab.category === category &&
+              lab.categoryType === categoryType
+            ) {
               existingId = lab.id;
               existingStatus = lab.status;
               break;
@@ -140,8 +150,8 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         return {
           id: existingId,
           testName,
-          category: meta.category as LabTestSection,
-          categoryType: meta.categoryType as CategoryType,
+          category,
+          categoryType,
           status: existingStatus,
         };
       },
@@ -178,19 +188,24 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   };
 
   const buildLabsArray = (): Pick<ILaboratoryRequest, 'categoryType' | 'category' | 'testName'>[] =>
-    Array.from(state.selectedTests.entries()).map(([testName, meta]) => ({
+    Array.from(state.selectedTests.values()).map(({ testName, category, categoryType }) => ({
       testName,
-      category: meta.category as LabTestSection,
-      categoryType: meta.categoryType as CategoryType,
+      category,
+      categoryType,
     }));
 
-  const toggleTestSelection = (testName: string, category: string, categoryType: string): void => {
+  const toggleTestSelection = (
+    testName: string,
+    category: LabTestSection,
+    categoryType: CategoryType,
+  ): void => {
+    const key = getTestKey(testName, categoryType);
     setState((prev) => {
       const newSelectedTests = new Map(prev.selectedTests);
-      if (newSelectedTests.has(testName)) {
-        newSelectedTests.delete(testName);
+      if (newSelectedTests.has(key)) {
+        newSelectedTests.delete(key);
       } else {
-        newSelectedTests.set(testName, { category, categoryType });
+        newSelectedTests.set(key, { testName, category, categoryType });
       }
       return { selectedTests: newSelectedTests };
     });
@@ -199,18 +214,23 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   };
 
   const toggleSubCategorySelection = (
-    subCategory: string,
-    mainCategory: string,
+    categoryType: CategoryType,
+    category: LabTestSection,
     tests: string[],
     checked: boolean,
   ): void => {
     setState((prev) => {
       const newSelectedTests = new Map(prev.selectedTests);
       tests.forEach((test) => {
+        const key = getTestKey(test, categoryType);
         if (checked) {
-          newSelectedTests.set(test, { category: mainCategory, categoryType: subCategory });
+          newSelectedTests.set(key, {
+            testName: test,
+            category,
+            categoryType,
+          });
         } else {
-          newSelectedTests.delete(test);
+          newSelectedTests.delete(key);
         }
       });
       return { selectedTests: newSelectedTests };
@@ -221,9 +241,14 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
 
   useEffect(() => {
     if (requestedAppointmentLabs) {
-      const prevTests = new Map<string, { category: string; categoryType: string }>();
-      requestedAppointmentLabs.forEach((lab) => {
-        prevTests.set(lab.testName, { category: lab.category, categoryType: lab.categoryType });
+      const prevTests: SelectedTests = new Map();
+      requestedAppointmentLabs.forEach(({ testName, category, categoryType }) => {
+        const key = getTestKey(testName, categoryType);
+        prevTests.set(key, {
+          testName,
+          category,
+          categoryType,
+        });
       });
       setState({
         selectedTests: prevTests,
@@ -248,8 +273,6 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         ref={ref}
         title="Laboratory Request"
         description="Select laboratory tests for the patient. Changes are saved when you click Save and Preview."
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         onClearSelections={() => {
           setState({
             selectedTests: new Map(),
@@ -292,7 +315,7 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
                 />
               </div>
 
-              <div className="space-y-4 overflow-auto rounded-lg border bg-white p-4">
+              <div className="space-y-4 rounded-lg border bg-white p-4">
                 <div className="relative">
                   <Search
                     className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-400"
@@ -310,11 +333,13 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
                   Object.entries(filteredLabs).map(([mainCategory, subCategories]) => (
                     <LabCategorySection
                       key={mainCategory}
-                      mainCategory={mainCategory}
+                      mainCategory={mainCategory as LabTestSection}
                       subCategories={subCategories}
-                      selectedTests={state.selectedTests}
                       onToggleTest={toggleTestSelection}
                       onToggleSubCategory={toggleSubCategorySelection}
+                      isTestSelected={(test, categoryType) =>
+                        state.selectedTests.has(getTestKey(test, categoryType))
+                      }
                     />
                   ))
                 ) : (

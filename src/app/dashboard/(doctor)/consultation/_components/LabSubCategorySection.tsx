@@ -2,34 +2,36 @@ import React, { JSX } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import LabTestItem from './LabTestItem';
+import { LabTestSection } from '@/types/labs.enum';
+import { CategoryType } from '@/types/labs.interface';
 
 type LabSubCategorySectionProps = {
-  subCategory: string;
+  subCategory: CategoryType;
   tests: string[];
-  mainCategory: string;
-  selectedTests: Map<string, { category: string; categoryType: string }>;
-  onToggleTest: (test: string, category: string, categoryType: string) => void;
+  mainCategory: LabTestSection;
+  onToggleTest: (test: string, category: LabTestSection, categoryType: CategoryType) => void;
   onToggleSubCategory: (
-    subCategory: string,
-    mainCategory: string,
+    subCategory: CategoryType,
+    mainCategory: LabTestSection,
     tests: string[],
     checked: boolean,
   ) => void;
+  isTestSelected: (test: string, categoryType: CategoryType) => boolean;
 };
 
 const LabSubCategorySection = ({
   subCategory,
   tests,
   mainCategory,
-  selectedTests,
   onToggleTest,
   onToggleSubCategory,
+  isTestSelected,
 }: LabSubCategorySectionProps): JSX.Element => {
   const createTestToggleHandler = (test: string) => (): void => {
     onToggleTest(test, mainCategory, subCategory);
   };
 
-  const isSubCategoryChecked = tests.every((test) => selectedTests.has(test));
+  const isSubCategoryChecked = tests.every((test) => isTestSelected(test, subCategory));
 
   return (
     <div className="max-h-fit space-y-2">
@@ -47,9 +49,8 @@ const LabSubCategorySection = ({
           <LabTestItem
             key={test}
             test={test}
-            mainCategory={mainCategory}
             subCategory={subCategory}
-            isChecked={selectedTests.has(test)}
+            isChecked={isTestSelected(test, subCategory)}
             onToggle={createTestToggleHandler(test)}
           />
         ))}

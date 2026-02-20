@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 import { PaymentTab } from '@/hooks/useQueryParam';
 import { ScrollContext } from '@/context/scroll-context';
 import OnboardingModalContent from '@/app/dashboard/_components/onboardingModalContent';
+import './layout.css';
 
 export default function Layout({
   children,
@@ -134,7 +135,7 @@ export default function Layout({
           <SidebarLayout />
           <main className="bg-grayscale-100 me:border flex h-screen flex-1 flex-col overflow-hidden px-4 2xl:px-6">
             <Toolbar />
-            <div ref={scrollContainerRef} className="flex-1 overflow-auto">
+            <div ref={scrollContainerRef} className="layout-container flex-1">
               {children}
             </div>
           </main>

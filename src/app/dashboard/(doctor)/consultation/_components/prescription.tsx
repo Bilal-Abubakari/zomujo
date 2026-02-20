@@ -31,6 +31,7 @@ import { requiredStringSchema } from '@/schemas/zod.schemas';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { Modal } from '@/components/ui/dialog';
 
 const prescriptionSchema = z.object({
   name: requiredStringSchema(),
@@ -322,37 +323,36 @@ const Prescription = ({
 
       {addPrescriptionDrawer}
 
-      <Drawer direction="bottom" open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-sm p-4">
-            <DrawerHeader>
-              <DrawerTitle className="text-center text-lg">Unsaved Prescriptions</DrawerTitle>
-              <DrawerDescription className="text-center text-sm">
-                You have {localPrescriptions.length} unsaved prescription
-                {localPrescriptions.length > 1 ? 's' : ''}. Are you sure you want to proceed without
-                saving?
-              </DrawerDescription>
-            </DrawerHeader>
-            <DrawerFooter className="flex flex-row gap-2">
+      <Modal
+        setState={setShowUnsavedWarning}
+        open={showUnsavedWarning}
+        content={
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900">Unsaved Prescriptions</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              You have {localPrescriptions.length} unsaved prescription
+              {localPrescriptions.length > 1 ? 's' : ''}. Are you sure you want to proceed without
+              saving?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
               <Button
                 onClick={() => setShowUnsavedWarning(false)}
-                child="Go Back & Save"
                 variant="outline"
+                child="Go Back & Save"
               />
               <Button
                 onClick={handleProceedWithoutSaving}
                 child="Proceed Without Saving"
                 variant="destructive"
               />
-            </DrawerFooter>
+            </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        }
+        showClose={true}
+      />
 
       <div className="fixed bottom-0 left-0 flex w-full justify-end gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
         <Button onClick={handleNextWithWarning} child="Next: Diagnosis" />
-
-        <Button onClick={goToNext} child="Skip" variant="secondary" />
       </div>
     </div>
   );
