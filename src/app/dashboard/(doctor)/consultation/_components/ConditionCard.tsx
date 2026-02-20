@@ -33,7 +33,6 @@ export const DiagnosisCard = ({
   isRemoving = false,
 }: DiagnosisCardProps & { isRemoving?: boolean }): JSX.Element => (
   <div
-    onClick={edit}
     className={cn(
       'group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200',
       edit && 'hover:border-primary cursor-pointer hover:shadow-md',

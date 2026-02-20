@@ -31,7 +31,7 @@ import { selectDiagnoses } from '@/lib/features/appointments/appointmentSelector
 import { LocalStorageManager } from '@/lib/localStorage';
 import { IDiagnosisOnlyRequest } from '@/types/consultation.interface';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, AlertCircle } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const conditionsSchema = z.object({
   name: z.string().min(1, 'Impression is required'),
@@ -274,7 +274,7 @@ const Diagnosis = ({
                 isLoading={isLoading}
                 disabled={!isValid || isLoading}
                 className="flex-1"
-                child={editingIndex !== null ? 'Update Impression' : 'Save Impression'}
+                child={editingIndex === null ? 'Save Impression' : 'Update Impression'}
                 type="submit"
               />
               <Button
@@ -345,19 +345,13 @@ const Diagnosis = ({
             </p>
           </button>
         ) : (
-          <>
-            <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
-              <AlertCircle className="h-4 w-4" />
-              <span>Click on any card to edit or remove impression</span>
-            </div>
-            <DiagnosesList
-              doctorName={doctorName}
-              conditions={combinedDiagnoses as IDiagnosis[]}
-              remove={removeDiagnosis}
-              edit={editDiagnosis}
-              isRemovingIndex={isRemovingIndex}
-            />
-          </>
+          <DiagnosesList
+            doctorName={doctorName}
+            conditions={combinedDiagnoses as IDiagnosis[]}
+            remove={removeDiagnosis}
+            edit={editDiagnosis}
+            isRemovingIndex={isRemovingIndex}
+          />
         )}
       </section>
 
