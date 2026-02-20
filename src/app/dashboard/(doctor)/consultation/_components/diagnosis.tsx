@@ -125,20 +125,18 @@ const Diagnosis = ({
   };
 
   const onAddDiagnosis = (diagnosis: DiagnosisFormValues): void => {
-    if (editingIndex !== null) {
-      // Update existing diagnosis
-      const newDiagnoses = [...diagnoses];
-      newDiagnoses[editingIndex] = diagnosis;
-      setDiagnoses(newDiagnoses);
-      setEditingIndex(null);
-    } else {
-      // Add new diagnosis
+    if (editingIndex === null) {
       setDiagnoses([
         {
           ...diagnosis,
         },
         ...diagnoses,
       ]);
+    } else {
+      const newDiagnoses = [...diagnoses];
+      newDiagnoses[editingIndex] = diagnosis;
+      setDiagnoses(newDiagnoses);
+      setEditingIndex(null);
     }
     reset({
       diagnosedAt: new Date().toISOString(),
@@ -228,24 +226,31 @@ const Diagnosis = ({
           <DrawerHeader className="mb-6 px-0">
             <div className="flex flex-col gap-1">
               <DrawerTitle className="text-2xl font-semibold text-gray-900">
-                {editingIndex !== null ? 'Edit Impression' : 'Add New Impression'}
+                {editingIndex === null ? 'Add New Impression' : 'Edit Impression'}
               </DrawerTitle>
               <DrawerDescription className="text-sm text-gray-500">
-                {editingIndex !== null
-                  ? 'Update the impression information below'
-                  : 'Record your impression for this encounter'}
+                {editingIndex === null
+                  ? 'Record your impression for this encounter'
+                  : 'Update the impression information below'}
               </DrawerDescription>
             </div>
           </DrawerHeader>
           <form className="space-y-6" onSubmit={handleSubmit(onAddDiagnosis)}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Impression</label>
-              <Input placeholder="Enter impression" {...register('name')} className="h-10" />
+              <label htmlFor="impression" className="text-sm font-bold">
+                Impression
+              </label>
+              <Input
+                id="impression"
+                placeholder="Enter impression"
+                {...register('name')}
+                className="h-10"
+              />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Condition Status</label>
               <SelectInput
+                label="Condition Status"
                 ref={register('status').ref}
                 control={control}
                 options={conditionStatusOptions}
@@ -256,8 +261,8 @@ const Diagnosis = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Clinical Notes</label>
               <Textarea
+                labelName="Clinical Notes"
                 placeholder="Add observations, severity or specific details..."
                 {...register('notes')}
                 className="min-h-30 resize-none"
