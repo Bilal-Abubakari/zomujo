@@ -123,3 +123,9 @@ export interface IDiagnosisUpdateRequest {
   name: string;
   notes?: string;
 }
+
+export interface IInternalReferralRequest {
+  patientId: string;
+  referredDoctorId: string;
+  letter: string;
+}

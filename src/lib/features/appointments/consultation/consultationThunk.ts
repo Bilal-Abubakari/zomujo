@@ -11,6 +11,7 @@ import {
   IPrescriptionRequest,
   IDiagnosisOnlyRequest,
   IDiagnosisUpdateRequest,
+  IInternalReferralRequest,
 } from '@/types/consultation.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import {
@@ -95,6 +96,20 @@ export const getConsultationRadiology = createAsyncThunk(
         `consultation/radiology-labs?appointmentId=${id}`,
       );
       return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const referPatient = createAsyncThunk(
+  'consultation/refer-patient',
+  async (referralData: IInternalReferralRequest): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>('common/refer-patient', referralData);
+      return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

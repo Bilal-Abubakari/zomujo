@@ -28,7 +28,7 @@ export const ConnectivityBanner = (): JSX.Element | null => {
     <Alert className="fixed top-0 right-0 left-0 z-50 border-red-500 bg-red-50 text-red-800">
       <WifiOff className="h-4 w-4" />
       <AlertDescription>
-        No internet connection. Please check your network and try again.
+        Slow or No internet connection. Please check your network and try again.
       </AlertDescription>
     </Alert>
   );

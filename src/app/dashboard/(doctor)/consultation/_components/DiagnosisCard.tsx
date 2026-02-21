@@ -16,7 +16,7 @@ export const DiagnosisCard = ({ diagnoses, doctorName }: DiagnosisCardProps): JS
       <CardTitle className="flex items-center justify-between text-lg">
         <div className="flex items-center gap-2">
           <Pill className="text-primary h-5 w-5" />
-          Impression & Treatment Plan
+          Impression
         </div>
         {diagnoses.length > 0 && (
           <Badge variant="brown" className="px-2 py-1">

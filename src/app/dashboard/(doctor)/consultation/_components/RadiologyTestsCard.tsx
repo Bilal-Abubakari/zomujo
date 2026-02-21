@@ -12,11 +12,7 @@ interface RadiologyTestsCardProps {
   conductedRadiology: IRadiology | null;
 }
 
-export const RadiologyTestsCard = ({
-  radiology,
-  requestedRadiology,
-  conductedRadiology,
-}: RadiologyTestsCardProps): JSX.Element => (
+export const RadiologyTestsCard = ({ radiology }: RadiologyTestsCardProps): JSX.Element => (
   <Card>
     <CardHeader>
       <CardTitle className="flex items-center gap-2 text-lg">
@@ -79,10 +75,6 @@ export const RadiologyTestsCard = ({
               ))}
           </div>
         </div>
-      )}
-
-      {!requestedRadiology && !conductedRadiology && (
-        <p className="text-sm text-gray-500">No radiology tests recorded</p>
       )}
     </CardContent>
   </Card>
