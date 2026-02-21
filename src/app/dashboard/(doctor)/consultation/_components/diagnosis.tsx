@@ -23,6 +23,7 @@ import {
   saveDiagnosis,
   deleteDiagnosis,
   getConsultationAppointment,
+  updateDiagnosis as updateDiagnosisThunk,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams } from 'next/navigation';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -55,6 +56,7 @@ const Diagnosis = ({
 }: DiagnosisProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingSavedId, setEditingSavedId] = useState<string | null>(null);
   const [isRemovingIndex, setIsRemovingIndex] = useState<number | null>(null);
   const {
     setValue,
@@ -124,8 +126,26 @@ const Diagnosis = ({
     LocalStorageManager.removeJSON(storageKey);
   };
 
-  const onAddDiagnosis = (diagnosis: DiagnosisFormValues): void => {
-    if (editingIndex === null) {
+  const onAddDiagnosis = async (diagnosis: DiagnosisFormValues): Promise<void> => {
+    if (editingSavedId) {
+      // Updating a saved diagnosis
+      setIsLoading(true);
+      const updateRequest = {
+        status: diagnosis.status,
+        id: editingSavedId,
+        diagnosedAt: diagnosis.diagnosedAt,
+        name: diagnosis.name,
+        notes: diagnosis.notes,
+      };
+      const { payload } = await dispatch(updateDiagnosisThunk(updateRequest));
+      toast(payload as Toast);
+      if (!showErrorToast(payload)) {
+        await dispatch(getConsultationAppointment(String(params.appointmentId)));
+      }
+      setIsLoading(false);
+      setEditingSavedId(null);
+    } else if (editingIndex === null) {
+      // Adding a new local diagnosis
       setDiagnoses([
         {
           ...diagnosis,
@@ -133,6 +153,7 @@ const Diagnosis = ({
         ...diagnoses,
       ]);
     } else {
+      // Editing a local diagnosis
       const newDiagnoses = [...diagnoses];
       newDiagnoses[editingIndex] = diagnosis;
       setDiagnoses(newDiagnoses);
@@ -149,7 +170,19 @@ const Diagnosis = ({
   };
 
   const editDiagnosis = (index: number): void => {
-    if (index >= savedDiagnoses.length) {
+    console.log('Does it work?', index);
+    if (index < savedDiagnoses.length) {
+      // Editing a saved diagnosis
+      const diagnosis = savedDiagnoses[index];
+      setValue('name', diagnosis.name);
+      setValue('status', diagnosis.status);
+      setValue('notes', diagnosis.notes || '');
+      setValue('diagnosedAt', diagnosis.diagnosedAt);
+      setEditingSavedId(diagnosis.id);
+      setUpdateDiagnosis(true);
+    } else {
+      // Editing a local diagnosis
+      console.log('It works!');
       const localIndex = index - savedDiagnoses.length;
       const diagnosis = diagnoses[localIndex];
       setValue('name', diagnosis.name);
@@ -212,6 +245,7 @@ const Diagnosis = ({
         if (!open) {
           setUpdateDiagnosis(false);
           setEditingIndex(null);
+          setEditingSavedId(null);
           reset({
             diagnosedAt: new Date().toISOString(),
             status: ConditionStatus.Active,
@@ -226,10 +260,12 @@ const Diagnosis = ({
           <DrawerHeader className="mb-6 px-0">
             <div className="flex flex-col gap-1">
               <DrawerTitle className="text-2xl font-semibold text-gray-900">
-                {editingIndex === null ? 'Add New Impression' : 'Edit Impression'}
+                {editingIndex === null && editingSavedId === null
+                  ? 'Add New Impression'
+                  : 'Edit Impression'}
               </DrawerTitle>
               <DrawerDescription className="text-sm text-gray-500">
-                {editingIndex === null
+                {editingIndex === null && editingSavedId === null
                   ? 'Record your impression for this encounter'
                   : 'Update the impression information below'}
               </DrawerDescription>
@@ -274,7 +310,11 @@ const Diagnosis = ({
                 isLoading={isLoading}
                 disabled={!isValid || isLoading}
                 className="flex-1"
-                child={editingIndex === null ? 'Save Impression' : 'Update Impression'}
+                child={
+                  editingIndex === null && editingSavedId === null
+                    ? 'Save Impression'
+                    : 'Update Impression'
+                }
                 type="submit"
               />
               <Button
@@ -282,6 +322,7 @@ const Diagnosis = ({
                 onClick={() => {
                   setUpdateDiagnosis(false);
                   setEditingIndex(null);
+                  setEditingSavedId(null);
                   reset({
                     diagnosedAt: new Date().toISOString(),
                     status: ConditionStatus.Active,
@@ -314,6 +355,7 @@ const Diagnosis = ({
           <Button
             onClick={() => {
               setEditingIndex(null);
+              setEditingSavedId(null);
               setUpdateDiagnosis(true);
             }}
             variant="default"
@@ -332,6 +374,7 @@ const Diagnosis = ({
           <button
             onClick={() => {
               setEditingIndex(null);
+              setEditingSavedId(null);
               setUpdateDiagnosis(true);
             }}
             className="group flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50/50 p-12 transition-colors hover:border-gray-300 hover:bg-gray-50"

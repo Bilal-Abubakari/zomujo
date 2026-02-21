@@ -35,7 +35,7 @@ export const DiagnosisCard = ({
   <div
     className={cn(
       'group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200',
-      edit && 'hover:border-primary cursor-pointer hover:shadow-md',
+      edit && 'hover:border-primary hover:shadow-md',
     )}
   >
     <div className="mb-4 flex items-start justify-between">

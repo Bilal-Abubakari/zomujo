@@ -10,6 +10,7 @@ import {
   IDiagnosisRequest,
   IPrescriptionRequest,
   IDiagnosisOnlyRequest,
+  IDiagnosisUpdateRequest,
 } from '@/types/consultation.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import {
@@ -461,6 +462,20 @@ export const updateHistoryNotes = createAsyncThunk(
         notes,
       });
       dispatch(updateAppointmentHistoryNotes(notes));
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const updateDiagnosis = createAsyncThunk(
+  'consultation/update-diagnosis',
+  async (updateRequest: IDiagnosisUpdateRequest): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.put<IResponse>(`consultation/diagnosis`, updateRequest);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
