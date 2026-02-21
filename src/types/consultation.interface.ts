@@ -1,4 +1,4 @@
-import { DurationType } from '@/types/shared.enum';
+import { ConditionStatus, DurationType } from '@/types/shared.enum';
 import { IExtraBase } from '@/types/shared.interface';
 import { IMedicineWithoutId, IDiagnosis, IPrescription } from '@/types/medical.interface';
 import { ILab } from '@/types/labs.interface';
@@ -114,4 +114,12 @@ export interface IReferral {
   doctorId?: string;
   doctor?: IDoctor;
   createdAt?: string;
+}
+
+export interface IDiagnosisUpdateRequest {
+  status: ConditionStatus;
+  id: string;
+  diagnosedAt: string;
+  name: string;
+  notes?: string;
 }
