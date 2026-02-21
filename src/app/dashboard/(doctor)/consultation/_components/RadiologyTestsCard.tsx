@@ -8,15 +8,9 @@ import { RequestStatus } from '@/types/shared.enum';
 
 interface RadiologyTestsCardProps {
   radiology: IRadiology | undefined;
-  requestedRadiology: IRadiology | null;
-  conductedRadiology: IRadiology | null;
 }
 
-export const RadiologyTestsCard = ({
-  radiology,
-  requestedRadiology,
-  conductedRadiology,
-}: RadiologyTestsCardProps): JSX.Element => (
+export const RadiologyTestsCard = ({ radiology }: RadiologyTestsCardProps): JSX.Element => (
   <Card>
     <CardHeader>
       <CardTitle className="flex items-center gap-2 text-lg">
@@ -25,7 +19,6 @@ export const RadiologyTestsCard = ({
       </CardTitle>
     </CardHeader>
     <CardContent className="space-y-4">
-      {/* Requested Radiology */}
       {radiology && radiology.tests.some(({ fileUrl }) => !fileUrl) && (
         <div>
           <h4 className="mb-3 text-sm font-semibold text-gray-700">Requested Tests</h4>
@@ -60,7 +53,6 @@ export const RadiologyTestsCard = ({
         </div>
       )}
 
-      {/* Conducted Radiology */}
       {radiology && radiology.tests.some(({ fileUrl }) => fileUrl) && (
         <div>
           <h4 className="mb-3 text-sm font-semibold text-gray-700">Completed Tests</h4>
@@ -79,10 +71,6 @@ export const RadiologyTestsCard = ({
               ))}
           </div>
         </div>
-      )}
-
-      {!requestedRadiology && !conductedRadiology && (
-        <p className="text-sm text-gray-500">No radiology tests recorded</p>
       )}
     </CardContent>
   </Card>
