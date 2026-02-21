@@ -5,11 +5,9 @@ import {
   selectAppointmentRadiology,
   selectComplaints,
   selectConductedLabs,
-  selectConductedRadiology,
   selectDiagnoses,
   selectPatientSymptoms,
   selectRequestedLabs,
-  selectRequestedRadiology,
   selectPrescriptions,
   selectHistoryNotes,
   selectAppointmentLabs,
@@ -62,9 +60,7 @@ const ReviewConsultation = ({
   const requestedLabs = useAppSelector(selectRequestedLabs);
   const lab = useAppSelector(selectAppointmentLabs);
   const conductedLabs = useAppSelector(selectConductedLabs);
-  const requestedRadiology = useAppSelector(selectRequestedRadiology);
   const radiology = useAppSelector(selectAppointmentRadiology);
-  const conductedRadiology = useAppSelector(selectConductedRadiology);
   const appointment = useAppSelector(selectAppointment);
   const historyNotes = useAppSelector(selectHistoryNotes);
   const [openAddSignature, setOpenAddSignature] = useState(false);
@@ -249,8 +245,6 @@ const ReviewConsultation = ({
                 requestedLabs={requestedLabs}
                 conductedLabs={conductedLabs}
                 radiology={radiology}
-                requestedRadiology={requestedRadiology}
-                conductedRadiology={conductedRadiology}
                 diagnoses={diagnoses}
                 prescriptions={prescriptions || appointment?.prescriptions || []}
                 referrals={referrals}
