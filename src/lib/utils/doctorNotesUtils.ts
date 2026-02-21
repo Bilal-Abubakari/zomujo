@@ -41,67 +41,59 @@ export const generateChiefComplaints = (
   return lines.join('');
 };
 
+const parseHistoryNotes = (historyNotes: string): string => {
+  const SECTION_KEYS: Array<[string, string]> = [
+    ['historyOfPresentingComplaint', 'History of Presenting Complaint'],
+    ['onDirectQuestions', 'On Direct Questions'],
+    ['systematicEnquiry', 'Systematic Enquiry'],
+    ['pastMedicalSurgicalHistory', 'Past Medical/Surgical History'],
+    ['drugHistory', 'Drug History'],
+    ['familyHistory', 'Family History'],
+    ['socialHistory', 'Social History'],
+    ['assessment', 'Assessment'],
+    ['plan', 'Plan'],
+  ];
+
+  try {
+    const parsed = JSON.parse(historyNotes);
+    const sections = SECTION_KEYS.filter(([key]) => parsed[key])
+      .map(([key, label]) => `${label}:\n${parsed[key]}\n`)
+      .join('');
+    return `HISTORY OF PRESENT ILLNESS:\n${sections}`;
+  } catch {
+    return `HISTORY OF PRESENT ILLNESS:\n${historyNotes}\n\n`;
+  }
+};
+
+const formatSymptomGroup = (
+  symptomType: string,
+  symptomList: Array<{ name: string; notes?: string }>,
+): string => {
+  const items = symptomList
+    .map(({ name, notes }) => `  • ${name}${notes ? ` - ${notes}` : ''}\n`)
+    .join('');
+  return `${capitalize(symptomType)} System:\n${items}\n`;
+};
+
+const formatSymptoms = (symptoms: IPatientSymptomMap): string => {
+  const body = Object.keys(symptoms)
+    .map((key) => {
+      const symptomList = symptoms[key as SymptomsType];
+      return symptomList?.length ? formatSymptomGroup(key, symptomList) : '';
+    })
+    .join('');
+
+  return `HISTORY OF PRESENT ILLNESS:\n\nThe patient presents with the following symptoms:\n\n${body}`;
+};
+
 export const generateSymptoms = (symptoms?: IPatientSymptomMap, historyNotes?: string): string => {
   if (historyNotes) {
-    try {
-      const parsed = JSON.parse(historyNotes);
-      const sections: string[] = [];
-      if (parsed.historyOfPresentingComplaint) {
-        sections.push(`History of Presenting Complaint:\n${parsed.historyOfPresentingComplaint}\n`);
-      }
-      if (parsed.onDirectQuestions) {
-        sections.push(`On Direct Questions:\n${parsed.onDirectQuestions}\n`);
-      }
-      if (parsed.systematicEnquiry) {
-        sections.push(`Systematic Enquiry:\n${parsed.systematicEnquiry}\n`);
-      }
-      if (parsed.pastMedicalSurgicalHistory) {
-        sections.push(`Past Medical/Surgical History:\n${parsed.pastMedicalSurgicalHistory}\n`);
-      }
-      if (parsed.drugHistory) {
-        sections.push(`Drug History:\n${parsed.drugHistory}\n`);
-      }
-      if (parsed.familyHistory) {
-        sections.push(`Family History:\n${parsed.familyHistory}\n`);
-      }
-      if (parsed.socialHistory) {
-        sections.push(`Social History:\n${parsed.socialHistory}\n`);
-      }
-      if (parsed.assessment) {
-        sections.push(`Assessment:\n${parsed.assessment}\n`);
-      }
-      if (parsed.plan) {
-        sections.push(`Plan:\n${parsed.plan}\n`);
-      }
-      return `HISTORY OF PRESENT ILLNESS:\n${sections.join('')}`;
-    } catch {
-      return `HISTORY OF PRESENT ILLNESS:\n${historyNotes}\n\n`;
-    }
+    return parseHistoryNotes(historyNotes);
   }
   if (!symptoms || Object.keys(symptoms).length === 0) {
     return '';
   }
-  const lines: string[] = [
-    `HISTORY OF PRESENT ILLNESS:\n`,
-    `The patient presents with the following symptoms:\n\n`,
-  ];
-  Object.keys(symptoms).forEach((key) => {
-    const symptomType = key as SymptomsType;
-    const symptomList = symptoms[symptomType];
-    if (symptomList && symptomList.length > 0) {
-      lines.push(`${capitalize(symptomType)} System:\n`);
-      symptomList.forEach(({ name, notes }: { name: string; notes?: string }) => {
-        let symptomLine = `  • ${name}`;
-        if (notes) {
-          symptomLine += ` - ${notes}`;
-        }
-        symptomLine += '\n';
-        lines.push(symptomLine);
-      });
-      lines.push('\n');
-    }
-  });
-  return lines.join('');
+  return formatSymptoms(symptoms);
 };
 
 export const generateMedications = (appointment: IAppointment): string => {
