@@ -8,8 +8,6 @@ import { RequestStatus } from '@/types/shared.enum';
 
 interface RadiologyTestsCardProps {
   radiology: IRadiology | undefined;
-  requestedRadiology: IRadiology | null;
-  conductedRadiology: IRadiology | null;
 }
 
 export const RadiologyTestsCard = ({ radiology }: RadiologyTestsCardProps): JSX.Element => (
@@ -21,7 +19,6 @@ export const RadiologyTestsCard = ({ radiology }: RadiologyTestsCardProps): JSX.
       </CardTitle>
     </CardHeader>
     <CardContent className="space-y-4">
-      {/* Requested Radiology */}
       {radiology && radiology.tests.some(({ fileUrl }) => !fileUrl) && (
         <div>
           <h4 className="mb-3 text-sm font-semibold text-gray-700">Requested Tests</h4>
@@ -56,7 +53,6 @@ export const RadiologyTestsCard = ({ radiology }: RadiologyTestsCardProps): JSX.
         </div>
       )}
 
-      {/* Conducted Radiology */}
       {radiology && radiology.tests.some(({ fileUrl }) => fileUrl) && (
         <div>
           <h4 className="mb-3 text-sm font-semibold text-gray-700">Completed Tests</h4>

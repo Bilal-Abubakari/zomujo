@@ -223,7 +223,7 @@ export const ReferralModal = ({
               {selectedDoctor && (
                 <div className="animate-in fade-in slide-in-from-top-2 space-y-3 border-t border-slate-100 pt-2 duration-300">
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold text-slate-800">
+                    <label htmlFor="referralNotes" className="text-sm font-semibold text-slate-800">
                       Referral Letter / Notes
                     </label>
                     <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium tracking-wider text-slate-500 uppercase">
@@ -231,6 +231,7 @@ export const ReferralModal = ({
                     </span>
                   </div>
                   <Textarea
+                    id="referralNotes"
                     placeholder="Short note or reason for referral..."
                     value={internalLetter}
                     onChange={(e) => setInternalLetter(e.target.value)}

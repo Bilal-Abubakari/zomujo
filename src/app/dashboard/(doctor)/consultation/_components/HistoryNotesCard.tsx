@@ -52,7 +52,7 @@ const HistoryNotesCard = ({ historyNotes }: HistoryNotesCardProps): JSX.Element 
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <FileText className="h-4 w-4" />
-              {key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+              {key.replaceAll(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
             </CardTitle>
           </CardHeader>
           <CardContent>

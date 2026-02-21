@@ -23,8 +23,6 @@ interface CardsViewProps {
   requestedLabs: ILaboratoryRequest[] | undefined;
   conductedLabs: ILaboratoryRequest[] | undefined;
   radiology: IRadiology | undefined;
-  requestedRadiology: IRadiology | null;
-  conductedRadiology: IRadiology | null;
   diagnoses: IDiagnosis[];
   prescriptions: IPrescription[];
   referrals: IReferral[];
@@ -42,8 +40,6 @@ export const CardsView = ({
   requestedLabs,
   conductedLabs,
   radiology,
-  requestedRadiology,
-  conductedRadiology,
   diagnoses,
   prescriptions,
   referrals,
@@ -78,11 +74,7 @@ export const CardsView = ({
           clinicalHistory={labClinicalHistory}
           instruction={labInstructions}
         />
-        <RadiologyTestsCard
-          radiology={radiology}
-          requestedRadiology={requestedRadiology}
-          conductedRadiology={conductedRadiology}
-        />
+        <RadiologyTestsCard radiology={radiology} />
       </div>
     </div>
 
