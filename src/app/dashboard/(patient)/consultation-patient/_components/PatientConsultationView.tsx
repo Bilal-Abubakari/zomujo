@@ -12,6 +12,7 @@ import {
   TestTubeDiagonal,
   Upload,
   X,
+  ClipboardList,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
@@ -42,6 +43,7 @@ import {
 } from '@/types/notification.interface';
 import { downloadBlob, showErrorToast } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
+import { SECTIONS, parseInitialNotes } from '@/constants/historyNotes.constant';
 
 const notificationsToRefetch = new Set<NotificationTopic>([
   NotificationTopic.LabRequest,
@@ -69,7 +71,10 @@ const PatientConsultationView = (): JSX.Element => {
   const [downloadingRadiologyRequest, setDownloadingRadiologyRequest] = useState(false);
   const [downloadingReferral, setDownloadingReferral] = useState<string | null>(null);
 
-  const consultationLabData = consultationDetails?.lab.data ?? [];
+  const consultationLabData = consultationDetails?.lab?.data ?? [];
+  const consultationRadiology = consultationDetails?.radiology;
+  const consultationRadiologyId = consultationRadiology?.id;
+  const parsedHistoryNotes = parseInitialNotes(consultationDetails?.historyNotes);
 
   const handleFileChange = ({ target }: ChangeEvent<HTMLInputElement>, labId: string): void => {
     const file = target.files?.[0];
@@ -198,15 +203,15 @@ const PatientConsultationView = (): JSX.Element => {
       return;
     }
 
-    const lab = consultationDetails?.lab.data.map((lab) =>
+    const labs = consultationLabData.map((lab) =>
       lab.id === labId ? { ...lab, fileUrl: payload as string } : lab,
     );
-    if (lab && consultationDetails) {
+    if (labs && consultationDetails?.lab) {
       setConsultationDetails({
         ...consultationDetails,
         lab: {
           ...consultationDetails.lab,
-          data: lab,
+          data: labs,
         },
       });
     }
@@ -232,7 +237,7 @@ const PatientConsultationView = (): JSX.Element => {
     const updatedTests = consultationDetails?.radiology?.tests.map((test) =>
       test.testName === testName ? { ...test, fileUrl: payload as string } : test,
     );
-    if (updatedTests) {
+    if (updatedTests && consultationDetails?.radiology) {
       const radiology = { ...consultationDetails!.radiology, tests: updatedTests };
       setConsultationDetails({ ...consultationDetails!, radiology });
     }
@@ -345,6 +350,43 @@ const PatientConsultationView = (): JSX.Element => {
               )}
             </div>
           </CardHeader>
+        </Card>
+
+        {/* History Notes Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl font-semibold">
+              <ClipboardList className="text-primary" />
+              History Notes
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {SECTIONS.some((section) => parsedHistoryNotes[section.key].trim()) ? (
+              SECTIONS.filter((section) => parsedHistoryNotes[section.key].trim()).map(
+                (section) => {
+                  const Icon = section.icon;
+                  return (
+                    <div
+                      key={section.key}
+                      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                    >
+                      <div className="mb-3 flex items-center gap-2">
+                        <Icon className="text-primary h-5 w-5" />
+                        <h3 className="text-base font-semibold text-gray-800">{section.label}</h3>
+                      </div>
+                      <p className="text-sm whitespace-pre-wrap text-gray-600">
+                        {parsedHistoryNotes[section.key]}
+                      </p>
+                    </div>
+                  );
+                },
+              )
+            ) : (
+              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 text-center text-gray-500">
+                There are currently no history notes from the doctor.
+              </div>
+            )}
+          </CardContent>
         </Card>
 
         {/* Diagnoses Section */}
@@ -585,7 +627,7 @@ const PatientConsultationView = (): JSX.Element => {
                             <Button
                               child={
                                 <label
-                                  htmlFor={`radio-file-${consultationDetails.radiology.id}-${test.testName}`}
+                                  htmlFor={`radio-file-${consultationRadiologyId}-${test.testName}`}
                                 >
                                   <Paperclip className="mr-2 h-4 w-4" />
                                   Attach PDF
@@ -597,35 +639,30 @@ const PatientConsultationView = (): JSX.Element => {
                               className="cursor-pointer"
                             ></Button>
                             <Input
-                              id={`radio-file-${consultationDetails.radiology.id}-${test.testName}`}
+                              id={`radio-file-${consultationRadiologyId}-${test.testName}`}
                               type="file"
                               className="hidden"
                               accept=".pdf"
                               onChange={(e) =>
                                 handleRadiologyFileChange(
                                   e,
-                                  `${consultationDetails.radiology.id}-${test.testName}`,
+                                  `${consultationRadiologyId}-${test.testName}`,
                                 )
                               }
                             />
                             <Button
                               size="sm"
                               onClick={() =>
-                                handleRadiologyUpload(
-                                  test.testName,
-                                  consultationDetails.radiology.id,
-                                )
+                                handleRadiologyUpload(test.testName, consultationRadiologyId ?? '')
                               }
                               disabled={
                                 !selectedRadiologyFiles[
-                                  `${consultationDetails.radiology.id}-${test.testName}`
+                                  `${consultationRadiologyId}-${test.testName}`
                                 ] ||
-                                uploadingRadiology ===
-                                  `${consultationDetails.radiology.id}-${test.testName}`
+                                uploadingRadiology === `${consultationRadiologyId}-${test.testName}`
                               }
                               isLoading={
-                                uploadingRadiology ===
-                                `${consultationDetails.radiology.id}-${test.testName}`
+                                uploadingRadiology === `${consultationRadiologyId}-${test.testName}`
                               }
                               child={
                                 <>
@@ -636,13 +673,13 @@ const PatientConsultationView = (): JSX.Element => {
                             />
                           </div>
                           {selectedRadiologyFiles[
-                            `${consultationDetails.radiology.id}-${test.testName}`
+                            `${consultationRadiologyId}-${test.testName}`
                           ] && (
                             <div className="flex items-center rounded-md bg-gray-100 p-2 text-sm">
                               <span className="max-w-sm truncate pr-2">
                                 {
                                   selectedRadiologyFiles[
-                                    `${consultationDetails.radiology.id}-${test.testName}`
+                                    `${consultationRadiologyId}-${test.testName}`
                                   ]?.name
                                 }
                               </span>
@@ -651,8 +688,7 @@ const PatientConsultationView = (): JSX.Element => {
                                   onClick={() =>
                                     setSelectedRadiologyFiles({
                                       ...selectedRadiologyFiles,
-                                      [`${consultationDetails.radiology.id}-${test.testName}`]:
-                                        null,
+                                      [`${consultationRadiologyId}-${test.testName}`]: null,
                                     })
                                   }
                                 >
