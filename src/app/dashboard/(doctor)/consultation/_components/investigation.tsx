@@ -145,7 +145,7 @@ const Investigation = ({ goToNext }: { goToNext: () => void }): JSX.Element => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="labs" className="max-h-fit overflow-hidden">
+          <TabsContent value="labs" className="max-h-fit">
             <Labs ref={labsRef} />
           </TabsContent>
 
@@ -166,10 +166,7 @@ const Investigation = ({ goToNext }: { goToNext: () => void }): JSX.Element => {
           </div>
         )}
         <div className="fixed bottom-0 left-0 z-50 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
-          <Button
-            onClick={() => void handleSubmitAndGoToExamination()}
-            child={'Continue to Diagnosis'}
-          />
+          <Button onClick={handleSubmitAndGoToExamination} child={'Continue to Diagnosis'} />
         </div>
       </div>
     </>

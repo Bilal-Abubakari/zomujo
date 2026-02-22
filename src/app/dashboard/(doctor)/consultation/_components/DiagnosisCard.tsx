@@ -16,11 +16,11 @@ export const DiagnosisCard = ({ diagnoses, doctorName }: DiagnosisCardProps): JS
       <CardTitle className="flex items-center justify-between text-lg">
         <div className="flex items-center gap-2">
           <Pill className="text-primary h-5 w-5" />
-          Diagnosis & Treatment Plan
+          Impression
         </div>
         {diagnoses.length > 0 && (
           <Badge variant="brown" className="px-2 py-1">
-            {diagnoses.length} {diagnoses.length === 1 ? 'Diagnosis' : 'Diagnoses'}
+            {diagnoses.length} {diagnoses.length === 1 ? 'Impression' : 'Impressions'}
           </Badge>
         )}
       </CardTitle>
@@ -33,7 +33,7 @@ export const DiagnosisCard = ({ diagnoses, doctorName }: DiagnosisCardProps): JS
           conditions={diagnoses}
         />
       ) : (
-        <p className="text-sm text-gray-500">No diagnosis recorded</p>
+        <p className="text-sm text-gray-500">No impression recorded</p>
       )}
     </CardContent>
   </Card>

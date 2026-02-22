@@ -1,9 +1,7 @@
 'use client';
 import React, { JSX, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/dialog';
 
 export interface InvestigationBaseRef {
@@ -13,8 +11,6 @@ export interface InvestigationBaseRef {
 interface InvestigationBaseProps {
   title: string;
   description: string;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
   onClearSelections: () => void;
   onSubmit: () => Promise<void>;
   onPreviewPdf: () => Promise<void>;
@@ -39,8 +35,6 @@ function InvestigationBase(
   const {
     title,
     description,
-    searchQuery,
-    onSearchChange,
     onClearSelections,
     onSubmit,
     onPreviewPdf,
@@ -117,8 +111,8 @@ function InvestigationBase(
       <div className="relative h-full w-full">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold">{title}</h2>
-            <p className="mt-1 text-sm text-gray-600">{description}</p>
+            <h2 className="text-lg font-bold">{title}</h2>
+            <p className="mt-1 text-xs text-gray-600">{description}</p>
           </div>
           <div className="flex gap-2">
             {hasExistingData && (
@@ -127,6 +121,7 @@ function InvestigationBase(
                 child={previewButtonText}
                 variant="outline"
                 size="sm"
+                className="text-xs"
               />
             )}
             <Button
@@ -134,54 +129,31 @@ function InvestigationBase(
               disabled={isSubmitting || selectedCount === 0}
               isLoading={isSubmitting}
               child={submitButtonText}
+              className="text-xs"
               size="sm"
             />
           </div>
         </div>
 
         <div className="space-y-6">
-          {/* Search Bar */}
-          <div className="relative">
-            <Search
-              className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-400"
-              size={20}
-            />
-            <Input
-              type="text"
-              placeholder="Search for tests, categories..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pr-10 pl-10"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => onSearchChange('')}
-                className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
-              >
-                <X size={20} />
-              </button>
-            )}
-          </div>
-
           {/* Selected Tests Summary */}
           {selectedCount > 0 && (
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-blue-900">
                   {selectedCount} test{selectedCount === 1 ? '' : 's'} selected
                 </span>
                 <button
                   type="button"
                   onClick={onClearSelections}
-                  className="text-sm text-blue-600 underline hover:text-blue-800"
+                  className="cursor-pointer text-xs text-blue-600 underline hover:text-blue-800"
                 >
                   Clear all selections
                 </button>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {selectedTestNames.map((testName) => (
-                  <Badge key={testName} variant="secondary" className="px-3 py-1">
+                  <Badge key={testName} variant="secondary" className="px-3 py-1 text-xs">
                     {testName}
                   </Badge>
                 ))}

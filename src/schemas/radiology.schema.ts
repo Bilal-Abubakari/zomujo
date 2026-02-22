@@ -6,7 +6,6 @@ import {
   SpecializedImagingCategory,
   UltrasoundScansCategory,
 } from '@/types/radiology.enum';
-import { requiredStringSchema } from '@/schemas/zod.schemas';
 
 export const radiologySchema = z.object({
   tests: z
@@ -25,10 +24,7 @@ export const radiologySchema = z.object({
     .min(1),
   procedureRequest: z.string(),
   history: z.string().min(5, 'History/Relevant Symptoms is required (minimum 5 characters)'),
-  questions: z
-    .array(requiredStringSchema())
-    .max(3, 'Maximum 3 questions allowed')
-    .min(1, 'At least one question'),
+  instructions: z.string().optional(),
 });
 
 export type RadiologyForm = z.infer<typeof radiologySchema>;

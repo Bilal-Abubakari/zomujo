@@ -39,6 +39,12 @@ export type SubCategorySectionProps<TTest> = {
   selectedTests: TTest[] | Map<string, { category: string; categoryType: string }>;
   onToggleTest: (test: string, mainCategory: string, subCategory: string) => void;
   isTestSelected: (testName: string, selectedTests: TTest[] | Map<string, unknown>) => boolean;
+  onToggleSubCategory?: (
+    subCategory: string,
+    mainCategory: string,
+    tests: string[],
+    checked: boolean,
+  ) => void;
 };
 
 export function SubCategorySection<TTest>({
@@ -48,10 +54,29 @@ export function SubCategorySection<TTest>({
   selectedTests,
   onToggleTest,
   isTestSelected,
+  onToggleSubCategory,
 }: Readonly<SubCategorySectionProps<TTest>>): JSX.Element {
+  const isSubCategoryChecked = onToggleSubCategory
+    ? tests.every((test) => isTestSelected(test, selectedTests))
+    : false;
+
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
+      {onToggleSubCategory ? (
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={isSubCategoryChecked}
+            onCheckedChange={(checked) =>
+              onToggleSubCategory(subCategory, mainCategory, tests, checked as boolean)
+            }
+          />
+          <Label className="cursor-pointer text-sm font-semibold text-gray-700">
+            {subCategory}
+          </Label>
+        </div>
+      ) : (
+        <h4 className="text-sm font-semibold text-gray-700">{subCategory}</h4>
+      )}
       <div className="grid grid-cols-1 gap-3 pl-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {tests.map((test: string) => (
           <TestItem
@@ -74,6 +99,12 @@ export type MainCategorySectionProps<TTest> = {
   selectedTests: TTest[] | Map<string, { category: string; categoryType: string }>;
   onToggleTest: (test: string, mainCategory: string, subCategory: string) => void;
   isTestSelected: (testName: string, selectedTests: TTest[] | Map<string, unknown>) => boolean;
+  onToggleSubCategory?: (
+    subCategory: string,
+    mainCategory: string,
+    tests: string[],
+    checked: boolean,
+  ) => void;
   additionalContent?: JSX.Element | null;
 };
 
@@ -83,6 +114,7 @@ export function MainCategorySection<TTest>({
   selectedTests,
   onToggleTest,
   isTestSelected,
+  onToggleSubCategory,
   additionalContent,
 }: Readonly<MainCategorySectionProps<TTest>>): JSX.Element {
   return (
@@ -101,6 +133,7 @@ export function MainCategorySection<TTest>({
             selectedTests={selectedTests}
             onToggleTest={onToggleTest}
             isTestSelected={isTestSelected}
+            onToggleSubCategory={onToggleSubCategory}
           />
         ))}
       </div>

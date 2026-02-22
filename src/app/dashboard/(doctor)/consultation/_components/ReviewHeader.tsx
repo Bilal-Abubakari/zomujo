@@ -2,15 +2,13 @@ import React, { JSX } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { MailCheck, Share2 } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 
 interface ReviewHeaderProps {
   isPastConsultation: boolean;
   hasSignature: boolean;
   addSignature: boolean;
-  isSendingPrescription: boolean;
   onSignatureToggle: () => void;
-  onSendPrescription: () => void;
   onAddReferral?: () => void;
 }
 
@@ -18,9 +16,7 @@ export const ReviewHeader = ({
   isPastConsultation,
   hasSignature,
   addSignature,
-  isSendingPrescription,
   onSignatureToggle,
-  onSendPrescription,
   onAddReferral,
 }: ReviewHeaderProps): JSX.Element => (
   <div className="from-primary/10 to-primary/5 flex flex-col gap-4 rounded-lg bg-linear-to-r p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
@@ -55,19 +51,6 @@ export const ReviewHeader = ({
             }
           />
         )}
-        <Button
-          variant="default"
-          onClick={onSendPrescription}
-          isLoading={isSendingPrescription}
-          disabled={isSendingPrescription || !hasSignature}
-          className="w-full sm:w-auto"
-          child={
-            <>
-              <MailCheck className="mr-2 h-4 w-4" />
-              <span>Send Prescription</span>
-            </>
-          }
-        />
       </div>
     )}
   </div>

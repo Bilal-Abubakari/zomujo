@@ -6,37 +6,36 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
-import { Combobox, SelectInput, SelectOption } from '@/components/ui/select';
+import { SelectInput } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import React, { JSX, useEffect, useMemo, useState } from 'react';
-import { AlertMessage } from '@/components/ui/alert';
-import AddCardButton from '@/components/ui/addCardButton';
 import { ConditionStatus } from '@/types/shared.enum';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { conditionStatusOptions, MODE } from '@/constants/constants';
 import { z } from 'zod';
-import { getConditions } from '@/lib/features/records/recordsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { useDebounce } from 'use-debounce';
-import {
-  ConditionsList,
-  DiagnosesList,
-} from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
+import { DiagnosesList } from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
 import { IDiagnosis } from '@/types/medical.interface';
 import { selectUserName } from '@/lib/features/auth/authSelector';
-import { saveDiagnosis } from '@/lib/features/appointments/consultation/consultationThunk'; // New thunk
+import {
+  saveDiagnosis,
+  deleteDiagnosis,
+  getConsultationAppointment,
+  updateDiagnosis as updateDiagnosisThunk,
+} from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams } from 'next/navigation';
-import { selectConditions } from '@/lib/features/patients/patientsSelector';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { selectDiagnoses } from '@/lib/features/appointments/appointmentSelector';
 import { LocalStorageManager } from '@/lib/localStorage';
 import { IDiagnosisOnlyRequest } from '@/types/consultation.interface';
 import { Textarea } from '@/components/ui/textarea';
+import { Plus } from 'lucide-react';
 
 const conditionsSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1, 'Impression is required'),
   notes: z.string().optional(),
   status: z.enum(ConditionStatus),
   diagnosedAt: z.string(),
@@ -56,6 +55,9 @@ const Diagnosis = ({
   goToNext,
 }: DiagnosisProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingSavedId, setEditingSavedId] = useState<string | null>(null);
+  const [isRemovingIndex, setIsRemovingIndex] = useState<number | null>(null);
   const {
     setValue,
     formState: { isValid },
@@ -75,14 +77,9 @@ const Diagnosis = ({
 
   const params = useParams();
   const savedDiagnoses = useAppSelector(selectDiagnoses);
-  const [conditionOptions, setConditionOptions] = useState<SelectOption[]>([]);
-  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [diagnoses, setDiagnoses] = useState<Omit<IDiagnosis, 'prescriptions'>[]>([]);
   const doctorName = useAppSelector(selectUserName);
-  const existingConditions = useAppSelector(selectConditions);
 
-  const [search, setSearch] = useState('');
-  const [value] = useDebounce(search, 1000);
   const dispatch = useAppDispatch();
 
   const combinedDiagnoses = useMemo(
@@ -93,6 +90,7 @@ const Diagnosis = ({
   const storageKey = `consultation_${params?.appointmentId}_diagnosis_only_draft`;
 
   useEffect(() => {
+    void dispatch(getConsultationAppointment(String(params.appointmentId)));
     if (savedDiagnoses.length === 0 && diagnoses.length === 0) {
       const draft = LocalStorageManager.getJSON<{
         diagnoses: Omit<IDiagnosis, 'prescriptions'>[];
@@ -107,7 +105,7 @@ const Diagnosis = ({
         }
       }
     }
-  }, [savedDiagnoses, diagnoses.length, storageKey, setValue]);
+  }, [storageKey]);
 
   useEffect(() => {
     if (savedDiagnoses.length === 0) {
@@ -128,17 +126,95 @@ const Diagnosis = ({
     LocalStorageManager.removeJSON(storageKey);
   };
 
-  const onAddDiagnosis = (diagnosis: DiagnosisFormValues): void => {
-    setDiagnoses([
-      {
-        ...diagnosis,
-      },
-      ...diagnoses,
-    ]);
-    setSearch('');
-    reset();
+  const onAddDiagnosis = async (diagnosis: DiagnosisFormValues): Promise<void> => {
+    if (editingSavedId) {
+      // Updating a saved diagnosis
+      setIsLoading(true);
+      const updateRequest = {
+        status: diagnosis.status,
+        id: editingSavedId,
+        diagnosedAt: diagnosis.diagnosedAt,
+        name: diagnosis.name,
+        notes: diagnosis.notes,
+      };
+      const { payload } = await dispatch(updateDiagnosisThunk(updateRequest));
+      toast(payload as Toast);
+      if (!showErrorToast(payload)) {
+        await dispatch(getConsultationAppointment(String(params.appointmentId)));
+      }
+      setIsLoading(false);
+      setEditingSavedId(null);
+    } else if (editingIndex === null) {
+      // Adding a new local diagnosis
+      setDiagnoses([
+        {
+          ...diagnosis,
+        },
+        ...diagnoses,
+      ]);
+    } else {
+      // Editing a local diagnosis
+      const newDiagnoses = [...diagnoses];
+      newDiagnoses[editingIndex] = diagnosis;
+      setDiagnoses(newDiagnoses);
+      setEditingIndex(null);
+    }
+    reset({
+      diagnosedAt: new Date().toISOString(),
+      status: ConditionStatus.Active,
+      name: '',
+      notes: '',
+    });
     setUpdateDiagnosis(false);
     clearDraft();
+  };
+
+  const editDiagnosis = (index: number): void => {
+    console.log('Does it work?', index);
+    if (index < savedDiagnoses.length) {
+      // Editing a saved diagnosis
+      const diagnosis = savedDiagnoses[index];
+      setValue('name', diagnosis.name);
+      setValue('status', diagnosis.status);
+      setValue('notes', diagnosis.notes || '');
+      setValue('diagnosedAt', diagnosis.diagnosedAt);
+      setEditingSavedId(diagnosis.id);
+      setUpdateDiagnosis(true);
+    } else {
+      // Editing a local diagnosis
+      console.log('It works!');
+      const localIndex = index - savedDiagnoses.length;
+      const diagnosis = diagnoses[localIndex];
+      setValue('name', diagnosis.name);
+      setValue('status', diagnosis.status);
+      setValue('notes', diagnosis.notes || '');
+      setValue('diagnosedAt', diagnosis.diagnosedAt);
+      setEditingIndex(localIndex);
+      setUpdateDiagnosis(true);
+    }
+  };
+
+  const removeDiagnosis = async (index: number): Promise<void> => {
+    setIsRemovingIndex(index);
+    try {
+      if (index < savedDiagnoses.length) {
+        const diagnosis = combinedDiagnoses[index];
+        if ('id' in diagnosis) {
+          const { payload } = await dispatch(deleteDiagnosis(diagnosis.id));
+          toast(payload as Toast);
+          if (!showErrorToast(payload)) {
+            await dispatch(getConsultationAppointment(String(params.appointmentId)));
+          }
+        }
+      } else {
+        const localIndex = index - savedDiagnoses.length;
+        const newDiagnoses = [...diagnoses];
+        newDiagnoses.splice(localIndex, 1);
+        setDiagnoses(newDiagnoses);
+      }
+    } finally {
+      setIsRemovingIndex(null);
+    }
   };
 
   const onSubmit = async (): Promise<void> => {
@@ -161,66 +237,102 @@ const Diagnosis = ({
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    const handleSearch = async (): Promise<void> => {
-      setIsLoadingSearch(true);
-      const { payload } = await dispatch(getConditions(value));
-      setConditionOptions(payload as SelectOption[]);
-      setIsLoadingSearch(false);
-    };
-    void handleSearch();
-  }, [value]);
-
   const addDiagnosisDrawer = (
-    <Drawer direction="right" open={updateDiagnosis}>
+    <Drawer
+      direction="right"
+      open={updateDiagnosis}
+      onOpenChange={(open) => {
+        if (!open) {
+          setUpdateDiagnosis(false);
+          setEditingIndex(null);
+          setEditingSavedId(null);
+          reset({
+            diagnosedAt: new Date().toISOString(),
+            status: ConditionStatus.Active,
+            name: '',
+            notes: '',
+          });
+        }
+      }}
+    >
       <DrawerContent className="overflow-y-auto">
-        <div className="mx-auto w-full max-w-sm p-4">
-          <DrawerHeader className="flex items-center justify-between">
-            <div>
-              <DrawerTitle className="text-center text-lg">Add Diagnosis</DrawerTitle>
-              <DrawerDescription className="text-center text-sm">
-                Diagnose your patient
+        <div className="mx-auto w-full max-w-md p-6">
+          <DrawerHeader className="mb-6 px-0">
+            <div className="flex flex-col gap-1">
+              <DrawerTitle className="text-2xl font-semibold text-gray-900">
+                {editingIndex === null && editingSavedId === null
+                  ? 'Add New Impression'
+                  : 'Edit Impression'}
+              </DrawerTitle>
+              <DrawerDescription className="text-sm text-gray-500">
+                {editingIndex === null && editingSavedId === null
+                  ? 'Record your impression for this encounter'
+                  : 'Update the impression information below'}
               </DrawerDescription>
             </div>
           </DrawerHeader>
-          <form className="space-y-4" onSubmit={handleSubmit(onAddDiagnosis)}>
-            <Combobox
-              label="Add Condition Diagnosed"
-              onChange={(value) => setValue('name', value, { shouldValidate: true })}
-              options={conditionOptions}
-              value={search}
-              placeholder="Search condition"
-              searchPlaceholder="Search for condition..."
-              defaultMaxWidth={false}
-              onSearchChange={(value) => setSearch(value)}
-              isLoadingResults={isLoadingSearch}
-            />
-            <SelectInput
-              label="Status of Condition"
-              ref={register('status').ref}
-              control={control}
-              options={conditionStatusOptions}
-              name="status"
-              placeholder="Select status of condition"
-              className="bg-transparent"
-            />
-            <Textarea placeholder="Add notes" {...register('notes')} className="mt-4" />
+          <form className="space-y-6" onSubmit={handleSubmit(onAddDiagnosis)}>
+            <div className="space-y-2">
+              <label htmlFor="impression" className="text-sm font-bold">
+                Impression
+              </label>
+              <Input
+                id="impression"
+                placeholder="Enter impression"
+                {...register('name')}
+                className="h-10"
+              />
+            </div>
 
-            <div className="space-x-3 pt-6">
+            <div className="space-y-2">
+              <SelectInput
+                label="Condition Status"
+                ref={register('status').ref}
+                control={control}
+                options={conditionStatusOptions}
+                name="status"
+                placeholder="Select status"
+                className="h-10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Textarea
+                labelName="Clinical Notes"
+                placeholder="Add observations, severity or specific details..."
+                {...register('notes')}
+                className="min-h-30 resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
               <Button
                 isLoading={isLoading}
                 disabled={!isValid || isLoading}
-                child="Save"
+                className="flex-1"
+                child={
+                  editingIndex === null && editingSavedId === null
+                    ? 'Save Impression'
+                    : 'Update Impression'
+                }
                 type="submit"
               />
               <Button
                 disabled={isLoading}
                 onClick={() => {
                   setUpdateDiagnosis(false);
+                  setEditingIndex(null);
+                  setEditingSavedId(null);
+                  reset({
+                    diagnosedAt: new Date().toISOString(),
+                    status: ConditionStatus.Active,
+                    name: '',
+                    notes: '',
+                  });
                 }}
-                child="Close"
+                child="Cancel"
                 type="button"
-                variant="secondary"
+                variant="outline"
               />
             </div>
           </form>
@@ -231,35 +343,69 @@ const Diagnosis = ({
   );
 
   return (
-    <div>
-      <span className="font-bold">Existing Conditions</span>
-      <div className="mt-5 flex gap-4">{<ConditionsList conditions={existingConditions} />}</div>
-      <div className="mt-10">
-        {combinedDiagnoses.length <= 0 && (
-          <AlertMessage
-            message='No specific diagnosis has been recorded for this encounter. Click on the "+" icon to include a diagnosis for this encounter.'
-            className="mb-4 max-w-4xl"
-            variant="info"
+    <div className="mx-auto max-w-7xl space-y-6 pb-32">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Impression</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Record and manage impression for this encounter
+          </p>
+        </div>
+        {combinedDiagnoses.length > 0 && (
+          <Button
+            onClick={() => {
+              setEditingIndex(null);
+              setEditingSavedId(null);
+              setUpdateDiagnosis(true);
+            }}
+            variant="default"
+            child={
+              <>
+                <Plus className="h-4 w-4" />
+                Add Impression
+              </>
+            }
           />
         )}
-        <span className="font-bold">Add New Diagnosis</span>
-        <div className="mt-5 mb-16 flex gap-4">
+      </div>
+
+      <section className="rounded-lg border bg-white p-6">
+        {combinedDiagnoses.length <= 0 ? (
+          <button
+            onClick={() => {
+              setEditingIndex(null);
+              setEditingSavedId(null);
+              setUpdateDiagnosis(true);
+            }}
+            className="group flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50/50 p-12 transition-colors hover:border-gray-300 hover:bg-gray-50"
+          >
+            <div className="bg-primary/10 text-primary mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
+              <Plus className="h-8 w-8" />
+            </div>
+            <h3 className="mb-1 text-lg font-semibold text-gray-900">No Impression Yet</h3>
+            <p className="max-w-md text-center text-sm text-gray-500">
+              Click to add a impression for this encounter
+            </p>
+          </button>
+        ) : (
           <DiagnosesList
-            // remove={remove} // Need to implement remove for new list?
             doctorName={doctorName}
             conditions={combinedDiagnoses as IDiagnosis[]}
-          >
-            <AddCardButton onClick={() => setUpdateDiagnosis(true)} />
-          </DiagnosesList>
-        </div>
-      </div>
+            remove={removeDiagnosis}
+            edit={editDiagnosis}
+            isRemovingIndex={isRemovingIndex}
+          />
+        )}
+      </section>
+
       {addDiagnosisDrawer}
+
       <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
         <Button
           onClick={() => onSubmit()}
           isLoading={isLoading}
           disabled={isLoading || combinedDiagnoses.length === 0}
-          child="Next: Prescription"
+          child="Next: Review"
         />
       </div>
     </div>

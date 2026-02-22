@@ -18,21 +18,22 @@ export interface ILaboratoryRequest {
   category: LabTestSection;
   categoryType: CategoryType;
   testName: string;
-  notes: string;
-  fasting: boolean;
-  specimen: string;
-  fileUrl?: string;
   status: RequestStatus;
+  fileUrl?: string;
 }
 
 export interface ILaboratoryRequestWithRecordId {
   recordId: string;
   appointmentId: string;
   labs: ILaboratoryRequest[];
+  instructions?: string;
+  history?: string;
 }
 
 export interface ILab {
   id: string;
+  instructions?: string;
+  history?: string;
   data: ILaboratoryRequest[];
   createdAt: string;
   updatedAt: string;
@@ -60,3 +61,11 @@ export type Haematology = Record<HaematologyCategory, string[]>;
 export type Immunology = Record<ImmunologyCategory, string[]>;
 
 export type Microbiology = Record<MicrobiologyCategory, string[]>;
+
+export interface SelectedTest {
+  testName: string;
+  category: LabTestSection;
+  categoryType: CategoryType;
+}
+
+export type SelectedTests = Map<string, SelectedTest>;

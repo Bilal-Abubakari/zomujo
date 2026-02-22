@@ -10,6 +10,8 @@ import {
   IDiagnosisRequest,
   IPrescriptionRequest,
   IDiagnosisOnlyRequest,
+  IDiagnosisUpdateRequest,
+  IInternalReferralRequest,
 } from '@/types/consultation.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import {
@@ -94,6 +96,20 @@ export const getConsultationRadiology = createAsyncThunk(
         `consultation/radiology-labs?appointmentId=${id}`,
       );
       return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const referPatient = createAsyncThunk(
+  'consultation/refer-patient',
+  async (referralData: IInternalReferralRequest): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.post<IResponse>('common/refer-patient', referralData);
+      return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
@@ -185,6 +201,20 @@ export const saveDiagnosis = createAsyncThunk(
   },
 );
 
+export const deleteDiagnosis = createAsyncThunk(
+  'consultation/delete-diagnosis',
+  async (id: string): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.delete<IResponse>(`consultation/diagnosis/${id}`);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const generatePrescription = createAsyncThunk(
   'consultation/generate-prescription',
   async ({
@@ -197,11 +227,11 @@ export const generatePrescription = createAsyncThunk(
     try {
       const {
         data: { data },
-      } = await axios.post<IResponse<{ url: string }>>(`consultation/generate-prescription`, {
+      } = await axios.post<IResponse<string>>(`consultation/generate-prescription`, {
         appointmentId,
         notes,
       });
-      return data.url;
+      return data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
@@ -447,6 +477,20 @@ export const updateHistoryNotes = createAsyncThunk(
         notes,
       });
       dispatch(updateAppointmentHistoryNotes(notes));
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const updateDiagnosis = createAsyncThunk(
+  'consultation/update-diagnosis',
+  async (updateRequest: IDiagnosisUpdateRequest): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.put<IResponse>(`consultation/diagnosis`, updateRequest);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

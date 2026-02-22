@@ -449,13 +449,8 @@ const PatientConsultationView = (): JSX.Element => {
                       <div>
                         <h3 className="font-semibold text-gray-800">{lab.testName}</h3>
                         <p className="mt-1 text-sm text-gray-600">
-                          <span className="font-medium">Specimen:</span> {lab.specimen}
+                          <span className="font-medium">Category:</span> {lab.categoryType}
                         </p>
-                        {lab.notes && (
-                          <p className="mt-1 text-sm text-gray-500">
-                            <span className="font-medium">Notes:</span> {lab.notes}
-                          </p>
-                        )}
                       </div>
                       {lab.fileUrl ? (
                         <div className="flex items-center gap-2 text-sm text-green-600">

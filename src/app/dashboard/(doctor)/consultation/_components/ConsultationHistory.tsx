@@ -126,7 +126,7 @@ const ConsultationHistory = (): JSX.Element => {
           <div className="mb-6">
             <h3 className="mb-3 font-semibold text-gray-700">Requested Labs</h3>
             <div className="flex flex-wrap gap-4">
-              {requestedLabs.map(({ testName, notes, fasting, specimen, id }) => (
+              {requestedLabs.map(({ testName, categoryType, id }) => (
                 <div
                   key={id}
                   className="rounded-lg border border-gray-200 bg-blue-50 p-4 shadow-sm"
@@ -135,15 +135,8 @@ const ConsultationHistory = (): JSX.Element => {
                     <TestTubeDiagonal size={18} />
                     {testName}
                   </div>
-                  {notes && <p className="mb-2 text-sm text-gray-600">{notes}</p>}
                   <div className="text-sm text-gray-600">
-                    <span>Specimen: {specimen}</span>
-                  </div>
-                  <div className="mt-2 text-sm text-gray-600">
-                    Fasting:{' '}
-                    <Badge variant={fasting ? 'default' : 'secondary'}>
-                      {fasting ? 'Yes' : 'No'}
-                    </Badge>
+                    <span>Category: {categoryType}</span>
                   </div>
                 </div>
               ))}
@@ -156,15 +149,13 @@ const ConsultationHistory = (): JSX.Element => {
           <div>
             <h3 className="mb-3 font-semibold text-gray-700">Conducted Labs</h3>
             <div className="flex flex-wrap gap-4">
-              re{' '}
-              {conductedLabs.map(({ testName, id, fileUrl, status, notes }) => (
+              {conductedLabs.map(({ testName, id, fileUrl, status }) => (
                 <LabCard
                   key={id}
                   testName={testName}
                   fileUrl={fileUrl || null}
                   status={status}
                   date={''}
-                  notes={notes}
                 />
               ))}
             </div>

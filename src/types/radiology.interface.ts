@@ -23,7 +23,7 @@ export interface IRadiologyRequest {
   tests: IRadiologyTest[];
   procedureRequest: string;
   history: string;
-  questions: string[];
+  instructions?: string;
 }
 
 export interface IRadiologyRequestWithRecordId {
@@ -32,7 +32,7 @@ export interface IRadiologyRequestWithRecordId {
   tests: IRadiologyTest[];
   procedureRequest: string;
   history: string;
-  questions: string[];
+  instructions?: string;
 }
 
 export interface IRadiology extends IRadiologyRequest {

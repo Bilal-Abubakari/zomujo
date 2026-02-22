@@ -30,7 +30,6 @@ import {
   usePdfPreview,
 } from '@/app/dashboard/(doctor)/consultation/_components/shared/investigationHooks';
 import { MainCategorySection } from '@/app/dashboard/(doctor)/consultation/_components/shared/TestSelectionComponents';
-import { QuestionsSection } from '@/app/dashboard/(doctor)/consultation/_components/shared/QuestionsSection';
 import { RadiologyForm, radiologySchema } from '@/schemas/radiology.schema';
 
 export type RadiologyRef = InvestigationBaseRef;
@@ -65,13 +64,13 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
     mode: MODE.ON_TOUCH,
     defaultValues: {
       tests: [],
-      questions: [''],
       procedureRequest: ' ',
+      history: '',
+      instructions: '',
     },
   });
 
   const selectedTests = watch('tests');
-  const questions = watch('questions');
 
   const getRadiologyData = async (): Promise<void> => {
     const response = await fetchRadiology();
@@ -93,10 +92,7 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
         const latest = rads[0];
         setValue('tests', latest.tests || []);
         setValue('history', latest.history || '');
-        setValue(
-          'questions',
-          latest.questions && latest.questions.length > 0 ? latest.questions : [''],
-        );
+        setValue('instructions', latest.instructions || '');
       }
     }
     setIsLoadingRadiology(false);
@@ -171,8 +167,34 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
     setHasUnsavedChanges(true);
   };
 
+  const toggleSubCategory = (
+    subCategory: string,
+    mainCategory: string,
+    tests: string[],
+    checked: boolean,
+  ): void => {
+    const currentTests = watch('tests') || [];
+    let newTests = [...currentTests];
+
+    tests.forEach((test) => {
+      const exists = newTests.find((t) => t.testName === test);
+      if (checked && !exists) {
+        newTests.push({
+          testName: test,
+          category: mainCategory as RadiologySection,
+          categoryType: subCategory as RadiologyCategoryType,
+        });
+      } else if (!checked && exists) {
+        newTests = newTests.filter((t) => t.testName !== test);
+      }
+    });
+
+    setValue('tests', newTests, { shouldValidate: true, shouldDirty: true });
+    setHasUnsavedChanges(true);
+  };
+
   const radiologyTestSection = (
-    <div className="relative overflow-y-auto">
+    <div className="relative">
       {filteredRadiology &&
         Object.entries(filteredRadiology).map(([mainCat, subCats]) => (
           <MainCategorySection
@@ -186,6 +208,9 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
                 mainCategory as RadiologySection,
                 subCategory as RadiologyCategoryType,
               )
+            }
+            onToggleSubCategory={(subCategory, mainCategory, tests, checked) =>
+              toggleSubCategory(subCategory, mainCategory, tests, checked)
             }
             isTestSelected={(testName, tests) =>
               Array.isArray(tests) ? tests.some((t) => t.testName === testName) : false
@@ -206,20 +231,12 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
     void fetchConsultationRadiology();
   }, [params.appointmentId]);
 
-  useEffect(() => {
-    if (questions.length === 0) {
-      setValue('questions', ['']);
-    }
-  }, [questions]);
-
   return (
     <>
       <InvestigationBase
         ref={ref}
         title="Radiology Request"
         description="Select radiology tests and provide details. Changes are saved when you click Save and Preview."
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         onClearSelections={() => {
           setValue('tests', [], { shouldValidate: true, shouldDirty: true });
           setHasUnsavedChanges(true);
@@ -251,14 +268,15 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
                 {errors.history && <p className="text-sm text-red-500">{errors.history.message}</p>}
               </div>
 
-              <QuestionsSection
-                questions={questions}
-                register={register}
-                setValue={setValue}
-                errors={errors}
-              />
+              <div>
+                <Label>Instructions</Label>
+                <Textarea
+                  placeholder="Special instructions for the radiology procedure..."
+                  {...register('instructions')}
+                />
+              </div>
 
-              <div className="space-y-4 overflow-auto rounded-lg border bg-white p-4">
+              <div className="space-y-4 rounded-lg border bg-white p-4">
                 <div className="relative">
                   <Search
                     className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-400"

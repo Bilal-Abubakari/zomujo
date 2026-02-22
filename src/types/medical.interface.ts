@@ -47,3 +47,7 @@ export interface IDiagnosis {
   status: ConditionStatus;
   prescriptions: IPrescription[];
 }
+
+export interface IDiagnosisResponse extends IDiagnosis {
+  id: string;
+}

@@ -1,7 +1,7 @@
 import React, { JSX, useEffect, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SelectInputV2 } from '@/components/ui/select';
+import { SelectInputV2, Combobox, SelectOption } from '@/components/ui/select';
 import { doseRegimenOptions, routeOptions } from '@/constants/constants';
 import { IPrescription, IPrescriptionResponse } from '@/types/medical.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -12,6 +12,7 @@ import {
   deletePrescription,
   getConsultationAppointment,
 } from '@/lib/features/appointments/consultation/consultationThunk';
+import { getDrugs } from '@/lib/features/records/recordsThunk';
 import { selectPrescriptions } from '@/lib/features/appointments/appointmentSelector';
 import { Toast, toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
@@ -31,6 +32,8 @@ import { requiredStringSchema } from '@/schemas/zod.schemas';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { Modal } from '@/components/ui/dialog';
+import { useDebounce } from 'use-debounce';
 
 const prescriptionSchema = z.object({
   name: requiredStringSchema(),
@@ -72,6 +75,11 @@ const Prescription = ({
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
 
+  const [search, setSearch] = useState('');
+  const [value] = useDebounce(search, 500);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
+  const [drugOptions, setDrugOptions] = useState<SelectOption[]>([]);
+
   const {
     register,
     handleSubmit,
@@ -86,6 +94,16 @@ const Prescription = ({
   });
 
   const storageKey = `consultation_${appointmentId}_prescription_draft`;
+
+  useEffect(() => {
+    const handleSearch = async (): Promise<void> => {
+      setIsLoadingSearch(true);
+      const { payload } = await dispatch(getDrugs(value));
+      setDrugOptions(payload as SelectOption[]);
+      setIsLoadingSearch(false);
+    };
+    void handleSearch();
+  }, [value]);
 
   useEffect(() => {
     if (existingPrescriptions.length === 0 && localPrescriptions.length === 0) {
@@ -115,6 +133,7 @@ const Prescription = ({
   const onAddPrescription = (data: PrescriptionFormValues): void => {
     setLocalPrescriptions([...localPrescriptions, data]);
     setUpdatePrescription(false);
+    setSearch('');
     reset();
   };
 
@@ -165,10 +184,10 @@ const Prescription = ({
         prescriptions: prescriptionsPayload,
       };
 
-      const saveResult = await dispatch(savePrescriptions(request));
-      toast(saveResult.payload as Toast);
+      const saveResult = await dispatch(savePrescriptions(request)).unwrap();
+      toast(saveResult);
 
-      if (showErrorToast(saveResult.payload)) {
+      if (showErrorToast(saveResult)) {
         setIsSavingAndGenerating(false);
         return;
       }
@@ -220,11 +239,16 @@ const Prescription = ({
             </div>
           </DrawerHeader>
           <form className="space-y-4" onSubmit={handleSubmit(onAddPrescription)}>
-            <Input
-              labelName="Name of Drug"
-              placeholder="Enter name of drug"
-              {...register('name')}
-              error={errors.name?.message}
+            <Combobox
+              label="Name of Drug"
+              onChange={(value) => setValue('name', value, { shouldValidate: true })}
+              options={drugOptions}
+              value={search}
+              placeholder="Search name of drug"
+              searchPlaceholder="Search for drug..."
+              defaultMaxWidth={false}
+              onSearchChange={(value) => setSearch(value)}
+              isLoadingResults={isLoadingSearch}
             />
             <Input
               labelName="Dose Taken"
@@ -322,37 +346,36 @@ const Prescription = ({
 
       {addPrescriptionDrawer}
 
-      <Drawer direction="bottom" open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-sm p-4">
-            <DrawerHeader>
-              <DrawerTitle className="text-center text-lg">Unsaved Prescriptions</DrawerTitle>
-              <DrawerDescription className="text-center text-sm">
-                You have {localPrescriptions.length} unsaved prescription
-                {localPrescriptions.length > 1 ? 's' : ''}. Are you sure you want to proceed without
-                saving?
-              </DrawerDescription>
-            </DrawerHeader>
-            <DrawerFooter className="flex flex-row gap-2">
+      <Modal
+        setState={setShowUnsavedWarning}
+        open={showUnsavedWarning}
+        content={
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900">Unsaved Prescriptions</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              You have {localPrescriptions.length} unsaved prescription
+              {localPrescriptions.length > 1 ? 's' : ''}. Are you sure you want to proceed without
+              saving?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
               <Button
                 onClick={() => setShowUnsavedWarning(false)}
-                child="Go Back & Save"
                 variant="outline"
+                child="Go Back & Save"
               />
               <Button
                 onClick={handleProceedWithoutSaving}
                 child="Proceed Without Saving"
                 variant="destructive"
               />
-            </DrawerFooter>
+            </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        }
+        showClose={true}
+      />
 
       <div className="fixed bottom-0 left-0 flex w-full justify-end gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
         <Button onClick={handleNextWithWarning} child="Next: Diagnosis" />
-
-        <Button onClick={goToNext} child="Skip" variant="secondary" />
       </div>
     </div>
   );

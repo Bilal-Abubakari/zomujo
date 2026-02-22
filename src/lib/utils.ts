@@ -3,6 +3,7 @@ import { ToastStatus } from '@/types/shared.enum';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { IQueryParams } from '@/types/shared.interface';
+import { CategoryType } from '@/types/labs.interface';
 
 /**
  * Combines multiple class names into a single string
@@ -96,14 +97,14 @@ export const downloadFileWithUrl = (url: string, filename: string): void => {
  * @param filename - The name to give the downloaded file.
  */
 export const downloadBlob = (blob: Blob, filename: string): void => {
-  const url = window.URL.createObjectURL(blob);
+  const url = globalThis.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
   link.download = filename;
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
+  link.remove();
+  globalThis.URL.revokeObjectURL(url);
 };
 
 /**
@@ -146,7 +147,7 @@ export const getValidQueryString = (queryParams: IQueryParams<unknown>): string 
  * @returns The dynamic parameter from the URL.
  */
 export const getDynamicParamFromUrl = (precedingString?: string): string => {
-  const currentUrl = window.location.href;
+  const currentUrl = globalThis.location.href;
   const urlParts = currentUrl.split('/');
 
   if (precedingString) {
@@ -283,3 +284,13 @@ export function sliderPosition(value: number, type: 'amount' | 'sessionLength'):
   const offset = value < 50 ? -30 : 0;
   return value * multiplier + offset;
 }
+
+/**
+ * Generates a unique test key string by combining the test name and category type.
+ *
+ * @param testName - The name of the test.
+ * @param categoryType - The category type of the test.
+ * @returns A string in the format: "{testName} ({categoryType})"
+ */
+export const getTestKey = (testName: string, categoryType: CategoryType): string =>
+  `${testName} (${categoryType})`;

@@ -1,5 +1,4 @@
-import { ChevronsUpDown, Cross } from 'lucide-react';
-import { TooltipComp } from '@/components/ui/tooltip';
+import { ChevronsUpDown, Clock, Trash2, Cross, Stethoscope, Edit } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import Drug from '@/app/dashboard/(doctor)/_components/Drug';
 import { getFormattedDate } from '@/lib/date';
@@ -7,7 +6,7 @@ import React, { JSX, ReactNode, useState } from 'react';
 import { ConditionStatus } from '@/types/shared.enum';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
-import { ICondition, IMedicine, IDiagnosis, IPrescription } from '@/types/medical.interface';
+import { ICondition, IMedicine, IDiagnosis } from '@/types/medical.interface';
 import { cn } from '@/lib/utils';
 
 type DiagnosisConditionCommonProps = {
@@ -16,77 +15,98 @@ type DiagnosisConditionCommonProps = {
 
 type DiagnosisCardProps = {
   status: ConditionStatus;
-  removeMedicine?: (index: number) => void;
+  remove?: () => void;
+  edit?: () => void;
   notes?: string;
-  prescription: IPrescription[];
   doctor: string;
   diagnosedAt: string;
 } & DiagnosisConditionCommonProps;
 
 export const DiagnosisCard = ({
-  removeMedicine,
+  remove,
+  edit,
   name,
   status,
   notes,
-  prescription,
   doctor,
   diagnosedAt,
-}: DiagnosisCardProps): JSX.Element => (
-  <div className="flex h-[320px] flex-col rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-5 shadow-sm">
-    <div className="mb-3 flex items-center justify-between gap-8">
-      <div className="flex max-w-[calc(100%-8rem)] gap-x-2 rounded-full bg-white px-3 py-2 shadow-sm">
-        <Cross className="h-5 w-5 flex-shrink-0 text-red-500" />
-        <TooltipComp tip={name}>
-          <h4 className="truncate text-sm font-semibold text-gray-800">{name}</h4>
-        </TooltipComp>
+  isRemoving = false,
+}: DiagnosisCardProps & { isRemoving?: boolean }): JSX.Element => (
+  <div
+    className={cn(
+      'group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200',
+      edit && 'hover:border-primary hover:shadow-md',
+    )}
+  >
+    <div className="mb-4 flex items-start justify-between">
+      <div className="flex items-center gap-2">
+        <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-lg">
+          <Stethoscope className="h-4 w-4" />
+        </div>
+        {status && (
+          <StatusBadge
+            status={status}
+            declinedTitle="Active"
+            approvedTitle="Inactive"
+            defaultTitle="Controlled"
+          />
+        )}
       </div>
-      {status && (
-        <StatusBadge
-          status={status}
-          declinedTitle="Active"
-          approvedTitle="Inactive"
-          defaultTitle="Controlled"
-        />
-      )}
+      <div className="flex items-center gap-1">
+        {edit && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              edit();
+            }}
+            className="hover:text-primary h-8 w-8 text-gray-400"
+            child={<Edit className="h-4 w-4" />}
+          />
+        )}
+        {remove && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              remove();
+            }}
+            className="hover:text-destructive h-8 w-8 text-gray-400"
+            child={<Trash2 className="h-4 w-4" />}
+            isLoading={isRemoving}
+            disabled={isRemoving}
+          />
+        )}
+      </div>
     </div>
+
+    <div className="mb-3">
+      <h4 className="line-clamp-2 text-lg font-semibold text-gray-900">{name}</h4>
+    </div>
+
     {notes && (
-      <div className="mb-3 rounded-md bg-white/80 p-2.5 text-sm">
-        <p className="line-clamp-2 text-gray-600">{notes}</p>
+      <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-3">
+        <p className="line-clamp-3 text-xs text-gray-600">{notes}</p>
       </div>
     )}
-    <div className="flex min-h-0 flex-1 flex-col">
-      <h5 className="mb-2 text-xs font-medium text-gray-600">
-        Medications ({prescription?.length || 0})
-      </h5>
 
-      <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
-        {(!prescription || prescription.length === 0) && (
-          <div className="rounded-md bg-white/70 p-2 text-center text-sm text-gray-500">
-            No medications added
-          </div>
-        )}
-        <div className="space-y-2">
-          {prescription?.map(({ name, doses, route, numOfDays, doseRegimen }, index) => (
-            <div key={`${name}-${index}`} className="flex rounded-md bg-white/80 p-2.5">
-              <Drug
-                doses={doses}
-                name={name}
-                index={index}
-                remove={removeMedicine}
-                route={route}
-                numOfDays={numOfDays}
-                doseRegimen={doseRegimen}
-              />
-            </div>
-          ))}
+    <div className="flex items-center justify-between border-t border-gray-100 pt-3 text-xs text-gray-500">
+      <div className="flex items-center gap-2">
+        <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold text-white">
+          {doctor
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .slice(0, 2)}
         </div>
+        <span className="font-medium">{doctor}</span>
       </div>
-    </div>
-    <div className="mt-2 flex justify-between space-x-2 border-t border-blue-200/50 pt-2">
-      <span className="text-grayscale-600 text-xs">{doctor}</span>
-      {diagnosedAt && (
-        <span className="text-grayscale-600 text-xs">{getFormattedDate(diagnosedAt)}</span>
-      )}
+      <div className="flex items-center gap-1">
+        <Clock className="h-3 w-3" />
+        <span>{getFormattedDate(diagnosedAt)}</span>
+      </div>
     </div>
   </div>
 );
@@ -96,7 +116,7 @@ type ConditionCardProps = { medicines: IMedicine[] } & DiagnosisConditionCommonP
 export const ConditionCard = ({ name, medicines }: ConditionCardProps): JSX.Element => {
   const [expanded, setExpanded] = useState(false);
   return (
-    <div className="rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4">
+    <div className="rounded-xl bg-linear-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4">
       <Collapsible
         open={expanded}
         onOpenChange={() => {
@@ -105,7 +125,7 @@ export const ConditionCard = ({ name, medicines }: ConditionCardProps): JSX.Elem
       >
         <div className="flex items-center justify-between">
           <div className="flex gap-x-2 rounded-full bg-white px-2 py-1.5">
-            <Cross className="h-5 w-5 flex-shrink-0 text-red-500" />
+            <Cross className="h-5 w-5 shrink-0 text-red-500" />
             <h4 className="text-sm font-semibold">{name}</h4>
           </div>
           {medicines?.length > 1 && (
@@ -153,26 +173,31 @@ export const DiagnosesList = ({
   conditions,
   children,
   remove,
+  edit,
   className,
+  isRemovingIndex,
 }: {
   doctorName: string;
   conditions: IDiagnosis[];
   children?: ReactNode;
   remove?: (index: number) => void;
+  edit?: (index: number) => void;
   className?: string;
+  isRemovingIndex?: number | null;
 }): JSX.Element => (
-  <div className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3', className)}>
+  <div className={cn('grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3', className)}>
     {children}
-    {conditions.map(({ name, diagnosedAt, prescriptions, status, notes }) => (
+    {conditions.map(({ name, diagnosedAt, status, notes }, index) => (
       <DiagnosisCard
-        key={`${name}-${diagnosedAt}`}
+        key={`${name}-${diagnosedAt}-${index}`}
         diagnosedAt={diagnosedAt}
         name={name}
-        prescription={prescriptions}
         doctor={doctorName}
         status={status}
         notes={notes}
-        removeMedicine={remove}
+        remove={remove ? (): void => remove(index) : undefined}
+        edit={edit ? (): void => edit(index) : undefined}
+        isRemoving={isRemovingIndex === index}
       />
     ))}
   </div>
