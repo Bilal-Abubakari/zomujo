@@ -6,134 +6,13 @@ import { updateHistoryNotes } from '@/lib/features/appointments/consultation/con
 import { toast, Toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { LocalStorageManager } from '@/lib/localStorage';
-import {
-  ClipboardList,
-  FileText,
-  MessageSquare,
-  Activity,
-  Stethoscope,
-  Pill,
-  Users,
-  Home,
-  ClipboardCheck,
-  Target,
-} from 'lucide-react';
+import { HistoryNotesData, SECTIONS, parseInitialNotes } from '@/constants/historyNotes.constant';
 
 interface HistoryNotesViewProps {
   appointmentId: string;
   initialNotes: string | undefined;
   goToLabs: () => void;
 }
-
-interface HistoryNotesData {
-  presentingComplaint: string;
-  historyOfPresentingComplaint: string;
-  onDirectQuestions: string;
-  systematicEnquiry: string;
-  pastMedicalSurgicalHistory: string;
-  drugHistory: string;
-  familyHistory: string;
-  socialHistory: string;
-  assessment: string;
-  plan: string;
-}
-
-interface SectionConfig {
-  key: keyof HistoryNotesData;
-  label: string;
-  icon: React.ElementType;
-  placeholder: string;
-}
-
-const SECTIONS: SectionConfig[] = [
-  {
-    key: 'presentingComplaint',
-    label: 'Presenting Complaint',
-    icon: ClipboardList,
-    placeholder: 'Enter the main presenting complaint...',
-  },
-  {
-    key: 'historyOfPresentingComplaint',
-    label: 'History of Presenting Complaint',
-    icon: FileText,
-    placeholder: 'Enter the history of the presenting complaint...',
-  },
-  {
-    key: 'onDirectQuestions',
-    label: 'On Direct Questions',
-    icon: MessageSquare,
-    placeholder: 'Enter responses to direct questions...',
-  },
-  {
-    key: 'systematicEnquiry',
-    label: 'Systematic Enquiry',
-    icon: Activity,
-    placeholder: 'Enter systematic enquiry findings...',
-  },
-  {
-    key: 'pastMedicalSurgicalHistory',
-    label: 'Past Medical/Surgical History',
-    icon: Stethoscope,
-    placeholder: 'Enter past medical and surgical history...',
-  },
-  {
-    key: 'drugHistory',
-    label: 'Drug History',
-    icon: Pill,
-    placeholder: 'Enter current medications and drug history...',
-  },
-  {
-    key: 'familyHistory',
-    label: 'Family History',
-    icon: Users,
-    placeholder: 'Enter relevant family history...',
-  },
-  {
-    key: 'socialHistory',
-    label: 'Social History',
-    icon: Home,
-    placeholder: 'Enter social history (occupation, lifestyle, etc.)...',
-  },
-  {
-    key: 'assessment',
-    label: 'Assessment',
-    icon: ClipboardCheck,
-    placeholder: 'Enter your clinical assessment...',
-  },
-  {
-    key: 'plan',
-    label: 'Plan',
-    icon: Target,
-    placeholder: 'Enter the management plan...',
-  },
-];
-
-const DEFAULT_NOTES: HistoryNotesData = {
-  presentingComplaint: '',
-  historyOfPresentingComplaint: '',
-  onDirectQuestions: '',
-  systematicEnquiry: '',
-  pastMedicalSurgicalHistory: '',
-  drugHistory: '',
-  familyHistory: '',
-  socialHistory: '',
-  assessment: '',
-  plan: '',
-};
-
-const parseInitialNotes = (initialNotes: string | undefined): HistoryNotesData => {
-  if (!initialNotes) {
-    return DEFAULT_NOTES;
-  }
-
-  try {
-    const parsed = JSON.parse(initialNotes);
-    return { ...DEFAULT_NOTES, ...parsed };
-  } catch {
-    // If it's not JSON (old format), return default
-    return DEFAULT_NOTES;
-  }
-};
 
 const HistoryNotesView = ({
   appointmentId,
