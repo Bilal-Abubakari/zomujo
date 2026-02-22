@@ -3,7 +3,7 @@
 import { ContentProfile } from '@/assets/images';
 import { Shield, Zap, BarChart, Star, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect, useMemo, useState } from 'react';
 import { ILandingPageReview } from '@/types/review.interface';
 import { useAppDispatch } from '@/lib/hooks';
 import { getLandingPageReviews } from '@/lib/features/reviews/reviewsThunk';
@@ -64,6 +64,10 @@ const SolutionsOffered = (): JSX.Element => {
   }, [reviews.length]);
 
   const currentReview = reviews[currentReviewIndex];
+  const currentUser = useMemo(
+    () => (currentReview ? getReviewUser(currentReview) : { name: 'Anonymous', role: 'User' }),
+    [currentReview],
+  );
 
   const getReviewUser = (review: ILandingPageReview): { name: string; role: string } => {
     if (review.patient) {
@@ -134,35 +138,32 @@ const SolutionsOffered = (): JSX.Element => {
               </div>
             ) : (
               <>
-                {currentReview && (() => {
-                  const { name, role } = getReviewUser(currentReview);
-                  return (
-                    <>
-                      <blockquote className="text-foreground mb-8 text-2xl font-medium transition-opacity duration-500 md:text-3xl">
-                        &quot;{currentReview.comment || 'No review available'}&quot;
-                      </blockquote>
-                      <div className="flex items-center justify-center space-x-4">
-                        <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
-                          <span className="text-lg font-semibold">
-                            {getInitials(name)}
-                          </span>
-                        </div>
-                        <div className="text-left">
-                          <div className="flex items-center gap-2">
-                            <div className="font-semibold">{name}</div>
-                            {currentReview.rating > 0 && (
-                              <div className="flex items-center gap-1">
-                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-medium">{currentReview.rating}</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-muted-foreground">{role}</div>
-                        </div>
+                {currentReview && (
+                  <>
+                    <blockquote className="text-foreground mb-8 text-2xl font-medium transition-opacity duration-500 md:text-3xl">
+                      &quot;{currentReview.comment || 'No review available'}&quot;
+                    </blockquote>
+                    <div className="flex items-center justify-center space-x-4">
+                      <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
+                        <span className="text-lg font-semibold">
+                          {getInitials(currentUser.name)}
+                        </span>
                       </div>
-                    </>
-                  );
-                })()}
+                      <div className="text-left">
+                        <div className="flex items-center gap-2">
+                          <div className="font-semibold">{currentUser.name}</div>
+                          {currentReview.rating > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-medium">{currentReview.rating}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-muted-foreground">{currentUser.role}</div>
+                      </div>
+                    </div>
+                  </>
+                )}
                 {reviews.length > 1 && (
                   <div className="mt-6 flex items-center justify-center gap-2">
                     {reviews.map((review, index) => {
