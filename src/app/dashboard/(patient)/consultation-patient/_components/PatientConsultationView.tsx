@@ -20,8 +20,9 @@ import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
 import { TooltipComp } from '@/components/ui/tooltip';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
-import { IConsultationDetails } from '@/types/consultation.interface';
+import {  IConsultationDetails } from '@/types/consultation.interface';
 import { useAppDispatch } from '@/lib/hooks';
+import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
 import {
   addLabFile,
   addRadiologyFile,
@@ -46,6 +47,7 @@ const notificationsToRefetch = new Set<NotificationTopic>([
   NotificationTopic.LabRequest,
   NotificationTopic.PrescriptionGenerated,
   NotificationTopic.RadiologyRequest,
+  NotificationTopic.ConsultationUpdate,
 ]);
 
 type SelectedFiles = {
@@ -172,6 +174,13 @@ const PatientConsultationView = (): JSX.Element => {
     if (notificationsToRefetch.has(payload.topic)) {
       const shouldScroll = payload.topic !== NotificationTopic.PrescriptionGenerated;
       void fetchConsultation(shouldScroll);
+
+      if (payload.topic === NotificationTopic.ConsultationUpdate) {
+        const appointmentId = params.consultationId as string;
+        if (appointmentId) {
+          dispatch(showReviewModal({ appointmentId }));
+        }
+      }
     }
   });
 

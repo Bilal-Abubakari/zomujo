@@ -5,26 +5,18 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   selectShowReviewModal,
   selectReviewAppointmentId,
-  selectReviewRecordId,
-  selectAppointment,
 } from '@/lib/features/appointments/appointmentSelector';
 import { hideReviewModal } from '@/lib/features/appointments/appointmentsSlice';
 import { getConsultationAppointment } from '@/lib/features/appointments/consultation/consultationThunk';
-import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Modal } from '@/components/ui/dialog';
 import Review from '@/components/review/review';
 import { showErrorToast } from '@/lib/utils';
 import { toast, Toast } from '@/hooks/use-toast';
-import { selectRecordId } from '@/lib/features/patients/patientsSelector';
 
-const DoctorReviewModal = (): JSX.Element => {
+const ReviewModal = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const showModal = useAppSelector(selectShowReviewModal);
   const appointmentId = useAppSelector(selectReviewAppointmentId);
-  const storedRecordId = useAppSelector(selectReviewRecordId);
-  const currentRecordId = useAppSelector(selectRecordId);
-
-  const appointment = useAppSelector(selectAppointment);
 
   useEffect(() => {
     if (showModal && appointmentId) {
@@ -41,19 +33,6 @@ const DoctorReviewModal = (): JSX.Element => {
     }
   }, [showModal, appointmentId, dispatch]);
 
-  useEffect(() => {
-    if (showModal && appointment?.patient?.id && !currentRecordId) {
-      const fetchPatientData = async (): Promise<void> => {
-        const { payload } = await dispatch(getPatientRecords(appointment.patient.id));
-        if (showErrorToast(payload)) {
-          toast(payload as Toast);
-        }
-      };
-
-      void fetchPatientData();
-    }
-  }, [showModal, appointment, currentRecordId, dispatch]);
-
   const handleClose = (): void => {
     dispatch(hideReviewModal());
   };
@@ -62,9 +41,7 @@ const DoctorReviewModal = (): JSX.Element => {
     dispatch(hideReviewModal());
   };
 
-  const recordId = storedRecordId || currentRecordId;
-
-  if (!showModal || !appointmentId || !recordId) {
+  if (!showModal || !appointmentId) {
     return <></>;
   }
 
@@ -79,4 +56,4 @@ const DoctorReviewModal = (): JSX.Element => {
   );
 };
 
-export default DoctorReviewModal;
+export default ReviewModal;

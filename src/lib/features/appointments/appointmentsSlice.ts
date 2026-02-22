@@ -8,14 +8,12 @@ interface AppointmentsState {
   isLoading: boolean;
   showReviewModal: boolean;
   reviewAppointmentId: string | undefined;
-  reviewRecordId: string | undefined;
 }
 const initialState: AppointmentsState = {
   appointment: undefined,
   isLoading: false,
   showReviewModal: false,
   reviewAppointmentId: undefined,
-  reviewRecordId: undefined,
 };
 
 const appointmentsSlice = createSlice({
@@ -51,12 +49,10 @@ const appointmentsSlice = createSlice({
     showReviewModal: (state, action: PayloadAction<{ appointmentId: string }>) => {
       state.showReviewModal = true;
       state.reviewAppointmentId = action.payload.appointmentId;
-      state.reviewRecordId = undefined;
     },
     hideReviewModal: (state) => {
       state.showReviewModal = false;
       state.reviewAppointmentId = undefined;
-      state.reviewRecordId = undefined;
     },
   },
   extraReducers: (builder) => {

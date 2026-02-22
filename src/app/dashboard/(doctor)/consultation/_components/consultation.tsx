@@ -154,6 +154,7 @@ const Consultation = (): JSX.Element => {
   const handleEndConsultationWithAuth = async (code: string): Promise<void> => {
     setIsEndingConsultation(true);
     const appointmentId = String(params.appointmentId);
+
     const payload = await dispatch(endConsultationRequest({ appointmentId, code })).unwrap();
     toast(payload);
     setIsEndingConsultation(false);

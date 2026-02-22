@@ -7,7 +7,7 @@ import { useAppDispatch } from '@/lib/hooks';
 import { Search } from 'lucide-react';
 import { OrderDirection } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
-import { getReviews, completeReview } from '@/lib/features/reviews/reviewsThunk';
+import { getReviews, completeReview, skipReview } from '@/lib/features/reviews/reviewsThunk';
 import { showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -91,8 +91,9 @@ const ReviewsPage = (): JSX.Element => {
 
   const columns = createReviewColumns({
     onView: handleViewReview,
-    onComplete: handleConfirmationOpen,
+    onAction: handleConfirmationOpen,
     completeReview,
+    skipReview,
   });
 
   return (

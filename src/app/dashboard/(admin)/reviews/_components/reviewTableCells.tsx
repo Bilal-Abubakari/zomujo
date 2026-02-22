@@ -3,30 +3,50 @@
 import { JSX } from 'react';
 import { IReview } from '@/types/review.interface';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, FileText } from 'lucide-react';
 import { ActionsDropdownMenus } from '@/components/ui/dropdown-menu';
 import { AsyncThunk } from '@reduxjs/toolkit';
 import { Toast } from '@/hooks/use-toast';
+import { AvatarWithName } from '@/components/ui/avatar';
 
-interface DoctorCellProps {
-  doctor: IReview['doctorId'];
+export const isPatientReview = (review: IReview): boolean => !!review.appointmentId;
+
+interface UserCellProps {
+  review: IReview;
 }
 
-export const DoctorCell = ({ doctor }: DoctorCellProps): JSX.Element => (
-  <div className="flex items-center gap-2">
-    {doctor.profilePicture && (
-      <img
-        src={doctor.profilePicture}
-        alt={`${doctor.firstName} ${doctor.lastName}`}
-        className="h-8 w-8 rounded-full object-cover"
+export const UserCell = ({ review }: UserCellProps): JSX.Element => {
+  if (isPatientReview(review) && review.patient) {
+    return (
+      <AvatarWithName
+        firstName={review.patient.firstName}
+        lastName={review.patient.lastName}
+        imageSrc={review.patient.profilePicture}
       />
-    )}
-    <span className="font-medium">
-      {doctor.firstName} {doctor.lastName}
-    </span>
-  </div>
-);
+    );
+  }
+
+  return (
+    <AvatarWithName
+      firstName={review.doctor.firstName}
+      lastName={review.doctor.lastName}
+      imageSrc={review.doctor.profilePicture}
+    />
+  );
+};
+
+interface RoleCellProps {
+  review: IReview;
+}
+
+export const RoleCell = ({ review }: RoleCellProps): JSX.Element => {
+  const isPatient = isPatientReview(review);
+  return (
+    <Badge variant={isPatient ? 'default' : 'brown'}>
+      {isPatient ? 'Patient' : 'Doctor'}
+    </Badge>
+  );
+};
 
 interface RatingCellProps {
   rating: number;
@@ -49,8 +69,8 @@ export const StatusCell = ({ status }: StatusCellProps): JSX.Element => {
     { label: string; variant: 'default' | 'destructive' | 'brown' | 'outline' }
   > = {
     pending: { label: 'Pending', variant: 'brown' },
-    skipped: { label: 'Skipped', variant: 'destructive' },
-    completed: { label: 'Completed', variant: 'default' },
+    skipped: { label: 'Hidden', variant: 'destructive' },
+    completed: { label: 'Visible', variant: 'default' },
   };
   const statusConfig = statusMap[status.toLowerCase()] || { label: status, variant: 'outline' };
   return <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>;
@@ -70,7 +90,7 @@ export const CommentCell = ({ comment }: CommentCellProps): JSX.Element => {
 interface ActionsCellProps {
   review: IReview;
   onView: (review: IReview) => void;
-  onComplete: (
+  onAction: (
     acceptTitle: string,
     description: string,
     id: string,
@@ -79,17 +99,23 @@ interface ActionsCellProps {
     rejectButtonTitle?: string,
   ) => void;
   completeReview: AsyncThunk<Toast, string, object>;
+  skipReview: AsyncThunk<Toast, string, object>;
 }
 
 export const ActionsCell = ({
   review,
   onView,
-  onComplete,
+  onAction,
   completeReview,
+  skipReview,
 }: ActionsCellProps): JSX.Element => {
-  const { status, id, doctorId } = review;
-  const isPending = status.toLowerCase() === 'pending';
-  const doctorName = `${doctorId.firstName} ${doctorId.lastName}`;
+  const { status, id, doctor } = review;
+  const normalizedStatus = status.toLowerCase();
+  const canShow = normalizedStatus === 'pending' || normalizedStatus === 'skipped';
+  const canHide = normalizedStatus === 'pending' || normalizedStatus === 'completed';
+  const userName = isPatientReview(review) && review.patient
+    ? `${review.patient.firstName} ${review.patient.lastName}`
+    : `${doctor.firstName} ${doctor.lastName}`;
 
   return (
     <ActionsDropdownMenus
@@ -97,50 +123,47 @@ export const ActionsCell = ({
         {
           title: (
             <>
-              <CheckCircle className="mr-2 h-4 w-4" /> Complete
+              <FileText className="mr-2 h-4 w-4" /> View
             </>
           ),
-          visible: isPending,
+          visible: true,
+          clickCommand: () => onView(review),
+        },
+        {
+          title: (
+            <>
+              <Eye className="mr-2 h-4 w-4" /> Make Public
+            </>
+          ),
+          visible: canShow,
           clickCommand: () =>
-            onComplete(
-              'Complete',
-              `mark this review from ${doctorName} as complete`,
+            onAction(
+              'Make Public',
+              `Are you sure you want to make this review from ${userName} public?`,
               id,
               completeReview,
-              'Yes, complete',
+              'Yes, make public',
+              'Cancel',
+            ),
+        },
+        {
+          title: (
+            <>
+              <EyeOff className="mr-2 h-4 w-4" /> Make Private
+            </>
+          ),
+          visible: canHide,
+          clickCommand: () =>
+            onAction(
+              'Make Private',
+              `Are you sure you want to make this review from ${userName} private?`,
+              id,
+              skipReview,
+              'Yes, make private',
               'Cancel',
             ),
         },
       ]}
-      action={
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onView(review)}
-            className="cursor-pointer"
-            child="View"
-          />
-          {isPending && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() =>
-                onComplete(
-                  'Complete',
-                  `mark this review from ${doctorName} as complete`,
-                  id,
-                  completeReview,
-                  'Yes, complete',
-                  'Cancel',
-                )
-              }
-              className="cursor-pointer"
-              child="Complete"
-            />
-          )}
-        </div>
-      }
     />
   );
 };

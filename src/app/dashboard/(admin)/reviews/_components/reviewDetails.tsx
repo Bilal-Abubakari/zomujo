@@ -3,23 +3,32 @@
 import { IReview } from '@/types/review.interface';
 import { JSX } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { AvatarComp } from '@/components/ui/avatar';
+import { isPatientReview } from './reviewTableCells';
 
 interface ReviewDetailsProps {
   review: IReview;
 }
 
 export const ReviewDetails = ({ review }: ReviewDetailsProps): JSX.Element => {
-  const { doctorId, rating, status, comment, communicationSkill, expertise, recordId } = review;
+  const { doctor, patient, rating, status, comment, communicationSkill, expertise } = review;
+
+  const isPatient = isPatientReview(review);
+  const user = isPatient && patient ? patient : doctor;
+  const roleName = isPatient ? 'Patient' : 'Doctor';
 
   const statusMap: Record<
     string,
     { label: string; variant: 'default' | 'destructive' | 'brown' | 'outline' }
   > = {
     pending: { label: 'Pending', variant: 'brown' },
-    skipped: { label: 'Skipped', variant: 'destructive' },
-    completed: { label: 'Completed', variant: 'default' },
+    skipped: { label: 'Hidden', variant: 'destructive' },
+    completed: { label: 'Visible', variant: 'default' },
   };
   const statusConfig = statusMap[status.toLowerCase()] || { label: status, variant: 'outline' };
+
+  const hasCommunicationSkills = communicationSkill && Object.keys(communicationSkill).length > 0;
+  const hasExpertise = expertise && Object.keys(expertise).length > 0;
 
   const renderRatingBar = (label: string, value: number): JSX.Element => (
     <div className="space-y-1">
@@ -40,30 +49,25 @@ export const ReviewDetails = ({ review }: ReviewDetailsProps): JSX.Element => {
     <div className="space-y-6 p-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Review Details</h2>
-        <p className="text-sm text-gray-500">Review ID: {review.id}</p>
       </div>
 
-      {/* Doctor Information */}
       <div className="rounded-lg border bg-gray-50 p-4">
-        <h3 className="mb-3 text-lg font-semibold text-gray-900">Doctor Information</h3>
+        <h3 className="mb-3 text-lg font-semibold text-gray-900">User Information</h3>
         <div className="flex items-center gap-4">
-          {doctorId.profilePicture && (
-            <img
-              src={doctorId.profilePicture}
-              alt={`${doctorId.firstName} ${doctorId.lastName}`}
-              className="h-16 w-16 rounded-full object-cover"
-            />
-          )}
+          <AvatarComp
+            imageSrc={user.profilePicture}
+            name={`${user.firstName} ${user.lastName}`}
+            className="h-16 w-16"
+          />
           <div>
             <p className="text-lg font-semibold text-gray-900">
-              {doctorId.firstName} {doctorId.lastName}
+              {user.firstName} {user.lastName}
             </p>
-            <p className="text-sm text-gray-600">Doctor ID: {doctorId.id}</p>
+            <Badge variant={isPatient ? 'default' : 'brown'}>{roleName}</Badge>
           </div>
         </div>
       </div>
 
-      {/* Overall Rating */}
       <div className="rounded-lg border bg-white p-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">Overall Rating</h3>
@@ -78,7 +82,6 @@ export const ReviewDetails = ({ review }: ReviewDetailsProps): JSX.Element => {
         </div>
       </div>
 
-      {/* Comment */}
       {comment && (
         <div className="rounded-lg border bg-white p-4">
           <h3 className="mb-2 text-lg font-semibold text-gray-900">Comment</h3>
@@ -86,40 +89,29 @@ export const ReviewDetails = ({ review }: ReviewDetailsProps): JSX.Element => {
         </div>
       )}
 
-      {/* Communication Skills */}
-      <div className="rounded-lg border bg-white p-4">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Communication Skills</h3>
-        <div className="space-y-3">
-          {renderRatingBar('Professional', communicationSkill.isProfessional)}
-          {renderRatingBar('Clear Communication', communicationSkill.isClear)}
-          {renderRatingBar('Attentive', communicationSkill.isAttentive)}
-          {renderRatingBar('Comfortable', communicationSkill.isComfortable)}
+      {hasCommunicationSkills && (
+        <div className="rounded-lg border bg-white p-4">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">Communication Skills</h3>
+          <div className="space-y-3">
+            {renderRatingBar('Professional', communicationSkill.isProfessional)}
+            {renderRatingBar('Clear Communication', communicationSkill.isClear)}
+            {renderRatingBar('Attentive', communicationSkill.isAttentive)}
+            {renderRatingBar('Comfortable', communicationSkill.isComfortable)}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Expertise */}
-      <div className="rounded-lg border bg-white p-4">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Expertise</h3>
-        <div className="space-y-3">
-          {renderRatingBar('Knowledge', expertise.knowledge)}
-          {renderRatingBar('Thorough', expertise.thorough)}
-          {renderRatingBar('Confidence', expertise.confidence)}
-          {renderRatingBar('Helpful', expertise.helpful)}
+      {hasExpertise && (
+        <div className="rounded-lg border bg-white p-4">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">Expertise</h3>
+          <div className="space-y-3">
+            {renderRatingBar('Knowledge', expertise.knowledge)}
+            {renderRatingBar('Thorough', expertise.thorough)}
+            {renderRatingBar('Confidence', expertise.confidence)}
+            {renderRatingBar('Helpful', expertise.helpful)}
+          </div>
         </div>
-      </div>
-
-      {/* Additional Information */}
-      <div className="rounded-lg border bg-gray-50 p-4">
-        <h3 className="mb-2 text-lg font-semibold text-gray-900">Additional Information</h3>
-        <div className="space-y-1 text-sm">
-          <p className="text-gray-600">
-            <span className="font-medium">Record ID:</span> {recordId}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium">Review ID:</span> {review.id}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

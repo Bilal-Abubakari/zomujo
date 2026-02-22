@@ -64,15 +64,32 @@ const SolutionsOffered = (): JSX.Element => {
   }, [reviews.length]);
 
   const currentReview = reviews[currentReviewIndex];
-  const getInitials = (comment: string): string => {
-    if (!comment) {
+
+  const getReviewUser = (review: ILandingPageReview): { name: string; role: string } => {
+    if (review.patient) {
+      return {
+        name: `${review.patient.firstName} ${review.patient.lastName}`.trim(),
+        role: 'Patient',
+      };
+    }
+    if (review.doctor) {
+      return {
+        name: `${review.doctor.firstName} ${review.doctor.lastName}`.trim(),
+        role: 'Doctor',
+      };
+    }
+    return { name: 'Anonymous', role: 'User' };
+  };
+
+  const getInitials = (name: string): string => {
+    if (!name) {
       return 'U';
     }
-    const words = comment.trim().split(/\s+/);
+    const words = name.trim().split(/\s+/);
     if (words.length >= 2) {
       return (words[0][0] + words[1][0]).toUpperCase();
     }
-    return comment[0].toUpperCase();
+    return name[0].toUpperCase();
   };
 
   return (
@@ -117,28 +134,35 @@ const SolutionsOffered = (): JSX.Element => {
               </div>
             ) : (
               <>
-                <blockquote className="text-foreground mb-8 text-2xl font-medium transition-opacity duration-500 md:text-3xl">
-                  &quot;{currentReview?.comment || 'No review available'}&quot;
-                </blockquote>
-                <div className="flex items-center justify-center space-x-4">
-                  <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
-                    <span className="text-lg font-semibold">
-                      {currentReview ? getInitials(currentReview.comment) : 'U'}
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <div className="flex items-center gap-2">
-                      <div className="font-semibold">Verified User</div>
-                      {currentReview?.rating > 0 && (
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{currentReview.rating}</span>
+                {currentReview && (() => {
+                  const { name, role } = getReviewUser(currentReview);
+                  return (
+                    <>
+                      <blockquote className="text-foreground mb-8 text-2xl font-medium transition-opacity duration-500 md:text-3xl">
+                        &quot;{currentReview.comment || 'No review available'}&quot;
+                      </blockquote>
+                      <div className="flex items-center justify-center space-x-4">
+                        <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
+                          <span className="text-lg font-semibold">
+                            {getInitials(name)}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <div className="text-muted-foreground">Platform User</div>
-                  </div>
-                </div>
+                        <div className="text-left">
+                          <div className="flex items-center gap-2">
+                            <div className="font-semibold">{name}</div>
+                            {currentReview.rating > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                <span className="text-sm font-medium">{currentReview.rating}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-muted-foreground">{role}</div>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
                 {reviews.length > 1 && (
                   <div className="mt-6 flex items-center justify-center gap-2">
                     {reviews.map((review, index) => {

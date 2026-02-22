@@ -1,13 +1,13 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { IReview } from '@/types/review.interface';
 import { JSX } from 'react';
-import { DoctorCell, RatingCell, StatusCell, CommentCell, ActionsCell } from './reviewTableCells';
+import { UserCell, RoleCell, RatingCell, StatusCell, CommentCell, ActionsCell } from './reviewTableCells';
 import { AsyncThunk } from '@reduxjs/toolkit';
 import { Toast } from '@/hooks/use-toast';
 
 interface CreateReviewColumnsProps {
   onView: (review: IReview) => void;
-  onComplete: (
+  onAction: (
     acceptTitle: string,
     description: string,
     id: string,
@@ -16,20 +16,24 @@ interface CreateReviewColumnsProps {
     rejectButtonTitle?: string,
   ) => void;
   completeReview: AsyncThunk<Toast, string, object>;
+  skipReview: AsyncThunk<Toast, string, object>;
 }
 
 export const createReviewColumns = ({
   onView,
-  onComplete,
+  onAction,
   completeReview,
+  skipReview,
 }: CreateReviewColumnsProps): ColumnDef<IReview>[] => [
   {
-    accessorKey: 'id',
+    id: 'user',
+    header: 'User',
+    cell: ({ row }): JSX.Element => <UserCell review={row.original} />,
   },
   {
-    accessorKey: 'doctorId',
-    header: 'Doctor',
-    cell: ({ row }): JSX.Element => <DoctorCell doctor={row.original.doctorId} />,
+    id: 'role',
+    header: 'Role',
+    cell: ({ row }): JSX.Element => <RoleCell review={row.original} />,
   },
   {
     accessorKey: 'rating',
@@ -53,8 +57,9 @@ export const createReviewColumns = ({
       <ActionsCell
         review={row.original}
         onView={onView}
-        onComplete={onComplete}
+        onAction={onAction}
         completeReview={completeReview}
+        skipReview={skipReview}
       />
     ),
     enableHiding: false,

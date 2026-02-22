@@ -48,6 +48,20 @@ export const completeReview = createAsyncThunk(
   },
 );
 
+export const skipReview = createAsyncThunk(
+  'reviews/skipReview',
+  async (id: string): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.patch<IResponse>(`common/reviews/skip/${id}`);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const getLandingPageReviews = createAsyncThunk(
   'reviews/getLandingPageReviews',
   async (): Promise<ILandingPageReview[] | Toast> => {
