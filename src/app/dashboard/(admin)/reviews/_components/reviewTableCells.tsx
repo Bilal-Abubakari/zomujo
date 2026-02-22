@@ -42,9 +42,7 @@ interface RoleCellProps {
 export const RoleCell = ({ review }: RoleCellProps): JSX.Element => {
   const isPatient = isPatientReview(review);
   return (
-    <Badge variant={isPatient ? 'default' : 'brown'}>
-      {isPatient ? 'Patient' : 'Doctor'}
-    </Badge>
+    <Badge variant={isPatient ? 'default' : 'brown'}>{isPatient ? 'Patient' : 'Doctor'}</Badge>
   );
 };
 
@@ -113,9 +111,10 @@ export const ActionsCell = ({
   const normalizedStatus = status.toLowerCase();
   const canShow = normalizedStatus === 'pending' || normalizedStatus === 'skipped';
   const canHide = normalizedStatus === 'pending' || normalizedStatus === 'completed';
-  const userName = isPatientReview(review) && review.patient
-    ? `${review.patient.firstName} ${review.patient.lastName}`
-    : `${doctor.firstName} ${doctor.lastName}`;
+  const userName =
+    isPatientReview(review) && review.patient
+      ? `${review.patient.firstName} ${review.patient.lastName}`
+      : `${doctor.firstName} ${doctor.lastName}`;
 
   return (
     <ActionsDropdownMenus

@@ -147,7 +147,9 @@ const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
 
           <div className="space-y-2">
             <Textarea
-              placeholder={isDoctor ? 'Share your feedback about the platform...' : 'Share your experience...'}
+              placeholder={
+                isDoctor ? 'Share your feedback about the platform...' : 'Share your experience...'
+              }
               className="min-h-[120px] resize-none"
               labelName="Comment *"
               error={errors.comment?.message || ''}
@@ -182,7 +184,11 @@ interface PatientDetailedRatingsProps {
   errors: FieldErrors<PatientReviewFormData>;
 }
 
-const PatientDetailedRatings = ({ setValue, watch, errors }: PatientDetailedRatingsProps): JSX.Element => {
+const PatientDetailedRatings = ({
+  setValue,
+  watch,
+  errors,
+}: PatientDetailedRatingsProps): JSX.Element => {
   const communicationSkill = watch('communicationSkill');
   const expertise = watch('expertise');
 
@@ -229,9 +235,7 @@ const PatientDetailedRatings = ({ setValue, watch, errors }: PatientDetailedRati
             />
           </div>
           {errors?.communicationSkill?.isAttentive && (
-            <p className="text-sm text-red-500">
-              {errors.communicationSkill.isAttentive.message}
-            </p>
+            <p className="text-sm text-red-500">{errors.communicationSkill.isAttentive.message}</p>
           )}
 
           <div className="flex items-center justify-between">

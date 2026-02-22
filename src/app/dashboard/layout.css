@@ -5,4 +5,3 @@
 .layout-container:has(.investigation-container) {
   overflow: visible;
 }
-

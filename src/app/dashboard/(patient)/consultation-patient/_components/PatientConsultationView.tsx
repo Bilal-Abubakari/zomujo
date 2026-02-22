@@ -20,7 +20,7 @@ import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
 import { TooltipComp } from '@/components/ui/tooltip';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
-import {  IConsultationDetails } from '@/types/consultation.interface';
+import { IConsultationDetails } from '@/types/consultation.interface';
 import { useAppDispatch } from '@/lib/hooks';
 import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
 import {

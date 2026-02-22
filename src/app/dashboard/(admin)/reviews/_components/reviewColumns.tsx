@@ -1,7 +1,14 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { IReview } from '@/types/review.interface';
 import { JSX } from 'react';
-import { UserCell, RoleCell, RatingCell, StatusCell, CommentCell, ActionsCell } from './reviewTableCells';
+import {
+  UserCell,
+  RoleCell,
+  RatingCell,
+  StatusCell,
+  CommentCell,
+  ActionsCell,
+} from './reviewTableCells';
 import { AsyncThunk } from '@reduxjs/toolkit';
 import { Toast } from '@/hooks/use-toast';
 
