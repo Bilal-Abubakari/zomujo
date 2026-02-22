@@ -40,13 +40,16 @@ export interface IConsultationDetails {
   id: string;
   status: ConsultationStatus;
   doctor: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
-  patient: Pick<IExtraBase, 'firstName' | 'lastName' | 'profilePicture'>;
+  patient: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
   prescriptionUrl: string;
-  lab: ILab;
-  radiology: IRadiology;
+  symptoms: null;
+  notes: null | string;
+  historyNotes: null | string;
+  lab: ILab | null;
+  radiology: IRadiology | null;
   diagnosis: IDiagnosis[];
   prescriptions: IPrescription[];
-  referrals: IReferral[];
+  referrals: IReferral[] | null;
   slot: ISlot;
 }
 

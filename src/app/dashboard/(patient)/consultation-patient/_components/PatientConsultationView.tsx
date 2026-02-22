@@ -69,7 +69,9 @@ const PatientConsultationView = (): JSX.Element => {
   const [downloadingRadiologyRequest, setDownloadingRadiologyRequest] = useState(false);
   const [downloadingReferral, setDownloadingReferral] = useState<string | null>(null);
 
-  const consultationLabData = consultationDetails?.lab.data ?? [];
+  const consultationLabData = consultationDetails?.lab?.data ?? [];
+  const consultationRadiology = consultationDetails?.radiology;
+  const consultationRadiologyId = consultationRadiology?.id;
 
   const handleFileChange = ({ target }: ChangeEvent<HTMLInputElement>, labId: string): void => {
     const file = target.files?.[0];
@@ -198,15 +200,15 @@ const PatientConsultationView = (): JSX.Element => {
       return;
     }
 
-    const lab = consultationDetails?.lab.data.map((lab) =>
+    const labs = consultationLabData.map((lab) =>
       lab.id === labId ? { ...lab, fileUrl: payload as string } : lab,
     );
-    if (lab && consultationDetails) {
+    if (labs && consultationDetails?.lab) {
       setConsultationDetails({
         ...consultationDetails,
         lab: {
           ...consultationDetails.lab,
-          data: lab,
+          data: labs,
         },
       });
     }
@@ -232,7 +234,7 @@ const PatientConsultationView = (): JSX.Element => {
     const updatedTests = consultationDetails?.radiology?.tests.map((test) =>
       test.testName === testName ? { ...test, fileUrl: payload as string } : test,
     );
-    if (updatedTests) {
+    if (updatedTests && consultationDetails?.radiology) {
       const radiology = { ...consultationDetails!.radiology, tests: updatedTests };
       setConsultationDetails({ ...consultationDetails!, radiology });
     }
@@ -585,7 +587,7 @@ const PatientConsultationView = (): JSX.Element => {
                             <Button
                               child={
                                 <label
-                                  htmlFor={`radio-file-${consultationDetails.radiology.id}-${test.testName}`}
+                                  htmlFor={`radio-file-${consultationRadiologyId}-${test.testName}`}
                                 >
                                   <Paperclip className="mr-2 h-4 w-4" />
                                   Attach PDF
@@ -597,35 +599,30 @@ const PatientConsultationView = (): JSX.Element => {
                               className="cursor-pointer"
                             ></Button>
                             <Input
-                              id={`radio-file-${consultationDetails.radiology.id}-${test.testName}`}
+                              id={`radio-file-${consultationRadiologyId}-${test.testName}`}
                               type="file"
                               className="hidden"
                               accept=".pdf"
                               onChange={(e) =>
                                 handleRadiologyFileChange(
                                   e,
-                                  `${consultationDetails.radiology.id}-${test.testName}`,
+                                  `${consultationRadiologyId}-${test.testName}`,
                                 )
                               }
                             />
                             <Button
                               size="sm"
                               onClick={() =>
-                                handleRadiologyUpload(
-                                  test.testName,
-                                  consultationDetails.radiology.id,
-                                )
+                                handleRadiologyUpload(test.testName, consultationRadiologyId ?? '')
                               }
                               disabled={
                                 !selectedRadiologyFiles[
-                                  `${consultationDetails.radiology.id}-${test.testName}`
+                                  `${consultationRadiologyId}-${test.testName}`
                                 ] ||
-                                uploadingRadiology ===
-                                  `${consultationDetails.radiology.id}-${test.testName}`
+                                uploadingRadiology === `${consultationRadiologyId}-${test.testName}`
                               }
                               isLoading={
-                                uploadingRadiology ===
-                                `${consultationDetails.radiology.id}-${test.testName}`
+                                uploadingRadiology === `${consultationRadiologyId}-${test.testName}`
                               }
                               child={
                                 <>
@@ -636,13 +633,13 @@ const PatientConsultationView = (): JSX.Element => {
                             />
                           </div>
                           {selectedRadiologyFiles[
-                            `${consultationDetails.radiology.id}-${test.testName}`
+                            `${consultationRadiologyId}-${test.testName}`
                           ] && (
                             <div className="flex items-center rounded-md bg-gray-100 p-2 text-sm">
                               <span className="max-w-sm truncate pr-2">
                                 {
                                   selectedRadiologyFiles[
-                                    `${consultationDetails.radiology.id}-${test.testName}`
+                                    `${consultationRadiologyId}-${test.testName}`
                                   ]?.name
                                 }
                               </span>
@@ -651,8 +648,7 @@ const PatientConsultationView = (): JSX.Element => {
                                   onClick={() =>
                                     setSelectedRadiologyFiles({
                                       ...selectedRadiologyFiles,
-                                      [`${consultationDetails.radiology.id}-${test.testName}`]:
-                                        null,
+                                      [`${consultationRadiologyId}-${test.testName}`]: null,
                                     })
                                   }
                                 >
