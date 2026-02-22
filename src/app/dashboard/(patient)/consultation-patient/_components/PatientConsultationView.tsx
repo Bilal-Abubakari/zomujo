@@ -361,7 +361,7 @@ const PatientConsultationView = (): JSX.Element => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {SECTIONS.filter((section) => parsedHistoryNotes[section.key].trim()).length > 0 ? (
+            {SECTIONS.some((section) => parsedHistoryNotes[section.key].trim()) ? (
               SECTIONS.filter((section) => parsedHistoryNotes[section.key].trim()).map(
                 (section) => {
                   const Icon = section.icon;
