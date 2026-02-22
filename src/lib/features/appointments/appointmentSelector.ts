@@ -89,11 +89,6 @@ export const selectReviewAppointmentId = createSelector(
   (appointments) => appointments.reviewAppointmentId,
 );
 
-export const selectReviewRecordId = createSelector(
-  selectAppointments,
-  (appointments) => appointments.reviewRecordId,
-);
-
 export const selectAppointmentRadiology = createSelector(
   selectAppointment,
   (appointment) => appointment?.radiology,
@@ -110,4 +105,9 @@ export const selectConductedRadiology = createSelector(selectAppointmentRadiolog
 export const selectIsConsultationAuthenticated = createSelector(
   selectAppointment,
   (appointment) => appointment?.isAuthenticated ?? false,
+);
+
+export const selectAppointmentDoctorId = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.doctor?.id,
 );

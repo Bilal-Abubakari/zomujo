@@ -23,7 +23,6 @@ import {
   selectHistoryNotes,
 } from '@/lib/features/appointments/appointmentSelector';
 import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
-import { selectRecordId } from '@/lib/features/patients/patientsSelector';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -106,7 +105,6 @@ const Consultation = (): JSX.Element => {
   const currentConsultationStatus = useAppSelector(consultationStatus);
   const isInProgress = useAppSelector(isConsultationInProgress);
   const hasEnded = useAppSelector(hasConsultationEnded);
-  const recordId = useAppSelector(selectRecordId);
   const params = useParams();
   const [isEndingConsultation, setIsEndingConsultation] = useState(false);
   const symptoms = useAppSelector(selectSymptoms);
@@ -156,17 +154,15 @@ const Consultation = (): JSX.Element => {
   const handleEndConsultationWithAuth = async (code: string): Promise<void> => {
     setIsEndingConsultation(true);
     const appointmentId = String(params.appointmentId);
+
     const payload = await dispatch(endConsultationRequest({ appointmentId, code })).unwrap();
     toast(payload);
     setIsEndingConsultation(false);
 
     if (!showErrorToast(payload)) {
       setShowEndConsultationAuthDialog(false);
+      dispatch(showReviewModal({ appointmentId }));
       router.push('/dashboard');
-
-      if (recordId) {
-        dispatch(showReviewModal({ appointmentId, recordId }));
-      }
     }
   };
 
@@ -178,11 +174,8 @@ const Consultation = (): JSX.Element => {
     setIsEndingConsultation(false);
 
     if (!showErrorToast(payload)) {
+      dispatch(showReviewModal({ appointmentId }));
       router.push('/dashboard');
-
-      if (recordId) {
-        dispatch(showReviewModal({ appointmentId, recordId }));
-      }
     }
   };
 

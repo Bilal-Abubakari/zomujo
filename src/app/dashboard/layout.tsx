@@ -16,7 +16,7 @@ import { Modal } from '@/components/ui/dialog';
 import UpdatePassword from '@/app/dashboard/_components/updatePassword';
 import NotificationActions from '@/app/dashboard/_components/notificationActions';
 import UpdatePatientInfo from '@/app/dashboard/(patient)/_components/updatePatientInfo';
-import DoctorReviewModal from '@/app/dashboard/_components/doctorReviewModal';
+import ReviewModal from '@/app/dashboard/_components/reviewModal';
 import { IDoctor } from '@/types/doctor.interface';
 import { useRouter } from 'next/navigation';
 import { PaymentTab } from '@/hooks/useQueryParam';
@@ -142,7 +142,7 @@ export default function Layout({
         </SidebarProvider>
       </DashboardProvider>
       <NotificationActions />
-      <DoctorReviewModal />
+      <ReviewModal />
     </ScrollContext.Provider>
   );
 }

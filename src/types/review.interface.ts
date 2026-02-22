@@ -15,8 +15,36 @@ export interface IExpertise {
 export interface IReviewRequest {
   rating: number;
   comment: string;
+  communicationSkill?: ICommunicationSkill;
+  expertise?: IExpertise;
+  doctorId: string;
+  appointmentId?: string;
+}
+
+export interface IReviewUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profilePicture: string;
+}
+
+export interface IReview {
+  id: string;
+  status: string;
+  rating: number;
+  comment: string;
   communicationSkill: ICommunicationSkill;
   expertise: IExpertise;
+  patientId: string | null;
   doctorId: string;
-  recordId: string;
+  appointmentId: string | null;
+  doctor: IReviewUser;
+  patient: IReviewUser | null;
+}
+
+export interface ILandingPageReview {
+  rating: number;
+  comment: string;
+  doctor: Pick<IReviewUser, 'firstName' | 'lastName'> | null;
+  patient: Pick<IReviewUser, 'firstName' | 'lastName'> | null;
 }
