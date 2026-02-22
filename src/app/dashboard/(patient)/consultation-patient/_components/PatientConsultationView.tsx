@@ -12,6 +12,13 @@ import {
   TestTubeDiagonal,
   Upload,
   X,
+  ClipboardList,
+  MessageSquare,
+  Activity,
+  Users,
+  Home,
+  ClipboardCheck,
+  Target,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
@@ -54,6 +61,116 @@ type SelectedFiles = {
   [key: string]: File | null;
 };
 
+interface HistoryNotesData {
+  presentingComplaint: string;
+  historyOfPresentingComplaint: string;
+  onDirectQuestions: string;
+  systematicEnquiry: string;
+  pastMedicalSurgicalHistory: string;
+  drugHistory: string;
+  familyHistory: string;
+  socialHistory: string;
+  assessment: string;
+  plan: string;
+}
+
+interface SectionConfig {
+  key: keyof HistoryNotesData;
+  label: string;
+  icon: React.ElementType;
+  placeholder: string;
+}
+
+const SECTIONS: SectionConfig[] = [
+  {
+    key: 'presentingComplaint',
+    label: 'Presenting Complaint',
+    icon: ClipboardList,
+    placeholder: 'Enter the main presenting complaint...',
+  },
+  {
+    key: 'historyOfPresentingComplaint',
+    label: 'History of Presenting Complaint',
+    icon: FileText,
+    placeholder: 'Enter the history of the presenting complaint...',
+  },
+  {
+    key: 'onDirectQuestions',
+    label: 'On Direct Questions',
+    icon: MessageSquare,
+    placeholder: 'Enter responses to direct questions...',
+  },
+  {
+    key: 'systematicEnquiry',
+    label: 'Systematic Enquiry',
+    icon: Activity,
+    placeholder: 'Enter systematic enquiry findings...',
+  },
+  {
+    key: 'pastMedicalSurgicalHistory',
+    label: 'Past Medical/Surgical History',
+    icon: Stethoscope,
+    placeholder: 'Enter past medical and surgical history...',
+  },
+  {
+    key: 'drugHistory',
+    label: 'Drug History',
+    icon: Pill,
+    placeholder: 'Enter current medications and drug history...',
+  },
+  {
+    key: 'familyHistory',
+    label: 'Family History',
+    icon: Users,
+    placeholder: 'Enter relevant family history...',
+  },
+  {
+    key: 'socialHistory',
+    label: 'Social History',
+    icon: Home,
+    placeholder: 'Enter social history (occupation, lifestyle, etc.)...',
+  },
+  {
+    key: 'assessment',
+    label: 'Assessment',
+    icon: ClipboardCheck,
+    placeholder: 'Enter your clinical assessment...',
+  },
+  {
+    key: 'plan',
+    label: 'Plan',
+    icon: Target,
+    placeholder: 'Enter the management plan...',
+  },
+];
+
+const DEFAULT_NOTES: HistoryNotesData = {
+  presentingComplaint: '',
+  historyOfPresentingComplaint: '',
+  onDirectQuestions: '',
+  systematicEnquiry: '',
+  pastMedicalSurgicalHistory: '',
+  drugHistory: '',
+  familyHistory: '',
+  socialHistory: '',
+  assessment: '',
+  plan: '',
+};
+
+const parseInitialNotes = (initialNotes: string | null | undefined): HistoryNotesData => {
+  if (!initialNotes) {
+    return DEFAULT_NOTES;
+  }
+
+  try {
+    const parsed = JSON.parse(initialNotes);
+    return { ...DEFAULT_NOTES, ...parsed };
+  } catch {
+    // If it's not JSON (old format), return default
+    return DEFAULT_NOTES;
+  }
+};
+
 const PatientConsultationView = (): JSX.Element => {
   const { on } = useWebSocket();
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -72,6 +189,7 @@ const PatientConsultationView = (): JSX.Element => {
   const consultationLabData = consultationDetails?.lab?.data ?? [];
   const consultationRadiology = consultationDetails?.radiology;
   const consultationRadiologyId = consultationRadiology?.id;
+  const parsedHistoryNotes = parseInitialNotes(consultationDetails?.historyNotes);
 
   const handleFileChange = ({ target }: ChangeEvent<HTMLInputElement>, labId: string): void => {
     const file = target.files?.[0];
@@ -347,6 +465,43 @@ const PatientConsultationView = (): JSX.Element => {
               )}
             </div>
           </CardHeader>
+        </Card>
+
+        {/* History Notes Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl font-semibold">
+              <ClipboardList className="text-primary" />
+              History Notes
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {SECTIONS.filter((section) => parsedHistoryNotes[section.key].trim()).length > 0 ? (
+              SECTIONS.filter((section) => parsedHistoryNotes[section.key].trim()).map(
+                (section) => {
+                  const Icon = section.icon;
+                  return (
+                    <div
+                      key={section.key}
+                      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                    >
+                      <div className="mb-3 flex items-center gap-2">
+                        <Icon className="text-primary h-5 w-5" />
+                        <h3 className="text-base font-semibold text-gray-800">{section.label}</h3>
+                      </div>
+                      <p className="text-sm whitespace-pre-wrap text-gray-600">
+                        {parsedHistoryNotes[section.key]}
+                      </p>
+                    </div>
+                  );
+                },
+              )
+            ) : (
+              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 text-center text-gray-500">
+                There are currently no history notes from the doctor.
+              </div>
+            )}
+          </CardContent>
         </Card>
 
         {/* Diagnoses Section */}
