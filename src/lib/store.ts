@@ -8,6 +8,8 @@ import patientsReducer from '@/lib/features/patients/patientsSlice';
 import appointmentsReducer from '@/lib/features/appointments/appointmentsSlice';
 import hospitalAppointmentsReducer from '@/lib/features/hospital-appointments/hospitalAppointmentsSlice';
 import analyticsReducer from '@/lib/features/analytics/analyticsSlice';
+import consultationReducer from '@/lib/features/appointments/consultation/consultationSlice';
+import connectivityReducer from '@/lib/features/connectivity/connectivitySlice';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -18,15 +20,17 @@ const authPersistConfig = {
 };
 
 const rootReducer = combineReducers({
-	authentication: persistReducer(authPersistConfig, authReducer),
-	hospital: hospitalReducer,
-	organizationRequests: organizationRequestsReducer,
-	notifications: notificationsReducer,
-	payments: paymentsReducer,
-	patients: patientsReducer,
-	appointments: appointmentsReducer,
-	hospitalAppointments: hospitalAppointmentsReducer,
-	analytics: analyticsReducer,
+  authentication: persistReducer(authPersistConfig, authReducer),
+  hospital: hospitalReducer,
+  organizationRequests: organizationRequestsReducer,
+  notifications: notificationsReducer,
+  payments: paymentsReducer,
+  patients: patientsReducer,
+  appointments: appointmentsReducer,
+  hospitalAppointments: hospitalAppointmentsReducer,
+  analytics: analyticsReducer,
+  consultation: consultationReducer,
+  connectivity: connectivityReducer,
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type

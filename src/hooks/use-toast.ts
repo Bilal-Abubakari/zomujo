@@ -142,6 +142,20 @@ function toast({ ...props }: Toast): {
   dismiss: () => void;
   update: (props: ToasterToast) => void;
 } {
+  // Check if a toast with the same description and variant is currently open
+  const existingToast = memoryState.toasts.find(
+    (t) => t.open && t.description === props.description && t.variant === props.variant,
+  );
+  if (existingToast) {
+    // If exists and open, don't add a new one
+    return {
+      id: existingToast.id,
+      dismiss: () => dispatch({ type: 'DISMISS_TOAST', toastId: existingToast.id }),
+      update: (props: ToasterToast) =>
+        dispatch({ type: 'UPDATE_TOAST', toast: { ...props, id: existingToast.id } }),
+    };
+  }
+
   const id = genId();
 
   const update = (props: ToasterToast): void =>

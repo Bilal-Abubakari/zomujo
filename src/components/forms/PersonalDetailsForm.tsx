@@ -131,7 +131,7 @@ interface SaveButtonProps {
 const SaveButton = ({ isLoading, isValid, hasChanges }: SaveButtonProps): JSX.Element => (
   <Button
     child="Save Changes"
-    className="me:mb-0 my-[15px] mb-24 ml-auto flex"
+    className="me:mb-0 my-3.75 mb-24 ml-auto flex"
     isLoading={isLoading}
     disabled={!isValid || isLoading || !hasChanges}
   />
@@ -199,7 +199,7 @@ const DoctorFields = ({
     </div>
     <div className="mt-8 max-w-[384px] items-baseline">
       <Textarea
-        labelName=" Bio (This is what your patients will see)"
+        labelName=" About (This is what your patients will see)"
         className="w-full resize-none bg-transparent"
         error={errors.bio?.message || ''}
         {...register('bio')}
@@ -235,7 +235,7 @@ const DoctorPersonalDetailsForm = ({
   <form className="pb-20" onSubmit={onSubmit}>
     <BasicFields register={register} errors={errors}>
       <Input
-        labelName="Experience"
+        labelName="Experience (In Years)"
         className="bg-transparent"
         placeholder="5"
         error={errors.experience?.message || ''}

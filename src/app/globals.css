@@ -311,3 +311,145 @@
     max-height: 100%;
   }
 }
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+.animate-shake {
+  animation: shake 2s ease-in-out;
+}
+
+/* TipTap Editor Styles */
+.tiptap {
+  outline: none;
+  line-height: 1.6;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap:focus {
+  outline: none;
+}
+
+/* Ensure headings in editor have proper spacing and styling */
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1f2937;
+  letter-spacing: -0.02em;
+}
+
+.tiptap h1 {
+  font-size: 1.875rem; /* 30px */
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tiptap h2 {
+  font-size: 1.5rem; /* 24px */
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.tiptap h3 {
+  font-size: 1.25rem; /* 20px */
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.tiptap > h1:first-child,
+.tiptap > h2:first-child,
+.tiptap > h3:first-child {
+  margin-top: 0;
+}
+
+.tiptap p {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.75;
+  color: #374151;
+}
+
+.tiptap ul,
+.tiptap ol {
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tiptap ul {
+  list-style-type: disc;
+}
+
+.tiptap ol {
+  list-style-type: decimal;
+}
+
+.tiptap li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2.5rem 0;
+}
+
+.tiptap strong {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.tiptap em {
+  font-style: italic;
+}
+
+/* Better spacing after headings when followed by paragraphs or lists */
+.tiptap h1 + p,
+.tiptap h2 + p,
+.tiptap h3 + p {
+  margin-top: 0.5rem;
+}
+
+.tiptap h1 + ul,
+.tiptap h2 + ul,
+.tiptap h3 + ul,
+.tiptap h1 + ol,
+.tiptap h2 + ol,
+.tiptap h3 + ol {
+  margin-top: 0.75rem;
+}
+
+/* Empty paragraph spacing */
+.tiptap p:empty {
+  min-height: 1.5em;
+}

@@ -11,6 +11,11 @@ export const selectAppointment = createSelector(
   (appointments) => appointments.appointment,
 );
 
+export const selectIsLoading = createSelector(
+  selectAppointments,
+  (appointments) => appointments.isLoading,
+);
+
 export const consultationStatus = createSelector(
   selectAppointment,
   (appointment) => appointment?.status,
@@ -31,6 +36,11 @@ export const selectSymptoms = createSelector(
   (appointment) => appointment?.symptoms,
 );
 
+export const selectHistoryNotes = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.historyNotes,
+);
+
 export const selectPatientSymptoms = createSelector(
   selectSymptoms,
   (symptoms) => symptoms?.symptoms,
@@ -45,21 +55,23 @@ export const selectAppointmentLabs = createSelector(
   (appointment) => appointment?.lab,
 );
 
-export const selectConductedLabs = createSelector(selectAppointmentLabs, (labs) =>
-  labs?.filter(({ fileUrl }) => !!fileUrl),
+export const selectLabIds = createSelector(selectAppointmentLabs, (lab) =>
+  lab?.data?.map((l) => l.id),
 );
 
-export const selectRequestedLabs = createSelector(selectAppointmentLabs, (labs) =>
-  labs?.filter(({ status }) => status === RequestStatus.Pending),
+export const selectConductedLabs = createSelector(
+  selectAppointmentLabs,
+  (lab) => lab?.data?.filter((test) => !!test.fileUrl) || [],
 );
 
-export const selectLabIds = createSelector(selectAppointmentLabs, (labs) =>
-  labs?.map(({ id }) => id),
+export const selectRequestedLabs = createSelector(
+  selectAppointmentLabs,
+  (lab) => lab?.data?.filter((test) => !test.fileUrl) || [],
 );
 
-export const selectIsLoading = createSelector(
-  selectAppointments,
-  (appointments) => appointments.isLoading,
+export const selectPrescriptions = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.prescriptions ?? [],
 );
 
 export const selectDiagnoses = createSelector(
@@ -77,7 +89,25 @@ export const selectReviewAppointmentId = createSelector(
   (appointments) => appointments.reviewAppointmentId,
 );
 
-export const selectReviewRecordId = createSelector(
-  selectAppointments,
-  (appointments) => appointments.reviewRecordId,
+export const selectAppointmentRadiology = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.radiology,
+);
+
+export const selectRequestedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
+  radiology?.status === RequestStatus.Pending ? radiology : null,
+);
+
+export const selectConductedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
+  radiology?.tests?.some((test) => test.fileUrl) ? radiology : null,
+);
+
+export const selectIsConsultationAuthenticated = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.isAuthenticated ?? false,
+);
+
+export const selectAppointmentDoctorId = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.doctor?.id,
 );

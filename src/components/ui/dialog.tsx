@@ -162,46 +162,36 @@ const Modal = ({
         <div>
           {imageVariant === ImageVariant.Success && (
             <>
-              <Image
-                src={SuccessIllustration}
-                alt={imageVariant}
-                className="m-auto h-[200px] w-[200px]"
-              />
+              <Image src={SuccessIllustration} alt={imageVariant} className="m-auto h-50 w-50" />
               <h2 className="text-primary mt-3 -mb-6 font-semibold">Success</h2>
             </>
           )}
           {imageVariant === ImageVariant.Email && (
             <>
-              <Image
-                src={EmailIllustration}
-                alt={imageVariant}
-                className="m-auto h-[200px] w-[200px]"
-              />
+              <Image src={EmailIllustration} alt={imageVariant} className="m-auto h-50 w-50" />
               <h2 className="text-primary mt-3 -mb-6 font-semibold">Email Verification</h2>
             </>
           )}
           {imageVariant === ImageVariant.Error && (
             <>
-              <Image
-                src={ErrorIllustration}
-                alt={imageVariant}
-                className="m-auto h-[200px] w-[200px]"
-              />
+              <Image src={ErrorIllustration} alt={imageVariant} className="m-auto h-50 w-50" />
               <h2 className="mt-3 -mb-6 font-semibold text-red-500">Error</h2>
             </>
           )}
         </div>
       )}
-      <DialogHeader>
-        {headerChild ? (
-          headerChild
-        ) : (
-          <>
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription>{description}</DialogDescription>
-          </>
-        )}
-      </DialogHeader>
+      {(headerChild || title || description) && (
+        <DialogHeader>
+          {headerChild ? (
+            headerChild
+          ) : (
+            <>
+              {title && <DialogTitle>{title}</DialogTitle>}
+              {description && <DialogDescription>{description}</DialogDescription>}
+            </>
+          )}
+        </DialogHeader>
+      )}
       {content}
       {footer && <DialogFooter>{footer}</DialogFooter>}
     </DialogContent>

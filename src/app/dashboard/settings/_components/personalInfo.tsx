@@ -114,7 +114,7 @@ const PersonalInfo = (): JSX.Element => {
           return;
         }
         if (!personalDetails?.hasSlot) {
-          router.push('/dashboard/settings/availability');
+          router.push('/dashboard/availability');
           toast(dataCompletionToast('availability'));
           return;
         }
@@ -134,7 +134,7 @@ const PersonalInfo = (): JSX.Element => {
         handleImageChange={handleImageChange}
         resetImage={resetImage}
       />
-      <hr className="my-[30px]" />
+      <hr className="my-7.5" />
       <PersonalDetailsForm
         register={register}
         errors={errors}

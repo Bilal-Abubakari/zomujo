@@ -31,8 +31,13 @@ export type ISurgeryWithoutId = Omit<ISurgery, 'id'>;
 export interface IPrescription {
   name: string;
   doses: string;
-  instructions?: string;
-  frequency: string;
+  route: string;
+  numOfDays: string;
+  doseRegimen: string;
+}
+
+export interface IPrescriptionResponse extends IPrescription {
+  id: string;
 }
 
 export interface IDiagnosis {
@@ -41,4 +46,8 @@ export interface IDiagnosis {
   notes?: string;
   status: ConditionStatus;
   prescriptions: IPrescription[];
+}
+
+export interface IDiagnosisResponse extends IDiagnosis {
+  id: string;
 }

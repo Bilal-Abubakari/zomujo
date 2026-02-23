@@ -38,6 +38,7 @@ export interface IUser extends IBaseUser {
   isActive: boolean;
   role: Role;
   createdAt: Date;
+  isOAuthOnly: boolean;
 }
 
 export interface IUserSignUp extends IBaseUser {

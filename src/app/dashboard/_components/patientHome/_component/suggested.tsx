@@ -1,12 +1,15 @@
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { JSX, ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 type SuggestedProps = {
-  title: string;
+  title?: string;
   children: ReactNode;
   showViewAll?: boolean;
   link?: string;
+  className?: string;
+  childrenWrapperClassName?: string;
 };
 
 export const Suggested = ({
@@ -14,19 +17,24 @@ export const Suggested = ({
   children,
   showViewAll = true,
   link = '/',
+  className,
+  childrenWrapperClassName,
 }: SuggestedProps): JSX.Element => (
-  <div className="flex w-full flex-col gap-6 max-md:mt-10">
-    {(title || showViewAll) && (
-      <div className="flex flex-row items-center justify-between">
-        {title && <p className="text-xl leading-5 font-bold">{title}</p>}
-        {showViewAll && (
-          <Link href={link} className="flex flex-row items-center text-sm">
-            View All <ChevronRight size={16} />
-          </Link>
-        )}
-      </div>
-    )}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 px-0 sm:px-[6px] justify-items-stretch sm:justify-items-start w-full">
+  <div className={cn('flex w-full flex-col gap-6 max-md:mt-10', className)}>
+    <div className="flex flex-row items-center justify-between">
+      {title && <p className="text-xl leading-5 font-bold">{title}</p>}
+      {showViewAll && (
+        <Link href={link} className="flex flex-row items-center text-sm">
+          View All <ChevronRight size={16} />
+        </Link>
+      )}
+    </div>
+    <div
+      className={cn(
+        'flex flex-row flex-wrap items-center justify-items-center gap-6',
+        childrenWrapperClassName,
+      )}
+    >
       {children}
     </div>
   </div>

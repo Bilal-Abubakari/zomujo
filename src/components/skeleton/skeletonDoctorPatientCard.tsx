@@ -1,30 +1,41 @@
 import { JSX } from 'react';
 
 const SkeletonDoctorPatientCard = (): JSX.Element => (
-  <div className="flex w-full max-w-[360px] shrink-0 animate-pulse flex-col gap-2 rounded-[14px] border border-gray-200 bg-white p-6">
-    <div className="flex flex-col">
-      <div className="mb-4 flex w-full flex-row gap-3">
-        <div className="h-[56px] w-[56px] rounded-full bg-gray-300"></div>
-        <div className="flex w-full flex-col justify-center">
-          <div className="h-5 w-32 rounded bg-gray-300"></div>
-          <div className="mt-2 h-4 w-24 rounded bg-gray-300"></div>
-          <hr className="mt-3 w-full bg-gray-300" />
-        </div>
+  <div className="group flex h-full w-62.5 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
+    {/* Image Section Skeleton */}
+    <div className="relative h-40 w-full animate-pulse bg-gray-300"></div>
+
+    {/* Information Section Skeleton */}
+    <div className="flex flex-1 flex-col p-4">
+      {/* Doctor Name and Specialty Skeleton */}
+      <div className="mb-3 animate-pulse">
+        <div className="mb-2 h-6 w-32 rounded bg-gray-300"></div>
+        <div className="h-4 w-24 rounded bg-gray-300"></div>
       </div>
-      <div className="mb-6 flex flex-row gap-6">
-        <div className="h-6 w-12 rounded-full bg-gray-300"></div>
-        <div className="flex flex-col gap-4">
-          <div className="h-4 w-40 rounded bg-gray-300"></div>
-          <div className="h-4 w-32 rounded bg-gray-300"></div>
-        </div>
+
+      {/* Experience Line Skeleton */}
+      <div className="mb-3 flex animate-pulse items-center gap-2">
+        <div className="h-4 w-4 rounded bg-gray-300"></div>
+        <div className="h-4 w-20 rounded bg-gray-300"></div>
       </div>
-    </div>
-    <div className="flex flex-row items-center justify-between">
-      <div className="flex flex-col gap-0.5">
-        <div className="h-6 w-20 rounded bg-gray-300"></div>
+
+      {/* Price Line Skeleton */}
+      <div className="mb-3 flex animate-pulse items-center gap-2">
+        <div className="h-3 w-3 rounded-full bg-gray-400"></div>
         <div className="h-4 w-16 rounded bg-gray-300"></div>
       </div>
-      <div className="h-10 w-[175px] rounded-md bg-gray-300"></div>
+
+      {/* Next Available Skeleton */}
+      <div className="mb-4 flex animate-pulse items-center gap-2 rounded-md bg-gray-50 px-3 py-2">
+        <div className="h-4 w-4 rounded bg-gray-300"></div>
+        <div className="flex-1">
+          <div className="mb-1 h-3 w-20 rounded bg-gray-300"></div>
+          <div className="h-4 w-24 rounded bg-gray-300"></div>
+        </div>
+      </div>
+
+      {/* Book Appointment Button Skeleton */}
+      <div className="mt-auto h-10 w-full animate-pulse rounded-md bg-gray-300"></div>
     </div>
   </div>
 );

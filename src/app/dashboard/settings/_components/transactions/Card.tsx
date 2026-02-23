@@ -11,7 +11,7 @@ type CardWithActionsProps = CardProps & {
 };
 
 const Card = ({ number, name, type, onEdit, onDelete }: CardWithActionsProps): JSX.Element => (
-  <div className="group relative flex h-[139px] w-[139px] flex-col items-start justify-center rounded-[7.32px] border pl-4">
+  <div className="group relative flex h-34.75 w-34.75 flex-col items-start justify-center rounded-[7.32px] border pl-4">
     <div className="absolute top-1 right-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
       <Pencil
         className="h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
@@ -25,6 +25,9 @@ const Card = ({ number, name, type, onEdit, onDelete }: CardWithActionsProps): J
     <Image src={type === 'ghipss' ? CardPayment : MobileMoney} alt={type} />
     <p className="mt-4 w-28 truncate font-bold"> {name}</p>
     <p className="truncate text-[12px] font-bold text-gray-400"> {number}</p>
+    <p className="mt-1 text-[10px] font-medium tracking-wide text-gray-500 uppercase">
+      {type === 'ghipss' ? 'Bank Account' : 'Mobile Money'}
+    </p>
   </div>
 );
 

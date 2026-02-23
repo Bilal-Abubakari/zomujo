@@ -1,8 +1,10 @@
-import { DurationType } from '@/types/shared.enum';
+import { ConditionStatus, DurationType } from '@/types/shared.enum';
 import { IExtraBase } from '@/types/shared.interface';
-import { IMedicineWithoutId, IDiagnosis } from '@/types/medical.interface';
-import { IPatientLab } from '@/types/labs.interface';
+import { IMedicineWithoutId, IDiagnosis, IPrescription } from '@/types/medical.interface';
+import { ILab } from '@/types/labs.interface';
 import { ISlot } from '@/types/slots.interface';
+import { IRadiology } from '@/types/radiology.interface';
+import { IDoctor } from './doctor.interface';
 
 interface IName {
   name: string;
@@ -38,10 +40,16 @@ export interface IConsultationDetails {
   id: string;
   status: ConsultationStatus;
   doctor: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
-  patient: Pick<IExtraBase, 'firstName' | 'lastName' | 'profilePicture'>;
+  patient: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
   prescriptionUrl: string;
-  lab: IPatientLab[];
+  symptoms: null;
+  notes: null | string;
+  historyNotes: null | string;
+  lab: ILab | null;
+  radiology: IRadiology | null;
   diagnosis: IDiagnosis[];
+  prescriptions: IPrescription[];
+  referrals: IReferral[] | null;
   slot: ISlot;
 }
 
@@ -65,6 +73,16 @@ export interface IDuration {
   type: DurationType;
 }
 
+export interface IDiagnosisOnlyRequest {
+  diagnoses: Omit<IDiagnosis, 'prescriptions'>[];
+  appointmentId: string;
+}
+
+export interface IPrescriptionRequest {
+  prescriptions: (IPrescription & { appointmentId: string })[];
+  appointmentId: string;
+}
+
 export interface IDiagnosisRequest {
   diagnoses: IDiagnosis[];
   appointmentId: string;
@@ -80,4 +98,37 @@ export enum ConsultationStatus {
 export interface ConsultationStatusRequest {
   status: ConsultationStatus;
   appointmentId: string;
+}
+
+export interface IConsultationAuthRequest {
+  appointmentId: string;
+  code: string;
+}
+
+export type ReferralType = 'internal' | 'external';
+
+export interface IReferral {
+  id?: string;
+  type: ReferralType;
+  doctorName?: string;
+  facility?: string;
+  email?: string;
+  notes?: string;
+  doctorId?: string;
+  doctor?: IDoctor;
+  createdAt?: string;
+}
+
+export interface IDiagnosisUpdateRequest {
+  status: ConditionStatus;
+  id: string;
+  diagnosedAt: string;
+  name: string;
+  notes?: string;
+}
+
+export interface IInternalReferralRequest {
+  patientId: string;
+  referredDoctorId: string;
+  letter: string;
 }

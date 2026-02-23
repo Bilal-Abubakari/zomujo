@@ -38,16 +38,9 @@ export const phoneNumberSchema = requiredStringSchema().regex(/^\d{10}$/, 'Inval
 
 export const cardNumberSchema = z
   .string()
-  .min(13, 'Credit card number must be at least 13 digits')
-  .max(19, 'Credit card number must be at most 19 digits')
-  .regex(/^\d{13,19}$/, 'Credit card number must contain only digits');
-
-export const phoneOrCardNumberSchema = requiredStringSchema().refine(
-  (value) => /^\d{10}$/.test(value) || /^\d{13,19}$/.test(value),
-  {
-    message: 'Invalid phone or credit card number',
-  },
-);
+  .min(13, 'Account number or Credit card number must be at least 13 digits')
+  .max(19, 'Account number or Credit card number must be at most 19 digits')
+  .regex(/^\d{13,19}$/, 'Account number or Credit card number must contain only digits');
 
 export const textAreaSchema = z
   .string()

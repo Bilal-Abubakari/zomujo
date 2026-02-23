@@ -84,8 +84,8 @@ const PaymentInfo = (): JSX.Element => {
       <div className="flex flex-wrap gap-6">
         {isLoading ? (
           <>
-            <Skeleton className="h-[139px] w-[139px] rounded-[7.32px] bg-gray-300" />
-            <Skeleton className="h-[139px] w-[139px] rounded-[7.32px] bg-gray-300" />
+            <Skeleton className="h-34.75 w-34.75 rounded-[7.32px] bg-gray-300" />
+            <Skeleton className="h-34.75 w-34.75 rounded-[7.32px] bg-gray-300" />
           </>
         ) : (
           userPaymentDetails.map((payment) => (
@@ -102,7 +102,7 @@ const PaymentInfo = (): JSX.Element => {
 
         {!isLoading && (
           <div
-            className="flex h-[139px] w-[139px] cursor-pointer items-center justify-center rounded-[7.32px] border border-dashed text-gray-500"
+            className="flex h-34.75 w-34.75 cursor-pointer items-center justify-center rounded-[7.32px] border border-dashed text-gray-500"
             onClick={() => {
               setSelectedPayment(null);
               setIsModalOpen(true);

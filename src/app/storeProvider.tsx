@@ -5,6 +5,7 @@ import { makeStore, AppStore } from '@/lib/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
 import { Loader } from '@/components/ui/loader';
+import { ConnectivityBanner } from '@/components/connectivity/ConnectivityBanner';
 
 export default function StoreProvider({ children }: { children: ReactNode }): JSX.Element {
   const storeRef = useRef<AppStore>(undefined);
@@ -16,6 +17,7 @@ export default function StoreProvider({ children }: { children: ReactNode }): JS
 
   return (
     <Provider store={storeRef.current}>
+      <ConnectivityBanner />
       <PersistGate loading={<Loader />} persistor={persistor}>
         {children}
       </PersistGate>

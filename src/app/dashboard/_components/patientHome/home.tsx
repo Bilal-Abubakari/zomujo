@@ -163,9 +163,9 @@ const PatientHome = (): JSX.Element => {
   }, [dispatch, extra]);
 
   return (
-    <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-[80px] max-me:pt-4 w-full border px-4 md:px-6">
+    <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-20 max-me:pt-4 w-full border px-4 md:px-6">
       <AvatarGreetings />
-      <div className="mt-[27px] w-full gap-6 md:flex">
+      <div className="mt-6.75 w-full gap-6 md:flex">
         <div className="grow space-y-12">
           <SearchDoctorsCard />
           <div className="flex w-full items-center justify-center md:hidden">

@@ -1,0 +1,204 @@
+{
+  "Plain Radiology": {
+    "Chest X-Ray": [
+      "Chest X-Ray (PA)",
+      "Chest X-Ray (AP)",
+      "Chest X-Ray (Lateral)",
+      "Chest X-Ray (Oblique)"
+    ],
+    "Abdominal X-Ray": [
+      "Abdominal X-Ray (Supine)",
+      "Abdominal X-Ray (Erect)",
+      "Abdominal X-Ray (Lateral Decubitus)",
+      "KUB (Kidney, Ureter, Bladder)"
+    ],
+    "Skeletal X-Ray": [
+      "Upper Limb X-Ray",
+      "Lower Limb X-Ray",
+      "Hand X-Ray",
+      "Foot X-Ray",
+      "Shoulder X-Ray",
+      "Knee X-Ray",
+      "Hip X-Ray",
+      "Ankle X-Ray",
+      "Elbow X-Ray",
+      "Wrist X-Ray"
+    ],
+    "Spine X-Ray": [
+      "Cervical Spine X-Ray",
+      "Thoracic Spine X-Ray",
+      "Lumbar Spine X-Ray",
+      "Lumbosacral Spine X-Ray",
+      "Full Spine X-Ray"
+    ],
+    "Pelvis X-Ray": [
+      "Pelvis X-Ray (AP)",
+      "Hip X-Ray",
+      "Sacrum X-Ray",
+      "Coccyx X-Ray"
+    ],
+    "Skull X-Ray": [
+      "Skull X-Ray (AP)",
+      "Skull X-Ray (Lateral)",
+      "Facial Bones X-Ray",
+      "Nasal Bones X-Ray",
+      "Mandible X-Ray"
+    ],
+    "Others": [
+      "Soft Tissue Neck X-Ray",
+      "Sinuses X-Ray",
+      "Mastoid X-Ray",
+      "Dental X-Ray"
+    ]
+  },
+  "Ultrasound Scans": {
+    "Abdominal Ultrasound": [
+      "Upper Abdominal Ultrasound",
+      "Lower Abdominal Ultrasound",
+      "Whole Abdominal Ultrasound",
+      "Hepatobiliary Ultrasound",
+      "Renal Ultrasound",
+      "Appendix Ultrasound"
+    ],
+    "Pelvic Ultrasound": [
+      "Pelvic Ultrasound (Transabdominal)",
+      "Pelvic Ultrasound (Transvaginal)",
+      "Prostate Ultrasound (Transrectal)",
+      "Scrotal Ultrasound"
+    ],
+    "Obstetric Ultrasound": [
+      "Dating Scan",
+      "Viability Scan",
+      "Nuchal Translucency Scan",
+      "Anomaly Scan (20 weeks)",
+      "Growth Scan",
+      "Biophysical Profile",
+      "Doppler Study"
+    ],
+    "Breast Ultrasound": [
+      "Breast Ultrasound (Unilateral)",
+      "Breast Ultrasound (Bilateral)",
+      "Axillary Lymph Nodes Ultrasound"
+    ],
+    "Thyroid Ultrasound": [
+      "Thyroid Ultrasound",
+      "Thyroid with Neck Lymph Nodes",
+      "Parathyroid Ultrasound"
+    ],
+    "Musculoskeletal Ultrasound": [
+      "Shoulder Ultrasound",
+      "Knee Ultrasound",
+      "Ankle Ultrasound",
+      "Elbow Ultrasound",
+      "Hip Ultrasound",
+      "Soft Tissue Mass Ultrasound"
+    ],
+    "Vascular Doppler": [
+      "Carotid Doppler",
+      "Lower Limb Venous Doppler",
+      "Lower Limb Arterial Doppler",
+      "Upper Limb Venous Doppler",
+      "Upper Limb Arterial Doppler",
+      "Renal Artery Doppler",
+      "Portal Vein Doppler"
+    ],
+    "Others": [
+      "Soft Tissue Ultrasound",
+      "Neck Ultrasound",
+      "Salivary Gland Ultrasound",
+      "Eye Ultrasound"
+    ]
+  },
+  "Specialized Imaging": {
+    "CT Scan": [
+      "CT Head (Non-Contrast)",
+      "CT Head (With Contrast)",
+      "CT Brain",
+      "CT Chest",
+      "CT Abdomen",
+      "CT Pelvis",
+      "CT Abdomen & Pelvis",
+      "CT Thorax, Abdomen & Pelvis",
+      "CT Spine (Cervical)",
+      "CT Spine (Thoracic)",
+      "CT Spine (Lumbar)",
+      "CT Angiography (CTA)",
+      "CT Urography",
+      "High Resolution CT (HRCT) Chest"
+    ],
+    "MRI": [
+      "MRI Brain",
+      "MRI Spine (Cervical)",
+      "MRI Spine (Thoracic)",
+      "MRI Spine (Lumbar)",
+      "MRI Shoulder",
+      "MRI Knee",
+      "MRI Hip",
+      "MRI Ankle",
+      "MRI Abdomen",
+      "MRI Pelvis",
+      "MRI Breast",
+      "MR Angiography (MRA)",
+      "MR Cholangiopancreatography (MRCP)",
+      "Cardiac MRI"
+    ],
+    "Mammography": [
+      "Screening Mammography",
+      "Diagnostic Mammography",
+      "Tomosynthesis (3D Mammography)"
+    ],
+    "Fluoroscopy": [
+      "Barium Swallow",
+      "Barium Meal",
+      "Barium Follow Through",
+      "Barium Enema",
+      "Hysterosalpingography (HSG)",
+      "Voiding Cystourethrography (VCUG)",
+      "Intravenous Urography (IVU)"
+    ],
+    "DEXA Scan (Bone Density)": [
+      "DEXA Scan (Lumbar Spine)",
+      "DEXA Scan (Hip)",
+      "DEXA Scan (Forearm)",
+      "DEXA Scan (Whole Body)"
+    ],
+    "Others": [
+      "Nuclear Medicine Scan",
+      "PET Scan",
+      "PET-CT Scan",
+      "Bone Scan",
+      "Thyroid Scan"
+    ]
+  },
+  "Interventional Radiology": {
+    "Image-Guided Biopsy": [
+      "Ultrasound-Guided Biopsy",
+      "CT-Guided Biopsy",
+      "Breast Biopsy",
+      "Liver Biopsy",
+      "Kidney Biopsy",
+      "Lung Biopsy",
+      "Bone Biopsy"
+    ],
+    "Drainage Procedures": [
+      "Abscess Drainage",
+      "Pleural Fluid Drainage",
+      "Ascitic Fluid Drainage",
+      "Biliary Drainage"
+    ],
+    "Angiography": [
+      "Coronary Angiography",
+      "Cerebral Angiography",
+      "Renal Angiography",
+      "Peripheral Angiography",
+      "Pulmonary Angiography"
+    ],
+    "Others": [
+      "Joint Injection",
+      "Nephrostomy",
+      "Embolization",
+      "Stent Placement"
+    ]
+  }
+}
+

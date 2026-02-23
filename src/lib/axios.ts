@@ -8,7 +8,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const FORNIX_URL = process.env.NEXT_PUBLIC_FORNIX_URL;
 
-const networkFailureErrorMessage = 'Oops! Server Error... Please check your internet connection';
+export const networkFailureErrorMessage =
+  'Oops! Server Error... Please check your internet connection';
 
 const axios = axiosClient.create({
   baseURL: BASE_URL,
@@ -62,7 +63,7 @@ axios.interceptors.response.use(
 
 export const axiosErrorHandler = (error: unknown, toast = false): string | Toast => {
   const message = isAxiosError(error)
-    ? (error.response?.data.message ?? networkFailureErrorMessage)
+    ? (error.response?.data.message ?? error.message ?? networkFailureErrorMessage)
     : error instanceof Error
       ? error.message
       : networkFailureErrorMessage;

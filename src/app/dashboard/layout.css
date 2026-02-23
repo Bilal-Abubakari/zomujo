@@ -1,0 +1,7 @@
+.layout-container {
+  overflow: auto;
+}
+
+.layout-container:has(.investigation-container) {
+  overflow: visible;
+}
