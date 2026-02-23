@@ -64,10 +64,6 @@ const SolutionsOffered = (): JSX.Element => {
   }, [reviews.length]);
 
   const currentReview = reviews[currentReviewIndex];
-  const currentUser = useMemo(
-    () => (currentReview ? getReviewUser(currentReview) : { name: 'Anonymous', role: 'User' }),
-    [currentReview],
-  );
 
   const getReviewUser = (review: ILandingPageReview): { name: string; role: string } => {
     if (review.patient) {
@@ -84,6 +80,11 @@ const SolutionsOffered = (): JSX.Element => {
     }
     return { name: 'Anonymous', role: 'User' };
   };
+
+  const currentUser = useMemo(
+    () => (currentReview ? getReviewUser(currentReview) : { name: 'Anonymous', role: 'User' }),
+    [currentReview],
+  );
 
   const getInitials = (name: string): string => {
     if (!name) {
