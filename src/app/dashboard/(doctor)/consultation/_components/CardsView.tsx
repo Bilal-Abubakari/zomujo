@@ -6,13 +6,12 @@ import { HistoryNotesCard } from './HistoryNotesCard';
 import { MedicationsTakenCard } from './MedicationsTakenCard';
 import { LabTestsCard } from './LabTestsCard';
 import { RadiologyTestsCard } from './RadiologyTestsCard';
-import { DiagnosisCard } from './DiagnosisCard';
 import { PrescriptionsCard } from './PrescriptionsCard';
 import { ReferralsCard } from './ReferralsCard';
 import { IAppointment } from '@/types/appointment.interface';
 import { ILaboratoryRequest } from '@/types/labs.interface';
 import { IRadiology } from '@/types/radiology.interface';
-import { IDiagnosis, IPrescription } from '@/types/medical.interface';
+import { IPrescription } from '@/types/medical.interface';
 import { IPatientSymptomMap, IReferral } from '@/types/consultation.interface';
 
 interface CardsViewProps {
@@ -23,11 +22,9 @@ interface CardsViewProps {
   requestedLabs: ILaboratoryRequest[] | undefined;
   conductedLabs: ILaboratoryRequest[] | undefined;
   radiology: IRadiology | undefined;
-  diagnoses: IDiagnosis[];
   prescriptions: IPrescription[];
   referrals: IReferral[];
   onRemoveReferral?: (index: number) => void;
-  doctorName: string;
   labInstructions?: string;
   labClinicalHistory?: string;
 }
@@ -40,11 +37,9 @@ export const CardsView = ({
   requestedLabs,
   conductedLabs,
   radiology,
-  diagnoses,
   prescriptions,
   referrals,
   onRemoveReferral,
-  doctorName,
   labInstructions,
   labClinicalHistory,
 }: CardsViewProps): JSX.Element => (
@@ -62,7 +57,8 @@ export const CardsView = ({
         )}
         <MedicationsTakenCard medicinesTaken={appointment?.symptoms?.medicinesTaken} />
         <PrescriptionsCard prescriptions={prescriptions} />
-        <DiagnosisCard diagnoses={diagnoses} doctorName={doctorName} />
+        {/* DiagnosisCard hidden - Impression is now part of Assessment in History Notes */}
+        {/* <DiagnosisCard diagnoses={diagnoses} doctorName={doctorName} /> */}
         <ReferralsCard referrals={referrals} onRemove={onRemoveReferral} />
       </div>
 

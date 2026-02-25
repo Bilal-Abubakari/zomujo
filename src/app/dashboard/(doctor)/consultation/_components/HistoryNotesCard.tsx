@@ -47,19 +47,27 @@ const HistoryNotesCard = ({ historyNotes }: HistoryNotesCardProps): JSX.Element 
 
   return (
     <div className="space-y-4">
-      {sections.map(([key, value]) => (
-        <Card key={key}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="h-4 w-4" />
-              {key.replaceAll(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm whitespace-pre-wrap text-gray-700">{value}</p>
-          </CardContent>
-        </Card>
-      ))}
+      {sections.map(([key, value]) => {
+        // Special handling for assessment field to show "Assessment / Impression"
+        const displayLabel =
+          key === 'assessment'
+            ? 'Assessment / Impression'
+            : key.replaceAll(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+
+        return (
+          <Card key={key}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <FileText className="h-4 w-4" />
+                {displayLabel}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm whitespace-pre-wrap text-gray-700">{value}</p>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 };

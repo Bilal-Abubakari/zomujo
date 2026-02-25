@@ -82,9 +82,9 @@ export const SECTIONS: SectionConfig[] = [
   },
   {
     key: 'assessment',
-    label: 'Assessment',
+    label: 'Assessment / Impression',
     icon: ClipboardCheck,
-    placeholder: 'Enter your clinical assessment...',
+    placeholder: 'Enter your clinical assessment and impression...',
   },
   {
     key: 'plan',
