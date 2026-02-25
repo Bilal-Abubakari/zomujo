@@ -1,6 +1,6 @@
 {
   "Chemical Pathology": {
-    "Anaemia Studies": ["Ferritin", "Iron", "TIBC", "Transferrin Saturation"],
+    "Iron Studies": ["Ferritin", "Iron", "TIBC", "Transferrin Saturation"],
     "Blood Glucose": ["FBS", "2HR OGTT", "RBS", "HbA1C"],
     "Cardiac": ["CK-MB", "Troponin I", "Troponin T", "AST (SGOT)"],
     "Renal": ["Urea", "Creatinine", "Sodium", "Potassium", "Calcium", "Phosphate", "Magnesium"],
