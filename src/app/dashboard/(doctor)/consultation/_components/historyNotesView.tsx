@@ -125,7 +125,7 @@ const HistoryNotesView = ({
           isLoading={isLoading}
           disabled={!isValid || isLoading}
           onClick={handleSaveAndContinue}
-          child="Save & Continue to Labs"
+          child="Continue to Investigation"
         />
       </div>
     </div>

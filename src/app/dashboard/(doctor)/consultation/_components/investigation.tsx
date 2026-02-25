@@ -14,7 +14,13 @@ import { Button } from '@/components/ui/button';
 import Signature from '@/components/signature/signature';
 import { selectHasInvestigation } from '@/lib/features/appointments/consultation/consultationSelector';
 
-const Investigation = ({ goToNext }: { goToNext: () => void }): JSX.Element => {
+const Investigation = ({
+  goToNext,
+  goToPrevious,
+}: {
+  goToNext: () => void;
+  goToPrevious: () => void;
+}): JSX.Element => {
   const [activeTab, setActiveTab] = useState<'labs' | 'radiology'>('labs');
   const [openAddSignature, setOpenAddSignature] = useState(false);
   const [addSignature, setAddSignature] = useState(false);
@@ -165,8 +171,9 @@ const Investigation = ({ goToNext }: { goToNext: () => void }): JSX.Element => {
             />
           </div>
         )}
-        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
-          <Button onClick={handleSubmitAndGoToExamination} child={'Continue to Diagnosis'} />
+        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white p-4 shadow-md">
+          <Button onClick={goToPrevious} variant="outline" child="Back to History" />
+          <Button onClick={handleSubmitAndGoToExamination} child="Continue to Prescription" />
         </div>
       </div>
     </>

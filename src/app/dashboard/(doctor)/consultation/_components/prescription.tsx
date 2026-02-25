@@ -49,6 +49,7 @@ type PrescriptionFormValues = z.infer<typeof prescriptionSchema>;
 
 interface PrescriptionProps {
   goToNext: () => void;
+  goToPrevious: () => void;
   updatePrescription: boolean;
   setUpdatePrescription: (value: boolean) => void;
 }
@@ -63,6 +64,7 @@ const defaultMedicine: IPrescription = {
 
 const Prescription = ({
   goToNext,
+  goToPrevious,
   updatePrescription,
   setUpdatePrescription,
 }: PrescriptionProps): JSX.Element => {
@@ -374,8 +376,9 @@ const Prescription = ({
         showClose={true}
       />
 
-      <div className="fixed bottom-0 left-0 flex w-full justify-end gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
-        <Button onClick={handleNextWithWarning} child="Next: Diagnosis" />
+      <div className="fixed bottom-0 left-0 flex w-full justify-between gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
+        <Button onClick={goToPrevious} variant="outline" child="Back to Investigation" />
+        <Button onClick={handleNextWithWarning} child="Continue to Review" />
       </div>
     </div>
   );

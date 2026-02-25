@@ -15,7 +15,6 @@ import {
   consultationStatus,
   hasConsultationEnded,
   isConsultationInProgress,
-  selectDiagnoses,
   selectIsLoading,
   selectRequestedLabs,
   selectSymptoms,
@@ -45,10 +44,6 @@ const Prescription = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/prescription'),
   { loading: () => <StageFallback />, ssr: false },
 );
-const Diagnosis = dynamic(
-  () => import('@/app/dashboard/(doctor)/consultation/_components/diagnosis'),
-  { loading: () => <StageFallback />, ssr: false },
-);
 const ReviewConsultation = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation'),
   { loading: () => <StageFallback />, ssr: false },
@@ -58,7 +53,7 @@ const ConsultationHistory = dynamic(
   { loading: () => <StageFallback />, ssr: false },
 );
 
-const stages = ['history', 'investigation', 'prescription', 'impression', 'review'] as const;
+const stages = ['history', 'investigation', 'prescription', 'review'] as const;
 
 type StageType = (typeof stages)[number];
 
@@ -110,7 +105,6 @@ const Consultation = (): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
   const historyNotes = useAppSelector(selectHistoryNotes);
   const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
-  const savedDiagnoses = useAppSelector(selectDiagnoses);
   const isConsultationAuthenticated = useAppSelector(selectIsConsultationAuthenticated);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showEndConsultationAuthDialog, setShowEndConsultationAuthDialog] = useState(false);
@@ -126,17 +120,12 @@ const Consultation = (): JSX.Element => {
         return symptomsPassed;
       }
 
-      if (stage === 'impression') {
-        // Can go to diagnosis if prescriptions passed? Or just linear?
-        // Let's assume linear progression for simplicity or check previous steps
-        return symptomsPassed;
-      }
       if (stage === 'review') {
-        return savedDiagnoses.length > 0;
+        return symptomsPassed;
       }
       return false;
     },
-    [symptoms, requestedAppointmentLabs, savedDiagnoses],
+    [symptoms, historyNotes, requestedAppointmentLabs],
   );
 
   const handleAuthenticateConsultation = async (code: string): Promise<void> => {
@@ -192,25 +181,23 @@ const Consultation = (): JSX.Element => {
   const getStage = (): JSX.Element => {
     switch (currentStage) {
       case 'investigation':
-        return <Investigation goToNext={() => setCurrentStage('prescription')} />;
+        return (
+          <Investigation
+            goToNext={() => setCurrentStage('prescription')}
+            goToPrevious={() => setCurrentStage('history')}
+          />
+        );
       case 'prescription':
         return (
           <Prescription
             updatePrescription={update}
             setUpdatePrescription={setUpdate}
-            goToNext={() => setCurrentStage('impression')}
-          />
-        );
-      case 'impression':
-        return (
-          <Diagnosis
-            updateDiagnosis={update}
-            setUpdateDiagnosis={setUpdate}
             goToNext={() => setCurrentStage('review')}
+            goToPrevious={() => setCurrentStage('investigation')}
           />
         );
       case 'review':
-        return <ReviewConsultation />;
+        return <ReviewConsultation goToPrevious={() => setCurrentStage('prescription')} />;
       case 'history':
       default:
         return (
