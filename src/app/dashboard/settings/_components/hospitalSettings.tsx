@@ -19,10 +19,7 @@ import React, { JSX, useState, useRef, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { MultiSelect } from '@/components/ui/multiSelect';
-import {
-  updateHospitalDetails,
-  getHospitalBySlug,
-} from '@/lib/features/hospitals/hospitalThunk';
+import { updateHospitalDetails, getHospitalBySlug } from '@/lib/features/hospitals/hospitalThunk';
 import { selectExtra, selectUserRole } from '@/lib/features/auth/authSelector';
 import { cn } from '@/lib/utils';
 import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
@@ -80,7 +77,8 @@ const optionalGpsSchema = z.union([
     (val) => {
       if (!val || val === '') return true;
       const ghanaPostPattern = /^[A-Z]{2}-\d{3}-\d{4,5}$/i;
-      const urlPattern = /^https?:\/\/(www\.)?(google\.com\/maps|maps\.google\.com|openstreetmap\.org|waze\.com|maps\.apple\.com)/i;
+      const urlPattern =
+        /^https?:\/\/(www\.)?(google\.com\/maps|maps\.google\.com|openstreetmap\.org|waze\.com|maps\.apple\.com)/i;
       return ghanaPostPattern.test(val) || urlPattern.test(val);
     },
     { message: 'Must be a valid Ghana Post GPS code (e.g., GA-123-4567) or Maps link' },
@@ -94,14 +92,14 @@ const optionalString = z.string().optional().nullable();
 const optionalPositiveInt = z.union([
   z.literal(''),
   z.literal(null),
-  z.coerce
-    .number()
-    .int('Must be a whole number')
-    .positive('Must be greater than zero'),
+  z.coerce.number().int('Must be a whole number').positive('Must be greater than zero'),
 ]);
 
 const hospitalSettingsSchema = z.object({
-  image: z.union([z.instanceof(File), z.string(), z.null()]).optional().nullable(),
+  image: z
+    .union([z.instanceof(File), z.string(), z.null()])
+    .optional()
+    .nullable(),
   images: z
     .array(z.union([z.instanceof(File), z.string()]))
     .max(MAX_GALLERY_IMAGES, { message: `Gallery can have at most ${MAX_GALLERY_IMAGES} images` })
@@ -121,7 +119,11 @@ const hospitalSettingsSchema = z.object({
   mainPhone: optionalPhoneSchema,
   mainEmail: optionalEmailSchema,
   website: optionalUrlSchema,
-  languages: z.array(z.string()).optional().nullable().transform((val) => val ?? []),
+  languages: z
+    .array(z.string())
+    .optional()
+    .nullable()
+    .transform((val) => val ?? []),
   bedCount: optionalPositiveInt,
   telemedicine: z.boolean().optional().nullable(),
   hasEmergency: z.boolean().optional().nullable(),
@@ -143,8 +145,13 @@ type HospitalFormValues = z.infer<typeof hospitalSettingsSchema>;
  */
 function createDirtyOnlyResolver(
   schema: z.ZodObject<z.ZodRawShape>,
-  dirtyFieldsRef: React.MutableRefObject<Partial<Record<keyof HospitalFormValues, boolean | object>>>,
-): (values: HospitalFormValues) => { values: HospitalFormValues; errors: FieldErrors<HospitalFormValues> } {
+  dirtyFieldsRef: React.MutableRefObject<
+    Partial<Record<keyof HospitalFormValues, boolean | object>>
+  >,
+): (values: HospitalFormValues) => {
+  values: HospitalFormValues;
+  errors: FieldErrors<HospitalFormValues>;
+} {
   return (values: HospitalFormValues) => {
     const dirty = dirtyFieldsRef.current;
     const dirtyKeys = (Object.keys(dirty) as (keyof HospitalFormValues)[]).filter(
@@ -185,13 +192,14 @@ function getOrgFromExtra(extra: unknown, role: Role | undefined): OrgSource {
 
 /** Map API hospital detail to the org shape expected by getInitialFormValues */
 function hospitalDetailToOrgSource(hospital: IHospitalDetail): OrgSource {
-  const accreditations = hospital.accreditations as { specialties?: string[]; regularFee?: number } | undefined;
+  const accreditations = hospital.accreditations as
+    | { specialties?: string[]; regularFee?: number }
+    | undefined;
   const geom = (hospital.primaryAddress as { geom?: { gpsLink?: string } } | undefined)?.geom;
   return {
     ...hospital,
     specialties: accreditations?.specialties ?? [],
-    supportedInsurance:
-      hospital.insuranceNetworks?.map((n) => n.insuranceCompany.name) ?? [],
+    supportedInsurance: hospital.insuranceNetworks?.map((n) => n.insuranceCompany.name) ?? [],
     regularFee: accreditations?.regularFee ?? 100,
     gpsLink: geom?.gpsLink ?? '',
     image: hospital.images?.find((img) => img.type === 'logo')?.url ?? null,
@@ -203,7 +211,7 @@ function getInitialFormValues(org: OrgSource): HospitalFormValues {
   const rawImages = org && 'images' in org && Array.isArray(org.images) ? org.images : [];
   const orgImages = rawImages as IHospitalImage[];
   const logoImage = orgImages.find((img) => img.type === 'logo');
-  
+
   // Filter gallery images and sort by displayOrder if available
   const photoImages = orgImages.filter((img) => img.type !== 'logo');
   const sortedPhotos = photoImages.toSorted((a, b) => {
@@ -380,25 +388,25 @@ function DraggableImageCard({
     <div
       ref={ref}
       className={cn(
-        'relative group cursor-grab active:cursor-grabbing transition-opacity',
+        'group relative cursor-grab transition-opacity active:cursor-grabbing',
         isDragging && 'opacity-50',
-        isOver && 'ring-2 ring-primary ring-offset-2 rounded-lg',
+        isOver && 'ring-primary rounded-lg ring-2 ring-offset-2',
       )}
     >
       <div className="relative aspect-square overflow-hidden rounded-lg border-2 border-gray-200">
-        <div className="absolute left-1 top-1/2 z-10 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-          <GripVertical className="h-5 w-5 text-gray-600 bg-white/90 rounded p-0.5" />
+        <div className="absolute top-1/2 left-1 z-10 -translate-y-1/2 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing">
+          <GripVertical className="h-5 w-5 rounded bg-white/90 p-0.5 text-gray-600" />
         </div>
         <Image
           src={imageUrl}
           alt={`Hospital image ${index + 1}`}
           fill
-          className="object-cover pointer-events-none"
+          className="pointer-events-none object-cover"
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
           draggable={false}
         />
         {isPrimaryDisplay && (
-          <div className="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">
+          <div className="bg-primary absolute top-1 left-1 rounded px-2 py-1 text-xs text-white">
             PRIMARY ⭐
           </div>
         )}
@@ -408,7 +416,7 @@ function DraggableImageCard({
             e.stopPropagation();
             onRemove();
           }}
-          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-1 right-1 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
         >
           <Trash2 size={14} />
         </button>
@@ -440,7 +448,9 @@ const HospitalSettings = (): JSX.Element => {
   const initialValues = getInitialFormValues(initialOrg);
 
   const dispatch = useAppDispatch();
-  const dirtyFieldsRef = React.useRef<Partial<Record<keyof HospitalFormValues, boolean | object>>>({});
+  const dirtyFieldsRef = React.useRef<Partial<Record<keyof HospitalFormValues, boolean | object>>>(
+    {},
+  );
   const {
     register,
     handleSubmit,
@@ -558,12 +568,19 @@ const HospitalSettings = (): JSX.Element => {
 
   const reorderImages = (fromIndex: number, toIndex: number): void => {
     const currentImages = watch('images') ?? [];
-    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= currentImages.length || toIndex >= currentImages.length) return;
+    if (
+      fromIndex === toIndex ||
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= currentImages.length ||
+      toIndex >= currentImages.length
+    )
+      return;
     const reordered = [...currentImages];
     const [removed] = reordered.splice(fromIndex, 1);
     reordered.splice(toIndex, 0, removed);
     setValue('images', reordered, SET_VALUE_OPTS);
-    
+
     // Track the order of existing image URLs (not new File uploads)
     const imageUrls = reordered.filter((img): img is string => typeof img === 'string');
     if (imageUrls.length > 0) {
@@ -652,12 +669,14 @@ const HospitalSettings = (): JSX.Element => {
         <hr className="my-7 gap-4" />
         <div>
           <p className="font-medium">Hospital Logo</p>
-          <span className="text-sm text-gray-500">One logo only (separate from the gallery). Click to upload or replace.</span>
+          <span className="text-sm text-gray-500">
+            One logo only (separate from the gallery). Click to upload or replace.
+          </span>
         </div>
         <div className="mt-4">
           <label
             htmlFor="hospital-logo-upload"
-            className="group relative flex h-28 w-28 cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-primary hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="group hover:border-primary focus-visible:ring-primary relative flex h-28 w-28 cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             aria-label="Upload or replace hospital logo"
           >
             <input
@@ -679,7 +698,9 @@ const HospitalSettings = (): JSX.Element => {
                   draggable={false}
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/0 text-sm font-medium text-white transition-colors group-hover:bg-black/40">
-                  <span className="opacity-0 transition-opacity group-hover:opacity-100">Replace</span>
+                  <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                    Replace
+                  </span>
                 </div>
                 <button
                   type="button"
@@ -688,7 +709,7 @@ const HospitalSettings = (): JSX.Element => {
                     e.stopPropagation();
                     clearLogo();
                   }}
-                  className="absolute top-1 right-1 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="focus:ring-primary absolute top-1 right-1 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100 focus:ring-2 focus:outline-none"
                   aria-label="Remove logo"
                 >
                   <Trash2 size={12} />
@@ -703,7 +724,8 @@ const HospitalSettings = (): JSX.Element => {
         <div className="mt-8">
           <p className="font-medium">Hospital Image Gallery</p>
           <span className="text-sm text-gray-500">
-            Upload up to {MAX_GALLERY_IMAGES} images for the hospital gallery. The first image is the primary display image. Drag to reorder.
+            Upload up to {MAX_GALLERY_IMAGES} images for the hospital gallery. The first image is
+            the primary display image. Drag to reorder.
           </span>
           {hospitalImages.length >= MAX_GALLERY_IMAGES && (
             <p className="mt-1 text-sm text-amber-600">
@@ -737,7 +759,7 @@ const HospitalSettings = (): JSX.Element => {
                   <button
                     type="button"
                     onClick={() => imagesInputRef.current?.click()}
-                    className="flex h-full w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 hover:border-primary transition-colors"
+                    className="hover:border-primary flex h-full w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-colors"
                   >
                     <span className="text-sm text-gray-500">
                       Add Image ({hospitalImages.length}/{MAX_GALLERY_IMAGES})
@@ -840,7 +862,13 @@ const HospitalSettings = (): JSX.Element => {
               error={errors.street?.message ?? ''}
               {...register('street')}
             />
-            <Input labelName="City" className="bg-transparent" placeholder="Enter city" error={errors.city?.message ?? ''} {...register('city')} />
+            <Input
+              labelName="City"
+              className="bg-transparent"
+              placeholder="Enter city"
+              error={errors.city?.message ?? ''}
+              {...register('city')}
+            />
             <Input
               labelName="State/Region"
               className="bg-transparent"
@@ -974,11 +1002,16 @@ const HospitalSettings = (): JSX.Element => {
         </div>
 
         <div ref={saveButtonRef}>
-          <Button child="Save Changes" className="me:mb-0 my-[15px] mb-24 ml-auto flex" isLoading={isLoading} disabled={!canSave} />
+          <Button
+            child="Save Changes"
+            className="me:mb-0 my-[15px] mb-24 ml-auto flex"
+            isLoading={isLoading}
+            disabled={!canSave}
+          />
         </div>
       </form>
       {showFloatingSave && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="animate-in fade-in slide-in-from-bottom-4 fixed right-6 bottom-6 z-50 duration-200">
           <Button
             type="submit"
             form="hospital-settings-form"

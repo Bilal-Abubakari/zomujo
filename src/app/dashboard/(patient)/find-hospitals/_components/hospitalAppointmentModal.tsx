@@ -177,7 +177,11 @@ const HospitalAppointmentModal = ({
                 />
               </PopoverContent>
             </Popover>
-            {errors.date && <small className="mt-1 block text-xs font-medium text-red-500">{errors.date.message}</small>}
+            {errors.date && (
+              <small className="mt-1 block text-xs font-medium text-red-500">
+                {errors.date.message}
+              </small>
+            )}
           </div>
 
           <Textarea
@@ -210,4 +214,3 @@ const HospitalAppointmentModal = ({
 };
 
 export default HospitalAppointmentModal;
-

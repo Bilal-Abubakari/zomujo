@@ -293,7 +293,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
               <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup>
-                    <CommandItem key="all" onSelect={toggleAll} className="cursor-pointer">
+                  <CommandItem key="all" onSelect={toggleAll} className="cursor-pointer">
                     <div
                       className={cn(
                         'border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border',

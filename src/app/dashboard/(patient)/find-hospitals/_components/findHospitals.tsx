@@ -16,4 +16,3 @@ const FindHospitals = (): JSX.Element => (
 );
 
 export default FindHospitals;
-

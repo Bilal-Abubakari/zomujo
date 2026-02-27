@@ -6,7 +6,10 @@ import { IAppointmentTrends, IAppointmentStats } from '@/types/analytics.interfa
 
 export const getHospitalAppointmentTrends = createAsyncThunk(
   'analytics/getHospitalAppointmentTrends',
-  async (params?: { startDate?: string; endDate?: string }): Promise<Toast | IAppointmentTrends> => {
+  async (params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<Toast | IAppointmentTrends> => {
     try {
       const queryParams = new URLSearchParams();
       if (params?.startDate) {

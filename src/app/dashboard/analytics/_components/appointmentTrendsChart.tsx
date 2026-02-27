@@ -39,19 +39,17 @@ const AppointmentChartTooltip = ({
   const first = items[0];
   const displayValue = formatTooltipValue(first?.value);
   const fullDate = first?.payload?.fullDate;
-    return (
-      <div className="rounded-lg border bg-background p-2 shadow-sm">
-        <div className="grid gap-2">
-          <div className="flex flex-col">
-            <span className="text-[0.70rem] uppercase text-muted-foreground">Appointments</span>
-            <span className="font-bold text-muted-foreground">{displayValue}</span>
-            {fullDate && (
-              <span className="text-[0.70rem] text-muted-foreground">{fullDate}</span>
-            )}
-          </div>
+  return (
+    <div className="bg-background rounded-lg border p-2 shadow-sm">
+      <div className="grid gap-2">
+        <div className="flex flex-col">
+          <span className="text-muted-foreground text-[0.70rem] uppercase">Appointments</span>
+          <span className="text-muted-foreground font-bold">{displayValue}</span>
+          {fullDate && <span className="text-muted-foreground text-[0.70rem]">{fullDate}</span>}
         </div>
       </div>
-    );
+    </div>
+  );
 };
 
 const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps): JSX.Element => {
@@ -65,7 +63,9 @@ const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps
   if (isLoading || !chartData.length) {
     return (
       <Card className="rounded-2xl">
-        <CardTitle className="p-8 text-grayscale-500 text-base font-medium">Appointment Trends</CardTitle>
+        <CardTitle className="text-grayscale-500 p-8 text-base font-medium">
+          Appointment Trends
+        </CardTitle>
         <CardContent className="flex h-[300px] items-center justify-center">
           <p className="text-grayscale-500">Loading chart data...</p>
         </CardContent>
@@ -75,7 +75,9 @@ const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps
 
   return (
     <Card className="rounded-2xl">
-      <CardTitle className="p-8 text-grayscale-500 text-base font-medium">Appointment Trends</CardTitle>
+      <CardTitle className="text-grayscale-500 p-8 text-base font-medium">
+        Appointment Trends
+      </CardTitle>
       <CardContent className="max-md:p-1">
         <ChartContainer config={chartConfig}>
           <AreaChart accessibilityLayer data={chartData}>
@@ -94,10 +96,7 @@ const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps
               tickMargin={8}
               tickFormatter={String}
             />
-            <ChartTooltip
-              cursor={false}
-              content={AppointmentChartTooltip}
-            />
+            <ChartTooltip cursor={false} content={AppointmentChartTooltip} />
             <Area
               dataKey="value"
               type="linear"

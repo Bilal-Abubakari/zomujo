@@ -96,15 +96,16 @@ const AppointmentRequests = (): JSX.Element => {
       object
     >,
     {
-    orderBy: 'createdAt',
-    orderDirection: OrderDirection.Descending,
-    doctorId: user?.role === Role.Doctor ? user?.id : undefined,
-    patientId: user?.role === Role.Patient ? user?.id : undefined,
-    orgId: user?.role === Role.Admin ? orgId : undefined,
-    page: 1,
-    search: '',
-    status: '',
-  });
+      orderBy: 'createdAt',
+      orderDirection: OrderDirection.Descending,
+      doctorId: user?.role === Role.Doctor ? user?.id : undefined,
+      patientId: user?.role === Role.Patient ? user?.id : undefined,
+      orgId: user?.role === Role.Admin ? orgId : undefined,
+      page: 1,
+      search: '',
+      status: '',
+    },
+  );
 
   on(NotificationEvent.NewRequest, () => {
     void refetch();
@@ -140,9 +141,17 @@ const AppointmentRequests = (): JSX.Element => {
         const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
         return (
           <AvatarWithName
-            imageSrc={(isDoctor || isAdmin || isHospital ? patient?.profilePicture : doctor?.profilePicture) ?? ''}
-            firstName={(isDoctor || isAdmin || isHospital ? patient?.firstName : doctor?.firstName) ?? ''}
-            lastName={(isDoctor || isAdmin || isHospital ? patient?.lastName : doctor?.lastName) ?? ''}
+            imageSrc={
+              (isDoctor || isAdmin || isHospital
+                ? patient?.profilePicture
+                : doctor?.profilePicture) ?? ''
+            }
+            firstName={
+              (isDoctor || isAdmin || isHospital ? patient?.firstName : doctor?.firstName) ?? ''
+            }
+            lastName={
+              (isDoctor || isAdmin || isHospital ? patient?.lastName : doctor?.lastName) ?? ''
+            }
           />
         );
       },
@@ -268,9 +277,7 @@ const AppointmentRequests = (): JSX.Element => {
       // Handle appointments without slots (hospital appointments)
       const dateA = a.slot?.date ? moment(a.slot.date).valueOf() : moment(a.createdAt).valueOf();
       const dateB = b.slot?.date ? moment(b.slot.date).valueOf() : moment(b.createdAt).valueOf();
-      return dateSortDirection === OrderDirection.Ascending
-        ? dateA - dateB
-        : dateB - dateA;
+      return dateSortDirection === OrderDirection.Ascending ? dateA - dateB : dateB - dateA;
     });
     return sorted;
   }, [tableData, dateSortDirection]);
@@ -432,7 +439,11 @@ type AvailableDoctorsProps = {
   appointment: SelectedAppointment;
   isHospital?: boolean;
 };
-const AvailableDoctors = ({ closeModal, appointment, isHospital = false }: AvailableDoctorsProps): JSX.Element => {
+const AvailableDoctors = ({
+  closeModal,
+  appointment,
+  isHospital = false,
+}: AvailableDoctorsProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const { date, appointmentId } = appointment;
   const [doctorId, setDoctorId] = useState('');

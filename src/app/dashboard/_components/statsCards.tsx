@@ -11,7 +11,12 @@ export type StatsCardsProps = {
   onClick?: () => void;
 };
 
-const StatsCards = ({ statsData, numberOfCards = 3, isLoading, onClick }: StatsCardsProps): JSX.Element =>
+const StatsCards = ({
+  statsData,
+  numberOfCards = 3,
+  isLoading,
+  onClick,
+}: StatsCardsProps): JSX.Element =>
   isLoading ? (
     <>
       {Array.from({ length: numberOfCards }).map((_, index) => (
@@ -25,7 +30,7 @@ const StatsCards = ({ statsData, numberOfCards = 3, isLoading, onClick }: StatsC
           key={title}
           className={cn(
             'w-[380px] grow rounded-2xl transition-all duration-200',
-            onClick && 'cursor-pointer hover:shadow-lg hover:scale-[1.02]',
+            onClick && 'cursor-pointer hover:scale-[1.02] hover:shadow-lg',
           )}
           onClick={onClick}
         >

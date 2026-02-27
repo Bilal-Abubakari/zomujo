@@ -11,7 +11,17 @@ import { showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { IHospital } from '@/types/hospital.interface';
 import { useRouter } from 'next/navigation';
-import { Phone, Mail, Globe, MapPin, Building2, BedDouble, Languages, Stethoscope, Building } from 'lucide-react';
+import {
+  Phone,
+  Mail,
+  Globe,
+  MapPin,
+  Building2,
+  BedDouble,
+  Languages,
+  Stethoscope,
+  Building,
+} from 'lucide-react';
 import { getHospitalAppointmentStats } from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
 import { getHospitalAppointmentTrends } from '@/lib/features/analytics/analyticsThunk';
 import moment from 'moment';
@@ -23,14 +33,22 @@ function computeTrendAndPercentage(
   lastTrendsPayload: unknown,
   showErrorToast: (p: unknown) => boolean,
 ): { percentage: string; trend: 'up' | 'down' } {
-  if (currentTrendsPayload && !showErrorToast(currentTrendsPayload) && lastTrendsPayload && !showErrorToast(lastTrendsPayload)) {
+  if (
+    currentTrendsPayload &&
+    !showErrorToast(currentTrendsPayload) &&
+    lastTrendsPayload &&
+    !showErrorToast(lastTrendsPayload)
+  ) {
     const currentTrends = currentTrendsPayload as TrendsPayload;
     const lastTrends = lastTrendsPayload as TrendsPayload;
     const currentTotal = currentTrends.thisMonth || currentTrends.total;
     const lastTotal = lastTrends.thisMonth || lastTrends.total;
     if (lastTotal > 0) {
       const percentageChange = ((currentTotal - lastTotal) / lastTotal) * 100;
-      return { percentage: Math.abs(percentageChange).toFixed(1), trend: percentageChange >= 0 ? 'up' : 'down' };
+      return {
+        percentage: Math.abs(percentageChange).toFixed(1),
+        trend: percentageChange >= 0 ? 'up' : 'down',
+      };
     }
     if (currentTotal > 0) {
       return { percentage: '100', trend: 'up' };
@@ -72,7 +90,12 @@ const HospitalHome = (): JSX.Element => {
           return;
         }
 
-        const currentStats = statsPayload as { total: number; accepted: number; pending: number; cancelled: number };
+        const currentStats = statsPayload as {
+          total: number;
+          accepted: number;
+          pending: number;
+          cancelled: number;
+        };
 
         // Fetch trends for percentage calculation
         const now = moment();
@@ -171,7 +194,7 @@ const HospitalHome = (): JSX.Element => {
                 )}
               </div>
               {displayHospital?.organizationType && (
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary capitalize">
+                <span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-medium capitalize">
                   {displayHospital.organizationType}
                 </span>
               )}
@@ -190,7 +213,7 @@ const HospitalHome = (): JSX.Element => {
                       <Phone size={18} className="text-gray-400" />
                       <a
                         href={`tel:${displayHospital.mainPhone}`}
-                        className="text-gray-600 hover:text-primary transition-colors"
+                        className="hover:text-primary text-gray-600 transition-colors"
                       >
                         {displayHospital.mainPhone}
                       </a>
@@ -201,7 +224,7 @@ const HospitalHome = (): JSX.Element => {
                       <Mail size={18} className="text-gray-400" />
                       <a
                         href={`mailto:${displayHospital.mainEmail}`}
-                        className="text-gray-600 hover:text-primary transition-colors"
+                        className="hover:text-primary text-gray-600 transition-colors"
                       >
                         {displayHospital.mainEmail}
                       </a>
@@ -214,7 +237,7 @@ const HospitalHome = (): JSX.Element => {
                         href={displayHospital.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-600 hover:text-primary transition-colors"
+                        className="hover:text-primary text-gray-600 transition-colors"
                       >
                         {displayHospital.website}
                       </a>
@@ -224,7 +247,9 @@ const HospitalHome = (): JSX.Element => {
                     <div className="flex items-start gap-3">
                       <MapPin size={18} className="mt-0.5 text-gray-400" />
                       <div className="text-gray-600">
-                        {addressParts.length > 0 ? addressParts.join(', ') : displayHospital?.location}
+                        {addressParts.length > 0
+                          ? addressParts.join(', ')
+                          : displayHospital?.location}
                       </div>
                     </div>
                   )}
@@ -323,4 +348,3 @@ const HospitalHome = (): JSX.Element => {
 };
 
 export default HospitalHome;
-

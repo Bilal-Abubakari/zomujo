@@ -108,10 +108,8 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
   };
 
   const getAvailabilityBadgeClass = (availability: string): string => {
-    if (availability === 'available')
-      return 'bg-green-100 text-green-700 border border-green-200';
-    if (availability === 'limited')
-      return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+    if (availability === 'available') return 'bg-green-100 text-green-700 border border-green-200';
+    if (availability === 'limited') return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
     return 'bg-gray-100 text-gray-700 border border-gray-200';
   };
 
@@ -180,21 +178,14 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           <div className="flex flex-col gap-6 md:flex-row md:items-start">
             {logoImage && (
               <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-2xl border-4 border-white">
-                <Image
-                  src={logoImage.url}
-                  alt={name}
-                  fill
-                  className="object-cover"
-                />
+                <Image src={logoImage.url} alt={name} fill className="object-cover" />
               </div>
             )}
             <div className="flex flex-1 flex-col gap-4">
               <div>
                 <h1 className="mb-3 text-4xl font-bold text-gray-900">{name}</h1>
                 {description && (
-                  <p className="text-lg leading-relaxed text-gray-700 max-w-3xl">
-                    {description}
-                  </p>
+                  <p className="max-w-3xl text-lg leading-relaxed text-gray-700">{description}</p>
                 )}
               </div>
               <div className="flex flex-wrap gap-3">
@@ -202,19 +193,19 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                   {organizationType}
                 </span>
                 {hasEmergency && (
-                  <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm border border-red-200">
+                  <span className="flex items-center gap-1 rounded-full border border-red-200 bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm">
                     <Clock size={14} />
                     24/7
                   </span>
                 )}
                 {telemedicine && (
-                  <span className="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-700 shadow-sm border border-green-200">
+                  <span className="flex items-center gap-1 rounded-full border border-green-200 bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-700 shadow-sm">
                     <Globe size={14} />
                     Virtual
                   </span>
                 )}
                 {bedCount && (
-                  <span className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm border border-blue-200">
+                  <span className="flex items-center gap-1 rounded-full border border-blue-200 bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm">
                     <Building2 size={14} />
                     {bedCount}
                   </span>
@@ -250,7 +241,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-medium text-gray-500">Email</span>
-                <span className="text-sm font-semibold text-gray-900 truncate">{mainEmail}</span>
+                <span className="truncate text-sm font-semibold text-gray-900">{mainEmail}</span>
               </div>
             </a>
           )}
@@ -286,16 +277,8 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {photoImages.map((img) => (
-              <div
-                key={img.id}
-                className="relative aspect-square overflow-hidden rounded-3xl"
-              >
-                <Image
-                  src={img.url}
-                  alt={name}
-                  fill
-                  className="object-cover"
-                />
+              <div key={img.id} className="relative aspect-square overflow-hidden rounded-3xl">
+                <Image src={img.url} alt={name} fill className="object-cover" />
               </div>
             ))}
           </div>
@@ -311,7 +294,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Locations</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {addresses.map((address) => (
               <div
                 key={address.id}
@@ -329,9 +312,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                   )}
                   <p className="flex items-start gap-2">
                     <span className="w-4"></span>
-                    {[address.city, address.state, address.postalCode]
-                      .filter(Boolean)
-                      .join(', ')}
+                    {[address.city, address.state, address.postalCode].filter(Boolean).join(', ')}
                   </p>
                   {address.country && (
                     <p className="flex items-start gap-2">
@@ -352,9 +333,12 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                       const query = encodeURIComponent(
                         `${name} ${address.street || ''} ${address.city} ${address.state || ''}`,
                       );
-                      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                      window.open(
+                        `https://www.google.com/maps/search/?api=1&query=${query}`,
+                        '_blank',
+                      );
                     }}
-                    className="rounded-xl border-2 border-purple-300 bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-md active:scale-95 flex items-center gap-2 w-fit"
+                    className="flex w-fit items-center gap-2 rounded-xl border-2 border-purple-300 bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-md active:scale-95"
                   >
                     <MapPin size={16} />
                     <span>Open in Maps</span>
@@ -382,7 +366,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                   key={hour.id}
                   className="flex items-center justify-between rounded-lg bg-white px-4 py-3"
                 >
-                  <span className="capitalize font-semibold text-gray-900">{hour.weekday}</span>
+                  <span className="font-semibold text-gray-900 capitalize">{hour.weekday}</span>
                   <span className={`font-medium ${getOpeningHourClass(hour)}`}>
                     {getOpeningHourLabel(hour)}
                   </span>
@@ -424,7 +408,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                   </p>
                 )}
                 {service.notes && (
-                  <p className="mt-3 rounded-lg bg-blue-50 p-2 text-xs text-blue-700 border border-blue-100">
+                  <p className="mt-3 rounded-lg border border-blue-100 bg-blue-50 p-2 text-xs text-blue-700">
                     {service.notes}
                   </p>
                 )}
@@ -449,7 +433,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                 key={amenity.id}
                 className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white px-4 py-3"
               >
-                <CheckCircle2 size={20} className="text-green-600 flex-shrink-0" />
+                <CheckCircle2 size={20} className="flex-shrink-0 text-green-600" />
                 <span className="text-sm font-medium text-gray-700">{amenity.name}</span>
               </div>
             ))}
@@ -470,8 +454,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
             {insuranceNetworks.map((network) => {
               const codeKey = network.insuranceCompany.code?.toLowerCase() || '';
               const nameKey = network.insuranceCompany.name?.toLowerCase() || '';
-              const mappedLogo =
-                insuranceLogoMap[codeKey] || insuranceLogoMap[nameKey];
+              const mappedLogo = insuranceLogoMap[codeKey] || insuranceLogoMap[nameKey];
               const logoSrc = mappedLogo || network.insuranceCompany.logo;
               const isPrivateGroup =
                 nameKey === 'private health insurance' || codeKey === 'private';
@@ -494,9 +477,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                     key={network.id}
                     className="flex flex-col gap-3 rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4"
                   >
-                    <span className="font-semibold text-gray-900">
-                      Private Health Insurance
-                    </span>
+                    <span className="font-semibold text-gray-900">Private Health Insurance</span>
                     <div className="flex flex-wrap gap-3">
                       {privateInsurers.map((insurer) => {
                         const src = insuranceLogoMap[insurer.key];
@@ -523,9 +504,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                       })}
                     </div>
                     {network.planNotes && (
-                      <span className="mt-1 text-xs text-gray-500">
-                        {network.planNotes}
-                      </span>
+                      <span className="mt-1 text-xs text-gray-500">{network.planNotes}</span>
                     )}
                   </div>
                 );
@@ -552,9 +531,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                       {network.insuranceCompany.name}
                     </span>
                     {network.planNotes && (
-                      <span className="mt-1 text-xs text-gray-500">
-                        {network.planNotes}
-                      </span>
+                      <span className="mt-1 text-xs text-gray-500">{network.planNotes}</span>
                     )}
                   </div>
                 </div>
@@ -565,68 +542,72 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
       )}
 
       {/* Accreditations */}
-      {accreditations != null && (() => {
-        const accreditationsList = parseAccreditationsList(accreditations);
-        if (accreditationsList.length === 0) return null;
-        return (
-          <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-teal-600">
-                <Shield size={20} />
+      {accreditations != null &&
+        (() => {
+          const accreditationsList = parseAccreditationsList(accreditations);
+          if (accreditationsList.length === 0) return null;
+          return (
+            <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-teal-600">
+                  <Shield size={20} />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Accreditations</h2>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Accreditations</h2>
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {accreditationsList.map((acc: unknown) => {
-                const accObj = typeof acc === 'object' && acc !== null ? (acc as Record<string, unknown>) : {};
-                const body =
-                  (accObj.body as string) ||
-                  (accObj.name as string) ||
-                  (accObj.title as string) ||
-                  (typeof acc === 'string' ? acc : 'Accreditation');
-                const date = (accObj.date ?? accObj.issuedDate ?? accObj.year) as string | undefined;
-                const bodyKey = typeof body === 'string' ? body.toLowerCase() : '';
-                const logoSrc = accreditationLogoMap[bodyKey];
-                const itemKey = `accreditation-${body}-${String(date ?? '')}`;
-                return (
-                  <div
-                    key={itemKey}
-                    className="rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-teal-50 p-5"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-600 transition-colors group-hover:bg-teal-200 overflow-hidden">
-                        {logoSrc ? (
-                          <Image
-                            src={logoSrc}
-                            alt={body}
-                            width={32}
-                            height={32}
-                            className="object-contain"
-                          />
-                        ) : (
-                          <CheckCircle2 size={20} />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{body}</h3>
-                        {date && (
-                          <p className="mt-1 text-sm text-gray-600">
-                            {new Date(date).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            })}
-                          </p>
-                        )}
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {accreditationsList.map((acc: unknown) => {
+                  const accObj =
+                    typeof acc === 'object' && acc !== null ? (acc as Record<string, unknown>) : {};
+                  const body =
+                    (accObj.body as string) ||
+                    (accObj.name as string) ||
+                    (accObj.title as string) ||
+                    (typeof acc === 'string' ? acc : 'Accreditation');
+                  const date = (accObj.date ?? accObj.issuedDate ?? accObj.year) as
+                    | string
+                    | undefined;
+                  const bodyKey = typeof body === 'string' ? body.toLowerCase() : '';
+                  const logoSrc = accreditationLogoMap[bodyKey];
+                  const itemKey = `accreditation-${body}-${String(date ?? '')}`;
+                  return (
+                    <div
+                      key={itemKey}
+                      className="rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-teal-50 p-5"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-teal-100 text-teal-600 transition-colors group-hover:bg-teal-200">
+                          {logoSrc ? (
+                            <Image
+                              src={logoSrc}
+                              alt={body}
+                              width={32}
+                              height={32}
+                              className="object-contain"
+                            />
+                          ) : (
+                            <CheckCircle2 size={20} />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900">{body}</h3>
+                          {date && (
+                            <p className="mt-1 text-sm text-gray-600">
+                              {new Date(date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              })}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
 
       {/* Review Section */}
       <ReviewSection hospitalName={name} />
@@ -635,4 +616,3 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
 };
 
 export default HospitalDetail;
-

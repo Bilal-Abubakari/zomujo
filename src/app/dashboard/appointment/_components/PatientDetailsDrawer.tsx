@@ -14,7 +14,18 @@ import { AvatarWithName } from '@/components/ui/avatar';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { IAppointment } from '@/types/appointment.interface';
 import { IHospitalAppointment } from '@/types/hospital-appointment.interface';
-import { Mail, Phone, MapPin, Calendar, FileText, Info, Signature, Ban, X, RotateCcw } from 'lucide-react';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  FileText,
+  Info,
+  Signature,
+  Ban,
+  X,
+  RotateCcw,
+} from 'lucide-react';
 import moment from 'moment';
 import { useAppDispatch } from '@/lib/hooks';
 import {
@@ -65,11 +76,9 @@ const PatientDetailsDrawer = ({
 
   const handleApprove = async (): Promise<void> => {
     setIsApproving(true);
-    const approveAction = isHospital
-      ? acceptHospitalAppointment(id)
-      : acceptAppointment(id);
+    const approveAction = isHospital ? acceptHospitalAppointment(id) : acceptAppointment(id);
     const { payload } = await dispatch(approveAction);
-    
+
     if (payload && showErrorToast(payload)) {
       toast(payload as Toast);
     } else {
@@ -84,11 +93,9 @@ const PatientDetailsDrawer = ({
 
   const handleCancel = async (): Promise<void> => {
     setIsCancelling(true);
-    const cancelAction = isHospital
-      ? declineHospitalAppointment(id)
-      : declineAppointment(id);
+    const cancelAction = isHospital ? declineHospitalAppointment(id) : declineAppointment(id);
     const { payload } = await dispatch(cancelAction);
-    
+
     if (payload && showErrorToast(payload)) {
       toast(payload as Toast);
     } else {
@@ -103,11 +110,9 @@ const PatientDetailsDrawer = ({
 
   const handleReopen = async (): Promise<void> => {
     setIsReopening(true);
-    const reopenAction = isHospital
-      ? reopenHospitalAppointment(id)
-      : reopenAppointment(id);
+    const reopenAction = isHospital ? reopenHospitalAppointment(id) : reopenAppointment(id);
     const { payload } = await dispatch(reopenAction);
-    
+
     if (payload && showErrorToast(payload)) {
       toast(payload as Toast);
     } else {
@@ -169,12 +174,12 @@ const PatientDetailsDrawer = ({
             <DrawerClose
               onClick={onClose}
               disabled={isApproving || isCancelling || isReopening}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[disabled]:pointer-events-none"
+              className="ring-offset-background focus:ring-ring absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none data-[disabled]:pointer-events-none"
               aria-label="Close drawer"
             >
               <X className="h-4 w-4" />
             </DrawerClose>
-            <DrawerTitle className="text-xl pr-8">Patient Contact Information</DrawerTitle>
+            <DrawerTitle className="pr-8 text-xl">Patient Contact Information</DrawerTitle>
             <DrawerDescription>View patient details and appointment information</DrawerDescription>
           </DrawerHeader>
 
@@ -202,7 +207,7 @@ const PatientDetailsDrawer = ({
                   {patient.email ? (
                     <a
                       href={`mailto:${patient.email}`}
-                      className="text-sm font-medium text-primary hover:underline"
+                      className="text-primary text-sm font-medium hover:underline"
                     >
                       {patient.email}
                     </a>
@@ -220,7 +225,7 @@ const PatientDetailsDrawer = ({
                   {patient.contact ? (
                     <a
                       href={`tel:${patient.contact}`}
-                      className="text-sm font-medium text-primary hover:underline"
+                      className="text-primary text-sm font-medium hover:underline"
                     >
                       {patient.contact}
                     </a>

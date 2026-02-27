@@ -13,10 +13,10 @@ const SettingsNavigation = (): JSX.Element => {
   const pathname = usePathname();
   const role = useAppSelector(selectUserRole);
   const sidebar = getSidebarByRole(role, SidebarType.Settings);
-  
+
   // Flatten all menu items from all groups
-  const menuItems = sidebar.sidebarGroup.flatMap((group) => 
-    group.menu.filter((item) => !item.only || item.only === role)
+  const menuItems = sidebar.sidebarGroup.flatMap((group) =>
+    group.menu.filter((item) => !item.only || item.only === role),
   );
 
   return (
@@ -24,20 +24,18 @@ const SettingsNavigation = (): JSX.Element => {
       <div className="flex overflow-x-auto">
         <div className="flex min-w-full items-center gap-1 px-4 sm:px-8">
           {menuItems.map(({ title, url, Icon, relatedUrl }) => {
-            const isActive = 
-              pathname === url || 
-              (relatedUrl && pathname.includes(relatedUrl));
-            
+            const isActive = pathname === url || (relatedUrl && pathname.includes(relatedUrl));
+
             return (
               <Link
                 key={title}
                 href={url}
                 className={cn(
-                  'relative flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors',
-                  'hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'relative flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors',
+                  'hover:text-primary focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
                   isActive
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:border-gray-300'
+                    : 'text-muted-foreground border-transparent hover:border-gray-300',
                 )}
               >
                 {Icon && <Icon className="h-4 w-4 shrink-0" />}

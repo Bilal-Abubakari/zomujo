@@ -54,11 +54,7 @@ export const getNearByHospitals = createAsyncThunk(
   },
 );
 
-function appendFormDataEntry(
-  formData: FormData,
-  key: string,
-  value: unknown,
-): void {
+function appendFormDataEntry(formData: FormData, key: string, value: unknown): void {
   if (key === 'images' && Array.isArray(value)) {
     const files = value.filter((v): v is File => v instanceof File);
     for (const file of files) {
@@ -111,7 +107,8 @@ export const updateHospitalDetails = createAsyncThunk(
   async (hospitalProfile: Partial<IHospitalProfile>): Promise<Toast> => {
     try {
       const hasFiles =
-        (Array.isArray(hospitalProfile.images) && hospitalProfile.images.some((v) => v instanceof File)) ||
+        (Array.isArray(hospitalProfile.images) &&
+          hospitalProfile.images.some((v) => v instanceof File)) ||
         hospitalProfile.image instanceof File;
 
       // Always use FormData if we have files OR imageOrder (since imageOrder needs special handling in multipart)
@@ -184,11 +181,15 @@ export const getServices = createAsyncThunk(
   'hospitals/getServices',
   async (): Promise<Array<{ id: string; name: string }> | Toast> => {
     try {
-      const { data } = await axios.get<IResponse<Array<{ id: string; name: string; description?: string; category?: string }>>>('common/services');
+      const { data } =
+        await axios.get<
+          IResponse<Array<{ id: string; name: string; description?: string; category?: string }>>
+        >('common/services');
       return data.data.map((service) => ({ id: service.id, name: service.name }));
     } catch (error) {
       try {
-        const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('services');
+        const { data } =
+          await axios.get<IResponse<Array<{ id: string; name: string }>>>('services');
         return data.data;
       } catch (innerError) {
         return axiosErrorHandler(error ?? innerError, true) as Toast;
@@ -202,11 +203,13 @@ export const getDepartments = createAsyncThunk(
   'hospitals/getDepartments',
   async (): Promise<Array<{ id: string; name: string }> | Toast> => {
     try {
-      const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('common/departments');
+      const { data } =
+        await axios.get<IResponse<Array<{ id: string; name: string }>>>('common/departments');
       return data.data;
     } catch (error) {
       try {
-        const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('departments');
+        const { data } =
+          await axios.get<IResponse<Array<{ id: string; name: string }>>>('departments');
         return data.data;
       } catch (innerError) {
         return axiosErrorHandler(error ?? innerError, true) as Toast;
@@ -220,11 +223,14 @@ export const getInsuranceCompanies = createAsyncThunk(
   'hospitals/getInsuranceCompanies',
   async (): Promise<Array<{ id: string; name: string }> | Toast> => {
     try {
-      const { data } = await axios.get<IResponse<Array<{ id: string; name: string; code?: string; logo?: string }>>>('common/insurance-companies');
+      const { data } = await axios.get<
+        IResponse<Array<{ id: string; name: string; code?: string; logo?: string }>>
+      >('common/insurance-companies');
       return data.data.map((company) => ({ id: company.id, name: company.name }));
     } catch (error) {
       try {
-        const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('insurance-companies');
+        const { data } =
+          await axios.get<IResponse<Array<{ id: string; name: string }>>>('insurance-companies');
         return data.data;
       } catch (innerError) {
         return axiosErrorHandler(error ?? innerError, true) as Toast;

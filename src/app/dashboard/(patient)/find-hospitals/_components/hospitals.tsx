@@ -14,14 +14,7 @@ import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ChevronUp, Search, SendHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import React, {
-  FormEvent,
-  JSX,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { FormEvent, JSX, useCallback, useEffect, useRef, useState } from 'react';
 import HospitalCard from '@/app/dashboard/(patient)/_components/hospitalCardNew';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
@@ -226,36 +219,33 @@ const Hospitals = (): JSX.Element => {
   return (
     <>
       {/* Search and Filter Bar - Sticky at top like title */}
-      <div className="sticky top-0 z-40 mb-4 sm:mb-6 -mx-4 px-4 2xl:-mx-6 2xl:px-6 bg-grayscale-100 pb-2 pt-2">
-        <div className="bg-white flex w-full flex-col gap-3 sm:gap-4 rounded-lg border border-gray-200 p-3 sm:p-4 shadow-sm">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Search Bar */}
-          <form className="flex flex-1 gap-2" onSubmit={handleSubmit}>
-            <Input
-              error=""
-              placeholder="Search hospitals by name, specialty, or location..."
-              className="w-full"
-              type="search"
-              leftIcon={<Search className="text-gray-500" size={20} />}
-              onChange={handleSearch}
-              defaultMaxWidth={false}
-            />
-            {searchTerm && (
-              <Button type="submit" variant="default" child={<SendHorizontal />} />
-            )}
-          </form>
-          
-          {/* Filter Button */}
-          <div className="flex items-center gap-2">
-            <HospitalFilters
-              queryParameters={queryParameters}
-              onFilterChange={handleFilterChange}
-              onReset={handleResetFilters}
-              totalResults={paginationData?.total}
-            />
-          </div>
-        </div>
+      <div className="bg-grayscale-100 sticky top-0 z-40 -mx-4 mb-4 px-4 pt-2 pb-2 sm:mb-6 2xl:-mx-6 2xl:px-6">
+        <div className="flex w-full flex-col gap-3 rounded-lg border border-gray-200 bg-white p-3 shadow-sm sm:gap-4 sm:p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* Search Bar */}
+            <form className="flex flex-1 gap-2" onSubmit={handleSubmit}>
+              <Input
+                error=""
+                placeholder="Search hospitals by name, specialty, or location..."
+                className="w-full"
+                type="search"
+                leftIcon={<Search className="text-gray-500" size={20} />}
+                onChange={handleSearch}
+                defaultMaxWidth={false}
+              />
+              {searchTerm && <Button type="submit" variant="default" child={<SendHorizontal />} />}
+            </form>
 
+            {/* Filter Button */}
+            <div className="flex items-center gap-2">
+              <HospitalFilters
+                queryParameters={queryParameters}
+                onFilterChange={handleFilterChange}
+                onReset={handleResetFilters}
+                totalResults={paginationData?.total}
+              />
+            </div>
+          </div>
         </div>
       </div>
       {(() => {
@@ -279,16 +269,16 @@ const Hospitals = (): JSX.Element => {
           );
         }
         return (
-        <section>
-          <Image
-            src={NotFound}
-            alt="Not Found"
-            width={100}
-            height={100}
-            className="m-auto h-[60vh] w-[60vw]"
-          />
-          <p className="mt-4 text-center text-lg md:text-xl"> Sorry nothing to find here </p>
-        </section>
+          <section>
+            <Image
+              src={NotFound}
+              alt="Not Found"
+              width={100}
+              height={100}
+              className="m-auto h-[60vh] w-[60vw]"
+            />
+            <p className="mt-4 text-center text-lg md:text-xl"> Sorry nothing to find here </p>
+          </section>
         );
       })()}
       <button
@@ -305,4 +295,3 @@ const Hospitals = (): JSX.Element => {
 };
 
 export default Hospitals;
-

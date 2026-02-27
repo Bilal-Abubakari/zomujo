@@ -171,10 +171,7 @@ const HospitalFilters = ({
   };
 
   // Location value for combobox: "near_me" or city (empty string = All Cities)
-  const locationValue =
-    localFilters.nearMe === true
-      ? 'near_me'
-      : (localFilters.city ?? '');
+  const locationValue = localFilters.nearMe === true ? 'near_me' : (localFilters.city ?? '');
 
   const setLocationValue = (value: string) => {
     if (value === 'near_me') {
@@ -219,13 +216,13 @@ const HospitalFilters = ({
       <SheetTrigger asChild>
         <Button
           variant="outline"
-          className="relative h-10 min-w-[120px] cursor-pointer border-2 border-gray-300 bg-white font-semibold text-gray-700 shadow-sm transition-all hover:!border-primary hover:!bg-primary/5 hover:!text-primary sm:flex"
+          className="hover:!border-primary hover:!bg-primary/5 hover:!text-primary relative h-10 min-w-[120px] cursor-pointer border-2 border-gray-300 bg-white font-semibold text-gray-700 shadow-sm transition-all sm:flex"
           child={
             <>
               <ListFilter className="h-4 w-4" />
               <span>Filters</span>
               {activeFilterCount > 0 && (
-                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
+                <span className="bg-primary ml-2 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white">
                   {activeFilterCount}
                 </span>
               )}
@@ -239,7 +236,7 @@ const HospitalFilters = ({
           <SheetDescription>
             Refine your search to find the perfect hospital for your needs
             {totalResults !== undefined && (
-              <span className="ml-2 text-primary font-semibold">
+              <span className="text-primary ml-2 font-semibold">
                 ({totalResults} {totalResults === 1 ? 'hospital' : 'hospitals'} found)
               </span>
             )}
@@ -340,15 +337,21 @@ const HospitalFilters = ({
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="any" id="open-any" />
-                <Label htmlFor="open-any" className="font-normal cursor-pointer">Any</Label>
+                <Label htmlFor="open-any" className="cursor-pointer font-normal">
+                  Any
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="open_now" id="open-now" />
-                <Label htmlFor="open-now" className="font-normal cursor-pointer">Open Now</Label>
+                <Label htmlFor="open-now" className="cursor-pointer font-normal">
+                  Open Now
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="24_7" id="open-24-7" />
-                <Label htmlFor="open-24-7" className="font-normal cursor-pointer">24/7</Label>
+                <Label htmlFor="open-24-7" className="cursor-pointer font-normal">
+                  24/7
+                </Label>
               </div>
             </RadioGroup>
           </div>
@@ -436,11 +439,7 @@ const HospitalFilters = ({
               </>
             }
           />
-          <Button
-            onClick={handleApplyFilters}
-            className="w-full sm:w-auto"
-            child="Apply Filters"
-          />
+          <Button onClick={handleApplyFilters} className="w-full sm:w-auto" child="Apply Filters" />
         </SheetFooter>
       </SheetContent>
     </Sheet>

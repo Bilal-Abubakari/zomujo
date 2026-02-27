@@ -72,7 +72,13 @@ const AvailableAppointment = (): JSX.Element => {
     },
   });
 
-  const onSubmit = async ({ reason, additionalInfo, slotId, date, time }: IBookingForm): Promise<void> => {
+  const onSubmit = async ({
+    reason,
+    additionalInfo,
+    slotId,
+    date,
+    time,
+  }: IBookingForm): Promise<void> => {
     if (!information) {
       return;
     }

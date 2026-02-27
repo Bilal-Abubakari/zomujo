@@ -4,7 +4,10 @@ import { JSX, useEffect, useState } from 'react';
 import { getGreeting } from '@/lib/date';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser, selectExtra } from '@/lib/features/auth/authSelector';
-import { getHospitalAppointmentTrends, getHospitalAppointmentStatsByDateRange } from '@/lib/features/analytics/analyticsThunk';
+import {
+  getHospitalAppointmentTrends,
+  getHospitalAppointmentStatsByDateRange,
+} from '@/lib/features/analytics/analyticsThunk';
 import { showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { IHospital } from '@/types/hospital.interface';
@@ -194,7 +197,15 @@ const AnalyticsDashboard = (): JSX.Element => {
       <div className="mt-10 flex flex-wrap justify-evenly gap-6">
         <AppointmentStatsCards
           stats={stats}
-          trends={trends ? { thisMonth: trends.thisMonth, lastMonth: trends.lastMonth, percentage: trends.percentage } : undefined}
+          trends={
+            trends
+              ? {
+                  thisMonth: trends.thisMonth,
+                  lastMonth: trends.lastMonth,
+                  percentage: trends.percentage,
+                }
+              : undefined
+          }
           isLoading={isLoading}
         />
       </div>
@@ -209,7 +220,7 @@ const AnalyticsDashboard = (): JSX.Element => {
         {/* Status Distribution Chart */}
         <div className="w-full grow basis-1/2">
           <Card className="rounded-2xl">
-            <CardTitle className="p-8 text-grayscale-500 text-base font-medium">
+            <CardTitle className="text-grayscale-500 p-8 text-base font-medium">
               Appointment Status Distribution
             </CardTitle>
             <CardContent className="max-md:p-1">

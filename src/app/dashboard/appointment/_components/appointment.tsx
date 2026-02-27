@@ -11,7 +11,8 @@ import { Role } from '@/types/shared.enum';
 const Appointment = (): JSX.Element => {
   const { updateQuery, getQueryParam } = useQueryParam();
   const user = useAppSelector(selectUser);
-  const isAdminOrHospital = user?.role === Role.Admin || user?.role === Role.Hospital || user?.role === Role.SuperAdmin;
+  const isAdminOrHospital =
+    user?.role === Role.Admin || user?.role === Role.Hospital || user?.role === Role.SuperAdmin;
 
   useEffect(() => {
     if (!isAdminOrHospital) {

@@ -11,7 +11,12 @@ import Link from 'next/link';
 import { AlertMessage } from '@/components/ui/alert';
 import { IOrganizationRequest, IUserSignUp, IHospitalSignUp } from '@/types/auth.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { requestOrganization, signUp, initiateGoogleOAuth, hospitalSignUp } from '@/lib/features/auth/authThunk';
+import {
+  requestOrganization,
+  signUp,
+  initiateGoogleOAuth,
+  hospitalSignUp,
+} from '@/lib/features/auth/authThunk';
 import { selectThunkState } from '@/lib/features/auth/authSelector';
 import { Role } from '@/types/shared.enum';
 import { ImageVariant, Modal } from '@/components/ui/dialog';
@@ -146,7 +151,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
   };
 
   const [openModal, setOpenModal] = useState(false);
-  
+
   // Dummy GPS coordinates for different locations
   const DUMMY_COORDINATES: Record<string, { lat: number; lng: number; url: string }> = {
     '1': { lat: 5.6037, lng: -0.187, url: 'https://maps.google.com/?q=Liberation+Road+Accra' },
@@ -155,11 +160,11 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     '4': { lat: 6.6885, lng: -1.6244, url: 'https://maps.google.com/?q=Kumasi+Ghana' },
     '5': { lat: 4.8845, lng: -1.7554, url: 'https://maps.google.com/?q=Takoradi+Ghana' },
   };
-  
+
   const handleLocationValue = ({ value }: Option): void => {
     const placeId = value.place_id;
     const coords = DUMMY_COORDINATES[placeId] || DUMMY_COORDINATES['1'];
-    
+
     setValue('lat', coords.lat);
     setValue('long', coords.lng);
     setValue('gpsLink', coords.url);
@@ -171,7 +176,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
   const handleHospitalLocationValue = ({ value }: Option): void => {
     const placeId = value.place_id;
     const coords = DUMMY_COORDINATES[placeId] || DUMMY_COORDINATES['1'];
-    
+
     setValueHospital('lat', coords.lat);
     setValueHospital('long', coords.lng);
     setValueHospital('gpsLink', coords.url);
@@ -296,77 +301,77 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
       )}
       {role === Role.Hospital && (
         <form onSubmit={handleSubmitHospital(onHospitalSubmit)} className="mt-8 space-y-6">
-            <div className="space-y-4">
-              <Input
-                labelName="Email"
-                error={errorsHospital.email?.message}
-                placeholder="admin@hospital.com"
-                {...registerHospital('email')}
-              />
-              <Input
-                labelName="Password"
-                error={errorsHospital.password?.message}
-                placeholder="••••••••"
-                type="password"
-                {...registerHospital('password')}
-              />
-              <Input
-                labelName="Confirm Password"
-                error={errorsHospital.confirmPassword?.message}
-                placeholder="••••••••"
-                type="password"
-                {...registerHospital('confirmPassword')}
-              />
-              <Input
-                labelName="Hospital Name"
-                error={errorsHospital.hospitalName?.message}
-                placeholder={PLACEHOLDER_HOSPITAL_NAME}
-                {...registerHospital('hospitalName')}
-              />
-              <Location
-                placeHolder="Liberation Road, Accra"
-                error={errorsHospital.location?.message || ''}
-                value={hospitalLocation || ''}
-                onChange={(value) => {
-                  setValueHospital('location', value, { shouldValidate: true });
-                  // Set default coordinates if not already set (when typing directly)
-                  const currentLat = watchHospital('lat');
-                  const currentLong = watchHospital('long');
-                  const currentGpsLink = watchHospital('gpsLink');
-                  if (currentLat === undefined || currentLong === undefined || !currentGpsLink) {
-                    // Use default coordinates from first location
-                    const defaultCoords = DUMMY_COORDINATES['1'];
-                    setValueHospital('lat', defaultCoords.lat, { shouldValidate: true });
-                    setValueHospital('long', defaultCoords.lng, { shouldValidate: true });
-                    setValueHospital('gpsLink', defaultCoords.url, { shouldValidate: true });
-                    // Trigger validation for all location-related fields
-                    setTimeout(() => {
-                      triggerHospital(['location', 'lat', 'long', 'gpsLink']);
-                    }, 0);
-                  }
-                }}
-                handleLocationValue={handleHospitalLocationValue}
-                onBlur={() => {
-                  if (!hospitalLocation) {
-                    setValueHospital('location', '', { shouldTouch: true, shouldValidate: true });
-                  }
-                }}
-              />
-              <Input
-                labelName="Phone (Optional)"
-                error={errorsHospital.phone?.message}
-                placeholder="+233 24 123 4567"
-                {...registerHospital('phone')}
-              />
-            </div>
-            <Button
-              type="submit"
-              className="mt-4 w-full"
-              child="Create Hospital Account"
-              disabled={!isValidHospital || isLoading}
-              isLoading={isLoading}
+          <div className="space-y-4">
+            <Input
+              labelName="Email"
+              error={errorsHospital.email?.message}
+              placeholder="admin@hospital.com"
+              {...registerHospital('email')}
             />
-          </form>
+            <Input
+              labelName="Password"
+              error={errorsHospital.password?.message}
+              placeholder="••••••••"
+              type="password"
+              {...registerHospital('password')}
+            />
+            <Input
+              labelName="Confirm Password"
+              error={errorsHospital.confirmPassword?.message}
+              placeholder="••••••••"
+              type="password"
+              {...registerHospital('confirmPassword')}
+            />
+            <Input
+              labelName="Hospital Name"
+              error={errorsHospital.hospitalName?.message}
+              placeholder={PLACEHOLDER_HOSPITAL_NAME}
+              {...registerHospital('hospitalName')}
+            />
+            <Location
+              placeHolder="Liberation Road, Accra"
+              error={errorsHospital.location?.message || ''}
+              value={hospitalLocation || ''}
+              onChange={(value) => {
+                setValueHospital('location', value, { shouldValidate: true });
+                // Set default coordinates if not already set (when typing directly)
+                const currentLat = watchHospital('lat');
+                const currentLong = watchHospital('long');
+                const currentGpsLink = watchHospital('gpsLink');
+                if (currentLat === undefined || currentLong === undefined || !currentGpsLink) {
+                  // Use default coordinates from first location
+                  const defaultCoords = DUMMY_COORDINATES['1'];
+                  setValueHospital('lat', defaultCoords.lat, { shouldValidate: true });
+                  setValueHospital('long', defaultCoords.lng, { shouldValidate: true });
+                  setValueHospital('gpsLink', defaultCoords.url, { shouldValidate: true });
+                  // Trigger validation for all location-related fields
+                  setTimeout(() => {
+                    triggerHospital(['location', 'lat', 'long', 'gpsLink']);
+                  }, 0);
+                }
+              }}
+              handleLocationValue={handleHospitalLocationValue}
+              onBlur={() => {
+                if (!hospitalLocation) {
+                  setValueHospital('location', '', { shouldTouch: true, shouldValidate: true });
+                }
+              }}
+            />
+            <Input
+              labelName="Phone (Optional)"
+              error={errorsHospital.phone?.message}
+              placeholder="+233 24 123 4567"
+              {...registerHospital('phone')}
+            />
+          </div>
+          <Button
+            type="submit"
+            className="mt-4 w-full"
+            child="Create Hospital Account"
+            disabled={!isValidHospital || isLoading}
+            isLoading={isLoading}
+          />
+        </form>
       )}
       {role === Role.Admin && (
         <>

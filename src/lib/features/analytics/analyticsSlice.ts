@@ -1,6 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { IAppointmentTrends, IAppointmentStats } from '@/types/analytics.interface';
-import { getHospitalAppointmentTrends, getHospitalAppointmentStatsByDateRange } from './analyticsThunk';
+import {
+  getHospitalAppointmentTrends,
+  getHospitalAppointmentStatsByDateRange,
+} from './analyticsThunk';
 import { showErrorToast } from '@/lib/utils';
 
 interface AnalyticsState {

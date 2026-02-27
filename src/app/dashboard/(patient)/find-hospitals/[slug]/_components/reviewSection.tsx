@@ -77,16 +77,16 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
               </button>
             ))}
           </div>
-          </fieldset>
-          {rating > 0 && (
-            <span className="text-sm text-gray-600">
-              {rating === 1 && 'Poor'}
-              {rating === 2 && 'Fair'}
-              {rating === 3 && 'Good'}
-              {rating === 4 && 'Very Good'}
-              {rating === 5 && 'Excellent'}
-            </span>
-          )}
+        </fieldset>
+        {rating > 0 && (
+          <span className="text-sm text-gray-600">
+            {rating === 1 && 'Poor'}
+            {rating === 2 && 'Fair'}
+            {rating === 3 && 'Good'}
+            {rating === 4 && 'Very Good'}
+            {rating === 5 && 'Excellent'}
+          </span>
+        )}
 
         <div className="flex flex-col gap-2">
           <label htmlFor="review" className="text-sm font-medium text-gray-700">

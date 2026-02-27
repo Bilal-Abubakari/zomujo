@@ -45,7 +45,9 @@ export const getHospitalAppointmentById = createAsyncThunk(
   'hospital-appointments/getHospitalAppointmentById',
   async (id: string): Promise<Toast | IHospitalAppointment> => {
     try {
-      const { data } = await axios.get<IResponse<IHospitalAppointment>>(`hospitals/appointments/${id}`);
+      const { data } = await axios.get<IResponse<IHospitalAppointment>>(
+        `hospitals/appointments/${id}`,
+      );
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -57,7 +59,10 @@ export const updateHospitalAppointment = createAsyncThunk(
   'hospital-appointments/updateHospitalAppointment',
   async (payload: { id: string; reason?: string; additionalInfo?: string }): Promise<Toast> => {
     try {
-      const { data } = await axios.patch<IResponse>(`hospitals/appointments/${payload.id}`, payload);
+      const { data } = await axios.patch<IResponse>(
+        `hospitals/appointments/${payload.id}`,
+        payload,
+      );
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -93,10 +98,13 @@ export const assignDoctorToHospitalAppointment = createAsyncThunk(
   'hospital-appointments/assignDoctorToHospitalAppointment',
   async (payload: { appointmentId: string; doctorId: string }): Promise<Toast> => {
     try {
-      const { data } = await axios.patch<IResponse>(`hospitals/appointments/${payload.appointmentId}/assign`, {
-        appointmentId: payload.appointmentId,
-        doctorId: payload.doctorId,
-      });
+      const { data } = await axios.patch<IResponse>(
+        `hospitals/appointments/${payload.appointmentId}/assign`,
+        {
+          appointmentId: payload.appointmentId,
+          doctorId: payload.doctorId,
+        },
+      );
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -106,11 +114,13 @@ export const assignDoctorToHospitalAppointment = createAsyncThunk(
 
 export const getHospitalAppointmentStats = createAsyncThunk(
   'hospital-appointments/getHospitalAppointmentStats',
-  async (): Promise<Toast | { total: number; accepted: number; pending: number; cancelled: number }> => {
+  async (): Promise<
+    Toast | { total: number; accepted: number; pending: number; cancelled: number }
+  > => {
     try {
-      const { data } = await axios.get<IResponse<{ total: number; accepted: number; pending: number; cancelled: number }>>(
-        `hospitals/appointments/stats`,
-      );
+      const { data } = await axios.get<
+        IResponse<{ total: number; accepted: number; pending: number; cancelled: number }>
+      >(`hospitals/appointments/stats`);
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

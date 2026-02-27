@@ -18,7 +18,13 @@ import {
 } from '@/app/dashboard/appointment/_components/dummyHospitalAppointments';
 import type { IUser } from '@/types/auth.interface';
 
-function PatientColumnCell({ row, user }: { row: { original: IAppointment }; user: IUser | null }): JSX.Element {
+function PatientColumnCell({
+  row,
+  user,
+}: {
+  row: { original: IAppointment };
+  user: IUser | null;
+}): JSX.Element {
   const { original } = row;
   const { doctor, patient } = original;
   const isDoctor = user?.role === Role.Doctor;
@@ -62,13 +68,14 @@ const AppointmentRequestsPreview = (): JSX.Element => {
 
   // Get hospital ID from extra if user is a hospital
   const hospitalId =
-    user?.role === Role.Hospital && extra && 'id' in extra ? (extra as { id: string }).id : undefined;
+    user?.role === Role.Hospital && extra && 'id' in extra
+      ? (extra as { id: string }).id
+      : undefined;
 
-  const {
-    isLoading,
-    queryParameters,
-    tableData,
-  } = useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
+  const { isLoading, queryParameters, tableData } = useFetchPaginatedData<
+    IAppointment,
+    AppointmentStatus | ''
+  >(getAppointments, {
     orderBy: 'createdAt',
     orderDirection: OrderDirection.Descending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,

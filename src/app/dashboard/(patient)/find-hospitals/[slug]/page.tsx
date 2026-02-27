@@ -9,7 +9,7 @@ interface HospitalDetailPageProps {
 
 const HospitalDetailPage = async ({ params }: HospitalDetailPageProps): Promise<JSX.Element> => {
   const { slug } = await params;
-  
+
   if (!slug) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
@@ -17,9 +17,8 @@ const HospitalDetailPage = async ({ params }: HospitalDetailPageProps): Promise<
       </div>
     );
   }
-  
+
   return <HospitalDetail slug={slug} />;
 };
 
 export default HospitalDetailPage;
-

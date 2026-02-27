@@ -65,7 +65,11 @@ export const booleanSchema = z.boolean();
 
 export const optionalStringSchema = z.string().optional();
 
-export const optionalEmailSchema = z.string().email('Invalid email format').optional().or(z.literal(''));
+export const optionalEmailSchema = z
+  .string()
+  .email('Invalid email format')
+  .optional()
+  .or(z.literal(''));
 
 export const optionalUrlSchema = z.string().url('Invalid URL format').optional().or(z.literal(''));
 
@@ -83,4 +87,6 @@ export const optionalPositiveIntegerSchema = z.coerce
   .positive('Must be greater than zero')
   .optional();
 
-export const organizationTypeSchema = z.enum(['private', 'public', 'teaching', 'clinic']).optional();
+export const organizationTypeSchema = z
+  .enum(['private', 'public', 'teaching', 'clinic'])
+  .optional();

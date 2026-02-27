@@ -9,12 +9,14 @@ import {
 interface HospitalAppointmentsState {
   appointments: IHospitalAppointment[];
   currentAppointment: IHospitalAppointment | undefined;
-  stats: {
-    total: number;
-    accepted: number;
-    pending: number;
-    cancelled: number;
-  } | undefined;
+  stats:
+    | {
+        total: number;
+        accepted: number;
+        pending: number;
+        cancelled: number;
+      }
+    | undefined;
   isLoading: boolean;
 }
 
@@ -61,7 +63,12 @@ const hospitalAppointmentsSlice = createSlice({
       // Get stats
       .addCase(getHospitalAppointmentStats.fulfilled, (state, action) => {
         if (action.payload && 'total' in action.payload) {
-          state.stats = action.payload as { total: number; accepted: number; pending: number; cancelled: number };
+          state.stats = action.payload as {
+            total: number;
+            accepted: number;
+            pending: number;
+            cancelled: number;
+          };
         }
       });
   },
