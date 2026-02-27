@@ -30,7 +30,7 @@ const Hospitals = (): JSX.Element => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
   const searchParams = useSearchParams();
-  const getParam = (key: string) => searchParams.get(key);
+  const getParam = (key: string): string | null => searchParams.get(key);
 
   const [queryParameters, setQueryParameters] = useState<
     IQueryParams<AcceptDeclineStatus> & {
@@ -68,15 +68,15 @@ const Hospitals = (): JSX.Element => {
     serviceId: getParam('serviceId') || '',
     departmentId: getParam('departmentId') || '',
     insuranceCompanyId: getParam('insuranceCompanyId') || '',
-    languages: (() => {
+    languages: (() : string[] | undefined => {
       const p = getParam('languages');
       return p ? p.split(',') : undefined;
     })(),
-    minConsultationFee: (() => {
+    minConsultationFee: (() : number | undefined => {
       const p = getParam('minConsultationFee');
       return p ? Number(p) : undefined;
     })(),
-    maxConsultationFee: (() => {
+    maxConsultationFee: (() : number | undefined => {
       const p = getParam('maxConsultationFee');
       return p ? Number(p) : undefined;
     })(),
@@ -183,7 +183,7 @@ const Hospitals = (): JSX.Element => {
     onsitePharmacy?: boolean;
     onsiteLabs?: boolean;
     ambulanceServices?: boolean;
-  }) => {
+  }): void => {
     setHospitals([]);
     setQueryParameters((prev) => ({
       ...prev,
@@ -192,7 +192,7 @@ const Hospitals = (): JSX.Element => {
     }));
   };
 
-  const handleResetFilters = () => {
+  const handleResetFilters = (): void => {
     setHospitals([]);
     setQueryParameters((prev) => ({
       ...prev,
@@ -248,7 +248,7 @@ const Hospitals = (): JSX.Element => {
           </div>
         </div>
       </div>
-      {(() => {
+      {((): JSX.Element | null => {
         if (isLoading) {
           const skeletonKeys = ['sk1', 'sk2', 'sk3', 'sk4', 'sk5', 'sk6', 'sk7', 'sk8'];
           return (

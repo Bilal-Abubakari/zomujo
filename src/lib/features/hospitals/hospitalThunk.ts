@@ -96,7 +96,9 @@ function appendFormDataEntry(formData: FormData, key: string, value: unknown): v
 function buildFormData(payload: Record<string, unknown>): FormData {
   const formData = new FormData();
   for (const [key, value] of Object.entries(payload)) {
-    if (value === undefined) continue;
+    if (value === undefined) {
+      continue;
+    }
     appendFormDataEntry(formData, key, value);
   }
   return formData;

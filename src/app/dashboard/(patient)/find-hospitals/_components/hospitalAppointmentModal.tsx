@@ -21,7 +21,6 @@ import { cn } from '@/lib/utils';
 interface HospitalAppointmentModalProps {
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>;
-  hospitalId: string;
   hospitalName?: string;
   onSubmit: (data: HospitalAppointmentFormData) => Promise<void>;
   isLoading?: boolean;
@@ -57,7 +56,6 @@ const hospitalAppointmentSchema = z.object({
 const HospitalAppointmentModal = ({
   open,
   setOpen,
-  hospitalId,
   hospitalName,
   onSubmit,
   isLoading = false,

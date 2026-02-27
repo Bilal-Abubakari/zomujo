@@ -134,19 +134,19 @@ const HospitalFilters = ({
     setLocalFilters(queryParameters);
   }, [queryParameters]);
 
-  const handleFilterChange = (key: string, value: unknown) => {
+  const handleFilterChange = (key: string, value: unknown): void => {
     const updated = { ...localFilters, [key]: value };
     setLocalFilters(updated);
   };
 
-  const handleApplyFilters = () => {
+  const handleApplyFilters = (): void => {
     onFilterChange({
       ...localFilters,
     });
     setOpen(false);
   };
 
-  const handleReset = () => {
+  const handleReset = (): void => {
     const resetFilters = {
       city: '',
       nearMe: undefined,
@@ -173,7 +173,7 @@ const HospitalFilters = ({
   // Location value for combobox: "near_me" or city (empty string = All Cities)
   const locationValue = localFilters.nearMe === true ? 'near_me' : (localFilters.city ?? '');
 
-  const setLocationValue = (value: string) => {
+  const setLocationValue = (value: string): void => {
     if (value === 'near_me') {
       handleFilterChange('nearMe', true);
       handleFilterChange('city', '');
@@ -185,13 +185,17 @@ const HospitalFilters = ({
 
   // Open Now / 24/7: mutually exclusive options
   const getOpenScheduleValue = (): string => {
-    if (localFilters.open24_7 === true) return '24_7';
-    if (localFilters.openNow === true) return 'open_now';
+    if (localFilters.open24_7 === true) {
+      return '24_7';
+    }
+    if (localFilters.openNow === true) {
+      return 'open_now';
+    }
     return 'any';
   };
   const openScheduleValue = getOpenScheduleValue();
 
-  const setOpenScheduleValue = (value: string) => {
+  const setOpenScheduleValue = (value: string): void => {
     handleFilterChange('openNow', value === 'open_now' ? true : undefined);
     handleFilterChange('open24_7', value === '24_7' ? true : undefined);
   };

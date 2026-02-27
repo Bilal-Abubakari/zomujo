@@ -90,8 +90,12 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
   } = hospital;
 
   const getOpeningHourClass = (hour: { isClosed?: boolean; is24Hours?: boolean }): string => {
-    if (hour.isClosed) return 'text-red-600';
-    if (hour.is24Hours) return 'text-green-600';
+    if (hour.isClosed) {
+      return 'text-red-600';
+    }
+    if (hour.is24Hours) {
+      return 'text-green-600';
+    }
     return 'text-gray-700';
   };
 
@@ -101,28 +105,48 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
     openTime?: string;
     closeTime?: string;
   }): string => {
-    if (hour.isClosed) return 'Closed';
-    if (hour.is24Hours) return '24 Hours';
-    if (hour.openTime && hour.closeTime) return `${hour.openTime} - ${hour.closeTime}`;
+    if (hour.isClosed) {
+      return 'Closed';
+    }
+    if (hour.is24Hours) {
+      return '24 Hours';
+    }
+    if (hour.openTime && hour.closeTime) {
+      return `${hour.openTime} - ${hour.closeTime}`;
+    }
     return 'Hours vary';
   };
 
   const getAvailabilityBadgeClass = (availability: string): string => {
-    if (availability === 'available') return 'bg-green-100 text-green-700 border border-green-200';
-    if (availability === 'limited') return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+    if (availability === 'available') {
+      return 'bg-green-100 text-green-700 border border-green-200';
+    }
+    if (availability === 'limited') {
+      return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+    }
     return 'bg-gray-100 text-gray-700 border border-gray-200';
   };
 
   const parseAccreditationsList = (accreditations: unknown): unknown[] => {
-    if (Array.isArray(accreditations)) return accreditations;
-    if (typeof accreditations !== 'object' || accreditations === null) return [];
+    if (Array.isArray(accreditations)) {
+      return accreditations;
+    }
+    if (typeof accreditations !== 'object' || accreditations === null) {
+      return [];
+    }
     const withAcc = accreditations as { accreditations?: unknown[] };
-    if (Array.isArray(withAcc?.accreditations)) return withAcc.accreditations;
+    if (Array.isArray(withAcc?.accreditations)) {
+      return withAcc.accreditations;
+    }
     try {
       const parsed =
         typeof accreditations === 'string' ? JSON.parse(accreditations) : accreditations;
-      if (Array.isArray(parsed?.accreditations)) return parsed.accreditations;
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray((parsed as { accreditations?: unknown[] })?.accreditations)) {
+        return (parsed as { accreditations?: unknown[] }).accreditations ?? [];
+      }
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
     } catch {
       return [accreditations];
     }
@@ -543,9 +567,11 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
 
       {/* Accreditations */}
       {accreditations != null &&
-        (() => {
+        (() : JSX.Element | null => {
           const accreditationsList = parseAccreditationsList(accreditations);
-          if (accreditationsList.length === 0) return null;
+          if (accreditationsList.length === 0) {
+            return null;
+          }
           return (
             <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
               <div className="mb-6 flex items-center gap-3">

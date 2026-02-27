@@ -93,7 +93,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
 
   const handleConfirmAndProceed = (): void => {
     const { slotId } = getValues();
-    if (slotId === undefined || slotId === '') return;
+    if (slotId === undefined || slotId === '') {
+      return;
+    }
     void onSubmit(slotId);
   };
 

@@ -39,7 +39,7 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
   const primaryImage = galleryImages.length > 0 ? galleryImages[0] : null;
   const logoImage = images?.find((img) => img.type === 'logo') ?? null;
 
-  const handleViewDetails = () => {
+  const handleViewDetails = (): void => {
     if (!slug) {
       console.error('Hospital slug is missing');
       return;
@@ -47,7 +47,7 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
     router.push(`/dashboard/find-hospitals/${slug}`);
   };
 
-  const getOrganizationTypeLabel = (type?: string) => {
+  const getOrganizationTypeLabel = (type?: string): string => {
     switch (type) {
       case 'private':
         return 'Private Hospital';

@@ -12,11 +12,10 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { positiveNumberSchema } from '@/schemas/zod.schemas';
-import type { FieldErrors, Resolver } from 'react-hook-form';
 import { GripVertical, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX, useState, useRef, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, type FieldErrors, type Resolver } from 'react-hook-form';
 import { z } from 'zod';
 import { MultiSelect } from '@/components/ui/multiSelect';
 import { updateHospitalDetails, getHospitalBySlug } from '@/lib/features/hospitals/hospitalThunk';
@@ -75,7 +74,9 @@ const optionalGpsSchema = z.union([
   z.literal(null),
   z.string().refine(
     (val) => {
-      if (!val || val === '') return true;
+      if (!val || val === '') {
+        return true;
+      }
       const ghanaPostPattern = /^[A-Z]{2}-\d{3}-\d{4,5}$/i;
       const urlPattern =
         /^https?:\/\/(www\.)?(google\.com\/maps|maps\.google\.com|openstreetmap\.org|waze\.com|maps\.apple\.com)/i;
@@ -171,7 +172,9 @@ function createDirtyOnlyResolver(
     const errors: FieldErrors<HospitalFormValues> = {};
     for (const [path, messages] of Object.entries(fieldErrors)) {
       const msg = Array.isArray(messages) ? messages[0] : messages;
-      if (msg) (errors as Record<string, { message: string }>)[path] = { message: msg };
+      if (msg) {
+        (errors as Record<string, { message: string }>)[path] = { message: msg };
+      }
     }
     return { values: {} as HospitalFormValues, errors };
   };
@@ -180,7 +183,9 @@ function createDirtyOnlyResolver(
 type OrgSource = (IHospital & Partial<IHospitalDetail>) | undefined;
 
 function getOrgFromExtra(extra: unknown, role: Role | undefined): OrgSource {
-  if (!extra || !role) return undefined;
+  if (!extra || !role) {
+    return undefined;
+  }
   if (role === Role.Admin && extra && typeof extra === 'object' && 'org' in extra) {
     return (extra as { org: IHospital }).org as OrgSource;
   }
@@ -287,19 +292,29 @@ const OPTIONAL_STRING_KEYS = new Set<keyof HospitalFormValues>([
 ]);
 
 function applyImagesKey(value: unknown, payload: Record<string, unknown>): boolean {
-  if (!Array.isArray(value)) return false;
+  if (!Array.isArray(value)) {
+    return false;
+  }
   const newFiles = value.filter((img) => img instanceof File);
-  if (newFiles.length > 0) payload.images = newFiles;
+  if (newFiles.length > 0) {
+    payload.images = newFiles;
+  }
   return true;
 }
 
 function applyImageKey(value: unknown, payload: Record<string, unknown>): boolean {
   let imageValue: File | null | undefined;
-  if (value instanceof File) imageValue = value;
-  else if (value === null) imageValue = null;
-  else imageValue = undefined;
+  if (value instanceof File) {
+    imageValue = value;
+  } else if (value === null) {
+    imageValue = null;
+  } else {
+    imageValue = undefined;
+  }
   payload.image = imageValue;
-  if (payload.image === undefined) delete payload.image;
+  if (payload.image === undefined) {
+    delete payload.image;
+  }
   return true;
 }
 
@@ -308,12 +323,16 @@ function applyDirtyKey(
   value: unknown,
   payload: Record<string, unknown>,
 ): void {
-  if (key === 'images' && applyImagesKey(value, payload)) return;
+  if (key === 'images' && applyImagesKey(value, payload)) {
+    return;
+  }
   if (key === 'imageOrder' && Array.isArray(value)) {
     payload[key] = value;
     return;
   }
-  if (key === 'image' && applyImageKey(value, payload)) return;
+  if (key === 'image' && applyImageKey(value, payload)) {
+    return;
+  }
   if ((key === 'bedCount' || key === 'regularFee') && (value === '' || value === undefined)) {
     payload[key] = null;
     return;
@@ -340,14 +359,15 @@ function buildDirtyPayload(
   const payload: Record<string, unknown> = {};
   const keys = Object.keys(dirtyFields) as (keyof HospitalFormValues)[];
   for (const key of keys) {
-    if (!dirtyFields[key]) continue;
+    if (!dirtyFields[key]) {
+      continue;
+    }
     applyDirtyKey(key, data[key], payload);
   }
   return payload;
 }
 
 type DraggableImageCardProps = Readonly<{
-  image: File | string;
   index: number;
   isPrimaryDisplay: boolean;
   imageUrl: string;
@@ -356,7 +376,6 @@ type DraggableImageCardProps = Readonly<{
 }>;
 
 function DraggableImageCard({
-  image,
   index,
   isPrimaryDisplay,
   imageUrl,
@@ -371,7 +390,7 @@ function DraggableImageCard({
 
   const [{ isOver }, dropRef] = useDrop({
     accept: IMAGE_ITEM_TYPE,
-    drop: (item: { index: number }) => {
+    drop: (item: { index: number }): void => {
       if (item.index !== index) {
         onReorder(item.index, index);
       }
@@ -379,7 +398,7 @@ function DraggableImageCard({
     collect: (monitor) => ({ isOver: monitor.isOver() }),
   });
 
-  const ref = (node: HTMLDivElement | null) => {
+  const ref = (node: HTMLDivElement | null): void => {
     dragRef(node);
     dropRef(node);
   };
@@ -480,9 +499,11 @@ const HospitalSettings = (): JSX.Element => {
       return;
     }
     let cancelled = false;
-    (async () => {
+    (async (): Promise<void> => {
       const result = await dispatch(getHospitalBySlug(slug));
-      if (cancelled) return;
+      if (cancelled) {
+        return;
+      }
       setIsFetchingHospital(false);
       const payload = result.payload as IHospitalDetail | { title?: string; description?: string };
       if (payload && 'slug' in payload && 'images' in payload) {
@@ -490,7 +511,7 @@ const HospitalSettings = (): JSX.Element => {
         reset(getInitialFormValues(orgSource));
       }
     })();
-    return () => {
+    return (): void => {
       cancelled = true;
     };
   }, [dispatch, role, extra, reset]);
@@ -509,8 +530,12 @@ const HospitalSettings = (): JSX.Element => {
   };
 
   const getLogoUrl = (): string => {
-    if (!hospitalLogo) return '';
-    if (typeof hospitalLogo === 'string') return hospitalLogo;
+    if (!hospitalLogo) {
+      return '';
+    }
+    if (typeof hospitalLogo === 'string') {
+      return hospitalLogo;
+    }
     const key = `logo-${hospitalLogo.name}-${hospitalLogo.size}`;
     if (!imageObjectUrls.has(key)) {
       const url = URL.createObjectURL(hospitalLogo);
@@ -542,7 +567,9 @@ const HospitalSettings = (): JSX.Element => {
   const [imageObjectUrls] = useState<Map<string, string>>(new Map());
 
   const getImageUrl = (image: File | string, index: number): string => {
-    if (typeof image === 'string') return image;
+    if (typeof image === 'string') {
+      return image;
+    }
     const key = `${index}-${image.name}-${image.size}`;
     if (!imageObjectUrls.has(key)) {
       const url = URL.createObjectURL(image);
@@ -574,8 +601,9 @@ const HospitalSettings = (): JSX.Element => {
       toIndex < 0 ||
       fromIndex >= currentImages.length ||
       toIndex >= currentImages.length
-    )
+    ) {
       return;
+    }
     const reordered = [...currentImages];
     const [removed] = reordered.splice(fromIndex, 1);
     reordered.splice(toIndex, 0, removed);
@@ -589,10 +617,12 @@ const HospitalSettings = (): JSX.Element => {
   };
 
   useEffect(() => {
-    return () => {
+    const cleanup = (): void => {
       imageObjectUrls.forEach((url) => URL.revokeObjectURL(url));
       imageObjectUrls.clear();
     };
+
+    return cleanup;
   }, []);
 
   const logoUrl = getLogoUrl();
@@ -632,15 +662,21 @@ const HospitalSettings = (): JSX.Element => {
   const [isSaveButtonInView, setIsSaveButtonInView] = useState(true);
 
   useEffect(() => {
-    if (isFetchingHospital) return;
+    if (isFetchingHospital) {
+      return;
+    }
     const el = saveButtonRef.current;
-    if (!el) return;
+    if (!el) {
+      return;
+    }
     const observer = new IntersectionObserver(
-      ([entry]) => setIsSaveButtonInView(entry.isIntersecting),
+      ([entry]): void => {
+        setIsSaveButtonInView(entry.isIntersecting);
+      },
       { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0 },
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    return (): void => observer.disconnect();
   }, [isFetchingHospital]);
 
   const showFloatingSave = !isSaveButtonInView && isDirty;
@@ -745,7 +781,6 @@ const HospitalSettings = (): JSX.Element => {
                 return (
                   <DraggableImageCard
                     key={`${index}-${typeof image === 'string' ? image : image.name}`}
-                    image={image}
                     index={index}
                     isPrimaryDisplay={isPrimaryDisplay}
                     imageUrl={imageUrl}

@@ -63,7 +63,7 @@ const Location = ({
     }
   }, [controlledValue]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
     setInputValue(value);
 
@@ -78,7 +78,7 @@ const Location = ({
     setShowSuggestions(value.length > 0);
   };
 
-  const handleSelectLocation = (location: Option) => {
+  const handleSelectLocation = (location: Option): void => {
     const description = location.value.description;
     setInputValue(description);
     setShowSuggestions(false);

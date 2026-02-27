@@ -69,7 +69,7 @@ export interface IHospitalImage {
   id: string;
   type: 'logo' | 'photo' | 'floorplan';
   url: string;
-  meta?: any;
+  meta?: unknown;
 }
 
 export interface IHospitalService {
@@ -82,7 +82,7 @@ export interface IHospitalService {
     category?: string;
   };
   availability: 'available' | 'limited' | 'not_available';
-  priceRange?: any;
+  priceRange?: unknown;
   notes?: string;
   bookingUrl?: string;
 }
@@ -101,7 +101,7 @@ export interface IHospitalDetail {
   bedCount?: number;
   telemedicine: boolean;
   languages: string[];
-  accreditations?: any;
+  accreditations?: unknown;
   primaryAddress?: IHospitalAddress;
   addresses?: IHospitalAddress[];
   images?: IHospitalImage[];

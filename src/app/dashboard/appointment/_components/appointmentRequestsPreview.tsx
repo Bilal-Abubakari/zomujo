@@ -80,9 +80,13 @@ const AppointmentRequestsPreview = (): JSX.Element => {
     orderDirection: OrderDirection.Descending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
     patientId: user?.role === Role.Patient ? user?.id : undefined,
-    orgId: (() => {
-      if (user?.role === Role.Hospital) return hospitalId;
-      if (user?.role === Role.Admin) return orgId;
+    orgId: (() : string | undefined => {
+      if (user?.role === Role.Hospital) {
+        return hospitalId;
+      }
+      if (user?.role === Role.Admin) {
+        return orgId;
+      }
       return undefined;
     })(),
     page: 1,

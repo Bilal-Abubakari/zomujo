@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { JSX, useState } from 'react';
 import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
@@ -8,13 +8,13 @@ interface ReviewSectionProps {
   hospitalName: string;
 }
 
-const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
+const ReviewSection = ({ hospitalName }: ReviewSectionProps): JSX.Element => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
     if (rating === 0) {

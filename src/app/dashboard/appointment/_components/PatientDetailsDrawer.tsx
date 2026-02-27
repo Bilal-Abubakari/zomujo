@@ -151,7 +151,9 @@ const PatientDetailsDrawer = ({
 
   // Format additional info text, converting ISO dates to human-readable format
   const formatAdditionalInfo = (text: string): string => {
-    if (!text) return text;
+    if (!text) {
+      return text;
+    }
 
     // Pattern to match ISO 8601 date strings (e.g., "2026-01-24T00:00:00.000Z" or "2026-01-24T00:00:00Z")
     // This will match dates in various ISO formats
