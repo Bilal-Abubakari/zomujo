@@ -78,8 +78,9 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   useEffect(() => {
     async function getUpcomingAppointments(): Promise<void> {
       setLoading(true);
-      const fetchAction = isHospital ? getHospitalAppointments : getAppointments;
-      const { payload } = await dispatch(fetchAction(queryParams));
+      const { payload } = isHospital
+        ? await dispatch(getHospitalAppointments(queryParams))
+        : await dispatch(getAppointments(queryParams));
       setLoading(false);
 
       if (payload && showErrorToast(payload)) {

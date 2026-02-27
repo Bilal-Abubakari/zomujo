@@ -3,9 +3,17 @@ import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { IHospital } from '@/types/hospital.interface';
 import { IPatient } from '@/types/patient.interface';
 import { IDoctor } from '@/types/doctor.interface';
+import { ILab } from '@/types/labs.interface';
 import { AppointmentType, SlotStatus } from '@/types/slots.interface';
 import type { PaginationData } from '@/components/ui/table';
 import type { IPatientSymptomMap } from '@/types/consultation.interface';
+
+const emptyLab: ILab = {
+  id: 'dummy-lab',
+  data: [],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
 
 export const ENABLE_DUMMY_APPOINTMENTS = process.env.NODE_ENV !== 'production';
 
@@ -108,7 +116,7 @@ const isoDate = (daysFromToday: number): string => {
   return d.toISOString().slice(0, 10);
 };
 
-export const DUMMY_HOSPITAL_APPOINTMENTS: IAppointment[] = [
+export const DUMMY_HOSPITAL_APPOINTMENTS = [
   {
     id: 'appt-001',
     createdAt: new Date().toISOString(),
@@ -135,7 +143,7 @@ export const DUMMY_HOSPITAL_APPOINTMENTS: IAppointment[] = [
     reason: 'Fever and headache',
     additionalInfo: 'Patient reports symptoms started 2 days ago.',
     symptoms: makeSymptoms('appt-001'),
-    lab: [],
+    lab: emptyLab,
     diagnosis: [],
   },
   {
@@ -164,7 +172,7 @@ export const DUMMY_HOSPITAL_APPOINTMENTS: IAppointment[] = [
     reason: 'Chest discomfort',
     additionalInfo: 'Follow-up from last month’s consultation.',
     symptoms: makeSymptoms('appt-002'),
-    lab: [],
+    lab: emptyLab,
     diagnosis: [],
   },
   {
@@ -193,7 +201,7 @@ export const DUMMY_HOSPITAL_APPOINTMENTS: IAppointment[] = [
     reason: 'Routine checkup',
     additionalInfo: 'Vitals normal; no complaints.',
     symptoms: makeSymptoms('appt-003'),
-    lab: [],
+    lab: emptyLab,
     diagnosis: [],
   },
   {
@@ -222,7 +230,7 @@ export const DUMMY_HOSPITAL_APPOINTMENTS: IAppointment[] = [
     reason: 'Blood pressure review',
     additionalInfo: 'Patient currently on medication; needs dosage review.',
     symptoms: makeSymptoms('appt-004'),
-    lab: [],
+    lab: emptyLab,
     diagnosis: [],
   },
   {
@@ -251,7 +259,7 @@ export const DUMMY_HOSPITAL_APPOINTMENTS: IAppointment[] = [
     reason: 'Stomach discomfort',
     additionalInfo: 'Pain after meals, no vomiting.',
     symptoms: makeSymptoms('appt-005'),
-    lab: [],
+    lab: emptyLab,
     diagnosis: [],
   },
   {
@@ -280,7 +288,7 @@ export const DUMMY_HOSPITAL_APPOINTMENTS: IAppointment[] = [
     reason: 'Follow-up consultation',
     additionalInfo: 'Cancelled by patient due to travel.',
     symptoms: makeSymptoms('appt-006'),
-    lab: [],
+    lab: emptyLab,
     diagnosis: [],
   },
   {
@@ -309,10 +317,10 @@ export const DUMMY_HOSPITAL_APPOINTMENTS: IAppointment[] = [
     reason: 'Skin rash',
     additionalInfo: 'Declined due to insufficient booking details.',
     symptoms: makeSymptoms('appt-007'),
-    lab: [],
+    lab: emptyLab,
     diagnosis: [],
   },
-];
+] as unknown as IAppointment[];
 
 export const DUMMY_HOSPITAL_APPOINTMENTS_PAGINATION: PaginationData = {
   total: DUMMY_HOSPITAL_APPOINTMENTS.length,

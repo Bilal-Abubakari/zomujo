@@ -39,6 +39,7 @@ export interface IUser extends IBaseUser {
   role: Role;
   createdAt: Date;
   isOAuthOnly: boolean;
+  contact?: string;
 }
 
 export interface IUserSignUp extends IBaseUser {

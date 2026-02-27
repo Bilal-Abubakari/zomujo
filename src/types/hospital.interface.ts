@@ -11,6 +11,7 @@ export interface IHospital extends IHospitalProfile {
   image: string | null;
   updatedAt: Date;
   createdAt: Date;
+  isActive?: boolean;
 }
 
 export interface IHospitalProfile {

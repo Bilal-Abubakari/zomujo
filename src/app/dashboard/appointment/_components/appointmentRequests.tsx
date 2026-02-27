@@ -21,10 +21,12 @@ import {
 } from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
 import { selectUser, selectExtra, selectOrganizationId } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import { IHospitalAppointment } from '@/types/hospital-appointment.interface';
 import { AcceptDeclineStatus, OrderDirection, Role } from '@/types/shared.enum';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+import { AsyncThunk } from '@reduxjs/toolkit';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
@@ -95,7 +97,13 @@ const AppointmentRequests = (): JSX.Element => {
     tableData,
     updatePage,
     refetch,
-  } = useFetchPaginatedData<IAppointment | IHospitalAppointment, AppointmentStatus | ''>(fetchAction, {
+  } = useFetchPaginatedData<IAppointment | IHospitalAppointment, AppointmentStatus | ''>(
+    fetchAction as AsyncThunk<
+      Toast | IPagination<IAppointment | IHospitalAppointment>,
+      IQueryParams<AppointmentStatus | ''>,
+      object
+    >,
+    {
     orderBy: 'createdAt',
     orderDirection: OrderDirection.Descending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
@@ -123,7 +131,7 @@ const AppointmentRequests = (): JSX.Element => {
   ];
   const [dateSortDirection, setDateSortDirection] = useState<string>('');
 
-  const columns: ColumnDef<IAppointment>[] = [
+  const columns: ColumnDef<IAppointment | IHospitalAppointment, unknown>[] = [
     {
       accessorKey: 'patient',
       header: () => (
@@ -140,9 +148,9 @@ const AppointmentRequests = (): JSX.Element => {
         const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
         return (
           <AvatarWithName
-            imageSrc={isDoctor || isAdmin || isHospital ? patient.profilePicture : doctor.profilePicture}
-            firstName={isDoctor || isAdmin || isHospital ? patient.firstName : doctor.firstName}
-            lastName={isDoctor || isAdmin || isHospital ? patient.lastName : doctor.lastName}
+            imageSrc={(isDoctor || isAdmin || isHospital ? patient?.profilePicture : doctor?.profilePicture) ?? ''}
+            firstName={(isDoctor || isAdmin || isHospital ? patient?.firstName : doctor?.firstName) ?? ''}
+            lastName={(isDoctor || isAdmin || isHospital ? patient?.lastName : doctor?.lastName) ?? ''}
           />
         );
       },
@@ -187,12 +195,12 @@ const AppointmentRequests = (): JSX.Element => {
         const isCancelled = status === AppointmentStatus.Cancelled;
         const getName = (): string => {
           if (user?.role === Role.Patient) {
-            return `${doctor.firstName} ${doctor.lastName}`;
+            return `${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}`.trim() || '—';
           }
           if (user?.role === Role.Hospital) {
-            return `${patient.firstName} ${patient.lastName}`;
+            return `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim() || '—';
           }
-          return `${patient.firstName} ${patient.lastName}`;
+          return `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim() || '—';
         };
         return (
           <ActionsDropdownMenus

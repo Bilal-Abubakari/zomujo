@@ -11,7 +11,7 @@ import { selectUserName } from '@/lib/features/auth/authSelector';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CalendarIcon } from 'lucide-react';
 import moment from 'moment';
-import React, { JSX, useState } from 'react';
+import React, { JSX, SetStateAction, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { MODE } from '@/constants/constants';
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 
 interface HospitalAppointmentModalProps {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen: React.Dispatch<SetStateAction<boolean>>;
   hospitalId: string;
   hospitalName?: string;
   onSubmit: (data: HospitalAppointmentFormData) => Promise<void>;

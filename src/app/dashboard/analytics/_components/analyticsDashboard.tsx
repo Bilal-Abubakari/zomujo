@@ -186,7 +186,7 @@ const AnalyticsDashboard = (): JSX.Element => {
             name="timeRange"
             options={timeRangeOptions}
             ref={null}
-            control={control as Control}
+            control={control as unknown as Control}
             className="bg-grayscale-300 rounded-3xl text-sm font-medium text-black outline-hidden focus:border-none focus:shadow-none"
           />
         </div>

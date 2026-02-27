@@ -13,6 +13,7 @@ import { AcceptDeclineStatus, OrderDirection } from '@/types/shared.enum';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { ChevronUp, Search, SendHorizontal } from 'lucide-react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import React, {
   FormEvent,
   JSX,
@@ -35,6 +36,8 @@ const Hospitals = (): JSX.Element => {
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
+  const searchParams = useSearchParams();
+  const getParam = (key: string) => searchParams.get(key);
 
   const [queryParameters, setQueryParameters] = useState<
     IQueryParams<AcceptDeclineStatus> & {
@@ -47,6 +50,7 @@ const Hospitals = (): JSX.Element => {
       departmentId?: string;
       insuranceCompanyId?: string;
       languages?: string[];
+      isActive?: boolean;
       minConsultationFee?: number;
       maxConsultationFee?: number;
       openNow?: boolean;
@@ -63,22 +67,31 @@ const Hospitals = (): JSX.Element => {
     pageSize: 12,
     status: AcceptDeclineStatus.Accepted,
     isActive: true,
-    city: getQueryParam('city') || '',
-    nearMe: getQueryParam('nearMe') === 'true' ? true : undefined,
-    organizationType: getQueryParam('organizationType') || '',
-    hasEmergency: getQueryParam('hasEmergency') === 'true' ? true : undefined,
-    telemedicine: getQueryParam('telemedicine') === 'true' ? true : undefined,
-    serviceId: getQueryParam('serviceId') || '',
-    departmentId: getQueryParam('departmentId') || '',
-    insuranceCompanyId: getQueryParam('insuranceCompanyId') || '',
-    languages: getQueryParam('languages') ? getQueryParam('languages').split(',') : undefined,
-    minConsultationFee: getQueryParam('minConsultationFee') ? Number(getQueryParam('minConsultationFee')) : undefined,
-    maxConsultationFee: getQueryParam('maxConsultationFee') ? Number(getQueryParam('maxConsultationFee')) : undefined,
-    openNow: getQueryParam('openNow') === 'true' ? true : undefined,
-    open24_7: getQueryParam('open24_7') === 'true' ? true : undefined,
-    onsitePharmacy: getQueryParam('onsitePharmacy') === 'true' ? true : undefined,
-    onsiteLabs: getQueryParam('onsiteLabs') === 'true' ? true : undefined,
-    ambulanceServices: getQueryParam('ambulanceServices') === 'true' ? true : undefined,
+    city: getParam('city') || '',
+    nearMe: getParam('nearMe') === 'true' ? true : undefined,
+    organizationType: getParam('organizationType') || '',
+    hasEmergency: getParam('hasEmergency') === 'true' ? true : undefined,
+    telemedicine: getParam('telemedicine') === 'true' ? true : undefined,
+    serviceId: getParam('serviceId') || '',
+    departmentId: getParam('departmentId') || '',
+    insuranceCompanyId: getParam('insuranceCompanyId') || '',
+    languages: (() => {
+      const p = getParam('languages');
+      return p ? p.split(',') : undefined;
+    })(),
+    minConsultationFee: (() => {
+      const p = getParam('minConsultationFee');
+      return p ? Number(p) : undefined;
+    })(),
+    maxConsultationFee: (() => {
+      const p = getParam('maxConsultationFee');
+      return p ? Number(p) : undefined;
+    })(),
+    openNow: getParam('openNow') === 'true' ? true : undefined,
+    open24_7: getParam('open24_7') === 'true' ? true : undefined,
+    onsitePharmacy: getParam('onsitePharmacy') === 'true' ? true : undefined,
+    onsiteLabs: getParam('onsiteLabs') === 'true' ? true : undefined,
+    ambulanceServices: getParam('ambulanceServices') === 'true' ? true : undefined,
   });
 
   const canLoadMorePages = (): boolean => {
