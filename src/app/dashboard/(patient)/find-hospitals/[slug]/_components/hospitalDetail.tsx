@@ -567,7 +567,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
 
       {/* Accreditations */}
       {accreditations != null &&
-        (() : JSX.Element | null => {
+        ((): JSX.Element | null => {
           const accreditationsList = parseAccreditationsList(accreditations);
           if (accreditationsList.length === 0) {
             return null;

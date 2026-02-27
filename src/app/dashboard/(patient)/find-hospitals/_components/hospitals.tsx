@@ -68,15 +68,15 @@ const Hospitals = (): JSX.Element => {
     serviceId: getParam('serviceId') || '',
     departmentId: getParam('departmentId') || '',
     insuranceCompanyId: getParam('insuranceCompanyId') || '',
-    languages: (() : string[] | undefined => {
+    languages: ((): string[] | undefined => {
       const p = getParam('languages');
       return p ? p.split(',') : undefined;
     })(),
-    minConsultationFee: (() : number | undefined => {
+    minConsultationFee: ((): number | undefined => {
       const p = getParam('minConsultationFee');
       return p ? Number(p) : undefined;
     })(),
-    maxConsultationFee: (() : number | undefined => {
+    maxConsultationFee: ((): number | undefined => {
       const p = getParam('maxConsultationFee');
       return p ? Number(p) : undefined;
     })(),

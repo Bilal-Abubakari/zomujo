@@ -80,7 +80,7 @@ const AppointmentRequestsPreview = (): JSX.Element => {
     orderDirection: OrderDirection.Descending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
     patientId: user?.role === Role.Patient ? user?.id : undefined,
-    orgId: (() : string | undefined => {
+    orgId: ((): string | undefined => {
       if (user?.role === Role.Hospital) {
         return hospitalId;
       }
