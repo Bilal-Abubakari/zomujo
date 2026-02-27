@@ -17,7 +17,6 @@ import {
   Shield,
   Tag,
   ChevronLeft,
-  Calendar,
   CheckCircle2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -78,20 +77,59 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
     hasEmergency,
     telemedicine,
     bedCount,
-    languages,
     accreditations,
-    primaryAddress,
     addresses,
     images,
     services,
     amenities,
-    tags,
     openingHours,
     insuranceNetworks,
     mainPhone,
     mainEmail,
     website,
   } = hospital;
+
+  const getOpeningHourClass = (hour: { isClosed?: boolean; is24Hours?: boolean }): string => {
+    if (hour.isClosed) return 'text-red-600';
+    if (hour.is24Hours) return 'text-green-600';
+    return 'text-gray-700';
+  };
+
+  const getOpeningHourLabel = (hour: {
+    isClosed?: boolean;
+    is24Hours?: boolean;
+    openTime?: string;
+    closeTime?: string;
+  }): string => {
+    if (hour.isClosed) return 'Closed';
+    if (hour.is24Hours) return '24 Hours';
+    if (hour.openTime && hour.closeTime) return `${hour.openTime} - ${hour.closeTime}`;
+    return 'Hours vary';
+  };
+
+  const getAvailabilityBadgeClass = (availability: string): string => {
+    if (availability === 'available')
+      return 'bg-green-100 text-green-700 border border-green-200';
+    if (availability === 'limited')
+      return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+    return 'bg-gray-100 text-gray-700 border border-gray-200';
+  };
+
+  const parseAccreditationsList = (accreditations: unknown): unknown[] => {
+    if (Array.isArray(accreditations)) return accreditations;
+    if (typeof accreditations !== 'object' || accreditations === null) return [];
+    const withAcc = accreditations as { accreditations?: unknown[] };
+    if (Array.isArray(withAcc?.accreditations)) return withAcc.accreditations;
+    try {
+      const parsed =
+        typeof accreditations === 'string' ? JSON.parse(accreditations) : accreditations;
+      if (Array.isArray(parsed?.accreditations)) return parsed.accreditations;
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      return [accreditations];
+    }
+    return [];
+  };
 
   const logoImage = images?.find((img) => img.type === 'logo');
   const photoImages = (images?.filter((img) => img.type === 'photo') || []).sort((a, b) => {
@@ -345,22 +383,8 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                   className="flex items-center justify-between rounded-lg bg-white px-4 py-3"
                 >
                   <span className="capitalize font-semibold text-gray-900">{hour.weekday}</span>
-                  <span
-                    className={`font-medium ${
-                      hour.isClosed
-                        ? 'text-red-600'
-                        : hour.is24Hours
-                          ? 'text-green-600'
-                          : 'text-gray-700'
-                    }`}
-                  >
-                    {hour.isClosed
-                      ? 'Closed'
-                      : hour.is24Hours
-                        ? '24 Hours'
-                        : hour.openTime && hour.closeTime
-                          ? `${hour.openTime} - ${hour.closeTime}`
-                          : 'Hours vary'}
+                  <span className={`font-medium ${getOpeningHourClass(hour)}`}>
+                    {getOpeningHourLabel(hour)}
                   </span>
                 </div>
               ))}
@@ -387,13 +411,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">{service.service.name}</h3>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                      service.availability === 'available'
-                        ? 'bg-green-100 text-green-700 border border-green-200'
-                        : service.availability === 'limited'
-                          ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
-                          : 'bg-gray-100 text-gray-700 border border-gray-200'
-                    }`}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${getAvailabilityBadgeClass(
+                      service.availability,
+                    )}`}
                   >
                     {service.availability}
                   </span>
@@ -545,34 +565,9 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
       )}
 
       {/* Accreditations */}
-      {accreditations && (() => {
-        // Parse accreditations - handle both object with accreditations array and direct array
-        let accreditationsList: any[] = [];
-        
-        if (Array.isArray(accreditations)) {
-          accreditationsList = accreditations;
-        } else if (typeof accreditations === 'object' && accreditations !== null) {
-          // Check if it's an object with an accreditations property
-          if ('accreditations' in accreditations && Array.isArray((accreditations as any).accreditations)) {
-            accreditationsList = (accreditations as any).accreditations;
-          } else {
-            // Try to parse as JSON string if it's a string
-            try {
-              const parsed = typeof accreditations === 'string' ? JSON.parse(accreditations) : accreditations;
-              if (parsed && parsed.accreditations && Array.isArray(parsed.accreditations)) {
-                accreditationsList = parsed.accreditations;
-              } else if (Array.isArray(parsed)) {
-                accreditationsList = parsed;
-              }
-            } catch {
-              // If parsing fails, treat as single item
-              accreditationsList = [accreditations];
-            }
-          }
-        }
-
+      {accreditations != null && (() => {
+        const accreditationsList = parseAccreditationsList(accreditations);
         if (accreditationsList.length === 0) return null;
-
         return (
           <div className="rounded-3xl border border-gray-200 bg-white p-8 pr-10">
             <div className="mb-6 flex items-center gap-3">
@@ -582,19 +577,20 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
               <h2 className="text-2xl font-bold text-gray-900">Accreditations</h2>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {accreditationsList.map((acc: any, index: number) => {
+              {accreditationsList.map((acc: unknown) => {
+                const accObj = typeof acc === 'object' && acc !== null ? (acc as Record<string, unknown>) : {};
                 const body =
-                  acc.body ||
-                  acc.name ||
-                  acc.title ||
+                  (accObj.body as string) ||
+                  (accObj.name as string) ||
+                  (accObj.title as string) ||
                   (typeof acc === 'string' ? acc : 'Accreditation');
-                const date = acc.date || acc.issuedDate || acc.year;
+                const date = (accObj.date ?? accObj.issuedDate ?? accObj.year) as string | undefined;
                 const bodyKey = typeof body === 'string' ? body.toLowerCase() : '';
                 const logoSrc = accreditationLogoMap[bodyKey];
-                
+                const itemKey = `accreditation-${body}-${String(date ?? '')}`;
                 return (
                   <div
-                    key={index}
+                    key={itemKey}
                     className="rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-teal-50 p-5"
                   >
                     <div className="flex items-start gap-3">
@@ -615,10 +611,10 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
                         <h3 className="font-semibold text-gray-900">{body}</h3>
                         {date && (
                           <p className="mt-1 text-sm text-gray-600">
-                            {new Date(date).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
+                            {new Date(date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
                             })}
                           </p>
                         )}
