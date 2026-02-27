@@ -18,7 +18,7 @@ import {
 } from '@/app/dashboard/appointment/_components/dummyHospitalAppointments';
 import type { IUser } from '@/types/auth.interface';
 
-function PatientColumnCell({ row, user }: { row: { original: IAppointment }; user: IUser | null }): JSX.Element {
+function PatientColumnCell({ row, user }: { row: { original: IAppointment }; user: IUser | null | undefined }): JSX.Element {
   const { original } = row;
   const { doctor, patient } = original;
   const isDoctor = user?.role === Role.Doctor;
@@ -33,7 +33,7 @@ function PatientColumnCell({ row, user }: { row: { original: IAppointment }; use
   );
 }
 
-function PatientColumnHeader({ user }: { user: IUser | null }): JSX.Element {
+function PatientColumnHeader({ user }: { user: IUser | null | undefined }): JSX.Element {
   return (
     <div className="flex cursor-pointer whitespace-nowrap">
       {user?.role === Role.Doctor || user?.role === Role.Hospital ? 'Patient Name' : 'Doctor Name'}
