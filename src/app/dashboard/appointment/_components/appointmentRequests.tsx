@@ -31,8 +31,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
   Calendar as CalendarIcon,
-  ChevronDown,
-  ChevronUp,
   Eye,
   ListFilter,
   Search,
@@ -62,7 +60,6 @@ const AppointmentRequests = (): JSX.Element => {
   const user = useAppSelector(selectUser);
   const extra = useAppSelector(selectExtra);
   const orgId = useAppSelector(selectOrganizationId);
-  const dispatch = useAppDispatch();
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -70,7 +67,7 @@ const AppointmentRequests = (): JSX.Element => {
     open: false,
   });
   const [openModal, setOpenModal] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<SelectedAppointment>({
+  const [selectedAppointment] = useState<SelectedAppointment>({
     date: new Date(),
     appointmentId: '',
   });
@@ -80,10 +77,6 @@ const AppointmentRequests = (): JSX.Element => {
   >(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-
-  // Get hospital ID from extra if user is a hospital
-  const hospitalId =
-    user?.role === Role.Hospital && extra && 'id' in extra ? (extra as { id: string }).id : undefined;
 
   // Use hospital appointments endpoint for hospital role, doctor appointments for others
   const isHospital = user?.role === Role.Hospital;
@@ -188,9 +181,8 @@ const AppointmentRequests = (): JSX.Element => {
       id: 'actions',
       header: 'Action',
       cell: ({ row: { original } }): JSX.Element => {
-        const { status, patient, doctor, id, createdAt } = original;
+        const { status, patient, doctor, id } = original;
         const isPending = status === AppointmentStatus.Pending;
-        const isInProgress = status === AppointmentStatus.Progress;
         const isDone = status === AppointmentStatus.Completed;
         const isCancelled = status === AppointmentStatus.Cancelled;
         const getName = (): string => {

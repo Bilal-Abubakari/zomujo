@@ -54,9 +54,9 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
     <div className="rounded-lg border border-gray-200 bg-white p-6">
       <h2 className="mb-4 text-xl font-bold">Write a Review</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Your Rating</label>
-          <div className="flex gap-1">
+        <fieldset className="flex flex-col gap-2 border-0 p-0">
+          <legend className="text-sm font-medium text-gray-700">Your Rating</legend>
+          <div className="flex gap-1" role="group" aria-label="Star rating">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
@@ -77,6 +77,7 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
               </button>
             ))}
           </div>
+          </fieldset>
           {rating > 0 && (
             <span className="text-sm text-gray-600">
               {rating === 1 && 'Poor'}
@@ -86,7 +87,6 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
               {rating === 5 && 'Excellent'}
             </span>
           )}
-        </div>
 
         <div className="flex flex-col gap-2">
           <label htmlFor="review" className="text-sm font-medium text-gray-700">

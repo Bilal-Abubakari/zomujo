@@ -93,7 +93,7 @@ const HospitalAppointmentModal = ({
       reset();
       setOpen(false);
     } catch (error) {
-      // Error handling is done in parent component
+      throw error;
     } finally {
       setIsSubmitting(false);
     }
@@ -111,7 +111,7 @@ const HospitalAppointmentModal = ({
       open={open}
       setState={setOpen}
       showClose={!isSubmitting && !isLoading}
-      title={`Book Appointment${hospitalName ? ` - ${hospitalName}` : ''}`}
+      title={hospitalName ? `Book Appointment - ${hospitalName}` : 'Book Appointment'}
       description="Fill in the details below to request an appointment"
       content={
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">

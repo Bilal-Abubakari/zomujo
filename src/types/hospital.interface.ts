@@ -1,5 +1,7 @@
 import { ApproveDeclineStatus } from '@/types/shared.enum';
 
+export type OrganizationType = 'private' | 'public' | 'teaching' | 'clinic';
+
 // Legacy interface for organizations (kept for backward compatibility)
 export interface IHospital extends IHospitalProfile {
   id: string;
@@ -24,7 +26,7 @@ export interface IHospitalProfile {
   imageOrder?: string[];
   // New fields
   description?: string;
-  organizationType?: 'private' | 'public' | 'teaching' | 'clinic';
+  organizationType?: OrganizationType;
   mainPhone?: string;
   mainEmail?: string;
   website?: string;
@@ -90,7 +92,7 @@ export interface IHospitalDetail {
   name: string;
   slug: string;
   description?: string;
-  organizationType: 'private' | 'public' | 'teaching' | 'clinic';
+  organizationType: OrganizationType;
   mainPhone?: string;
   mainEmail?: string;
   website?: string;
@@ -134,7 +136,7 @@ export interface IHospitalListItem {
   name: string;
   slug: string;
   description?: string;
-  organizationType: 'private' | 'public' | 'teaching' | 'clinic';
+  organizationType: OrganizationType;
   mainPhone?: string;
   mainEmail?: string;
   website?: string;

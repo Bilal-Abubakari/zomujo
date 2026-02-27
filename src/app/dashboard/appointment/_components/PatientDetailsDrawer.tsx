@@ -129,7 +129,8 @@ const PatientDetailsDrawer = ({
     }
     // For hospital appointments without slots, try to extract from additionalInfo
     if (additionalInfo) {
-      const dateMatch = additionalInfo.match(/Appointment Date: (.+)/);
+      const dateRegex = /Appointment Date: (.+)/;
+      const dateMatch = dateRegex.exec(additionalInfo);
       if (dateMatch) {
         const dateStr = dateMatch[1].trim();
         // Try to parse and format the date
@@ -151,7 +152,7 @@ const PatientDetailsDrawer = ({
     // This will match dates in various ISO formats
     const isoDatePattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z?/g;
 
-    return text.replace(isoDatePattern, (match) => {
+    return text.replaceAll(isoDatePattern, (match) => {
       const parsedDate = moment(match);
       if (parsedDate.isValid()) {
         return parsedDate.format('LL');

@@ -54,56 +54,55 @@ export const getNearByHospitals = createAsyncThunk(
   },
 );
 
+function appendFormDataEntry(
+  formData: FormData,
+  key: string,
+  value: unknown,
+): void {
+  if (key === 'images' && Array.isArray(value)) {
+    const files = value.filter((v): v is File => v instanceof File);
+    for (const file of files) {
+      formData.append('images', file, file.name);
+    }
+    return;
+  }
+  if (key === 'imageOrder' && Array.isArray(value)) {
+    formData.append('imageOrder', JSON.stringify(value));
+    return;
+  }
+  if (key === 'image') {
+    if (value instanceof File) {
+      formData.append('image', value, value.name);
+    } else if (value === null) {
+      formData.append('clearLogo', 'true');
+    }
+    return;
+  }
+  if (value === null) {
+    formData.append(key, '');
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      formData.append(key, String(item));
+    }
+    return;
+  }
+  if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
+    formData.append(key, String(value));
+  }
+}
+
 /**
  * Build FormData for PATCH: only include keys present in payload.
  * null values are sent as empty string so backend can set fields to null (e.g. clear logo).
  */
 function buildFormData(payload: Record<string, unknown>): FormData {
   const formData = new FormData();
-
   for (const [key, value] of Object.entries(payload)) {
     if (value === undefined) continue;
-
-    if (key === 'images' && Array.isArray(value)) {
-      const files = value.filter((v): v is File => v instanceof File);
-      for (const file of files) {
-        formData.append('images', file, file.name);
-      }
-      continue;
-    }
-    if (key === 'imageOrder' && Array.isArray(value)) {
-      // Send image order as JSON string
-      formData.append('imageOrder', JSON.stringify(value));
-      continue;
-    }
-    if (key === 'image') {
-      if (value instanceof File) {
-        formData.append('image', value, value.name);
-      } else if (value === null) {
-        formData.append('clearLogo', 'true');
-      }
-      continue;
-    }
-    if (value === null) {
-      formData.append(key, '');
-      continue;
-    }
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        formData.append(key, String(item));
-      }
-      continue;
-    }
-    if (typeof value === 'boolean') {
-      formData.append(key, String(value));
-      continue;
-    }
-    if (typeof value === 'number' || typeof value === 'string') {
-      formData.append(key, String(value));
-      continue;
-    }
+    appendFormDataEntry(formData, key, value);
   }
-
   return formData;
 }
 
@@ -192,8 +191,8 @@ export const getServices = createAsyncThunk(
       try {
         const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('services');
         return data.data;
-      } catch (err) {
-        return axiosErrorHandler(error, true) as Toast;
+      } catch (innerError) {
+        return axiosErrorHandler(innerError, true) as Toast;
       }
     }
   },
@@ -211,8 +210,8 @@ export const getDepartments = createAsyncThunk(
       try {
         const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('departments');
         return data.data;
-      } catch (err) {
-        return axiosErrorHandler(error, true) as Toast;
+      } catch (innerError) {
+        return axiosErrorHandler(innerError, true) as Toast;
       }
     }
   },
@@ -230,8 +229,8 @@ export const getInsuranceCompanies = createAsyncThunk(
       try {
         const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('insurance-companies');
         return data.data;
-      } catch (err) {
-        return axiosErrorHandler(error, true) as Toast;
+      } catch (innerError) {
+        return axiosErrorHandler(innerError, true) as Toast;
       }
     }
   },

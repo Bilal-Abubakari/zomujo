@@ -74,7 +74,7 @@ const AnalyticsDashboard = (): JSX.Element => {
   useEffect(() => {
     const now = moment();
     let start: moment.Moment;
-    let end: moment.Moment = now;
+    let end: moment.Moment;
 
     switch (timeRange) {
       case 'today':
@@ -85,17 +85,15 @@ const AnalyticsDashboard = (): JSX.Element => {
         start = now.clone().startOf('isoWeek');
         end = now.clone().endOf('isoWeek');
         break;
-      case 'month':
-        start = now.clone().startOf('month');
-        end = now.clone().endOf('month');
-        break;
       case 'year':
         start = now.clone().startOf('year');
         end = now.clone().endOf('year');
         break;
+      case 'month':
       default:
         start = now.clone().startOf('month');
         end = now.clone().endOf('month');
+        break;
     }
 
     setStartDate(start.toDate());
@@ -235,7 +233,7 @@ const AnalyticsDashboard = (): JSX.Element => {
                       tickLine={false}
                       tickMargin={10}
                       axisLine={false}
-                      tickFormatter={(value) => String(value)}
+                      tickFormatter={String}
                     />
                     <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                     <Bar dataKey="value" fill="#AD91D4" radius={8} />

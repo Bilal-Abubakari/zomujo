@@ -16,6 +16,36 @@ import { getHospitalAppointmentStats } from '@/lib/features/hospital-appointment
 import { getHospitalAppointmentTrends } from '@/lib/features/analytics/analyticsThunk';
 import moment from 'moment';
 
+type TrendsPayload = { total: number; thisMonth: number; lastMonth: number; percentage: number };
+
+function computeTrendAndPercentage(
+  currentTrendsPayload: unknown,
+  lastTrendsPayload: unknown,
+  showErrorToast: (p: unknown) => boolean,
+): { percentage: string; trend: 'up' | 'down' } {
+  if (currentTrendsPayload && !showErrorToast(currentTrendsPayload) && lastTrendsPayload && !showErrorToast(lastTrendsPayload)) {
+    const currentTrends = currentTrendsPayload as TrendsPayload;
+    const lastTrends = lastTrendsPayload as TrendsPayload;
+    const currentTotal = currentTrends.thisMonth || currentTrends.total;
+    const lastTotal = lastTrends.thisMonth || lastTrends.total;
+    if (lastTotal > 0) {
+      const percentageChange = ((currentTotal - lastTotal) / lastTotal) * 100;
+      return { percentage: Math.abs(percentageChange).toFixed(1), trend: percentageChange >= 0 ? 'up' : 'down' };
+    }
+    if (currentTotal > 0) {
+      return { percentage: '100', trend: 'up' };
+    }
+    return { percentage: '0', trend: 'up' };
+  }
+  if (currentTrendsPayload && !showErrorToast(currentTrendsPayload)) {
+    const trends = currentTrendsPayload as TrendsPayload;
+    const pct = Math.abs(trends.percentage || 0).toFixed(1);
+    const trend = (trends.percentage || 0) >= 0 ? 'up' : 'down';
+    return { percentage: pct, trend };
+  }
+  return { percentage: '0', trend: 'up' };
+}
+
 const HospitalHome = (): JSX.Element => {
   const user = useAppSelector(selectUser);
   const extra = useAppSelector(selectExtra) as IHospital | undefined;
@@ -67,38 +97,11 @@ const HospitalHome = (): JSX.Element => {
           }),
         );
 
-        let totalPercentage = '0';
-        let totalTrend: 'up' | 'down' = 'up';
-
-        if (currentTrendsPayload && !showErrorToast(currentTrendsPayload) && lastTrendsPayload && !showErrorToast(lastTrendsPayload)) {
-          const currentTrends = currentTrendsPayload as { total: number; thisMonth: number; lastMonth: number; percentage: number };
-          const lastTrends = lastTrendsPayload as { total: number; thisMonth: number; lastMonth: number; percentage: number };
-
-          // Calculate percentage change for total
-          const currentTotal = currentTrends.thisMonth || currentTrends.total;
-          const lastTotal = lastTrends.thisMonth || lastTrends.total;
-          
-          if (lastTotal > 0) {
-            const percentageChange = ((currentTotal - lastTotal) / lastTotal) * 100;
-            totalPercentage = Math.abs(percentageChange).toFixed(1);
-            totalTrend = percentageChange >= 0 ? 'up' : 'down';
-          } else if (currentTotal > 0) {
-            totalPercentage = '100';
-            totalTrend = 'up';
-          }
-        } else if (currentTrendsPayload && !showErrorToast(currentTrendsPayload)) {
-          const trends = currentTrendsPayload as { total: number; thisMonth: number; lastMonth: number; percentage: number };
-          totalPercentage = Math.abs(trends.percentage || 0).toFixed(1);
-          totalTrend = (trends.percentage || 0) >= 0 ? 'up' : 'down';
-        }
-
-        // For pending and accepted, we'll use a simple calculation based on trends
-        // In a real scenario, you'd want to fetch status-specific trends
-        // For now, we'll use the overall trend as a proxy
-        const pendingPercentage = totalPercentage;
-        const acceptedPercentage = totalPercentage;
-        const pendingTrend = totalTrend;
-        const acceptedTrend = totalTrend;
+        const { percentage: totalPercentage, trend: totalTrend } = computeTrendAndPercentage(
+          currentTrendsPayload,
+          lastTrendsPayload,
+          showErrorToast,
+        );
 
         setStats([
           {
@@ -110,14 +113,14 @@ const HospitalHome = (): JSX.Element => {
           {
             title: 'Pending Appointments',
             value: String(currentStats.pending || 0),
-            percentage: pendingPercentage,
-            trend: pendingTrend,
+            percentage: totalPercentage,
+            trend: totalTrend,
           },
           {
             title: 'Accepted Appointments',
             value: String(currentStats.accepted || 0),
-            percentage: acceptedPercentage,
-            trend: acceptedTrend,
+            percentage: totalPercentage,
+            trend: totalTrend,
           },
         ]);
       } catch (error) {
@@ -137,7 +140,6 @@ const HospitalHome = (): JSX.Element => {
   // Use the hospital data from extra (already available from login)
   // Hospital users don't need to fetch hospital data separately
   const displayHospital = extra;
-  const organizationType = displayHospital?.organizationType || displayHospital?.specialties?.[0] || 'Hospital';
   const addressParts = [
     displayHospital?.street,
     displayHospital?.city,
@@ -275,9 +277,9 @@ const HospitalHome = (): JSX.Element => {
                           Languages
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {displayHospital.languages.map((lang, idx) => (
+                          {displayHospital.languages.map((lang) => (
                             <span
-                              key={idx}
+                              key={`lang-${lang}`}
                               className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-700"
                             >
                               {lang}
@@ -293,9 +295,9 @@ const HospitalHome = (): JSX.Element => {
                           Specialties
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {displayHospital.specialties.slice(0, 5).map((specialty, idx) => (
+                          {displayHospital.specialties.slice(0, 5).map((specialty) => (
                             <span
-                              key={idx}
+                              key={`specialty-${specialty}`}
                               className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-700"
                             >
                               {specialty}

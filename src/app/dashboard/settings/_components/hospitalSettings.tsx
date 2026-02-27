@@ -27,11 +27,10 @@ import { selectExtra, selectUserRole } from '@/lib/features/auth/authSelector';
 import { cn } from '@/lib/utils';
 import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
 import { IHospital, IHospitalDetail, IHospitalImage } from '@/types/hospital.interface';
-import { ApproveDeclineStatus } from '@/types/shared.enum';
+import { ApproveDeclineStatus, Role } from '@/types/shared.enum';
 import { Textarea } from '@/components/ui/textarea';
 import { SelectInput } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Role } from '@/types/shared.enum';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TooltipComp } from '@/components/ui/tooltip';
@@ -80,7 +79,7 @@ const optionalGpsSchema = z.union([
   z.string().refine(
     (val) => {
       if (!val || val === '') return true;
-      const ghanaPostPattern = /^[A-Z]{2}-[\d]{3}-[\d]{4,5}$/i;
+      const ghanaPostPattern = /^[A-Z]{2}-\d{3}-\d{4,5}$/i;
       const urlPattern = /^https?:\/\/(www\.)?(google\.com\/maps|maps\.google\.com|openstreetmap\.org|waze\.com|maps\.apple\.com)/i;
       return ghanaPostPattern.test(val) || urlPattern.test(val);
     },
@@ -207,7 +206,7 @@ function getInitialFormValues(org: OrgSource): HospitalFormValues {
   
   // Filter gallery images and sort by displayOrder if available
   const photoImages = orgImages.filter((img) => img.type !== 'logo');
-  const sortedPhotos = photoImages.sort((a, b) => {
+  const sortedPhotos = photoImages.toSorted((a, b) => {
     const orderA = (a.meta as { displayOrder?: number })?.displayOrder ?? 999;
     const orderB = (b.meta as { displayOrder?: number })?.displayOrder ?? 999;
     return orderA - orderB;
@@ -264,7 +263,7 @@ const SET_VALUE_OPTS = {
 } as const;
 
 /** Optional string fields where empty string means "clear" (send null to backend) */
-const OPTIONAL_STRING_KEYS: (keyof HospitalFormValues)[] = [
+const OPTIONAL_STRING_KEYS = new Set<keyof HospitalFormValues>([
   'description',
   'mainPhone',
   'mainEmail',
@@ -277,7 +276,43 @@ const OPTIONAL_STRING_KEYS: (keyof HospitalFormValues)[] = [
   'phone',
   'fax',
   'gpsLink',
-];
+]);
+
+function applyDirtyKey(
+  key: keyof HospitalFormValues,
+  value: unknown,
+  payload: Record<string, unknown>,
+): void {
+  if (key === 'images' && Array.isArray(value)) {
+    const newFiles = value.filter((img) => img instanceof File);
+    if (newFiles.length > 0) payload[key] = newFiles;
+    return;
+  }
+  if (key === 'imageOrder' && Array.isArray(value)) {
+    payload[key] = value;
+    return;
+  }
+  if (key === 'image') {
+    let imageValue: File | null | undefined;
+    if (value instanceof File) imageValue = value;
+    else if (value === null) imageValue = null;
+    else imageValue = undefined;
+    payload[key] = imageValue;
+    if (payload[key] === undefined) delete payload[key];
+    return;
+  }
+  if ((key === 'bedCount' || key === 'regularFee') && (value === '' || value === undefined)) {
+    payload[key] = null;
+    return;
+  }
+  if (OPTIONAL_STRING_KEYS.has(key) && value === '') {
+    payload[key] = null;
+    return;
+  }
+  if (value !== undefined) {
+    payload[key] = value;
+  }
+}
 
 /**
  * Build PATCH payload: only keys that have changed.
@@ -290,56 +325,22 @@ function buildDirtyPayload(
   data: HospitalFormValues,
 ): Record<string, unknown> {
   const payload: Record<string, unknown> = {};
-
-  for (const key of Object.keys(dirtyFields) as (keyof HospitalFormValues)[]) {
-    const isDirty = dirtyFields[key];
-    if (!isDirty) continue;
-
-    let value = data[key];
-
-    if (key === 'images' && Array.isArray(value)) {
-      const newFiles = value.filter((img) => img instanceof File);
-      if (newFiles.length > 0) payload[key] = newFiles;
-      continue;
-    }
-    if (key === 'imageOrder' && Array.isArray(value)) {
-      // Send the ordered list of image URLs to backend
-      payload[key] = value;
-      continue;
-    }
-    if (key === 'image') {
-      payload[key] = value instanceof File ? value : value === null ? null : undefined;
-      if (payload[key] === undefined) delete payload[key];
-      continue;
-    }
-    if (key === 'bedCount' && (value === '' || value === undefined)) {
-      payload[key] = null;
-      continue;
-    }
-    if (key === 'regularFee' && (value === '' || value === undefined)) {
-      payload[key] = null;
-      continue;
-    }
-    if (OPTIONAL_STRING_KEYS.includes(key) && value === '') {
-      payload[key] = null;
-      continue;
-    }
-    if (value !== undefined) {
-      payload[key] = value;
-    }
+  const keys = Object.keys(dirtyFields) as (keyof HospitalFormValues)[];
+  for (const key of keys) {
+    if (!dirtyFields[key]) continue;
+    applyDirtyKey(key, data[key], payload);
   }
-
   return payload;
 }
 
-type DraggableImageCardProps = {
+type DraggableImageCardProps = Readonly<{
   image: File | string;
   index: number;
   isPrimaryDisplay: boolean;
   imageUrl: string;
   onRemove: () => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
-};
+}>;
 
 function DraggableImageCard({
   image,
@@ -470,7 +471,7 @@ const HospitalSettings = (): JSX.Element => {
       setIsFetchingHospital(false);
       const payload = result.payload as IHospitalDetail | { title?: string; description?: string };
       if (payload && 'slug' in payload && 'images' in payload) {
-        const orgSource = hospitalDetailToOrgSource(payload as IHospitalDetail);
+        const orgSource = hospitalDetailToOrgSource(payload);
         reset(getInitialFormValues(orgSource));
       }
     })();
@@ -660,6 +661,7 @@ const HospitalSettings = (): JSX.Element => {
               }
             }}
             className="group relative flex h-28 w-28 cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-primary hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            aria-label="Upload or replace hospital logo"
           >
             {logoUrl ? (
               <>
@@ -689,14 +691,14 @@ const HospitalSettings = (): JSX.Element => {
             ) : (
               <span className="text-center text-sm text-gray-500">Upload logo</span>
             )}
-            <input
-              accept="image/*"
-              className="hidden"
-              ref={logoInputRef}
-              type="file"
-              onChange={handleLogoChange}
-            />
           </div>
+          <input
+            accept="image/*"
+            className="hidden"
+            ref={logoInputRef}
+            type="file"
+            onChange={handleLogoChange}
+          />
         </div>
 
         <div className="mt-8">

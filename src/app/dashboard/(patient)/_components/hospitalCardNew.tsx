@@ -2,10 +2,8 @@
 import { MapPin, X, MoreVertical, Clock, Globe, BedDouble } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { IHospitalListItem } from '@/types/hospital.interface';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,14 +56,24 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
   return (
     <>
       {showPreview && primaryImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+        <button
+          type="button"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm border-0 cursor-default"
           onClick={() => setShowPreview(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === 'Escape') {
+              e.preventDefault();
+              setShowPreview(false);
+            }
+          }}
+          aria-label="Close preview"
         >
-          <div className="relative max-h-[90vh] max-w-[90vw]">
+          <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
             <button
+              type="button"
               onClick={() => setShowPreview(false)}
               className="absolute -top-4 -right-4 z-10 rounded-full bg-white p-2 shadow-lg transition-all hover:scale-110"
+              aria-label="Close"
             >
               <X size={20} />
             </button>
@@ -77,21 +85,31 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
               className="rounded-lg object-contain shadow-2xl"
             />
           </div>
-        </div>
+        </button>
       )}
 
       <div className="group relative flex w-full max-w-full sm:max-w-[350px] md:max-w-[380px] flex-shrink-0 flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 select-none">
         {/* Image Section with Frosted Glass Overlay */}
         <div className="relative h-[240px] sm:h-[290px] md:h-[350px] w-full overflow-hidden">
           {primaryImage ? (
-            <div className="relative h-full w-full cursor-pointer" onClick={() => setShowPreview(true)}>
+            <button
+              type="button"
+              className="relative h-full w-full cursor-pointer border-0 bg-transparent p-0 text-left"
+              onClick={() => setShowPreview(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setShowPreview(true);
+                }
+              }}
+            >
               <Image
                 src={primaryImage.url}
                 alt={name}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-            </div>
+            </button>
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-100 via-blue-100 to-indigo-100 p-8">
               <Image src={Logo} alt="Fornix Link" className="h-auto w-full max-w-[180px] object-contain" />
@@ -125,7 +143,7 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
                 <DropdownMenuItem onClick={handleViewDetails}>
                   View Details
                 </DropdownMenuItem>
-                {primaryAddress && primaryAddress.city && (
+                {primaryAddress?.city && (
                   <DropdownMenuItem
                     onClick={() => {
                       const query = encodeURIComponent(`${name} ${primaryAddress.city} ${primaryAddress.state || ''}`);

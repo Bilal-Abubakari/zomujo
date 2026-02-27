@@ -71,7 +71,7 @@ export const optionalUrlSchema = z.string().url('Invalid URL format').optional()
 
 export const optionalPhoneSchema = z
   .string()
-  .regex(/^[\d\s\-\+\(\)]+$/, 'Invalid phone number format')
+  .regex(/^[\d\s\-+()]+$/, 'Invalid phone number format')
   .optional()
   .or(z.literal(''));
 

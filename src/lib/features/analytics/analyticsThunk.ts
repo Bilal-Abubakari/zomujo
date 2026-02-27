@@ -16,7 +16,8 @@ export const getHospitalAppointmentTrends = createAsyncThunk(
         queryParams.append('endDate', params.endDate);
       }
       const queryString = queryParams.toString();
-      const url = `dashboard/hospital/appointment-trends${queryString ? `?${queryString}` : ''}`;
+      const querySuffix = queryString ? `?${queryString}` : '';
+      const url = `dashboard/hospital/appointment-trends${querySuffix}`;
       const { data } = await axios.get<IResponse<IAppointmentTrends>>(url);
       return data.data;
     } catch (error) {

@@ -187,8 +187,12 @@ const HospitalFilters = ({
   };
 
   // Open Now / 24/7: mutually exclusive options
-  const openScheduleValue =
-    localFilters.open24_7 === true ? '24_7' : localFilters.openNow === true ? 'open_now' : 'any';
+  const getOpenScheduleValue = (): string => {
+    if (localFilters.open24_7 === true) return '24_7';
+    if (localFilters.openNow === true) return 'open_now';
+    return 'any';
+  };
+  const openScheduleValue = getOpenScheduleValue();
 
   const setOpenScheduleValue = (value: string) => {
     handleFilterChange('openNow', value === 'open_now' ? true : undefined);

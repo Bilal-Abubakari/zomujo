@@ -1,13 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IHospitalAppointment } from '@/types/hospital-appointment.interface';
 import {
-  createHospitalAppointment,
   getHospitalAppointments,
   getHospitalAppointmentById,
-  updateHospitalAppointment,
-  acceptHospitalAppointment,
-  declineHospitalAppointment,
-  assignDoctorToHospitalAppointment,
   getHospitalAppointmentStats,
 } from './hospitalAppointmentsThunk';
 

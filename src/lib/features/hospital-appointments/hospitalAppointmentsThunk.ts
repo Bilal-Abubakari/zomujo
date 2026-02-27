@@ -17,7 +17,7 @@ export const createHospitalAppointment = createAsyncThunk(
     date: string;
   }): Promise<Toast | IHospitalAppointment> => {
     try {
-      const { data } = await axios.post<IResponse<IHospitalAppointment>>(`hospitals/appointments`, payload);
+      await axios.post<IResponse<IHospitalAppointment>>(`hospitals/appointments`, payload);
       return generateSuccessToast('Appointment request submitted successfully');
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

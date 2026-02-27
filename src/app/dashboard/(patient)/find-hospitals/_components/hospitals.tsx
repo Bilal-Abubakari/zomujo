@@ -152,7 +152,7 @@ const Hospitals = (): JSX.Element => {
       return;
     }
 
-    const observer = new IntersectionObserver(observerCallback, { threshold: 1.0 });
+    const observer = new IntersectionObserver(observerCallback, { threshold: 1 });
     observer.observe(observerRef.current);
 
     return (): void => observer.disconnect();
@@ -258,19 +258,27 @@ const Hospitals = (): JSX.Element => {
 
         </div>
       </div>
-      {isLoading ? (
-        <div className="mt-2 flex flex-wrap gap-6">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <SkeletonDoctorPatientCard key={index} />
-          ))}
-        </div>
-        ) : hospitals.length > 0 ? (
-          <Suggested title={''} showViewAll={false}>
-            {hospitals.map((hospital) => (
-              <HospitalCard key={hospital.id} hospital={hospital} />
-            ))}
-          </Suggested>
-        ) : (
+      {(() => {
+        if (isLoading) {
+          const skeletonKeys = ['sk1', 'sk2', 'sk3', 'sk4', 'sk5', 'sk6', 'sk7', 'sk8'];
+          return (
+            <div className="mt-2 flex flex-wrap gap-6">
+              {skeletonKeys.map((key) => (
+                <SkeletonDoctorPatientCard key={key} />
+              ))}
+            </div>
+          );
+        }
+        if (hospitals.length > 0) {
+          return (
+            <Suggested title={''} showViewAll={false}>
+              {hospitals.map((hospital) => (
+                <HospitalCard key={hospital.id} hospital={hospital} />
+              ))}
+            </Suggested>
+          );
+        }
+        return (
         <section>
           <Image
             src={NotFound}
@@ -281,7 +289,8 @@ const Hospitals = (): JSX.Element => {
           />
           <p className="mt-4 text-center text-lg md:text-xl"> Sorry nothing to find here </p>
         </section>
-      )}
+        );
+      })()}
       <button
         onClick={scrollToTop}
         className={`bg-primary fixed right-6 bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition-opacity ${

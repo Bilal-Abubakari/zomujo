@@ -33,8 +33,6 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const user = useAppSelector(selectUser);
   const extra = useAppSelector(selectExtra);
   const organizationId = useAppSelector(selectOrganizationId);
-  const hospitalId =
-    user?.role === Role.Hospital && extra && 'id' in extra ? (extra as { id: string }).id : undefined;
   const dispatch = useAppDispatch();
   const { getQueryParam } = useQueryParam();
   const selectedDateParam = getQueryParam(AppointmentDate.selectedDate);

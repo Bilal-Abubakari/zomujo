@@ -2,12 +2,7 @@
 
 import { JSX } from 'react';
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
+import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { IAnalyticsTrend } from '@/types/analytics.interface';
 import moment from 'moment';
@@ -23,6 +18,35 @@ const chartConfig = {
     color: 'hsl(var(--chart-1))',
   },
 } satisfies ChartConfig;
+
+const AppointmentChartTooltip = ({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: unknown;
+}): JSX.Element | null => {
+  const items = payload as Array<{ value?: unknown; payload?: { fullDate?: string } }> | undefined;
+  if (active && items?.length) {
+    const first = items[0];
+    const displayValue = first?.value != null ? String(first.value) : '';
+    const fullDate = first?.payload?.fullDate;
+    return (
+      <div className="rounded-lg border bg-background p-2 shadow-sm">
+        <div className="grid gap-2">
+          <div className="flex flex-col">
+            <span className="text-[0.70rem] uppercase text-muted-foreground">Appointments</span>
+            <span className="font-bold text-muted-foreground">{displayValue}</span>
+            {fullDate && (
+              <span className="text-[0.70rem] text-muted-foreground">{fullDate}</span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps): JSX.Element => {
   // Format data for chart
@@ -62,28 +86,13 @@ const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => String(value)}
+              tickFormatter={String}
             />
             <ChartTooltip
               cursor={false}
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="grid gap-2">
-                        <div className="flex flex-col">
-                          <span className="text-[0.70rem] uppercase text-muted-foreground">Appointments</span>
-                          <span className="font-bold text-muted-foreground">{payload[0].value}</span>
-                          {payload[0].payload?.fullDate && (
-                            <span className="text-[0.70rem] text-muted-foreground">{payload[0].payload.fullDate}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
+              content={({ active, payload }) => (
+                <AppointmentChartTooltip active={active} payload={payload} />
+              )}
             />
             <Area
               dataKey="value"

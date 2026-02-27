@@ -28,7 +28,6 @@ const HospitalPreview = (hospital: IHospital): JSX.Element => {
     email,
     specialties,
     distance,
-    gpsLink,
     supportedInsurance,
     regularFee,
     image,

@@ -35,7 +35,11 @@ const AppointmentRequestsPreview = (): JSX.Element => {
     orderDirection: OrderDirection.Descending,
     doctorId: user?.role === Role.Doctor ? user?.id : undefined,
     patientId: user?.role === Role.Patient ? user?.id : undefined,
-    orgId: user?.role === Role.Hospital ? hospitalId : user?.role === Role.Admin ? orgId : undefined,
+    orgId: (() => {
+      if (user?.role === Role.Hospital) return hospitalId;
+      if (user?.role === Role.Admin) return orgId;
+      return undefined;
+    })(),
     page: 1,
     search: '',
     status: '',
@@ -56,45 +60,52 @@ const AppointmentRequestsPreview = (): JSX.Element => {
     ? DUMMY_HOSPITAL_APPOINTMENTS.slice(0, 3)
     : tableData.slice(0, 3);
 
+  const patientColumnHeader = (
+    <div className="flex cursor-pointer whitespace-nowrap">
+      {user?.role === Role.Doctor || user?.role === Role.Hospital ? 'Patient Name' : 'Doctor Name'}
+    </div>
+  );
+
+  const patientColumnCell = ({ row: { original } }: { row: { original: IAppointment } }): JSX.Element => {
+    const { doctor, patient } = original;
+    const isDoctor = user?.role === Role.Doctor;
+    const isHospital = user?.role === Role.Hospital;
+    const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
+    return (
+      <AvatarWithName
+        imageSrc={isDoctor || isAdmin || isHospital ? patient.profilePicture : doctor.profilePicture}
+        firstName={isDoctor || isAdmin || isHospital ? patient.firstName : doctor.firstName}
+        lastName={isDoctor || isAdmin || isHospital ? patient.lastName : doctor.lastName}
+      />
+    );
+  };
+
+  const dateColumnCell = ({ row: { original } }: { row: { original: IAppointment } }): string =>
+    moment(original.slot.date).format('LL');
+
+  const statusColumnCell = ({ row: { original } }: { row: { original: IAppointment } }): JSX.Element => (
+    <StatusBadge
+      status={original.status}
+      approvedTitle="Accepted"
+      destructiveTitle="Cancelled"
+    />
+  );
+
   const columns: ColumnDef<IAppointment>[] = [
     {
       accessorKey: 'patient',
-      header: () => (
-        <div className="flex cursor-pointer whitespace-nowrap">
-          {user?.role === Role.Doctor || user?.role === Role.Hospital
-            ? 'Patient Name'
-            : 'Doctor Name'}
-        </div>
-      ),
-      cell: ({ row: { original } }): JSX.Element => {
-        const { doctor, patient } = original;
-        const isDoctor = user?.role === Role.Doctor;
-        const isHospital = user?.role === Role.Hospital;
-        const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
-        return (
-          <AvatarWithName
-            imageSrc={isDoctor || isAdmin || isHospital ? patient.profilePicture : doctor.profilePicture}
-            firstName={isDoctor || isAdmin || isHospital ? patient.firstName : doctor.firstName}
-            lastName={isDoctor || isAdmin || isHospital ? patient.lastName : doctor.lastName}
-          />
-        );
-      },
+      header: () => patientColumnHeader,
+      cell: patientColumnCell,
     },
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row: { original } }): string => moment(original.slot.date).format('LL'),
+      cell: dateColumnCell,
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => (
-        <StatusBadge
-          status={original.status}
-          approvedTitle="Accepted"
-          destructiveTitle="Cancelled"
-        />
-      ),
+      cell: statusColumnCell,
     },
   ];
 
