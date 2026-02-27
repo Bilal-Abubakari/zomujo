@@ -139,7 +139,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     const { payload } = await dispatch(hospitalSignUp(formattedCredentials));
     if (payload) {
       // Hospital sign-up logs in automatically, redirect to dashboard
-      window.location.href = '/dashboard';
+      globalThis.location.href = '/dashboard';
       return;
     }
     setOpenModal(true);
@@ -149,7 +149,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
   
   // Dummy GPS coordinates for different locations
   const DUMMY_COORDINATES: Record<string, { lat: number; lng: number; url: string }> = {
-    '1': { lat: 5.6037, lng: -0.1870, url: 'https://maps.google.com/?q=Liberation+Road+Accra' },
+    '1': { lat: 5.6037, lng: -0.187, url: 'https://maps.google.com/?q=Liberation+Road+Accra' },
     '2': { lat: 5.5558, lng: -0.1969, url: 'https://maps.google.com/?q=Osu+Accra' },
     '3': { lat: 5.6698, lng: -0.0166, url: 'https://maps.google.com/?q=Tema+Ghana' },
     '4': { lat: 6.6885, lng: -1.6244, url: 'https://maps.google.com/?q=Kumasi+Ghana' },
@@ -295,8 +295,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
         </>
       )}
       {role === Role.Hospital && (
-        <>
-          <form onSubmit={handleSubmitHospital(onHospitalSubmit)} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmitHospital(onHospitalSubmit)} className="mt-8 space-y-6">
             <div className="space-y-4">
               <Input
                 labelName="Email"
@@ -368,7 +367,6 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
               isLoading={isLoading}
             />
           </form>
-        </>
       )}
       {role === Role.Admin && (
         <>
