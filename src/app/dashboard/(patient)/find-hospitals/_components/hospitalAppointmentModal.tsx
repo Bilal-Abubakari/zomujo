@@ -92,8 +92,6 @@ const HospitalAppointmentModal = ({
       await onSubmit(data);
       reset();
       setOpen(false);
-    } catch (error) {
-      throw error;
     } finally {
       setIsSubmitting(false);
     }

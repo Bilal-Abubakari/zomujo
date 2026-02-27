@@ -16,6 +16,44 @@ import {
   DUMMY_HOSPITAL_APPOINTMENTS,
   ENABLE_DUMMY_APPOINTMENTS,
 } from '@/app/dashboard/appointment/_components/dummyHospitalAppointments';
+import type { IUser } from '@/types/auth.interface';
+
+function PatientColumnCell({ row, user }: { row: { original: IAppointment }; user: IUser | null }): JSX.Element {
+  const { original } = row;
+  const { doctor, patient } = original;
+  const isDoctor = user?.role === Role.Doctor;
+  const isHospital = user?.role === Role.Hospital;
+  const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
+  return (
+    <AvatarWithName
+      imageSrc={isDoctor || isAdmin || isHospital ? patient.profilePicture : doctor.profilePicture}
+      firstName={isDoctor || isAdmin || isHospital ? patient.firstName : doctor.firstName}
+      lastName={isDoctor || isAdmin || isHospital ? patient.lastName : doctor.lastName}
+    />
+  );
+}
+
+function PatientColumnHeader({ user }: { user: IUser | null }): JSX.Element {
+  return (
+    <div className="flex cursor-pointer whitespace-nowrap">
+      {user?.role === Role.Doctor || user?.role === Role.Hospital ? 'Patient Name' : 'Doctor Name'}
+    </div>
+  );
+}
+
+function DateColumnCell({ row }: { row: { original: IAppointment } }): string {
+  return moment(row.original.slot.date).format('LL');
+}
+
+function StatusColumnCell({ row }: { row: { original: IAppointment } }): JSX.Element {
+  return (
+    <StatusBadge
+      status={row.original.status}
+      approvedTitle="Accepted"
+      destructiveTitle="Cancelled"
+    />
+  );
+}
 
 const AppointmentRequestsPreview = (): JSX.Element => {
   const user = useAppSelector(selectUser);
@@ -60,52 +98,21 @@ const AppointmentRequestsPreview = (): JSX.Element => {
     ? DUMMY_HOSPITAL_APPOINTMENTS.slice(0, 3)
     : tableData.slice(0, 3);
 
-  const patientColumnHeader = (
-    <div className="flex cursor-pointer whitespace-nowrap">
-      {user?.role === Role.Doctor || user?.role === Role.Hospital ? 'Patient Name' : 'Doctor Name'}
-    </div>
-  );
-
-  const patientColumnCell = ({ row: { original } }: { row: { original: IAppointment } }): JSX.Element => {
-    const { doctor, patient } = original;
-    const isDoctor = user?.role === Role.Doctor;
-    const isHospital = user?.role === Role.Hospital;
-    const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
-    return (
-      <AvatarWithName
-        imageSrc={isDoctor || isAdmin || isHospital ? patient.profilePicture : doctor.profilePicture}
-        firstName={isDoctor || isAdmin || isHospital ? patient.firstName : doctor.firstName}
-        lastName={isDoctor || isAdmin || isHospital ? patient.lastName : doctor.lastName}
-      />
-    );
-  };
-
-  const dateColumnCell = ({ row: { original } }: { row: { original: IAppointment } }): string =>
-    moment(original.slot.date).format('LL');
-
-  const statusColumnCell = ({ row: { original } }: { row: { original: IAppointment } }): JSX.Element => (
-    <StatusBadge
-      status={original.status}
-      approvedTitle="Accepted"
-      destructiveTitle="Cancelled"
-    />
-  );
-
   const columns: ColumnDef<IAppointment>[] = [
     {
       accessorKey: 'patient',
-      header: () => patientColumnHeader,
-      cell: patientColumnCell,
+      header: () => <PatientColumnHeader user={user} />,
+      cell: ({ row }) => <PatientColumnCell row={row} user={user} />,
     },
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: dateColumnCell,
+      cell: ({ row }) => <DateColumnCell row={row} />,
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: statusColumnCell,
+      cell: ({ row }) => <StatusColumnCell row={row} />,
     },
   ];
 

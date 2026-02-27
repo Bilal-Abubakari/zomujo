@@ -19,18 +19,26 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+function formatTooltipValue(value: unknown): string {
+  if (value == null) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
+interface ChartTooltipContentProps {
+  active?: boolean;
+  payload?: unknown;
+}
+
 const AppointmentChartTooltip = ({
   active,
   payload,
-}: {
-  active?: boolean;
-  payload?: unknown;
-}): JSX.Element | null => {
+}: ChartTooltipContentProps): JSX.Element | null => {
   const items = payload as Array<{ value?: unknown; payload?: { fullDate?: string } }> | undefined;
-  if (active && items?.length) {
-    const first = items[0];
-    const displayValue = first?.value != null ? String(first.value) : '';
-    const fullDate = first?.payload?.fullDate;
+  if (!active || !items?.length) return null;
+  const first = items[0];
+  const displayValue = formatTooltipValue(first?.value);
+  const fullDate = first?.payload?.fullDate;
     return (
       <div className="rounded-lg border bg-background p-2 shadow-sm">
         <div className="grid gap-2">
@@ -44,8 +52,6 @@ const AppointmentChartTooltip = ({
         </div>
       </div>
     );
-  }
-  return null;
 };
 
 const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps): JSX.Element => {
@@ -90,9 +96,7 @@ const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps
             />
             <ChartTooltip
               cursor={false}
-              content={({ active, payload }) => (
-                <AppointmentChartTooltip active={active} payload={payload} />
-              )}
+              content={AppointmentChartTooltip}
             />
             <Area
               dataKey="value"

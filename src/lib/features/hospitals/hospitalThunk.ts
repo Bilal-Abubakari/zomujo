@@ -187,12 +187,11 @@ export const getServices = createAsyncThunk(
       const { data } = await axios.get<IResponse<Array<{ id: string; name: string; description?: string; category?: string }>>>('common/services');
       return data.data.map((service) => ({ id: service.id, name: service.name }));
     } catch (error) {
-      // Try alternative endpoint
       try {
         const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('services');
         return data.data;
       } catch (innerError) {
-        return axiosErrorHandler(innerError, true) as Toast;
+        return axiosErrorHandler(error ?? innerError, true) as Toast;
       }
     }
   },
@@ -206,12 +205,11 @@ export const getDepartments = createAsyncThunk(
       const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('common/departments');
       return data.data;
     } catch (error) {
-      // Try alternative endpoint
       try {
         const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('departments');
         return data.data;
       } catch (innerError) {
-        return axiosErrorHandler(innerError, true) as Toast;
+        return axiosErrorHandler(error ?? innerError, true) as Toast;
       }
     }
   },
@@ -225,12 +223,11 @@ export const getInsuranceCompanies = createAsyncThunk(
       const { data } = await axios.get<IResponse<Array<{ id: string; name: string; code?: string; logo?: string }>>>('common/insurance-companies');
       return data.data.map((company) => ({ id: company.id, name: company.name }));
     } catch (error) {
-      // Try alternative endpoint
       try {
         const { data } = await axios.get<IResponse<Array<{ id: string; name: string }>>>('insurance-companies');
         return data.data;
       } catch (innerError) {
-        return axiosErrorHandler(innerError, true) as Toast;
+        return axiosErrorHandler(error ?? innerError, true) as Toast;
       }
     }
   },

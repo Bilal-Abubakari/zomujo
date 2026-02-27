@@ -9,7 +9,7 @@ import { OrderDirection, Role } from '@/types/shared.enum';
 import { cn, showErrorToast } from '@/lib/utils';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectExtra, selectOrganizationId, selectUser } from '@/lib/features/auth/authSelector';
+import { selectOrganizationId, selectUser } from '@/lib/features/auth/authSelector';
 import { IAppointment } from '@/types/appointment.interface';
 import { toast } from '@/hooks/use-toast';
 import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
@@ -31,7 +31,6 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const { on } = useWebSocket();
   const [loading, setLoading] = useState(false);
   const user = useAppSelector(selectUser);
-  const extra = useAppSelector(selectExtra);
   const organizationId = useAppSelector(selectOrganizationId);
   const dispatch = useAppDispatch();
   const { getQueryParam } = useQueryParam();

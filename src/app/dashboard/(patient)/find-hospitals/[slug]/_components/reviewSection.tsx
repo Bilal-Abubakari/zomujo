@@ -56,7 +56,7 @@ const ReviewSection = ({ hospitalName }: ReviewSectionProps) => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <fieldset className="flex flex-col gap-2 border-0 p-0">
           <legend className="text-sm font-medium text-gray-700">Your Rating</legend>
-          <div className="flex gap-1" role="group" aria-label="Star rating">
+          <div className="flex gap-1" aria-label="Star rating">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}

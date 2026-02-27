@@ -19,7 +19,7 @@ import {
   declineHospitalAppointment,
   getHospitalAppointments,
 } from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
-import { selectUser, selectExtra, selectOrganizationId } from '@/lib/features/auth/authSelector';
+import { selectUser, selectOrganizationId } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { IAppointment } from '@/types/appointment.interface';
@@ -58,7 +58,6 @@ type SelectedAppointment = {
 const AppointmentRequests = (): JSX.Element => {
   const { on } = useWebSocket();
   const user = useAppSelector(selectUser);
-  const extra = useAppSelector(selectExtra);
   const orgId = useAppSelector(selectOrganizationId);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},

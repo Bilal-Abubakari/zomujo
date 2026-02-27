@@ -68,7 +68,12 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           }}
           aria-label="Close preview"
         >
-          <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative max-h-[90vh] max-w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            role="presentation"
+          >
             <button
               type="button"
               onClick={() => setShowPreview(false)}

@@ -278,29 +278,34 @@ const OPTIONAL_STRING_KEYS = new Set<keyof HospitalFormValues>([
   'gpsLink',
 ]);
 
+function applyImagesKey(value: unknown, payload: Record<string, unknown>): boolean {
+  if (!Array.isArray(value)) return false;
+  const newFiles = value.filter((img) => img instanceof File);
+  if (newFiles.length > 0) payload.images = newFiles;
+  return true;
+}
+
+function applyImageKey(value: unknown, payload: Record<string, unknown>): boolean {
+  let imageValue: File | null | undefined;
+  if (value instanceof File) imageValue = value;
+  else if (value === null) imageValue = null;
+  else imageValue = undefined;
+  payload.image = imageValue;
+  if (payload.image === undefined) delete payload.image;
+  return true;
+}
+
 function applyDirtyKey(
   key: keyof HospitalFormValues,
   value: unknown,
   payload: Record<string, unknown>,
 ): void {
-  if (key === 'images' && Array.isArray(value)) {
-    const newFiles = value.filter((img) => img instanceof File);
-    if (newFiles.length > 0) payload[key] = newFiles;
-    return;
-  }
+  if (key === 'images' && applyImagesKey(value, payload)) return;
   if (key === 'imageOrder' && Array.isArray(value)) {
     payload[key] = value;
     return;
   }
-  if (key === 'image') {
-    let imageValue: File | null | undefined;
-    if (value instanceof File) imageValue = value;
-    else if (value === null) imageValue = null;
-    else imageValue = undefined;
-    payload[key] = imageValue;
-    if (payload[key] === undefined) delete payload[key];
-    return;
-  }
+  if (key === 'image' && applyImageKey(value, payload)) return;
   if ((key === 'bedCount' || key === 'regularFee') && (value === '' || value === undefined)) {
     payload[key] = null;
     return;
@@ -650,19 +655,19 @@ const HospitalSettings = (): JSX.Element => {
           <span className="text-sm text-gray-500">One logo only (separate from the gallery). Click to upload or replace.</span>
         </div>
         <div className="mt-4">
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => logoInputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                logoInputRef.current?.click();
-              }
-            }}
+          <label
+            htmlFor="hospital-logo-upload"
             className="group relative flex h-28 w-28 cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-primary hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             aria-label="Upload or replace hospital logo"
           >
+            <input
+              id="hospital-logo-upload"
+              accept="image/*"
+              className="hidden"
+              ref={logoInputRef}
+              type="file"
+              onChange={handleLogoChange}
+            />
             {logoUrl ? (
               <>
                 <Image
@@ -679,6 +684,7 @@ const HospitalSettings = (): JSX.Element => {
                 <button
                   type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     clearLogo();
                   }}
@@ -691,14 +697,7 @@ const HospitalSettings = (): JSX.Element => {
             ) : (
               <span className="text-center text-sm text-gray-500">Upload logo</span>
             )}
-          </div>
-          <input
-            accept="image/*"
-            className="hidden"
-            ref={logoInputRef}
-            type="file"
-            onChange={handleLogoChange}
-          />
+          </label>
         </div>
 
         <div className="mt-8">
