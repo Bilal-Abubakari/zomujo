@@ -13,7 +13,7 @@ import {
   selectAppointmentLabs,
 } from '@/lib/features/appointments/appointmentSelector';
 import { FileText, LayoutGrid } from 'lucide-react';
-import { selectUserName } from '@/lib/features/auth/authSelector';
+import { selectUserName, selectUserId } from '@/lib/features/auth/authSelector';
 import { IReferral } from '@/types/consultation.interface';
 import { showErrorToast } from '@/lib/utils';
 import { Modal } from '@/components/ui/dialog';
@@ -59,6 +59,7 @@ const ReviewConsultation = ({
   const prescriptions = useAppSelector(selectPrescriptions); // Imported selectPrescriptions
   const complaints = useAppSelector(selectComplaints);
   const doctorName = useAppSelector(selectUserName);
+  const currentDoctorId = useAppSelector(selectUserId);
   const symptoms = useAppSelector(selectPatientSymptoms);
   const requestedLabs = useAppSelector(selectRequestedLabs);
   const lab = useAppSelector(selectAppointmentLabs);
@@ -200,6 +201,7 @@ const ReviewConsultation = ({
         appointment={appointment}
         isStartingConsultation={isStartingConsultation}
         onStartConsultation={handleStartConsultation}
+        currentDoctorId={currentDoctorId}
       />
 
       <ReferralModal
@@ -237,7 +239,7 @@ const ReviewConsultation = ({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="cards" className="mt-6">
+          <TabsContent value="cards" className="mt-6 overflow-auto">
             {viewMode === 'cards' ? (
               <CardsView
                 complaints={complaints}
