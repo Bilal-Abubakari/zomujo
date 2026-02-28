@@ -1,9 +1,10 @@
 'use client';
 
-import { JSX, useEffect, useState, useRef, useCallback } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAppDispatch } from '@/lib/hooks';
 import { useQueryParam, MedicalAppointmentType } from '@/hooks/useQueryParam';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { getAppointmentSlotsDates } from '@/lib/features/appointments/appointmentsThunk';
 import { IPagination } from '@/types/shared.interface';
 import { showErrorToast } from '@/lib/utils';
@@ -35,26 +36,11 @@ const ListView = ({ setValue, watch, doctorId }: ListViewProps): JSX.Element => 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const observer = useRef<IntersectionObserver>(null);
-  const lastDateElementRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (isLoading) {
-        return;
-      }
-      if (observer.current) {
-        observer.current.disconnect();
-      }
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPage((prev) => prev + 1);
-        }
-      });
-      if (node) {
-        observer.current.observe(node);
-      }
-    },
-    [isLoading, hasMore],
-  );
+  const lastDateElementRef = useInfiniteScroll({
+    isLoading,
+    hasMore,
+    onLoadMore: () => setPage((prev) => prev + 1),
+  });
 
   const updateDates = (appointmentDates: AppointmentDate[]): void => {
     const dates = appointmentDates.map((r) => r.date);
