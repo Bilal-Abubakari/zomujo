@@ -78,7 +78,7 @@ const PatientLifestyleCard = (): JSX.Element => {
   }, [lifestyle]);
   return (
     <>
-      <CardFrame setEdit={setEdit} showEmptyResults={!lifestyle} title="Lifestyle">
+      <CardFrame setEdit={setEdit} showEmptyResults={!lifestyle} title="Social History">
         <div className="flex flex-col gap-6">
           {Object.entries(lifestyle ?? {}).map(([key, { level, description }]) => (
             <div key={key} className="flex flex-row items-center justify-between text-sm">
@@ -98,8 +98,8 @@ const PatientLifestyleCard = (): JSX.Element => {
           <div className="mx-auto w-full max-w-sm p-4">
             <DrawerHeader className="flex items-center justify-between">
               <div>
-                <DrawerTitle className="text-lg">Edit Lifestyle</DrawerTitle>
-                <DrawerDescription>Manage lifestyle information</DrawerDescription>
+                <DrawerTitle className="text-lg">Edit Social History</DrawerTitle>
+                <DrawerDescription>Manage social history information</DrawerDescription>
               </div>
             </DrawerHeader>
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>

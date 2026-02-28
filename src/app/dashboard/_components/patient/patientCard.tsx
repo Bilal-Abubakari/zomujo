@@ -15,14 +15,9 @@ import {
 } from '@/components/ui/drawer';
 import { SelectInput } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
-import {
-  MODE,
-  maritalOptions,
-  denominationOptions,
-  bloodGroupOptions,
-} from '@/constants/constants';
+import { MODE, maritalOptions } from '@/constants/constants';
 import { z } from 'zod';
-import { BloodGroup, Denomination, MaritalStatus } from '@/types/shared.enum';
+import { MaritalStatus } from '@/types/shared.enum';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -34,9 +29,8 @@ import { useParams } from 'next/navigation';
 import CardFrame from '@/app/dashboard/_components/cardFrame';
 
 const patientBasicSchema = z.object({
-  denomination: z.enum(Denomination).optional(),
   height: positiveNumberSchema.optional(),
-  bloodGroup: z.enum(BloodGroup).optional(),
+  weight: positiveNumberSchema.optional(),
   maritalStatus: z.enum(MaritalStatus).optional(),
 });
 
@@ -56,9 +50,8 @@ const PatientCard = (): JSX.Element => {
     mode: MODE.ON_TOUCH,
     defaultValues: {
       maritalStatus: patientRecord?.maritalStatus,
-      bloodGroup: patientRecord?.bloodGroup,
-      denomination: patientRecord?.denomination,
       height: patientRecord?.height,
+      weight: patientRecord?.weight,
     },
   });
   const [edit, setEdit] = useState(false);
@@ -67,9 +60,8 @@ const PatientCard = (): JSX.Element => {
   useEffect(() => {
     if (patientRecord) {
       setValue('maritalStatus', patientRecord.maritalStatus);
-      setValue('bloodGroup', patientRecord.bloodGroup);
-      setValue('denomination', patientRecord.denomination);
       setValue('height', patientRecord.height);
+      setValue('weight', patientRecord.weight);
     }
   }, [patientRecord]);
 
@@ -121,18 +113,12 @@ const PatientCard = (): JSX.Element => {
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm text-gray-500">Denomination</span>
-            <span className="text-sm font-medium">
-              {patientRecord?.denomination ? capitalize(patientRecord.denomination) : '<Empty>'}
-            </span>
-          </div>
-          <div className="flex justify-between">
             <span className="text-sm text-gray-500">Height</span>
             <span className="text-sm font-medium">{patientRecord?.height ?? '<Empty>'}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm text-gray-500">Blood Group</span>
-            <span className="text-sm font-medium">{patientRecord?.bloodGroup ?? '<Empty>'}</span>
+            <span className="text-sm text-gray-500">Weight</span>
+            <span className="text-sm font-medium">{patientRecord?.weight ?? '<Empty>'}</span>
           </div>
         </div>
       </CardFrame>
@@ -159,15 +145,6 @@ const PatientCard = (): JSX.Element => {
                 name="maritalStatus"
                 placeholder="Select Marital Status"
               />
-              <SelectInput
-                ref={register('denomination').ref}
-                control={control}
-                options={denominationOptions}
-                label="Religious Denomination"
-                error={errors.denomination?.message}
-                name="denomination"
-                placeholder="Select religion"
-              />
               <Input
                 labelName="Height (cm)"
                 type="number"
@@ -176,14 +153,13 @@ const PatientCard = (): JSX.Element => {
                 {...register('height')}
                 rightIcon={'cm'}
               />
-              <SelectInput
-                ref={register('bloodGroup').ref}
-                control={control}
-                options={bloodGroupOptions}
-                label="Blood Group"
-                error={errors.bloodGroup?.message}
-                name="bloodGroup"
-                placeholder="Select Blood Group"
+              <Input
+                labelName="Weight (kg)"
+                type="number"
+                error={errors.weight?.message}
+                placeholder="Enter weight in kilograms"
+                {...register('weight')}
+                rightIcon={'kg'}
               />
               <div className="space-x-3">
                 <Button
