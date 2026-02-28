@@ -29,7 +29,7 @@ import { Trash2 } from 'lucide-react';
 const familyMembersSchema = z.object({
   firstName: requiredStringSchema(),
   lastName: requiredStringSchema(),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.email().optional().or(z.literal('')),
   phone: z
     .string()
     .min(10, 'Phone number must be at least 10 digits')
@@ -90,12 +90,12 @@ const PatientFamilyMembersCard = ({ recordId }: PatientFamilyMembersCardProps): 
   };
   return (
     <>
-      <CardFrame showEmptyResults={!familyMembers?.length} setEdit={setEdit} title="Family Members">
-        <div className="max-h-[360px] space-y-4 overflow-y-scroll">
+      <CardFrame showEmptyResults={!familyMembers?.length} setEdit={setEdit} title="Family History">
+        <div className="max-h-90 space-y-4 overflow-y-scroll">
           {familyMembers?.map(({ lastName, firstName, phone, relation, image, email }, index) => (
             <div
-              key={index}
-              className="flex items-start space-x-3 rounded-xl bg-gradient-to-b from-[#E0EEFF] to-[#F2F9FF] p-4"
+              key={`${index}-${firstName}-${lastName}`}
+              className="flex items-start space-x-3 rounded-xl bg-linear-to-b from-[#E0EEFF] to-[#F2F9FF] p-4"
             >
               <AvatarComp
                 name={`${firstName} ${lastName}`}
@@ -119,8 +119,8 @@ const PatientFamilyMembersCard = ({ recordId }: PatientFamilyMembersCardProps): 
           <div className="mx-auto w-full max-w-sm p-4">
             <DrawerHeader className="flex items-center justify-between">
               <div>
-                <DrawerTitle className="text-lg">Add Family Member</DrawerTitle>
-                <DrawerDescription>Add a new family member to records</DrawerDescription>
+                <DrawerTitle className="text-lg">Add Family History</DrawerTitle>
+                <DrawerDescription>Add family member information</DrawerDescription>
               </div>
             </DrawerHeader>
             <div className="my-2 text-sm">Upload Family member&#39;s image (optional)</div>
@@ -128,14 +128,14 @@ const PatientFamilyMembersCard = ({ recordId }: PatientFamilyMembersCardProps): 
               <div>
                 {familyMemberPicture ? (
                   <Image
-                    className="h-[79px] w-[79px] rounded-full bg-gray-600 object-fill"
+                    className="h-19.75 w-19.75 rounded-full bg-gray-600 object-fill"
                     src={familyMemberPicture}
                     alt="Family member Picture"
                     width={79}
                     height={79}
                   />
                 ) : (
-                  <div className="flex h-[79px] w-[79px] items-center justify-center rounded-full bg-gray-200">
+                  <div className="flex h-19.75 w-19.75 items-center justify-center rounded-full bg-gray-200">
                     <span className="text-gray-500">No Image</span>
                   </div>
                 )}

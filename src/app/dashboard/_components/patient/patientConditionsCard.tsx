@@ -112,9 +112,9 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
       <CardFrame
         showEmptyResults={!conditions?.length}
         setEdit={setEdit}
-        title="Conditions and Medicines"
+        title="Chronic conditions"
       >
-        <div className="max-h-[360px] space-y-4 overflow-y-scroll">
+        <div className="max-h-90 space-y-4 overflow-y-scroll">
           {conditions?.map(({ id, name, medicines }) => (
             <ConditionCard key={id} medicines={medicines} name={name} />
           ))}
@@ -125,8 +125,8 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
           <div className="mx-auto w-full max-w-sm p-4">
             <DrawerHeader className="flex items-center justify-between">
               <div>
-                <DrawerTitle className="text-lg">Edit Conditions and Medicine</DrawerTitle>
-                <DrawerDescription>Manage conditions and medicines</DrawerDescription>
+                <DrawerTitle className="text-lg">Edit Chronic Conditions</DrawerTitle>
+                <DrawerDescription>Manage chronic conditions and medicines</DrawerDescription>
               </div>
             </DrawerHeader>
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -180,7 +180,7 @@ const PatientConditionsCard = ({ recordId }: PatientConditionsCardProps): JSX.El
               <div className="mt-8 text-center text-sm text-gray-500">
                 Preview of added condition and medicines
               </div>
-              <div className="rounded-xl bg-gradient-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4">
+              <div className="rounded-xl bg-linear-to-b from-[#C5D8FF] to-[rgba(197,216,255,0.51)] p-4">
                 <div className="flex items-center justify-between">
                   <div className="rounded-full bg-white px-2 py-1.5">
                     <h4 className="text-sm font-semibold">{watch('name')}</h4>
