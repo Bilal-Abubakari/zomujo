@@ -453,7 +453,7 @@ const PatientConsultationHistory = ({
                       </div>
 
                       {/* Preview Section */}
-                      {((): JSX.Element => {
+                      {((): JSX.Element | null => {
                         if (isLoadingPreview) {
                           return renderLoadingSkeleton();
                         }
