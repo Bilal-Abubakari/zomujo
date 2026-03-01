@@ -96,6 +96,11 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
     }
   }, [selectedDate]);
 
+  const todayAppointments = upcomingAppointment.filter((appointment) => {
+    const appointmentDate = moment(appointment.startTime);
+    return appointmentDate.isSame(selectedDate, 'day');
+  });
+
   return (
     <div
       className={cn(
@@ -109,7 +114,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
           <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>
           {user?.role === Role.Doctor && (
             <Badge variant={'brown'}>
-              {upcomingAppointment.length} <span className="ml-1 hidden sm:block">patients</span>
+              {todayAppointments.length} <span className="ml-1 hidden sm:block">appointments</span>
             </Badge>
           )}
         </div>
