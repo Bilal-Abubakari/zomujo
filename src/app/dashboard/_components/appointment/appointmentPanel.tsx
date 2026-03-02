@@ -143,14 +143,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
           <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>
           {(user?.role === Role.Doctor || user?.role === Role.Hospital) && (
             <Badge variant={'brown'}>
-<<<<<<< b2b-master
-              {user?.role === Role.Doctor ? upcomingAppointment.length : todayAppointmentsCount}{' '}
-              <span className="ml-1 hidden sm:block">
-                {user?.role === Role.Doctor ? 'patients' : 'appointments'}
-              </span>
-=======
               {todayAppointments.length} <span className="ml-1 hidden sm:block">appointments</span>
->>>>>>> main
             </Badge>
           )}
         </div>
