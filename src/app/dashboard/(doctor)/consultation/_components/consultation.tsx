@@ -2,7 +2,14 @@
 import React, { JSX, useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Clock, ClockFading, Loader2, ShieldCheck } from 'lucide-react';
+import {
+  CheckCircle,
+  Clock,
+  ClockFading,
+  History as HistoryIcon,
+  Loader2,
+  ShieldCheck,
+} from 'lucide-react';
 import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
@@ -15,7 +22,6 @@ import {
   consultationStatus,
   hasConsultationEnded,
   isConsultationInProgress,
-  selectDiagnoses,
   selectIsLoading,
   selectRequestedLabs,
   selectSymptoms,
@@ -31,6 +37,16 @@ import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider
 import { Role } from '@/types/shared.enum';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import ConsultationAuthDialog from './ConsultationAuthDialog';
+import { TooltipComp } from '@/components/ui/tooltip';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
 
 const History = dynamic(() => import('@/app/dashboard/(doctor)/consultation/_components/history'), {
   loading: () => <StageFallback />,
@@ -45,10 +61,6 @@ const Prescription = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/prescription'),
   { loading: () => <StageFallback />, ssr: false },
 );
-const Diagnosis = dynamic(
-  () => import('@/app/dashboard/(doctor)/consultation/_components/diagnosis'),
-  { loading: () => <StageFallback />, ssr: false },
-);
 const ReviewConsultation = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/ReviewConsultation'),
   { loading: () => <StageFallback />, ssr: false },
@@ -57,8 +69,16 @@ const ConsultationHistory = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/ConsultationHistory'),
   { loading: () => <StageFallback />, ssr: false },
 );
+const PatientConsultationHistory = dynamic(
+  () => import('@/app/dashboard/(doctor)/_components/PatientConsultationHistory'),
+  { loading: () => <StageFallback />, ssr: false },
+);
+const ConsultationViewSheet = dynamic(
+  () => import('@/app/dashboard/(doctor)/_components/ConsultationViewSheet'),
+  { loading: () => <StageFallback />, ssr: false },
+);
 
-const stages = ['history', 'investigation', 'prescription', 'impression', 'review'] as const;
+const stages = ['history', 'investigation', 'prescription', 'review'] as const;
 
 type StageType = (typeof stages)[number];
 
@@ -110,11 +130,13 @@ const Consultation = (): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
   const historyNotes = useAppSelector(selectHistoryNotes);
   const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
-  const savedDiagnoses = useAppSelector(selectDiagnoses);
   const isConsultationAuthenticated = useAppSelector(selectIsConsultationAuthenticated);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showEndConsultationAuthDialog, setShowEndConsultationAuthDialog] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [showPastConsultationsDrawer, setShowPastConsultationsDrawer] = useState(false);
+  const [selectedConsultationId, setSelectedConsultationId] = useState<string | null>(null);
+  const [showConsultationSheet, setShowConsultationSheet] = useState(false);
 
   const canJumpToStage = useCallback(
     (stage: StageType): boolean => {
@@ -126,17 +148,12 @@ const Consultation = (): JSX.Element => {
         return symptomsPassed;
       }
 
-      if (stage === 'impression') {
-        // Can go to diagnosis if prescriptions passed? Or just linear?
-        // Let's assume linear progression for simplicity or check previous steps
-        return symptomsPassed;
-      }
       if (stage === 'review') {
-        return savedDiagnoses.length > 0;
+        return symptomsPassed;
       }
       return false;
     },
-    [symptoms, requestedAppointmentLabs, savedDiagnoses],
+    [symptoms, historyNotes, requestedAppointmentLabs],
   );
 
   const handleAuthenticateConsultation = async (code: string): Promise<void> => {
@@ -189,28 +206,32 @@ const Consultation = (): JSX.Element => {
     }
   };
 
+  const handleViewPastConsultation = (appointmentId: string): void => {
+    setSelectedConsultationId(appointmentId);
+    setShowConsultationSheet(true);
+    setShowPastConsultationsDrawer(false);
+  };
+
   const getStage = (): JSX.Element => {
     switch (currentStage) {
       case 'investigation':
-        return <Investigation goToNext={() => setCurrentStage('prescription')} />;
+        return (
+          <Investigation
+            goToNext={() => setCurrentStage('prescription')}
+            goToPrevious={() => setCurrentStage('history')}
+          />
+        );
       case 'prescription':
         return (
           <Prescription
             updatePrescription={update}
             setUpdatePrescription={setUpdate}
-            goToNext={() => setCurrentStage('impression')}
-          />
-        );
-      case 'impression':
-        return (
-          <Diagnosis
-            updateDiagnosis={update}
-            setUpdateDiagnosis={setUpdate}
             goToNext={() => setCurrentStage('review')}
+            goToPrevious={() => setCurrentStage('investigation')}
           />
         );
       case 'review':
-        return <ReviewConsultation />;
+        return <ReviewConsultation goToPrevious={() => setCurrentStage('prescription')} />;
       case 'history':
       default:
         return (
@@ -303,6 +324,12 @@ const Consultation = (): JSX.Element => {
                 </div>
                 {isInProgress && (
                   <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+                    <TooltipComp tip="View Past Consultations">
+                      <Button
+                        child={<HistoryIcon />}
+                        onClick={() => setShowPastConsultationsDrawer(true)}
+                      />
+                    </TooltipComp>
                     {!isConsultationAuthenticated && (
                       <Button
                         isLoading={isAuthenticating}
@@ -360,6 +387,36 @@ const Consultation = (): JSX.Element => {
           title="End Consultation"
           description="To end this consultation, please enter the authentication code provided by the patient."
           submitButtonText="End Consultation"
+        />
+
+        {/* Floating button to view past consultations during active consultation */}
+        {isInProgress && (
+          <Drawer open={showPastConsultationsDrawer} onOpenChange={setShowPastConsultationsDrawer}>
+            <DrawerContent className="max-h-[85vh]">
+              <DrawerHeader>
+                <DrawerTitle>Patient&apos;s Consultation History</DrawerTitle>
+                <DrawerDescription>View previous consultations with this patient</DrawerDescription>
+              </DrawerHeader>
+              <div className="overflow-y-auto px-4 pb-4">
+                <PatientConsultationHistory
+                  patientId={String(params.patientId)}
+                  onViewConsultation={handleViewPastConsultation}
+                  currentAppointmentId={String(params.appointmentId)}
+                />
+              </div>
+              <DrawerFooter>
+                <DrawerClose asChild>
+                  <Button variant="outline" child="Close" />
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        )}
+
+        <ConsultationViewSheet
+          open={showConsultationSheet}
+          onOpenChange={setShowConsultationSheet}
+          appointmentId={selectedConsultationId}
         />
       </div>
     </RoleProvider>

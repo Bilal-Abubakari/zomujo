@@ -8,7 +8,6 @@ import {
   FileText,
   Paperclip,
   Pill,
-  Stethoscope,
   TestTubeDiagonal,
   Upload,
   X,
@@ -389,8 +388,8 @@ const PatientConsultationView = (): JSX.Element => {
           </CardContent>
         </Card>
 
-        {/* Diagnoses Section */}
-        <Card>
+        {/* Diagnoses Section - Hidden as Impression is now part of Assessment in History Notes */}
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl font-semibold">
               <Stethoscope className="text-primary" />
@@ -416,7 +415,7 @@ const PatientConsultationView = (): JSX.Element => {
               </div>
             )}
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Prescriptions Section */}
         <Card>

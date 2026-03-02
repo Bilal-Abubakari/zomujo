@@ -13,10 +13,11 @@ import {
   selectAppointmentLabs,
 } from '@/lib/features/appointments/appointmentSelector';
 import { FileText, LayoutGrid } from 'lucide-react';
-import { selectUserName } from '@/lib/features/auth/authSelector';
+import { selectUserName, selectUserId } from '@/lib/features/auth/authSelector';
 import { IReferral } from '@/types/consultation.interface';
 import { showErrorToast } from '@/lib/utils';
 import { Modal } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import Signature from '@/components/signature/signature';
 import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
 import { startConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
@@ -44,10 +45,12 @@ import {
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
+  goToPrevious?: () => void;
 }
 
 const ReviewConsultation = ({
   isPastConsultation = false,
+  goToPrevious,
 }: ReviewConsultationProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -56,6 +59,7 @@ const ReviewConsultation = ({
   const prescriptions = useAppSelector(selectPrescriptions); // Imported selectPrescriptions
   const complaints = useAppSelector(selectComplaints);
   const doctorName = useAppSelector(selectUserName);
+  const currentDoctorId = useAppSelector(selectUserId);
   const symptoms = useAppSelector(selectPatientSymptoms);
   const requestedLabs = useAppSelector(selectRequestedLabs);
   const lab = useAppSelector(selectAppointmentLabs);
@@ -197,6 +201,7 @@ const ReviewConsultation = ({
         appointment={appointment}
         isStartingConsultation={isStartingConsultation}
         onStartConsultation={handleStartConsultation}
+        currentDoctorId={currentDoctorId}
       />
 
       <ReferralModal
@@ -234,10 +239,9 @@ const ReviewConsultation = ({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="cards" className="mt-6">
+          <TabsContent value="cards" className="mt-6 overflow-auto">
             {viewMode === 'cards' ? (
               <CardsView
-                doctorName={doctorName}
                 complaints={complaints}
                 symptoms={symptoms}
                 historyNotes={historyNotes}
@@ -245,7 +249,6 @@ const ReviewConsultation = ({
                 requestedLabs={requestedLabs}
                 conductedLabs={conductedLabs}
                 radiology={radiology}
-                diagnoses={diagnoses}
                 prescriptions={prescriptions || appointment?.prescriptions || []}
                 referrals={referrals}
                 onRemoveReferral={(index) =>
@@ -273,6 +276,12 @@ const ReviewConsultation = ({
             />
           </TabsContent>
         </Tabs>
+
+        {!isPastConsultation && goToPrevious && (
+          <div className="fixed bottom-0 left-0 flex w-full justify-start border-t border-gray-300 bg-white p-4 shadow-md">
+            <Button onClick={goToPrevious} variant="outline" child="Back to Prescription" />
+          </div>
+        )}
       </div>
     </>
   );

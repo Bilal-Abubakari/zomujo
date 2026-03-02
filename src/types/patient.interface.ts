@@ -56,10 +56,7 @@ export interface IPatientWithRecord extends IPatient {
   recordId: string;
 }
 
-export type IPatientBasic = Pick<
-  IMedicalRecord,
-  'height' | 'bloodGroup' | 'maritalStatus' | 'denomination'
->;
+export type IPatientBasic = Pick<IMedicalRecord, 'height' | 'weight' | 'maritalStatus'>;
 
 export interface IBloodPressure {
   systolic: number;

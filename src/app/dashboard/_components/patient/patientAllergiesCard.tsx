@@ -74,10 +74,14 @@ const PatientAllergiesCard = ({ recordId }: PatientAllergiesCardProps): JSX.Elem
   };
   return (
     <>
-      <CardFrame setEdit={setEdit} title="Allergies" showEmptyResults={!allergies?.length}>
-        <div className="max-h-[360px] space-y-4 overflow-y-scroll text-[#840000]">
+      <CardFrame
+        setEdit={setEdit}
+        title="Drugs and Allergies"
+        showEmptyResults={!allergies?.length}
+      >
+        <div className="max-h-90 space-y-4 overflow-y-scroll text-[#840000]">
           {allergies?.map(({ id, allergy, type, severity }) => (
-            <div key={id} className="rounded-xl bg-gradient-to-b from-[#FCA5A5] to-[#FFECEC] p-4">
+            <div key={id} className="rounded-xl bg-linear-to-b from-[#FCA5A5] to-[#FFECEC] p-4">
               <h4 className="font-bold">
                 {allergy} ({type})
               </h4>
@@ -91,8 +95,8 @@ const PatientAllergiesCard = ({ recordId }: PatientAllergiesCardProps): JSX.Elem
           <div className="mx-auto w-full max-w-sm p-4">
             <DrawerHeader className="flex items-center justify-between">
               <div>
-                <DrawerTitle className="text-lg">Add Allergy</DrawerTitle>
-                <DrawerDescription>Manage allergies</DrawerDescription>
+                <DrawerTitle className="text-lg">Add Drug or Allergy</DrawerTitle>
+                <DrawerDescription>Manage drugs and allergies</DrawerDescription>
               </div>
             </DrawerHeader>
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
