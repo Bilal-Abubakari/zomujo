@@ -81,7 +81,6 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
             className="relative max-h-[90vh] max-w-[90vw]"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
-            role="presentation"
           >
             <button
               type="button"

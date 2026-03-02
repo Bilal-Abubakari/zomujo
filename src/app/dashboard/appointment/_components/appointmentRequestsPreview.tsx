@@ -8,7 +8,7 @@ import { OrderDirection, Role } from '@/types/shared.enum';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { ColumnDef } from '@tanstack/react-table';
 import moment from 'moment';
-import { JSX } from 'react';
+import { JSX, useMemo } from 'react';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 import { getAppointments } from '@/lib/features/appointments/appointmentsThunk';
@@ -18,13 +18,33 @@ import {
 } from '@/app/dashboard/appointment/_components/dummyHospitalAppointments';
 import type { IUser } from '@/types/auth.interface';
 
+function createAppointmentRequestColumns(user: IUser | null): ColumnDef<IAppointment>[] {
+  return [
+    {
+      accessorKey: 'patient',
+      header: () => <PatientColumnHeader user={user} />,
+      cell: ({ row }) => <PatientColumnCell row={row} user={user} />,
+    },
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }) => <DateColumnCell row={row} />,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusColumnCell row={row} />,
+    },
+  ];
+}
+
 function PatientColumnCell({
   row,
   user,
-}: {
+}: Readonly<{
   row: { original: IAppointment };
   user: IUser | null;
-}): JSX.Element {
+}>): JSX.Element {
   const { original } = row;
   const { doctor, patient } = original;
   const isDoctor = user?.role === Role.Doctor;
@@ -39,7 +59,7 @@ function PatientColumnCell({
   );
 }
 
-function PatientColumnHeader({ user }: { user: IUser | null }): JSX.Element {
+function PatientColumnHeader({ user }: Readonly<{ user: IUser | null }>): JSX.Element {
   return (
     <div className="flex cursor-pointer whitespace-nowrap">
       {user?.role === Role.Doctor || user?.role === Role.Hospital ? 'Patient Name' : 'Doctor Name'}
@@ -47,11 +67,11 @@ function PatientColumnHeader({ user }: { user: IUser | null }): JSX.Element {
   );
 }
 
-function DateColumnCell({ row }: { row: { original: IAppointment } }): string {
+function DateColumnCell({ row }: Readonly<{ row: { original: IAppointment } }>): string {
   return moment(row.original.slot.date).format('LL');
 }
 
-function StatusColumnCell({ row }: { row: { original: IAppointment } }): JSX.Element {
+function StatusColumnCell({ row }: Readonly<{ row: { original: IAppointment } }>): JSX.Element {
   return (
     <StatusBadge
       status={row.original.status}
@@ -62,7 +82,7 @@ function StatusColumnCell({ row }: { row: { original: IAppointment } }): JSX.Ele
 }
 
 const AppointmentRequestsPreview = (): JSX.Element => {
-  const user = useAppSelector(selectUser) ?? null;
+  const user: IUser | null = useAppSelector(selectUser) ?? null;
   const extra = useAppSelector(selectExtra);
   const orgId = useAppSelector(selectOrganizationId);
 
@@ -109,23 +129,7 @@ const AppointmentRequestsPreview = (): JSX.Element => {
     ? DUMMY_HOSPITAL_APPOINTMENTS.slice(0, 3)
     : tableData.slice(0, 3);
 
-  const columns: ColumnDef<IAppointment>[] = [
-    {
-      accessorKey: 'patient',
-      header: () => <PatientColumnHeader user={user} />,
-      cell: ({ row }) => <PatientColumnCell row={row} user={user} />,
-    },
-    {
-      accessorKey: 'date',
-      header: 'Date',
-      cell: ({ row }) => <DateColumnCell row={row} />,
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => <StatusColumnCell row={row} />,
-    },
-  ];
+  const columns = useMemo(() => createAppointmentRequestColumns(user), [user]);
 
   return (
     <div>
