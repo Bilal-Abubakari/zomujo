@@ -68,7 +68,9 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
         <button
           type="button"
           className="fixed inset-0 z-50 flex cursor-default items-center justify-center border-0 bg-black/50 p-4 backdrop-blur-sm"
-          onClick={() => setShowPreview(false)}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowPreview(false);
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === 'Escape') {
               e.preventDefault();
@@ -77,11 +79,7 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           }}
           aria-label="Close preview"
         >
-          <div
-            className="relative max-h-[90vh] max-w-[90vw]"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
-          >
+          <div className="relative max-h-[90vh] max-w-[90vw]">
             <button
               type="button"
               onClick={() => setShowPreview(false)}

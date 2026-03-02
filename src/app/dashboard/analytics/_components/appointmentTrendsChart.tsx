@@ -32,7 +32,10 @@ function formatTooltipValue(value: unknown): string {
   if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
     return String(value);
   }
-  return String(value);
+  if (typeof value === 'symbol' || typeof value === 'function') {
+    return String(value);
+  }
+  return '';
 }
 
 interface ChartTooltipContentProps {
