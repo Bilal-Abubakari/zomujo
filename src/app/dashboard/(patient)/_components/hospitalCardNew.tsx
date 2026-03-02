@@ -69,7 +69,9 @@ const HospitalCard = ({ hospital }: HospitalCardProps): JSX.Element => {
           type="button"
           className="fixed inset-0 z-50 flex cursor-default items-center justify-center border-0 bg-black/50 p-4 backdrop-blur-sm"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setShowPreview(false);
+            if (e.target === e.currentTarget) {
+              setShowPreview(false);
+            }
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === 'Escape') {

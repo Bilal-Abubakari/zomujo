@@ -92,21 +92,6 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
     void getUpcomingAppointments();
   }, [queryParams, isHospital]);
 
-  const todayAppointmentsCount = upcomingAppointment.filter((appointment) => {
-    // Handle appointments without slots (hospital appointments)
-    if (appointment.slot?.date) {
-      return moment(appointment.slot.date).isSame(selectedDate, 'day');
-    }
-    // Try to extract date from additionalInfo or use createdAt
-    if (appointment.additionalInfo) {
-      const dateMatch = appointment.additionalInfo.match(/Appointment Date: (.+)/);
-      if (dateMatch) {
-        return moment(dateMatch[1]).isSame(selectedDate, 'day');
-      }
-    }
-    return moment(appointment.createdAt).isSame(selectedDate, 'day');
-  }).length;
-
   useEffect(() => {
     const selectedMoment = moment(selectedDate);
     const currentWeekStart = now.clone().startOf('isoWeek');
