@@ -12,33 +12,33 @@ import {
   assignAppointment,
   declineAppointment,
   getAppointments,
-  rescheduleAppointment,
 } from '@/lib/features/appointments/appointmentsThunk';
-import { joinConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
-import { selectUser } from '@/lib/features/auth/authSelector';
+import {
+  acceptHospitalAppointment,
+  assignDoctorToHospitalAppointment,
+  declineHospitalAppointment,
+  getHospitalAppointments,
+} from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
+import { selectUser, selectOrganizationId } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { IAppointment } from '@/types/appointment.interface';
-import { AppointmentType } from '@/types/slots.interface';
+import { IHospitalAppointment } from '@/types/hospital-appointment.interface';
 import { AcceptDeclineStatus, OrderDirection, Role } from '@/types/shared.enum';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+import { AsyncThunk } from '@reduxjs/toolkit';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
   Calendar as CalendarIcon,
-  House,
+  Eye,
   ListFilter,
-  Loader2,
-  Presentation,
-  RotateCcw,
   Search,
   SendHorizontal,
   Signature,
-  Video,
-  View,
-  Waypoints,
 } from 'lucide-react';
 import moment from 'moment';
-import React, { FormEvent, JSX, useState } from 'react';
+import React, { FormEvent, JSX, useMemo, useState } from 'react';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 import { IDoctor } from '@/types/doctor.interface';
@@ -46,37 +46,19 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { NotificationEvent } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { bookingSchema } from '@/schemas/booking.schema';
-import { IBookingForm } from '@/types/booking.interface';
-import { MODE } from '@/constants/constants';
-import { SlotSelectionModal } from '@/components/ui/slotSelectionModal';
-import { showErrorToast } from '@/lib/utils';
+import PatientDetailsDrawer from './PatientDetailsDrawer';
 
 type SelectedAppointment = {
   date: Date;
   appointmentId: string;
 };
 
-type RescheduleAppointment = {
-  appointmentId: string;
-  doctorId: string;
-  doctorName: string;
-  doctorProfilePicture: string;
-  specializations?: string[];
-  experience?: number;
-  noOfConsultations?: number;
-};
-
 const AppointmentRequests = (): JSX.Element => {
   const { on } = useWebSocket();
-  const router = useRouter();
   const user = useAppSelector(selectUser);
-  const dispatch = useAppDispatch();
+  const orgId = useAppSelector(selectOrganizationId);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -84,22 +66,20 @@ const AppointmentRequests = (): JSX.Element => {
     open: false,
   });
   const [openModal, setOpenModal] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<SelectedAppointment>({
+  const [selectedAppointment] = useState<SelectedAppointment>({
     date: new Date(),
     appointmentId: '',
   });
-  const [openRescheduleModal, setOpenRescheduleModal] = useState(false);
-  const [rescheduleAppointmentData, setRescheduleAppointmentData] =
-    useState<RescheduleAppointment | null>(null);
-  const [isRescheduling, setIsRescheduling] = useState(false);
-  const [joiningAppointmentId, setJoiningAppointmentId] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedAppointmentForDetails, setSelectedAppointmentForDetails] = useState<
+    IAppointment | IHospitalAppointment | null
+  >(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
-  const { register, setValue, getValues, watch, reset } = useForm<IBookingForm>({
-    resolver: zodResolver(bookingSchema),
-    mode: MODE.ON_TOUCH,
-  });
+  // Use hospital appointments endpoint for hospital role, doctor appointments for others
+  const isHospital = user?.role === Role.Hospital;
+  const fetchAction = isHospital ? getHospitalAppointments : getAppointments;
 
   const {
     isLoading,
@@ -109,15 +89,23 @@ const AppointmentRequests = (): JSX.Element => {
     tableData,
     updatePage,
     refetch,
-  } = useFetchPaginatedData<IAppointment, AppointmentStatus | ''>(getAppointments, {
-    orderBy: 'createdAt',
-    orderDirection: OrderDirection.Descending,
-    doctorId: user?.role === Role.Doctor ? user?.id : undefined,
-    patientId: user?.role === Role.Patient ? user?.id : undefined,
-    page: 1,
-    search: '',
-    status: '',
-  });
+  } = useFetchPaginatedData<IAppointment | IHospitalAppointment, AppointmentStatus | ''>(
+    fetchAction as AsyncThunk<
+      Toast | IPagination<IAppointment | IHospitalAppointment>,
+      IQueryParams<AppointmentStatus | ''>,
+      object
+    >,
+    {
+      orderBy: 'createdAt',
+      orderDirection: OrderDirection.Descending,
+      doctorId: user?.role === Role.Doctor ? user?.id : undefined,
+      patientId: user?.role === Role.Patient ? user?.id : undefined,
+      orgId: user?.role === Role.Admin ? orgId : undefined,
+      page: 1,
+      search: '',
+      status: '',
+    },
+  );
 
   on(NotificationEvent.NewRequest, () => {
     void refetch();
@@ -127,59 +115,64 @@ const AppointmentRequests = (): JSX.Element => {
     { value: '', label: 'All' },
     { value: AppointmentStatus.Pending, label: 'Pending' },
     { value: AppointmentStatus.Accepted, label: 'Accepted' },
-    { value: AppointmentStatus.Progress, label: 'In Progress' },
-    { value: AppointmentStatus.Completed, label: 'Completed' },
     { value: AppointmentStatus.Cancelled, label: 'Cancelled' },
-    { value: AppointmentStatus.Declined, label: 'Declined' },
-    { value: AppointmentStatus.Incomplete, label: 'Incomplete' },
   ];
-  const columns: ColumnDef<IAppointment>[] = [
+  const dateSortOptions: ISelected[] = [
+    { value: '', label: 'Default' },
+    { value: OrderDirection.Ascending, label: 'Ascending' },
+    { value: OrderDirection.Descending, label: 'Descending' },
+  ];
+  const [dateSortDirection, setDateSortDirection] = useState<string>('');
+
+  const columns: ColumnDef<IAppointment | IHospitalAppointment, unknown>[] = [
     {
       accessorKey: 'patient',
       header: () => (
         <div className="flex cursor-pointer whitespace-nowrap">
-          {user?.role === Role.Doctor ? 'Patient Name' : 'Doctor Name'}
+          {user?.role === Role.Doctor || user?.role === Role.Hospital
+            ? 'Patient Name'
+            : 'Doctor Name'}
         </div>
       ),
       cell: ({ row: { original } }): JSX.Element => {
         const { doctor, patient } = original;
         const isDoctor = user?.role === Role.Doctor;
+        const isHospital = user?.role === Role.Hospital;
         const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
         return (
           <AvatarWithName
-            imageSrc={isDoctor || isAdmin ? patient.profilePicture : doctor.profilePicture}
-            firstName={isDoctor || isAdmin ? patient.firstName : doctor.firstName}
-            lastName={isDoctor || isAdmin ? patient.lastName : doctor.lastName}
+            imageSrc={
+              (isDoctor || isAdmin || isHospital
+                ? patient?.profilePicture
+                : doctor?.profilePicture) ?? ''
+            }
+            firstName={
+              (isDoctor || isAdmin || isHospital ? patient?.firstName : doctor?.firstName) ?? ''
+            }
+            lastName={
+              (isDoctor || isAdmin || isHospital ? patient?.lastName : doctor?.lastName) ?? ''
+            }
           />
-        );
-      },
-    },
-    {
-      accessorKey: 'type',
-      header: 'Type',
-      cell: ({ row: { original } }): JSX.Element => {
-        const { type } = original;
-        const virtual = type === AppointmentType.Virtual;
-        return virtual ? (
-          <div className="flex items-center gap-2">
-            <Presentation size={16} /> Virtual
-          </div>
-        ) : (
-          <div>
-            <House size={16} /> Visit
-          </div>
         );
       },
     },
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row: { original } }): string => moment(original.slot.date).format('LL'),
-    },
-    {
-      accessorKey: 'time',
-      header: 'Time',
-      cell: ({ row: { original } }): string => moment(original.slot.startTime).format('hh:mm A'),
+      cell: ({ row: { original } }): string => {
+        // Handle appointments without slots (hospital appointments)
+        if (original.slot?.date) {
+          return moment(original.slot.date).format('LL');
+        }
+        // Try to extract date from additionalInfo or use createdAt
+        if (original.additionalInfo) {
+          const dateMatch = original.additionalInfo.match(/Appointment Date: (.+)/);
+          if (dateMatch) {
+            return moment(dateMatch[1]).format('LL');
+          }
+        }
+        return moment(original.createdAt).format('LL');
+      },
     },
     {
       accessorKey: 'status',
@@ -196,16 +189,18 @@ const AppointmentRequests = (): JSX.Element => {
       id: 'actions',
       header: 'Action',
       cell: ({ row: { original } }): JSX.Element => {
-        const { status, patient, doctor, id, createdAt } = original;
+        const { status, patient, doctor, id } = original;
         const isPending = status === AppointmentStatus.Pending;
-        const isInProgress = status === AppointmentStatus.Progress;
         const isDone = status === AppointmentStatus.Completed;
         const isCancelled = status === AppointmentStatus.Cancelled;
         const getName = (): string => {
           if (user?.role === Role.Patient) {
-            return `${doctor.firstName} ${doctor.lastName}`;
+            return `${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}`.trim() || '—';
           }
-          return `${patient.firstName} ${patient.lastName}`;
+          if (user?.role === Role.Hospital) {
+            return `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim() || '—';
+          }
+          return `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim() || '—';
         };
         return (
           <ActionsDropdownMenus
@@ -221,11 +216,11 @@ const AppointmentRequests = (): JSX.Element => {
                     'Accept',
                     `accept ${getName()}'s appointment request`,
                     id,
-                    acceptAppointment,
+                    isHospital ? acceptHospitalAppointment : acceptAppointment,
                     'Yes, accept',
                     'Cancel',
                   ),
-                visible: user?.role === Role.Doctor && isPending,
+                visible: (user?.role === Role.Doctor || user?.role === Role.Hospital) && isPending,
               },
               {
                 title: (
@@ -238,76 +233,26 @@ const AppointmentRequests = (): JSX.Element => {
                     'Decline',
                     `decline ${getName()}'s appointment request`,
                     id,
-                    declineAppointment,
+                    isHospital ? declineHospitalAppointment : declineAppointment,
                     'Yes, decline',
                     'Cancel',
                   ),
                 visible: !isDone && !isCancelled,
               },
-              // TODO: Is a refund functionality feasible???
               {
                 title: (
                   <>
-                    <RotateCcw /> Reschedule
+                    <Eye /> View Details
                   </>
                 ),
                 clickCommand: (): void => {
-                  setRescheduleAppointmentData({
-                    appointmentId: id,
-                    doctorId: doctor.id,
-                    doctorName: `${doctor.firstName} ${doctor.lastName}`,
-                    doctorProfilePicture: doctor.profilePicture,
-                    specializations: doctor.specializations,
-                    experience: doctor.experience,
-                    noOfConsultations: doctor.noOfConsultations,
-                  });
-                  setOpenRescheduleModal(true);
-                  reset();
+                  setSelectedAppointmentForDetails(original);
+                  setIsDrawerOpen(true);
                 },
-                visible: !isDone && !isCancelled && !isInProgress,
-              },
-              {
-                title: (
-                  <>
-                    {joiningAppointmentId === id ? <Loader2 className="animate-spin" /> : <Video />}{' '}
-                    {joiningAppointmentId === id ? 'Joining...' : 'Join Meeting'}
-                  </>
-                ),
-                clickCommand: (): void => {
-                  if (!joiningAppointmentId) {
-                    void handleJoinMeeting(id);
-                  }
-                },
-                visible: !isDone && !isCancelled,
-              },
-              {
-                title: (
-                  <>
-                    <View /> View Consultation
-                  </>
-                ),
-                clickCommand: (): void => {
-                  if (user?.role === Role.Doctor) {
-                    router.push(`/dashboard/patients/${patient.id}?appointmentId=${id}`);
-                  } else {
-                    router.push(`/dashboard/consultation-patient/${id}`);
-                  }
-                },
-              },
-              {
-                title: (
-                  <>
-                    <Waypoints /> Assign to a Doctor
-                  </>
-                ),
-                clickCommand: (): void => {
-                  setOpenModal(true);
-                  setSelectedAppointment({
-                    date: new Date(createdAt),
-                    appointmentId: id,
-                  });
-                },
-                visible: user?.role === Role.Admin || user?.role === Role.SuperAdmin,
+                visible:
+                  user?.role === Role.Admin ||
+                  user?.role === Role.SuperAdmin ||
+                  user?.role === Role.Hospital,
               },
             ]}
           />
@@ -324,6 +269,20 @@ const AppointmentRequests = (): JSX.Element => {
     });
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
+  const displayAppointments = useMemo(() => {
+    if (!dateSortDirection) {
+      return tableData;
+    }
+    const sorted = [...tableData].sort((a, b) => {
+      // Handle appointments without slots (hospital appointments)
+      const dateA = a.slot?.date ? moment(a.slot.date).valueOf() : moment(a.createdAt).valueOf();
+      const dateB = b.slot?.date ? moment(b.slot.date).valueOf() : moment(b.createdAt).valueOf();
+      return dateSortDirection === OrderDirection.Ascending ? dateA - dateB : dateB - dateA;
+    });
+    return sorted;
+  }, [tableData, dateSortDirection]);
+  const displayPaginationData = paginationData;
+
   function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
     event.preventDefault();
     setQueryParameters((prev) => ({
@@ -332,64 +291,6 @@ const AppointmentRequests = (): JSX.Element => {
       search: search ?? searchTerm,
     }));
   }
-
-  const handleReschedule = async (): Promise<void> => {
-    if (!rescheduleAppointmentData) {
-      return;
-    }
-
-    const { slotId } = getValues();
-    if (!slotId) {
-      toast({
-        title: 'Error',
-        description: 'Please select a time slot',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsRescheduling(true);
-
-    const { payload } = await dispatch(
-      rescheduleAppointment({
-        slotId,
-        appointmentId: rescheduleAppointmentData.appointmentId,
-      }),
-    );
-
-    if (payload && showErrorToast(payload)) {
-      toast(payload);
-      setIsRescheduling(false);
-      return;
-    }
-
-    toast(payload as Toast);
-    setIsRescheduling(false);
-    setOpenRescheduleModal(false);
-    setRescheduleAppointmentData(null);
-    reset();
-    void refetch();
-  };
-
-  const handleJoinMeeting = async (appointmentId: string): Promise<void> => {
-    setJoiningAppointmentId(appointmentId);
-
-    const { payload } = await dispatch(joinConsultation(appointmentId));
-
-    if (payload && showErrorToast(payload)) {
-      toast(payload);
-      setJoiningAppointmentId(null);
-      return;
-    }
-
-    // Open meeting link in new tab
-    const meetingLink = payload as string;
-    if (meetingLink) {
-      window.open(meetingLink, '_blank', 'noopener,noreferrer');
-    }
-
-    setJoiningAppointmentId(null);
-  };
 
   const handleDateChange = (type: 'start' | 'end', value: string): void => {
     const dateVal = value ? new Date(value) : null;
@@ -452,6 +353,14 @@ const AppointmentRequests = (): JSX.Element => {
             }
             className="h-10 cursor-pointer bg-gray-50 sm:flex"
           />
+          <OptionsMenu
+            options={dateSortOptions}
+            Icon={ListFilter}
+            menuTrigger="Sort Date"
+            selected={dateSortDirection}
+            setSelected={(value) => setDateSortDirection(value)}
+            className="h-10 cursor-pointer bg-gray-50 sm:flex"
+          />
           <div className="flex items-center gap-2">
             <Input
               error=""
@@ -481,8 +390,8 @@ const AppointmentRequests = (): JSX.Element => {
         <TableData
           columns={columns}
           page={queryParameters.page}
-          data={tableData}
-          paginationData={paginationData}
+          data={displayAppointments}
+          paginationData={displayPaginationData}
           userPaginationChange={({ pageIndex }) => updatePage(pageIndex)}
           isLoading={isLoading}
         />
@@ -500,35 +409,25 @@ const AppointmentRequests = (): JSX.Element => {
           <AvailableDoctors
             closeModal={() => setOpenModal(false)}
             appointment={selectedAppointment}
+            isHospital={isHospital}
           />
         }
         showClose={true}
         setState={setOpenModal}
       />
 
-      {rescheduleAppointmentData && (
-        <SlotSelectionModal
-          open={openRescheduleModal}
-          onCloseAction={() => {
-            setOpenRescheduleModal(false);
-            setRescheduleAppointmentData(null);
-            reset();
-          }}
-          onConfirmAction={handleReschedule}
-          isLoading={isRescheduling}
-          doctorId={rescheduleAppointmentData.doctorId}
-          doctorName={rescheduleAppointmentData.doctorName}
-          doctorProfilePicture={rescheduleAppointmentData.doctorProfilePicture}
-          specializations={rescheduleAppointmentData.specializations}
-          experience={rescheduleAppointmentData.experience}
-          noOfConsultations={rescheduleAppointmentData.noOfConsultations}
-          registerAction={register}
-          setValueAction={setValue}
-          watch={watch}
-          title="Reschedule Appointment"
-          confirmButtonText="Reschedule"
-        />
-      )}
+      <PatientDetailsDrawer
+        open={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setSelectedAppointmentForDetails(null);
+        }}
+        appointment={selectedAppointmentForDetails}
+        isHospital={isHospital}
+        onActionComplete={() => {
+          void refetch();
+        }}
+      />
     </div>
   );
 };
@@ -538,8 +437,13 @@ export default AppointmentRequests;
 type AvailableDoctorsProps = {
   closeModal: () => void;
   appointment: SelectedAppointment;
+  isHospital?: boolean;
 };
-const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps): JSX.Element => {
+const AvailableDoctors = ({
+  closeModal,
+  appointment,
+  isHospital = false,
+}: AvailableDoctorsProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const { date, appointmentId } = appointment;
   const [doctorId, setDoctorId] = useState('');
@@ -560,7 +464,10 @@ const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps): J
 
   async function assignDoctor(): Promise<void> {
     setIsAssignRequestLoading(true);
-    const { payload } = await dispatch(assignAppointment({ appointmentId, doctorId }));
+    const assignAction = isHospital
+      ? assignDoctorToHospitalAppointment({ appointmentId, doctorId })
+      : assignAppointment({ appointmentId, doctorId });
+    const { payload } = await dispatch(assignAction);
     toast(payload as Toast);
     setIsAssignRequestLoading(false);
     closeModal();

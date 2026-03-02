@@ -1,5 +1,6 @@
 'use client';
 import { Calendar, Clock, Medal } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useState } from 'react';
 import { IDoctor } from '@/types/doctor.interface';
@@ -93,6 +94,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
 
   const handleConfirmAndProceed = (): void => {
     const { slotId } = getValues();
+    if (slotId === undefined || slotId === '') {
+      return;
+    }
     void onSubmit(slotId);
   };
 
@@ -309,9 +313,11 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
           aria-label={`View details for Dr. ${fullName}`}
         >
           {profilePicture ? (
-            <img
+            <Image
               src={profilePicture}
               alt={`Dr. ${fullName}`}
+              width={320}
+              height={160}
               className="h-40 w-full object-center transition-transform duration-300 group-hover:scale-105"
             />
           ) : (

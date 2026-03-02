@@ -4,24 +4,50 @@ import UpcomingAppointments from '@/app/dashboard/appointment/_components/upcomi
 import AppointmentRequests from '@/app/dashboard/appointment/_components/appointmentRequests';
 import { JSX, useEffect } from 'react';
 import { AppointmentView, useQueryParam } from '@/hooks/useQueryParam';
+import { selectUser } from '@/lib/features/auth/authSelector';
+import { useAppSelector } from '@/lib/hooks';
+import { Role } from '@/types/shared.enum';
 
 const Appointment = (): JSX.Element => {
   const { updateQuery, getQueryParam } = useQueryParam();
+  const user = useAppSelector(selectUser);
+  const isAdminOrHospital =
+    user?.role === Role.Admin || user?.role === Role.Hospital || user?.role === Role.SuperAdmin;
 
   useEffect(() => {
-    updateQuery(
-      'appointmentView',
-      getQueryParam('appointmentView') === AppointmentView.Requests
-        ? AppointmentView.Requests
-        : AppointmentView.Upcoming,
+    if (!isAdminOrHospital) {
+      updateQuery(
+        'appointmentView',
+        getQueryParam('appointmentView') === AppointmentView.Requests
+          ? AppointmentView.Requests
+          : AppointmentView.Upcoming,
+      );
+    }
+  }, [isAdminOrHospital]);
+
+  // For Admin/Hospital: Column layout with Requests
+  if (isAdminOrHospital) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div>
+          <p className="text-xl font-bold">Appointments</p>
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <AppointmentRequests />
+          </div>
+        </div>
+      </div>
     );
-  }, []);
+  }
+
+  // For other roles: Keep existing tab layout
   return (
     <div>
       <div>
         <Tabs value={getQueryParam('appointmentView')} className="mt-2">
           <div className="flex items-center">
-            <p className="text-xl font-bold">Appointment</p>
+            <p className="text-xl font-bold">Appointments</p>
             <div className="m-auto">
               <TabsList>
                 <TabsTrigger
@@ -36,7 +62,7 @@ const Appointment = (): JSX.Element => {
                   className="rounded-2xl"
                   onClick={() => updateQuery('appointmentView', AppointmentView.Requests)}
                 >
-                  Requests
+                  Appointment Requests
                 </TabsTrigger>
               </TabsList>
             </div>

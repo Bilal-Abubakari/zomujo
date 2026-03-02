@@ -44,6 +44,12 @@ export const PATIENT_SIDE_BAR: ISidebar = {
           relatedUrl: `${DASHBOARD_ROUTE}/book-appointment`,
         },
         {
+          title: 'Find Hospitals',
+          url: `${DASHBOARD_ROUTE}/find-hospitals`,
+          Icon: Hospital,
+          phoneTitle: 'Hospitals',
+        },
+        {
           title: 'Appointments',
           url: `${DASHBOARD_ROUTE}/appointment`,
           Icon: CalendarDays,
@@ -324,6 +330,61 @@ export const PATIENT_SETTINGS_SIDEBAR: ISidebar = {
           url: '#',
           Icon: EarthLock,
           phoneTitle: 'Help',
+        },
+      ],
+    },
+  ],
+};
+
+export const HOSPITAL_SIDE_BAR: ISidebar = {
+  sidebarGroup: [
+    {
+      groupTitle: 'MAIN',
+      menu: [
+        {
+          title: 'Home',
+          url: DASHBOARD_ROUTE,
+          Icon: Home,
+        },
+        {
+          title: 'Analytics',
+          url: `${DASHBOARD_ROUTE}/analytics`,
+          Icon: ChartNoAxesCombined,
+        },
+        {
+          title: 'Appointments',
+          url: `${DASHBOARD_ROUTE}/appointment`,
+          Icon: CalendarDays,
+        },
+        {
+          title: 'Settings',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}`,
+          Icon: Settings,
+        },
+      ],
+    },
+  ],
+} as const;
+
+export const HOSPITAL_SETTINGS_SIDEBAR: ISidebar = {
+  sidebarGroup: [
+    {
+      groupTitle: 'ACCOUNT',
+      menu: [
+        {
+          title: 'Hospital',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}`,
+          Icon: Hospital,
+        },
+        {
+          title: 'Security',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/security`,
+          Icon: ShieldCheck,
+        },
+        {
+          title: 'Notification',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/notification`,
+          Icon: Bell,
         },
       ],
     },

@@ -16,6 +16,7 @@ import {
   IResetPassword,
   IUpdatePassword,
   IUserSignUpRole,
+  IHospitalSignUp,
 } from '@/types/auth.interface';
 import { ICustomResponse, IResponse } from '@/types/shared.interface';
 import { RootState } from '@/lib/store';
@@ -84,6 +85,23 @@ export const signUp = createAsyncThunk(
     try {
       const { data } = await axios.post<IResponse>(`${authPath}signUp`, signUpCredentials);
       return data.message;
+    } catch (error) {
+      dispatch(setErrorMessage(axiosErrorHandler(error)));
+      return false;
+    }
+  },
+);
+
+export const hospitalSignUp = createAsyncThunk(
+  'authentication/hospitalSignUp',
+  async (hospitalCredentials: IHospitalSignUp, { dispatch }) => {
+    try {
+      const { data } = await axios.post<IResponse<ILoginResponse>>(
+        `${authPath}hospital-signup`,
+        hospitalCredentials,
+      );
+      dispatch(setUserInfo(data.data));
+      return data.data;
     } catch (error) {
       dispatch(setErrorMessage(axiosErrorHandler(error)));
       return false;

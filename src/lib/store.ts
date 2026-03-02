@@ -6,6 +6,8 @@ import notificationsReducer from '@/lib/features/notifications/notificationsSlic
 import paymentsReducer from '@/lib/features/payments/paymentSlice';
 import patientsReducer from '@/lib/features/patients/patientsSlice';
 import appointmentsReducer from '@/lib/features/appointments/appointmentsSlice';
+import hospitalAppointmentsReducer from '@/lib/features/hospital-appointments/hospitalAppointmentsSlice';
+import analyticsReducer from '@/lib/features/analytics/analyticsSlice';
 import consultationReducer from '@/lib/features/appointments/consultation/consultationSlice';
 import connectivityReducer from '@/lib/features/connectivity/connectivitySlice';
 import { persistReducer } from 'redux-persist';
@@ -25,6 +27,8 @@ const rootReducer = combineReducers({
   payments: paymentsReducer,
   patients: patientsReducer,
   appointments: appointmentsReducer,
+  hospitalAppointments: hospitalAppointmentsReducer,
+  analytics: analyticsReducer,
   consultation: consultationReducer,
   connectivity: connectivityReducer,
 });
