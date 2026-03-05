@@ -58,14 +58,11 @@ const AppointmentCalendar = ({
             key={appointment.id}
             appointment={appointment}
             handleSelectedCard={(): void => {
-              console.log('Granted', appointment, selectedAppointmentId);
               if (selectedAppointmentId === appointment.id) {
                 setSelectedAppointmentId(null);
               } else {
-                console.log('Selected', appointment.id);
                 setSelectedAppointmentId(appointment.id);
               }
-              console.log('Selected now should', selectedAppointmentId);
             }}
             showDetails={selectedAppointmentId === appointment.id}
             handleCloseDetails={(): void => setSelectedAppointmentId(null)}
