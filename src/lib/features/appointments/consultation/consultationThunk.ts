@@ -22,7 +22,11 @@ import {
   setIsAuthenticated,
 } from '@/lib/features/appointments/appointmentsSlice';
 import { ILab, ILaboratoryRequestWithRecordId, IUploadLab } from '@/types/labs.interface';
-import { IRadiology, IRadiologyRequestWithRecordId } from '@/types/radiology.interface';
+import {
+  IRadiology,
+  IRadiologyRequestWithRecordId,
+  IUploadRadiology,
+} from '@/types/radiology.interface';
 
 export const getComplaintSuggestions = createAsyncThunk(
   'consultation/complaint-suggestions',
@@ -275,13 +279,22 @@ export const authenticateConsultation = createAsyncThunk(
 
 export const endConsultation = createAsyncThunk(
   'consultation/end-consultation',
-  async ({ appointmentId, code }: { appointmentId: string; code: string }): Promise<Toast> => {
+  async ({
+    appointmentId,
+    code,
+    isInvestigating,
+  }: {
+    appointmentId: string;
+    code: string;
+    isInvestigating?: boolean;
+  }): Promise<Toast> => {
     try {
       const {
         data: { message },
-      } = await axios.patch<IResponse>(`consultation/end/${appointmentId}`, {
+      } = await axios.patch<IResponse>('consultation/end', {
         appointmentId,
         code,
+        isInvestigating,
       });
       return generateSuccessToast(message);
     } catch (error) {
@@ -314,21 +327,13 @@ export const addLabFile = createAsyncThunk(
 
 export const addRadiologyFile = createAsyncThunk(
   'consultation/add-radiology-file',
-  async ({
-    file,
-    radiologyId,
-    testName,
-  }: {
-    file: File;
-    radiologyId: string;
-    testName: string;
-  }): Promise<Toast | string> => {
+  async ({ file, id }: IUploadRadiology): Promise<Toast | string> => {
     try {
       const {
         data: { data },
       } = await axios.post<IResponse<string>>(
         `consultation/radiology-lab-file`,
-        { labFile: file, testName, id: radiologyId },
+        { id, labFile: file },
         {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -336,6 +341,38 @@ export const addRadiologyFile = createAsyncThunk(
         },
       );
       return data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const removeLabFile = createAsyncThunk(
+  'consultation/remove-lab-file',
+  async ({ labId, fileUrl }: { labId: string; fileUrl: string }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.delete<IResponse>(
+        `consultation/remove-lab-file/${labId}?fileUrl=${encodeURIComponent(fileUrl)}`,
+      );
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const removeRadiologyFile = createAsyncThunk(
+  'consultation/remove-radiology-file',
+  async ({ id, fileUrl }: { id: string; fileUrl: string }): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.delete<IResponse>('consultation/radiology-lab-file', {
+        data: { id, fileUrl },
+      });
+      return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
@@ -399,7 +436,6 @@ export const downloadRadiologyRequestPdf = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      console.log('Error', error);
       return axiosErrorHandler(error, true) as Toast;
     }
   },
