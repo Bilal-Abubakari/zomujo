@@ -1,5 +1,5 @@
 'use client';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect, useRef, useState } from 'react';
 import DateSelector from './dateSelector';
 import AppointmentCalendar from './appointmentCalendar';
 import moment from 'moment';
@@ -33,6 +33,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const { getQueryParam } = useQueryParam();
   const selectedDateParam = getQueryParam(AppointmentDate.selectedDate);
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   const newToday = moment();
   const startOfWeek = newToday.clone().startOf('isoWeek');
@@ -138,6 +139,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
         className="h-[calc(100vh-356px)]"
         appointments={upcomingAppointment}
         selectedDate={selectedDate}
+        calendarRef={calendarRef}
       />
     </div>
   );
