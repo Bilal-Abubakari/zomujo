@@ -170,7 +170,6 @@ const Diagnosis = ({
   };
 
   const editDiagnosis = (index: number): void => {
-    console.log('Does it work?', index);
     if (index < savedDiagnoses.length) {
       // Editing a saved diagnosis
       const diagnosis = savedDiagnoses[index];
@@ -182,7 +181,6 @@ const Diagnosis = ({
       setUpdateDiagnosis(true);
     } else {
       // Editing a local diagnosis
-      console.log('It works!');
       const localIndex = index - savedDiagnoses.length;
       const diagnosis = diagnoses[localIndex];
       setValue('name', diagnosis.name);
