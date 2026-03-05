@@ -17,6 +17,7 @@ interface IPayload {
   requestId: string;
   scope: Role;
   message: string;
+  appointmentId: string;
   appointment: IAppointment;
   request: IRecordRequest;
 }
@@ -34,6 +35,7 @@ export enum NotificationTopic {
   PrescriptionGenerated = 'Prescription Generated',
   ConsultationUpdate = 'Consultation Update',
   ConsultationStarted = 'Consultation Started',
+  ConsultationCompleted = 'Consultation Completed',
   DiagnosisAdded = 'Diagnosis Added',
   RadiologyRequest = 'Radiology Test Requests',
 }

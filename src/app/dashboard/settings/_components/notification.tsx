@@ -74,17 +74,6 @@ const NotificationPreference = (): JSX.Element => {
               checked={watch('notifications.appointments')}
               onCheckedChange={(checked) => setValue('notifications.appointments', !!checked)}
             />
-            {/*TODO: Not planned for MVP*/}
-            {/*<Checkbox*/}
-            {/*  name="confirm"*/}
-            {/*  labelClassName="text-gray-500 font-normal"*/}
-            {/*  labelName="Receive updates, communicate with ease, and stay informed"*/}
-            {/*  title="Messages"*/}
-            {/*  titleLabelClassName="font-medium -mt-1"*/}
-            {/*  containerClassName="items-start"*/}
-            {/*  checked={watch('notifications.messages')}*/}
-            {/*  onCheckedChange={(checked) => setValue('notifications.messages', !!checked)}*/}
-            {/*/>*/}
             <Checkbox
               name="confirm"
               labelClassName="text-gray-500 font-normal"
