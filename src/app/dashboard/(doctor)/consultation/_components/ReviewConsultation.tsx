@@ -4,7 +4,6 @@ import {
   selectAppointment,
   selectAppointmentRadiology,
   selectComplaints,
-  selectConductedLabs,
   selectDiagnoses,
   selectPatientSymptoms,
   selectRequestedLabs,
@@ -63,7 +62,6 @@ const ReviewConsultation = ({
   const symptoms = useAppSelector(selectPatientSymptoms);
   const requestedLabs = useAppSelector(selectRequestedLabs);
   const lab = useAppSelector(selectAppointmentLabs);
-  const conductedLabs = useAppSelector(selectConductedLabs);
   const radiology = useAppSelector(selectAppointmentRadiology);
   const appointment = useAppSelector(selectAppointment);
   const historyNotes = useAppSelector(selectHistoryNotes);
@@ -71,8 +69,8 @@ const ReviewConsultation = ({
   const [addSignature, setAddSignature] = useState(false);
   const [showIncompleteModal, setShowIncompleteModal] = useState(false);
   const [isStartingConsultation, setIsStartingConsultation] = useState(false);
-  const [showReferralModal, setShowReferralModal] = useState(false); // Add state
-  const [referrals, setReferrals] = useState<IReferral[]>([]); // Add state for referrals
+  const [showReferralModal, setShowReferralModal] = useState(false);
+  const [referrals, setReferrals] = useState<IReferral[]>([]);
   const [doctorNotes, setDoctorNotes] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'notes'>('cards');
 
@@ -90,7 +88,7 @@ const ReviewConsultation = ({
       generateChiefComplaints(appointment, complaints),
       generateSymptoms(symptoms, historyNotes),
       generateMedications(appointment),
-      generateLabs(requestedLabs, conductedLabs),
+      generateLabs(requestedLabs, lab?.fileUrls && lab.fileUrls.length > 0 ? lab.data : []),
       generateRadiology(radiology),
       generateDiagnosesAndTreatment(
         diagnoses,
@@ -106,7 +104,7 @@ const ReviewConsultation = ({
     symptoms,
     historyNotes,
     requestedLabs,
-    conductedLabs,
+    lab,
     radiology,
     diagnoses,
     prescriptions,
@@ -157,7 +155,7 @@ const ReviewConsultation = ({
         generateChiefComplaints(appointment, complaints),
         generateSymptoms(symptoms, historyNotes),
         generateMedications(appointment),
-        generateLabs(requestedLabs, conductedLabs),
+        generateLabs(requestedLabs, lab?.fileUrls && lab.fileUrls.length > 0 ? lab.data : []),
         generateRadiology(radiology),
         generateDiagnosesAndTreatment(
           diagnoses,
@@ -174,7 +172,7 @@ const ReviewConsultation = ({
     symptoms,
     historyNotes,
     requestedLabs,
-    conductedLabs,
+    lab,
     radiology,
     diagnoses,
     prescriptions,
@@ -247,7 +245,6 @@ const ReviewConsultation = ({
                 historyNotes={historyNotes}
                 appointment={appointment}
                 requestedLabs={requestedLabs}
-                conductedLabs={conductedLabs}
                 radiology={radiology}
                 prescriptions={prescriptions || appointment?.prescriptions || []}
                 referrals={referrals}
@@ -256,6 +253,7 @@ const ReviewConsultation = ({
                 }
                 labInstructions={lab?.instructions}
                 labClinicalHistory={lab?.history}
+                labFileUrls={lab?.fileUrls}
               />
             ) : (
               <DoctorNotesView

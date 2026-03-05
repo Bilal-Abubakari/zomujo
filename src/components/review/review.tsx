@@ -120,9 +120,9 @@ const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-4xl">
+    <Card className="mx-auto mt-5 w-full max-w-4xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">
+        <CardTitle className="mt-5 text-2xl font-bold">
           {isDoctor ? 'Platform Feedback' : 'Leave a Review'}
         </CardTitle>
       </CardHeader>
