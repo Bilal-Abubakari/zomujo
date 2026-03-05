@@ -5,7 +5,7 @@ import {
   SECONDS_IN_MINUTE,
 } from '@/constants/constants';
 import { cn, showErrorToast } from '@/lib/utils';
-import { House, Video, CalendarCheck } from 'lucide-react';
+import { House, Video } from 'lucide-react';
 import React, { JSX, useEffect, useRef, useState, RefObject } from 'react';
 import moment from 'moment';
 import { Role } from '@/types/shared.enum';
@@ -19,7 +19,6 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { joinConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import { toast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
 
 export type CalendarRef = RefObject<HTMLDivElement | null>;
 
@@ -86,12 +85,12 @@ const AppointmentCard = ({
               <p className="text-sm font-bold">
                 {type === AppointmentType.Visit ? 'Visit' : 'Virtual'}
               </p>
-              {appointment.isFollowUp && (
-                <Badge variant="blue" className="flex items-center gap-1 px-1.5 py-0.5 text-xs">
-                  <CalendarCheck className="h-3 w-3" />
-                  Follow-up
-                </Badge>
-              )}
+              {/*{appointment.isFollowUp && (*/}
+              {/*  <Badge variant="blue" className="flex items-center gap-1 px-1.5 py-0.5 text-xs">*/}
+              {/*    <CalendarCheck className="h-3 w-3" />*/}
+              {/*    Follow-up*/}
+              {/*  </Badge>*/}
+              {/*)}*/}
             </div>
             <p className="text-xs font-medium text-gray-500">
               {moment(startDate).format('LT')} - {moment(endDate).format('LT')}
