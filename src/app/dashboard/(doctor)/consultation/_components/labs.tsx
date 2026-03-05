@@ -68,9 +68,7 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
     mode: MODE.ON_TOUCH,
   });
   const dispatch = useAppDispatch();
-  const requestedAppointmentLabs = useAppSelector(
-    selectRequestedLabs,
-  ) as unknown as ILaboratoryRequest[];
+  const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -80,7 +78,6 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Use shared hooks
   const filteredLabs = useInvestigationFilter(labs, searchQuery);
   const pdfPreview = usePdfPreview();
 
@@ -105,10 +102,12 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       toast(response as Toast);
       return;
     }
-    const lab = (response as ILab[])[0];
-    setValue('labs', lab.data, { shouldValidate: true });
-    setValue('history', lab.history, { shouldValidate: true });
-    setValue('instructions', lab.instructions, { shouldValidate: true });
+    const lab = (response as ILab[])?.[0];
+    if (lab) {
+      setValue('labs', lab.data, { shouldValidate: true });
+      setValue('history', lab.history, { shouldValidate: true });
+      setValue('instructions', lab.instructions, { shouldValidate: true });
+    }
   };
 
   const fetchPdf = async (): Promise<void> => {
