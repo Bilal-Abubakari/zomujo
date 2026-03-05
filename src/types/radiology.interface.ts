@@ -24,6 +24,7 @@ export interface IRadiologyRequest {
   procedureRequest: string;
   history: string;
   instructions?: string;
+  fileUrls?: string[];
 }
 
 export interface IRadiologyRequestWithRecordId {
@@ -43,7 +44,7 @@ export interface IRadiology extends IRadiologyRequest {
 }
 
 export interface IUploadRadiology {
-  radiologyId: string;
+  id: string;
   file: File;
 }
 
