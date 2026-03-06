@@ -112,16 +112,16 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
 
   const fetchPdf = async (): Promise<void> => {
     setIsLoadingPdf(true);
-    const result = await dispatch(downloadLabRequestPdf(String(params.appointmentId)));
+    const result = await dispatch(downloadLabRequestPdf(String(params.appointmentId))).unwrap();
     setIsLoadingPdf(false);
-    if (result.payload instanceof Blob) {
+    if (result instanceof Blob) {
       // Clean up old PDF URL before creating new one
       pdfPreview.cleanup(pdfUrl);
-      const url = pdfPreview.createUrl(result.payload);
+      const url = pdfPreview.createUrl(result);
       setPdfUrl(url);
       setShowPreview(true);
     } else {
-      toast(result.payload as Toast);
+      toast(result);
     }
   };
 
@@ -186,12 +186,20 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
     setHasUnsavedChanges(false);
   };
 
-  const buildLabsArray = (): Pick<ILaboratoryRequest, 'categoryType' | 'category' | 'testName'>[] =>
-    Array.from(state.selectedTests.values()).map(({ testName, category, categoryType }) => ({
-      testName,
-      category,
-      categoryType,
-    }));
+  const buildLabsArray = (
+    newSelectedTests?: SelectedTests,
+  ): Pick<ILaboratoryRequest, 'categoryType' | 'category' | 'testName'>[] =>
+    Array.from((newSelectedTests ?? state.selectedTests).values()).map(
+      ({ testName, category, categoryType }) => ({
+        testName,
+        category,
+        categoryType,
+      }),
+    );
+
+  const setLabsAction = (newSelectedTests?: SelectedTests): void => {
+    setValue('labs', buildLabsArray(newSelectedTests), { shouldValidate: true, shouldTouch: true });
+  };
 
   const toggleTestSelection = (
     testName: string,
@@ -206,9 +214,9 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       } else {
         newSelectedTests.set(key, { testName, category, categoryType });
       }
+      setLabsAction(newSelectedTests);
       return { selectedTests: newSelectedTests };
     });
-    setValue('labs', buildLabsArray(), { shouldValidate: true });
     setHasUnsavedChanges(true);
   };
 
@@ -232,9 +240,9 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
           newSelectedTests.delete(key);
         }
       });
+      setLabsAction(newSelectedTests);
       return { selectedTests: newSelectedTests };
     });
-    setValue('labs', buildLabsArray(), { shouldValidate: true });
     setHasUnsavedChanges(true);
   };
 
@@ -252,6 +260,7 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       setState({
         selectedTests: prevTests,
       });
+      setLabsAction(prevTests);
       setHasUnsavedChanges(false);
     }
   }, [requestedAppointmentLabs]);
