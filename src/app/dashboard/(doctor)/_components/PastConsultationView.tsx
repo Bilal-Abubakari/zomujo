@@ -67,7 +67,6 @@ const PastConsultationView = ({ appointment }: PastConsultationViewProps): JSX.E
             historyNotes={historyNotes}
             appointment={appointment}
             requestedLabs={undefined}
-            conductedLabs={undefined}
             radiology={radiology}
             prescriptions={prescriptions}
             referrals={[]}

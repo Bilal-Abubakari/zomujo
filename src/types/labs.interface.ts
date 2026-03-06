@@ -37,6 +37,7 @@ export interface ILab {
   data: ILaboratoryRequest[];
   createdAt: string;
   updatedAt: string;
+  fileUrls: string[];
 }
 
 export interface IPatientLab extends ILab {

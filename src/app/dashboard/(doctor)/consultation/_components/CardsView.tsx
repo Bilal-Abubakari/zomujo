@@ -20,13 +20,13 @@ interface CardsViewProps {
   symptoms?: IPatientSymptomMap;
   historyNotes?: string;
   requestedLabs: ILaboratoryRequest[] | undefined;
-  conductedLabs: ILaboratoryRequest[] | undefined;
   radiology: IRadiology | undefined;
   prescriptions: IPrescription[];
   referrals: IReferral[];
   onRemoveReferral?: (index: number) => void;
   labInstructions?: string;
   labClinicalHistory?: string;
+  labFileUrls?: string[];
 }
 
 export const CardsView = ({
@@ -35,13 +35,13 @@ export const CardsView = ({
   symptoms,
   historyNotes,
   requestedLabs,
-  conductedLabs,
   radiology,
   prescriptions,
   referrals,
   onRemoveReferral,
   labInstructions,
   labClinicalHistory,
+  labFileUrls,
 }: CardsViewProps): JSX.Element => (
   <>
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -66,9 +66,9 @@ export const CardsView = ({
       <div className="space-y-6">
         <LabTestsCard
           requestedLabs={requestedLabs}
-          conductedLabs={conductedLabs}
           clinicalHistory={labClinicalHistory}
           instruction={labInstructions}
+          uploadedFiles={labFileUrls}
         />
         <RadiologyTestsCard radiology={radiology} />
       </div>
