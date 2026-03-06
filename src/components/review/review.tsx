@@ -123,13 +123,13 @@ const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
     <Card className="mx-auto mt-5 w-full max-w-4xl">
       <CardHeader>
         <CardTitle className="mt-5 text-2xl font-bold">
-          {isDoctor ? 'Platform Feedback' : 'Leave a Review'}
+          {isDoctor ? 'Help Us Improve the Platform' : 'Share Your Feedback'}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-base font-semibold">Overall Rating *</Label>
+            <Label className="text-base font-semibold">Rate Your Overall Experience *</Label>
             <StarRating
               rating={rating}
               onRatingChange={(value) => setValue('rating', value, { shouldValidate: true })}
@@ -148,10 +148,12 @@ const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
           <div className="space-y-2">
             <Textarea
               placeholder={
-                isDoctor ? 'Share your feedback about the platform...' : 'Share your experience...'
+                isDoctor
+                  ? 'Tell us how we can make the platform better...'
+                  : 'Tell us about your consultation experience...'
               }
-              className="min-h-[120px] resize-none"
-              labelName="Comment *"
+              className="min-h-30 resize-none"
+              labelName="Your Feedback *"
               error={errors.comment?.message || ''}
               {...register('comment')}
             />
@@ -163,7 +165,7 @@ const Review = ({ onSuccess }: ReviewProps): JSX.Element => {
               variant="outline"
               onClick={() => reset()}
               disabled={isLoading}
-              child="Reset"
+              child="Start Over"
             />
             <Button
               type="submit"
@@ -195,7 +197,7 @@ const PatientDetailedRatings = ({
   return (
     <>
       <div className="space-y-4 rounded-lg border p-4">
-        <Label className="text-base font-semibold">Communication Skills *</Label>
+        <Label className="text-base font-semibold">How was the communication? *</Label>
         <div className="mt-2 space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm">Professional</Label>
@@ -256,7 +258,7 @@ const PatientDetailedRatings = ({
       </div>
 
       <div className="space-y-4 rounded-lg border p-4">
-        <Label className="text-base font-semibold">Expertise *</Label>
+        <Label className="text-base font-semibold">How about the doctor&apos;s expertise? *</Label>
         <div className="mt-2 space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm">Knowledge</Label>
