@@ -59,15 +59,11 @@ export const selectLabIds = createSelector(selectAppointmentLabs, (lab) =>
   lab?.data?.map((l) => l.id),
 );
 
-export const selectConductedLabs = createSelector(
-  selectAppointmentLabs,
-  (lab) => lab?.data?.filter((test) => !!test.fileUrl) || [],
+export const selectConductedLabs = createSelector(selectAppointmentLabs, (lab) =>
+  lab?.fileUrls && lab.fileUrls.length > 0 ? lab.data : [],
 );
 
-export const selectRequestedLabs = createSelector(
-  selectAppointmentLabs,
-  (lab) => lab?.data?.filter((test) => !test.fileUrl) || [],
-);
+export const selectRequestedLabs = createSelector(selectAppointmentLabs, (lab) => lab?.data || []);
 
 export const selectPrescriptions = createSelector(
   selectAppointment,
@@ -99,7 +95,7 @@ export const selectRequestedRadiology = createSelector(selectAppointmentRadiolog
 );
 
 export const selectConductedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
-  radiology?.tests?.some((test) => test.fileUrl) ? radiology : null,
+  radiology?.fileUrls && radiology.fileUrls.length > 0 ? radiology : null,
 );
 
 export const selectIsConsultationAuthenticated = createSelector(

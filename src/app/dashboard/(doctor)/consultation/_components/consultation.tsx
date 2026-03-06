@@ -27,6 +27,7 @@ import {
   selectSymptoms,
   selectIsConsultationAuthenticated,
   selectHistoryNotes,
+  selectAppointmentRadiology,
 } from '@/lib/features/appointments/appointmentSelector';
 import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
@@ -100,7 +101,7 @@ const getStatusBadgeVariant = (
 const getStatusIcon = (status: string | undefined): JSX.Element => {
   switch (status?.toLowerCase()) {
     case 'progress':
-      return <ClockFading className="mr-1" />;
+      return <ClockFading size="16" className="mr-1 text-xs" />;
     case 'completed':
       return <CheckCircle className="mr-1" />;
     default:
@@ -130,6 +131,7 @@ const Consultation = (): JSX.Element => {
   const symptoms = useAppSelector(selectSymptoms);
   const historyNotes = useAppSelector(selectHistoryNotes);
   const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
+  const requestedAppointmentRadiology = useAppSelector(selectAppointmentRadiology);
   const isConsultationAuthenticated = useAppSelector(selectIsConsultationAuthenticated);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showEndConsultationAuthDialog, setShowEndConsultationAuthDialog] = useState(false);
@@ -137,6 +139,11 @@ const Consultation = (): JSX.Element => {
   const [showPastConsultationsDrawer, setShowPastConsultationsDrawer] = useState(false);
   const [selectedConsultationId, setSelectedConsultationId] = useState<string | null>(null);
   const [showConsultationSheet, setShowConsultationSheet] = useState(false);
+
+  // Check if there are any investigations requested
+  const hasInvestigation =
+    (requestedAppointmentLabs && requestedAppointmentLabs.length > 0) ||
+    !!requestedAppointmentRadiology;
 
   const canJumpToStage = useCallback(
     (stage: StageType): boolean => {
@@ -168,11 +175,16 @@ const Consultation = (): JSX.Element => {
     }
   };
 
-  const handleEndConsultationWithAuth = async (code: string): Promise<void> => {
+  const handleEndConsultationWithAuth = async (
+    code: string,
+    isInvestigating?: boolean,
+  ): Promise<void> => {
     setIsEndingConsultation(true);
     const appointmentId = String(params.appointmentId);
 
-    const payload = await dispatch(endConsultationRequest({ appointmentId, code })).unwrap();
+    const payload = await dispatch(
+      endConsultationRequest({ appointmentId, code, isInvestigating }),
+    ).unwrap();
     toast(payload);
     setIsEndingConsultation(false);
 
@@ -186,7 +198,9 @@ const Consultation = (): JSX.Element => {
   const handleEndConsultationWithoutAuth = async (): Promise<void> => {
     setIsEndingConsultation(true);
     const appointmentId = String(params.appointmentId);
-    const payload = await dispatch(endConsultationRequest({ appointmentId, code: '' })).unwrap();
+    const payload = await dispatch(
+      endConsultationRequest({ appointmentId, code: '', isInvestigating: false }),
+    ).unwrap();
     toast(payload);
     setIsEndingConsultation(false);
 
@@ -273,13 +287,13 @@ const Consultation = (): JSX.Element => {
     <RoleProvider role={Role.Doctor}>
       <div>
         {isLoadingConsultation && <LoadingOverlay />}
-        <div className="rounded-2xl border border-gray-300 px-4 py-6 sm:px-6 sm:py-8">
+        <div className="rounded-2xl border border-gray-300 px-4 py-6 sm:px-6 sm:py-4">
           {(isLoadingAppointment || isLoadingRecords) && <LoadingOverlay />}
-          <div className="flex items-center gap-3">
+          <div className="mb-1 flex items-center gap-3">
             <span className="text-sm font-medium sm:text-base">Consultation</span>
             {currentConsultationStatus && (
               <Badge
-                className="px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm"
+                className="px-2 py-1 text-xs sm:px-3 sm:py-1.5"
                 variant={getStatusBadgeVariant(currentConsultationStatus)}
               >
                 {getStatusIcon(currentConsultationStatus)}
@@ -296,7 +310,7 @@ const Consultation = (): JSX.Element => {
               <div
                 className={cn(
                   update || isLoadingAppointment ? '' : 'sticky top-0 z-50',
-                  'sticky top-0 z-50 mb-6 flex flex-col gap-4 border-t border-b border-gray-300 bg-gray-100 py-4 font-bold text-gray-500 sm:mb-8 sm:py-6 lg:flex-row lg:justify-between',
+                  'sticky top-0 z-50 mb-3 flex flex-col gap-4 border-t border-b border-gray-300 bg-gray-100 py-1 font-bold text-gray-500 sm:mb-5 sm:py-3 lg:flex-row lg:justify-between',
                 )}
                 id="clip"
               >
@@ -315,52 +329,50 @@ const Consultation = (): JSX.Element => {
                           stages.indexOf(currentStage) > stages.indexOf(stage)
                           ? 'bg-primary-light text-primary'
                           : 'bg-gray-200',
-                        'inline-block px-6 py-3 text-xs whitespace-nowrap sm:py-4.5 sm:text-sm md:px-8',
+                        'inline-block px-6 text-xs whitespace-nowrap md:px-8',
                       )}
                     >
                       {capitalize(stage)}
                     </button>
                   ))}
                 </div>
-                {isInProgress && (
-                  <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
-                    <TooltipComp tip="View Past Consultations">
-                      <Button
-                        child={<HistoryIcon />}
-                        onClick={() => setShowPastConsultationsDrawer(true)}
-                      />
-                    </TooltipComp>
-                    {!isConsultationAuthenticated && (
-                      <Button
-                        isLoading={isAuthenticating}
-                        disabled={isAuthenticating}
-                        onClick={() => setShowAuthDialog(true)}
-                        child={
-                          <span className="flex items-center gap-2">
-                            <ShieldCheck className="h-4 w-4" />
-                            <span className="hidden sm:inline">Authenticate</span>
-                          </span>
-                        }
-                        variant="outline"
-                        className="border-primary text-primary hover:bg-primary-light w-full text-sm sm:w-auto"
-                      />
-                    )}
-                    {isConsultationAuthenticated && (
-                      <Badge className="border-green-300 bg-green-100 px-3 py-2 text-xs text-green-700">
-                        <ShieldCheck className="mr-1 h-3 w-3" />
-                        Authenticated
-                      </Badge>
-                    )}
+                <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+                  <TooltipComp tip="View Past Consultations">
                     <Button
-                      isLoading={isEndingConsultation}
-                      disabled={isEndingConsultation}
-                      onClick={() => endConsultation()}
-                      child="End Consultation"
-                      variant="destructive"
-                      className="w-full text-sm sm:w-auto"
+                      child={<HistoryIcon />}
+                      onClick={() => setShowPastConsultationsDrawer(true)}
                     />
-                  </div>
-                )}
+                  </TooltipComp>
+                  {!isConsultationAuthenticated && (
+                    <Button
+                      isLoading={isAuthenticating}
+                      disabled={isAuthenticating}
+                      onClick={() => setShowAuthDialog(true)}
+                      child={
+                        <span className="flex items-center gap-2">
+                          <ShieldCheck className="h-4 w-4" />
+                          <span className="hidden sm:inline">Authenticate</span>
+                        </span>
+                      }
+                      variant="outline"
+                      className="border-primary text-primary hover:bg-primary-light w-full text-sm sm:w-auto"
+                    />
+                  )}
+                  {isConsultationAuthenticated && (
+                    <Badge className="border-green-300 bg-green-100 px-3 py-2 text-xs text-green-700">
+                      <ShieldCheck className="mr-1 h-3 w-3" />
+                      Authenticated
+                    </Badge>
+                  )}
+                  <Button
+                    isLoading={isEndingConsultation}
+                    disabled={isEndingConsultation}
+                    onClick={() => endConsultation()}
+                    child="End Consultation"
+                    variant="destructive"
+                    className="w-full text-sm sm:w-auto"
+                  />
+                </div>
               </div>
               {getStage()}
             </>
@@ -387,6 +399,7 @@ const Consultation = (): JSX.Element => {
           title="End Consultation"
           description="To end this consultation, please enter the authentication code provided by the patient."
           submitButtonText="End Consultation"
+          hasInvestigation={hasInvestigation}
         />
 
         {/* Floating button to view past consultations during active consultation */}
