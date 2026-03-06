@@ -6,7 +6,7 @@ export enum LabTestSection {
 }
 
 export enum ChemicalPathologyCategory {
-  AnaemiaStudies = 'Anaemia Studies',
+  IronStudies = 'Iron Studies',
   BloodGlucose = 'Blood Glucose',
   Cardiac = 'Cardiac',
   GenChemistry = 'Gen. Chemistry',
