@@ -16,5 +16,6 @@ export const selectCurrentRadiologyRequest = createSelector(
 
 export const selectHasInvestigation = createSelector(
   selectCurrentRadiologyRequest,
-  (radiologyRequest) => !!radiologyRequest,
+  selectCurrentLabRequest,
+  (radiologyRequest, labRequest) => !!radiologyRequest || !!labRequest,
 );
