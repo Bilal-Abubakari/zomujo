@@ -2,7 +2,7 @@
 
 import React, { JSX, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, FileText } from 'lucide-react';
+import { Download, FileText, CalendarCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
@@ -33,6 +33,7 @@ import { RadiologyRequestsSection } from './RadiologyRequestsSection';
 import { Separator } from '@radix-ui/react-menu';
 import PostInvestigationScheduler from './PostInvestigationScheduler';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
 
 const notificationsToRefetch = new Set<NotificationTopic>([
   NotificationTopic.LabRequest,
@@ -243,6 +244,45 @@ const PatientConsultationView = (): JSX.Element => {
             appointmentId={params.consultationId as string}
             onScheduled={() => void fetchConsultation()}
           />
+        )}
+
+        {consultationDetails?.status === AppointmentStatus.InvestigatingScheduled && (
+          <Card className="overflow-hidden border-2 border-green-300 bg-green-50 shadow-md">
+            <CardContent className="p-0">
+              <div className="flex items-center gap-3 bg-green-400 px-6 py-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white shadow">
+                  <CalendarCheck className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-green-900">
+                    Post-Investigation Follow-Up Scheduled
+                  </h3>
+                  <p className="text-xs text-green-800">
+                    Your follow-up consultation has been successfully booked
+                  </p>
+                </div>
+              </div>
+              <div className="p-6">
+                <p className="mb-4 text-sm leading-relaxed text-gray-600">
+                  Great news! Your post-investigation follow-up has been scheduled. Please attend
+                  your appointment so your doctor can review your investigation results and continue
+                  your treatment.
+                </p>
+                <div className="flex flex-col gap-3 rounded-lg border border-green-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+                  <CalendarCheck className="h-5 w-5 shrink-0 text-green-500" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">
+                      Appointment Date &amp; Time
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {getFormattedDate(consultationDetails.slot.date)} at{' '}
+                      {getTimeFromDateStamp(consultationDetails.slot.startTime)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         <HistoryNotesSection consultationDetails={consultationDetails} />
