@@ -5,6 +5,7 @@ import { ILab } from '@/types/labs.interface';
 import { ISlot } from '@/types/slots.interface';
 import { IRadiology } from '@/types/radiology.interface';
 import { IDoctor } from './doctor.interface';
+import { AppointmentStatus } from './appointmentStatus.enum';
 
 interface IName {
   name: string;
@@ -38,7 +39,7 @@ export type IPatientSymptomMap = {
 
 export interface IConsultationDetails {
   id: string;
-  status: ConsultationStatus;
+  status: ConsultationStatus | AppointmentStatus;
   doctor: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
   patient: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
   prescriptionUrl: string;

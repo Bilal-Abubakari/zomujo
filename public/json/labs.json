@@ -2,7 +2,7 @@
   "Chemical Pathology": {
     "Iron Studies": ["Ferritin", "Iron", "TIBC", "Transferrin Saturation"],
     "Blood Glucose": ["FBS", "2HR OGTT", "RBS", "HbA1C"],
-    "Cardiac": ["CK-MB", "Troponin I", "Troponin T", "AST (SGOT)"],
+    "Cardiac": ["CK-MB", "Troponin I", "Troponin T", "BNP", "pro-BNP"],
     "Renal": ["Urea", "Creatinine", "Sodium", "Potassium", "Calcium", "Phosphate", "Magnesium"],
     "Lipid Profile": ["Cholesterol", "HDL Chol", "LDL Chol", "Triglycerides", "Lipid Card"],
     "Liver Function Tests": [
