@@ -6,7 +6,7 @@ import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { OrderDirection, Role } from '@/types/shared.enum';
-import { cn, showErrorToast } from '@/lib/utils';
+import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
@@ -154,14 +154,13 @@ const statusStyles: Record<AppointmentStatus, string> = {
   [AppointmentStatus.Incomplete]: 'text-red-500',
   [AppointmentStatus.Completed]: 'text-green-400',
   [AppointmentStatus.Progress]: 'text-yellow-400',
+  [AppointmentStatus.Investigating]: 'text-yellow-400',
   [AppointmentStatus.Cancelled]: 'text-red-400',
 };
 
 const StatusBadge: React.FC<StatusProps> = ({ status }) => (
   <div className={`flex items-center gap-2 ${statusStyles[status]}`}>
     <span className="h-2 w-2 rounded-full bg-current" />
-    <span className="text-sm font-medium">
-      {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
-    </span>
+    <span className="text-sm font-medium">{capitalize(status)}</span>
   </div>
 );
