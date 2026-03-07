@@ -23,4 +23,5 @@ export type AvailabilityProps = {
   isValid?: boolean;
   watch: UseFormWatch<IBookingForm>;
   errors?: FieldErrors<IBookingForm>;
+  onNoSlotsFound?: () => void;
 };

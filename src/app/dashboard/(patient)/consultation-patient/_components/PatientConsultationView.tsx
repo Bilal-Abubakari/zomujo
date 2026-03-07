@@ -31,12 +31,15 @@ import { PrescriptionsSection } from './PrescriptionsSection';
 import { LabRequestsSection } from './LabRequestsSection';
 import { RadiologyRequestsSection } from './RadiologyRequestsSection';
 import { Separator } from '@radix-ui/react-menu';
+import PostInvestigationScheduler from './PostInvestigationScheduler';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 
 const notificationsToRefetch = new Set<NotificationTopic>([
   NotificationTopic.LabRequest,
   NotificationTopic.PrescriptionGenerated,
   NotificationTopic.RadiologyRequest,
   NotificationTopic.ConsultationUpdate,
+  NotificationTopic.ConsultationCompleted,
 ]);
 
 const PatientConsultationView = (): JSX.Element => {
@@ -233,6 +236,14 @@ const PatientConsultationView = (): JSX.Element => {
     <RoleProvider role={Role.Patient}>
       <div className="space-y-8 p-4 md:p-8">
         <ConsultationHeader consultationDetails={consultationDetails} />
+
+        {consultationDetails?.status === AppointmentStatus.Investigating && (
+          <PostInvestigationScheduler
+            consultationDetails={consultationDetails}
+            appointmentId={params.consultationId as string}
+            onScheduled={() => void fetchConsultation()}
+          />
+        )}
 
         <HistoryNotesSection consultationDetails={consultationDetails} />
 

@@ -61,7 +61,7 @@ const PatientOverview = (): JSX.Element => {
 
   return (
     <div className="relative">
-      {isStartingConsultation && <LoadingOverlay message="Starting consultation..." />}
+      {isStartingConsultation && <LoadingOverlay message="Loading consultation..." />}
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <span className="self-center text-xl font-bold">Patient Record</span>
