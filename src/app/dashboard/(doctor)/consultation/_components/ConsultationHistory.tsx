@@ -8,15 +8,30 @@ import {
   selectConductedLabs,
   selectRequestedLabs,
   selectDiagnoses,
+  selectAppointmentLabs,
+  selectAppointmentRadiology,
+  selectPostInvestigationData,
 } from '@/lib/features/appointments/appointmentSelector';
 import { Badge } from '@/components/ui/badge';
 import { capitalize } from '@/lib/utils';
 import { SymptomsType } from '@/types/consultation.interface';
-import { Info, TestTubeDiagonal } from 'lucide-react';
+import {
+  Info,
+  TestTubeDiagonal,
+  FlaskConical,
+  Microscope,
+  FileText,
+  CheckCircle2,
+  ExternalLink,
+  ClipboardCheck,
+  PenLine,
+} from 'lucide-react';
 import { TooltipComp } from '@/components/ui/tooltip';
 import { DiagnosesList } from '@/app/dashboard/(doctor)/consultation/_components/ConditionCard';
 import { selectUserName } from '@/lib/features/auth/authSelector';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const ConsultationHistory = (): JSX.Element => {
   const appointment = useAppSelector(selectAppointment);
@@ -26,9 +41,167 @@ const ConsultationHistory = (): JSX.Element => {
   const requestedLabs = useAppSelector(selectRequestedLabs);
   const diagnoses = useAppSelector(selectDiagnoses);
   const doctorName = useAppSelector(selectUserName);
+  const lab = useAppSelector(selectAppointmentLabs);
+  const radiology = useAppSelector(selectAppointmentRadiology);
+  const postInvestigationData = useAppSelector(selectPostInvestigationData);
+
+  const labFileUrls = lab?.fileUrls ?? [];
+  const radiologyFileUrls = radiology?.fileUrls ?? [];
+  const hasInvestigationResults = labFileUrls.length > 0 || radiologyFileUrls.length > 0;
 
   return (
     <div className="space-y-8">
+      {/* Investigation Results Section */}
+      {hasInvestigationResults && (
+        <section>
+          <h2 className="mb-4 flex items-center gap-2 text-xl font-bold">
+            <FlaskConical className="text-primary h-5 w-5" />
+            Investigation Results
+          </h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {labFileUrls.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <TestTubeDiagonal className="text-primary h-4 w-4" />
+                    Laboratory Results
+                    <Badge variant="secondary" className="ml-auto text-xs">
+                      {labFileUrls.length} file{labFileUrls.length === 1 ? '' : 's'}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {labFileUrls.map((url, index) => (
+                    <div
+                      key={`${url}-${index}`}
+                      className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-3"
+                    >
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-gray-800">
+                          Lab Result {index + 1}
+                        </span>
+                      </div>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        child={
+                          <a href={url} target="_blank" rel="noopener noreferrer">
+                            <span className="flex items-center gap-1 text-xs">
+                              <FileText className="h-3.5 w-3.5" />
+                              View
+                              <ExternalLink className="h-3 w-3" />
+                            </span>
+                          </a>
+                        }
+                      />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {radiologyFileUrls.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Microscope className="text-primary h-4 w-4" />
+                    Radiology Results
+                    <Badge variant="secondary" className="ml-auto text-xs">
+                      {radiologyFileUrls.length} file{radiologyFileUrls.length === 1 ? '' : 's'}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {radiologyFileUrls.map((url, index) => (
+                    <div
+                      key={`${url}-${index}`}
+                      className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-3"
+                    >
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-gray-800">
+                          Radiology Result {index + 1}
+                        </span>
+                      </div>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        child={
+                          <a href={url} target="_blank" rel="noopener noreferrer">
+                            <span className="flex items-center gap-1 text-xs">
+                              <FileText className="h-3.5 w-3.5" />
+                              View
+                              <ExternalLink className="h-3 w-3" />
+                            </span>
+                          </a>
+                        }
+                      />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Post-Investigation Notes */}
+      {postInvestigationData && (
+        <section>
+          <h2 className="mb-4 text-xl font-bold">Post-Investigation Notes</h2>
+          <div className="space-y-3">
+            {postInvestigationData.historyOfPresentingComplaints && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm text-gray-700">
+                    <FileText className="h-4 w-4" />
+                    History of Presenting Complaints
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm whitespace-pre-wrap text-gray-700">
+                    {postInvestigationData.historyOfPresentingComplaints}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            {postInvestigationData.assessmentImpression && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm text-gray-700">
+                    <ClipboardCheck className="h-4 w-4" />
+                    Assessment / Impression
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm whitespace-pre-wrap text-gray-700">
+                    {postInvestigationData.assessmentImpression}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            {postInvestigationData.addendum && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm text-gray-700">
+                    <PenLine className="h-4 w-4" />
+                    Addendum
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm whitespace-pre-wrap text-gray-700">
+                    {postInvestigationData.addendum}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Complaints Section */}
       <section>
         <h2 className="mb-4 text-xl font-bold">Complaints</h2>
@@ -153,7 +326,7 @@ const ConsultationHistory = (): JSX.Element => {
                 <LabCard
                   key={id}
                   testName={testName}
-                  fileUrl={fileUrl || null}
+                  fileUrl={fileUrl ?? null}
                   status={status}
                   date={''}
                 />

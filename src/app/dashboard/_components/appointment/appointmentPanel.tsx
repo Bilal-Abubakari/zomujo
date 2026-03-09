@@ -154,8 +154,9 @@ const statusStyles: Record<AppointmentStatus, string> = {
   [AppointmentStatus.Incomplete]: 'text-red-500',
   [AppointmentStatus.Completed]: 'text-green-400',
   [AppointmentStatus.Progress]: 'text-yellow-400',
-  [AppointmentStatus.Investigating]: 'text-yellow-400',
-  [AppointmentStatus.InvestigatingScheduled]: 'text-yellow-400',
+  [AppointmentStatus.Investigating]: 'text-[#93C4F0]',
+  [AppointmentStatus.InvestigatingScheduled]: 'text-[#93C4F0]',
+  [AppointmentStatus.InvestigatingProgress]: 'text-yellow-400',
   [AppointmentStatus.Cancelled]: 'text-red-400',
 };
 

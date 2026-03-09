@@ -294,3 +294,29 @@ export function sliderPosition(value: number, type: 'amount' | 'sessionLength'):
  */
 export const getTestKey = (testName: string, categoryType: CategoryType): string =>
   `${testName} (${categoryType})`;
+
+/**
+ * Converts strings from PascalCase, camelCase, or snake_case to a sentence format.
+ * Optionally capitalizes the first letter.
+ *
+ * @param str - The string to convert.
+ * @param capitalize - Whether to capitalize the first letter of the sentence. Defaults to false.
+ * @returns The converted sentence string.
+ */
+export const caseToSentence = (str: string, capitalize: boolean = false): string => {
+  // Replace underscores with spaces for snake_case
+  let result = str.replaceAll('_', ' ');
+
+  // Insert spaces before uppercase letters for camelCase and PascalCase
+  result = result.replaceAll(/([a-z])([A-Z])/g, '$1 $2');
+
+  // Convert to lowercase
+  result = result.toLowerCase();
+
+  // Capitalize the first letter if requested
+  if (capitalize) {
+    result = result.charAt(0).toUpperCase() + result.slice(1);
+  }
+
+  return result;
+};

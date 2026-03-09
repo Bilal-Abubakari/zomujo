@@ -13,13 +13,14 @@ import {
   IDiagnosisUpdateRequest,
   IInternalReferralRequest,
 } from '@/types/consultation.interface';
-import { IAppointment } from '@/types/appointment.interface';
+import { IAppointment, IPostInvestigationData } from '@/types/appointment.interface';
 import {
   setAppointment,
   updateAppointmentNotes,
   updateAppointmentHistoryNotes,
   updateSymptoms,
   setIsAuthenticated,
+  updatePostInvestigationData,
 } from '@/lib/features/appointments/appointmentsSlice';
 import { ILab, ILaboratoryRequestWithRecordId, IUploadLab } from '@/types/labs.interface';
 import {
@@ -285,7 +286,7 @@ export const endConsultation = createAsyncThunk(
     isInvestigating,
   }: {
     appointmentId: string;
-    code: string;
+    code?: string;
     isInvestigating?: boolean;
   }): Promise<Toast> => {
     try {
@@ -527,6 +528,27 @@ export const updateDiagnosis = createAsyncThunk(
       const {
         data: { message },
       } = await axios.put<IResponse>(`consultation/diagnosis`, updateRequest);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const savePostInvestigationData = createAsyncThunk(
+  'consultation/save-post-investigation-data',
+  async (
+    { appointmentId, data }: { appointmentId: string; data: IPostInvestigationData },
+    { dispatch },
+  ): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.put<IResponse>(`consultation/post-investigation-data`, {
+        appointmentId,
+        data: JSON.stringify(data),
+      });
+      dispatch(updatePostInvestigationData(data));
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

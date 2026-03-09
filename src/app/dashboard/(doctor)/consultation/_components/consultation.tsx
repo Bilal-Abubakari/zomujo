@@ -1,33 +1,35 @@
 'use client';
-import React, { JSX, useCallback, useEffect, useState } from 'react';
+import React, { JSX, useCallback, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Badge } from '@/components/ui/badge';
 import {
   CheckCircle,
   Clock,
   ClockFading,
+  FlaskConical,
   History as HistoryIcon,
   Loader2,
   ShieldCheck,
 } from 'lucide-react';
-import { capitalize, cn, showErrorToast } from '@/lib/utils';
+import { capitalize, caseToSentence, cn, showErrorToast } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
+  authenticateConsultation,
   endConsultation as endConsultationRequest,
   getConsultationAppointment,
-  authenticateConsultation,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams, useRouter } from 'next/navigation';
 import {
   consultationStatus,
   hasConsultationEnded,
   isConsultationInProgress,
+  isConsultationInvestigatingProgress,
+  selectAppointmentRadiology,
+  selectHistoryNotes,
+  selectIsConsultationAuthenticated,
   selectIsLoading,
   selectRequestedLabs,
   selectSymptoms,
-  selectIsConsultationAuthenticated,
-  selectHistoryNotes,
-  selectAppointmentRadiology,
 } from '@/lib/features/appointments/appointmentSelector';
 import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
@@ -53,6 +55,10 @@ const History = dynamic(() => import('@/app/dashboard/(doctor)/consultation/_com
   loading: () => <StageFallback />,
   ssr: false,
 });
+const InvestigationResults = dynamic(
+  () => import('@/app/dashboard/(doctor)/consultation/_components/InvestigationResults'),
+  { loading: () => <StageFallback />, ssr: false },
+);
 const Investigation = dynamic(
   () => import('@/app/dashboard/(doctor)/consultation/_components/investigation'),
   { loading: () => <StageFallback />, ssr: false },
@@ -79,15 +85,32 @@ const ConsultationViewSheet = dynamic(
   { loading: () => <StageFallback />, ssr: false },
 );
 
-const stages = ['history', 'investigation', 'prescription', 'review'] as const;
+const regularStages = ['history', 'investigation', 'prescription', 'review'] as const;
+const investigatingStages = [
+  'investigationResults',
+  'history',
+  'investigation',
+  'prescription',
+  'review',
+] as const;
 
-type StageType = (typeof stages)[number];
+type RegularStage = (typeof regularStages)[number];
+type InvestigatingStage = (typeof investigatingStages)[number];
+type StageType = RegularStage | InvestigatingStage;
+
+const getStageLabel = (stage: StageType): string => {
+  if (stage === 'investigationResults') {
+    return 'Investigation Results';
+  }
+  return capitalize(stage);
+};
 
 const getStatusBadgeVariant = (
   status: AppointmentStatus | undefined,
 ): 'brown' | 'default' | 'destructive' => {
   switch (status) {
     case AppointmentStatus.Progress:
+    case AppointmentStatus.InvestigatingProgress:
       return 'brown';
     case AppointmentStatus.Completed:
       return 'default';
@@ -101,6 +124,7 @@ const getStatusBadgeVariant = (
 const getStatusIcon = (status: string | undefined): JSX.Element => {
   switch (status?.toLowerCase()) {
     case 'progress':
+    case 'investigating_progress':
       return <ClockFading size="16" className="mr-1 text-xs" />;
     case 'completed':
       return <CheckCircle className="mr-1" />;
@@ -119,12 +143,12 @@ const Consultation = (): JSX.Element => {
   const [isLoadingConsultation, setIsLoadingConsultation] = useState(true);
   const router = useRouter();
   const [isLoadingRecords, setIsLoadingRecords] = useState(false);
-  const [currentStage, setCurrentStage] = useState<StageType>(stages[0]);
   const [update, setUpdate] = useState(false);
   const dispatch = useAppDispatch();
   const isLoadingAppointment = useAppSelector(selectIsLoading);
   const currentConsultationStatus = useAppSelector(consultationStatus);
   const isInProgress = useAppSelector(isConsultationInProgress);
+  const isInvestigatingProgress = useAppSelector(isConsultationInvestigatingProgress);
   const hasEnded = useAppSelector(hasConsultationEnded);
   const params = useParams();
   const [isEndingConsultation, setIsEndingConsultation] = useState(false);
@@ -140,6 +164,19 @@ const Consultation = (): JSX.Element => {
   const [selectedConsultationId, setSelectedConsultationId] = useState<string | null>(null);
   const [showConsultationSheet, setShowConsultationSheet] = useState(false);
 
+  // Stages depend on consultation type
+  const stages = useMemo<readonly StageType[]>(
+    () => (isInvestigatingProgress ? investigatingStages : regularStages),
+    [isInvestigatingProgress],
+  );
+
+  const [currentStage, setCurrentStage] = useState<StageType>(stages[0]);
+
+  // Reset to first stage whenever stages change (i.e., when isInvestigating resolves)
+  useEffect(() => {
+    setCurrentStage(stages[0]);
+  }, [isInvestigatingProgress]);
+
   // Check if there are any investigations requested
   const hasInvestigation =
     (requestedAppointmentLabs && requestedAppointmentLabs.length > 0) ||
@@ -148,19 +185,21 @@ const Consultation = (): JSX.Element => {
   const canJumpToStage = useCallback(
     (stage: StageType): boolean => {
       const symptomsPassed = !!symptoms || !!historyNotes;
+      if (stage === 'investigationResults') {
+        return true;
+      }
       if (stage === 'history' || stage === 'prescription') {
-        return symptomsPassed;
+        return isInvestigatingProgress ? true : symptomsPassed;
       }
       if (stage === 'investigation') {
-        return symptomsPassed;
+        return isInvestigatingProgress ? true : symptomsPassed;
       }
-
       if (stage === 'review') {
         return symptomsPassed;
       }
       return false;
     },
-    [symptoms, historyNotes, requestedAppointmentLabs],
+    [symptoms, historyNotes, isInvestigatingProgress],
   );
 
   const handleAuthenticateConsultation = async (code: string): Promise<void> => {
@@ -177,13 +216,17 @@ const Consultation = (): JSX.Element => {
 
   const handleEndConsultationWithAuth = async (
     code: string,
-    isInvestigating?: boolean,
+    isEndInvestigating?: boolean,
   ): Promise<void> => {
     setIsEndingConsultation(true);
     const appointmentId = String(params.appointmentId);
 
     const payload = await dispatch(
-      endConsultationRequest({ appointmentId, code, isInvestigating }),
+      endConsultationRequest({
+        appointmentId,
+        ...(isConsultationAuthenticated ? {} : { code }),
+        isInvestigating: isEndInvestigating,
+      }),
     ).unwrap();
     toast(payload);
     setIsEndingConsultation(false);
@@ -199,7 +242,7 @@ const Consultation = (): JSX.Element => {
     setIsEndingConsultation(true);
     const appointmentId = String(params.appointmentId);
     const payload = await dispatch(
-      endConsultationRequest({ appointmentId, code: '', isInvestigating: false }),
+      endConsultationRequest({ appointmentId, isInvestigating: false }),
     ).unwrap();
     toast(payload);
     setIsEndingConsultation(false);
@@ -211,11 +254,10 @@ const Consultation = (): JSX.Element => {
   };
 
   const endConsultation = (): void => {
-    // If consultation is already authenticated, end without requiring code again
-    if (isConsultationAuthenticated) {
+    // Show dialog if not authenticated OR if there are investigations (to allow post-investigation follow-up option)
+    if (isConsultationAuthenticated && !hasInvestigation) {
       void handleEndConsultationWithoutAuth();
     } else {
-      // Show authentication dialog when not authenticated
       setShowEndConsultationAuthDialog(true);
     }
   };
@@ -228,6 +270,8 @@ const Consultation = (): JSX.Element => {
 
   const getStage = (): JSX.Element => {
     switch (currentStage) {
+      case 'investigationResults':
+        return <InvestigationResults goToNext={() => setCurrentStage('history')} />;
       case 'investigation':
         return (
           <Investigation
@@ -248,13 +292,7 @@ const Consultation = (): JSX.Element => {
         return <ReviewConsultation goToPrevious={() => setCurrentStage('prescription')} />;
       case 'history':
       default:
-        return (
-          <History
-            updateSymptoms={update}
-            setUpdateSymptoms={setUpdate}
-            goToNext={() => setCurrentStage('investigation')}
-          />
-        );
+        return <History goToNext={() => setCurrentStage('investigation')} />;
     }
   };
 
@@ -297,7 +335,13 @@ const Consultation = (): JSX.Element => {
                 variant={getStatusBadgeVariant(currentConsultationStatus)}
               >
                 {getStatusIcon(currentConsultationStatus)}
-                {capitalize(currentConsultationStatus)}
+                {caseToSentence(currentConsultationStatus, true)}
+              </Badge>
+            )}
+            {isInvestigatingProgress && (
+              <Badge className="flex items-center gap-1 border-blue-300 bg-blue-50 px-2 py-1 text-xs text-blue-700">
+                <FlaskConical className="h-3 w-3" />
+                Post-Investigation
               </Badge>
             )}
           </div>
@@ -332,7 +376,14 @@ const Consultation = (): JSX.Element => {
                         'inline-block px-6 text-xs whitespace-nowrap md:px-8',
                       )}
                     >
-                      {capitalize(stage)}
+                      {stage === 'investigationResults' ? (
+                        <span className="flex items-center gap-1">
+                          <FlaskConical className="h-3 w-3" />
+                          Results
+                        </span>
+                      ) : (
+                        getStageLabel(stage)
+                      )}
                     </button>
                   ))}
                 </div>
@@ -400,10 +451,11 @@ const Consultation = (): JSX.Element => {
           description="To end this consultation, please enter the authentication code provided by the patient."
           submitButtonText="End Consultation"
           hasInvestigation={hasInvestigation}
+          isAuthenticated={isConsultationAuthenticated}
         />
 
         {/* Floating button to view past consultations during active consultation */}
-        {isInProgress && (
+        {(isInProgress || isInvestigatingProgress) && (
           <Drawer open={showPastConsultationsDrawer} onOpenChange={setShowPastConsultationsDrawer}>
             <DrawerContent className="max-h-[85vh]">
               <DrawerHeader>

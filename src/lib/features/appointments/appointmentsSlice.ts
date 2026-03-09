@@ -1,4 +1,4 @@
-import { IAppointment } from '@/types/appointment.interface';
+import { IAppointment, IPostInvestigationData } from '@/types/appointment.interface';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getConsultationAppointment } from '@/lib/features/appointments/consultation/consultationThunk';
 import { IConsultationSymptoms } from '@/types/consultation.interface';
@@ -52,6 +52,11 @@ const appointmentsSlice = createSlice({
         state.appointment.isAuthenticated = action.payload;
       }
     },
+    updatePostInvestigationData: (state, action: PayloadAction<IPostInvestigationData>) => {
+      if (state.appointment) {
+        state.appointment.postInvestigationData = action.payload;
+      }
+    },
     showReviewModal: (state, action: PayloadAction<{ appointmentId: string }>) => {
       state.showReviewModal = true;
       state.reviewAppointmentId = action.payload.appointmentId;
@@ -84,6 +89,7 @@ export const {
   updateAppointmentNotes,
   updateAppointmentHistoryNotes,
   updateDiagnosis,
+  updatePostInvestigationData,
 } = appointmentsSlice.actions;
 
 export default appointmentsSlice.reducer;

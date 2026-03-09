@@ -8,4 +8,5 @@ export enum AppointmentStatus {
   Incomplete = 'incomplete',
   Investigating = 'investigating',
   InvestigatingScheduled = 'investigating_scheduled',
+  InvestigatingProgress = 'investigating_progress',
 }
