@@ -32,6 +32,7 @@ import { selectUserName } from '@/lib/features/auth/authSelector';
 import { LabCard } from '@/app/dashboard/(doctor)/consultation/_components/labCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { parsePostInvestigationInitialNotes } from '@/constants/historyNotes.constant';
 
 const ConsultationHistory = (): JSX.Element => {
   const appointment = useAppSelector(selectAppointment);
@@ -44,6 +45,8 @@ const ConsultationHistory = (): JSX.Element => {
   const lab = useAppSelector(selectAppointmentLabs);
   const radiology = useAppSelector(selectAppointmentRadiology);
   const postInvestigationData = useAppSelector(selectPostInvestigationData);
+
+  const postInvestigation = parsePostInvestigationInitialNotes(postInvestigationData);
 
   const labFileUrls = lab?.fileUrls ?? [];
   const radiologyFileUrls = radiology?.fileUrls ?? [];
@@ -149,11 +152,11 @@ const ConsultationHistory = (): JSX.Element => {
       )}
 
       {/* Post-Investigation Notes */}
-      {postInvestigationData && (
+      {postInvestigation && (
         <section>
           <h2 className="mb-4 text-xl font-bold">Post-Investigation Notes</h2>
           <div className="space-y-3">
-            {postInvestigationData.historyOfPresentingComplaints && (
+            {postInvestigation.historyOfPresentingComplaints && (
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-sm text-gray-700">
@@ -163,12 +166,12 @@ const ConsultationHistory = (): JSX.Element => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm whitespace-pre-wrap text-gray-700">
-                    {postInvestigationData.historyOfPresentingComplaints}
+                    {postInvestigation.historyOfPresentingComplaints}
                   </p>
                 </CardContent>
               </Card>
             )}
-            {postInvestigationData.assessmentImpression && (
+            {postInvestigation.assessmentImpression && (
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-sm text-gray-700">
@@ -178,12 +181,12 @@ const ConsultationHistory = (): JSX.Element => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm whitespace-pre-wrap text-gray-700">
-                    {postInvestigationData.assessmentImpression}
+                    {postInvestigation.assessmentImpression}
                   </p>
                 </CardContent>
               </Card>
             )}
-            {postInvestigationData.addendum && (
+            {postInvestigation.addendum && (
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-sm text-gray-700">
@@ -193,7 +196,7 @@ const ConsultationHistory = (): JSX.Element => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm whitespace-pre-wrap text-gray-700">
-                    {postInvestigationData.addendum}
+                    {postInvestigation.addendum}
                   </p>
                 </CardContent>
               </Card>

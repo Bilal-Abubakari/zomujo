@@ -42,7 +42,6 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   diagnosis: IDiagnosisResponse[];
   prescriptions: IPrescriptionResponse[];
   ipData: string;
-  postInvestigationData: IPostInvestigationData | null;
 }
 
 export interface IRecordRequest extends IBaseAppointment {
