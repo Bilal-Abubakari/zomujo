@@ -9,6 +9,7 @@ import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
 import { Card, CardHeader } from '@/components/ui/card';
 import { InvestigationResultsCard } from '@/app/dashboard/(doctor)/consultation/_components/InvestigationResultsCard';
 import { Badge } from '@/components/ui/badge';
+import { parsePostInvestigationInitialNotes } from '@/constants/historyNotes.constant';
 
 interface PastConsultationViewProps {
   appointment: IAppointment;
@@ -23,7 +24,7 @@ const PastConsultationView = ({ appointment }: PastConsultationViewProps): JSX.E
   const prescriptions = appointment.prescriptions || [];
   const radiology = appointment.radiology || undefined;
   const lab = appointment.lab;
-  const postInvestigationData = appointment.postInvestigationData ?? null;
+  const postInvestigationData = parsePostInvestigationInitialNotes(appointment.ipData);
 
   const labFileUrls = lab?.fileUrls ?? [];
   const radiologyFileUrls = radiology?.fileUrls ?? [];
