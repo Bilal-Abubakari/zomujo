@@ -54,7 +54,7 @@ const appointmentsSlice = createSlice({
     },
     updatePostInvestigationData: (state, action: PayloadAction<IPostInvestigationData>) => {
       if (state.appointment) {
-        state.appointment.postInvestigationData = action.payload;
+        state.appointment.ipData = JSON.stringify(action.payload);
       }
     },
     showReviewModal: (state, action: PayloadAction<{ appointmentId: string }>) => {
