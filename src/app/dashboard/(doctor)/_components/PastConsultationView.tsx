@@ -2,18 +2,21 @@
 import React, { JSX, useState } from 'react';
 import { IAppointment } from '@/types/appointment.interface';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, LayoutGrid } from 'lucide-react';
+import { FileText, FlaskConical, LayoutGrid } from 'lucide-react';
 import { CardsView } from '@/app/dashboard/(doctor)/consultation/_components/CardsView';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
 import { Card, CardHeader } from '@/components/ui/card';
+import { InvestigationResultsCard } from '@/app/dashboard/(doctor)/consultation/_components/InvestigationResultsCard';
+import { Badge } from '@/components/ui/badge';
+import { parsePostInvestigationInitialNotes } from '@/constants/historyNotes.constant';
 
 interface PastConsultationViewProps {
   appointment: IAppointment;
 }
 
 const PastConsultationView = ({ appointment }: PastConsultationViewProps): JSX.Element => {
-  const [viewMode, setViewMode] = useState<'cards' | 'notes'>('cards');
+  const [viewMode, setViewMode] = useState<'cards' | 'notes' | 'investigationResults'>('cards');
 
   const complaints = appointment.symptoms?.complaints?.map((c) => c.complaint) || [];
   const symptomMap = appointment.symptoms || undefined;
@@ -21,6 +24,12 @@ const PastConsultationView = ({ appointment }: PastConsultationViewProps): JSX.E
   const prescriptions = appointment.prescriptions || [];
   const radiology = appointment.radiology || undefined;
   const lab = appointment.lab;
+  const postInvestigationData = parsePostInvestigationInitialNotes(appointment.ipData);
+
+  const labFileUrls = lab?.fileUrls ?? [];
+  const radiologyFileUrls = radiology?.fileUrls ?? [];
+  const hasInvestigationResults =
+    labFileUrls.length > 0 || radiologyFileUrls.length > 0 || !!postInvestigationData;
 
   return (
     <div className="space-y-6">
@@ -48,12 +57,26 @@ const PastConsultationView = ({ appointment }: PastConsultationViewProps): JSX.E
       </Card>
 
       {/* Tabs for viewing modes */}
-      <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'cards' | 'notes')}>
-        <TabsList className="grid w-full grid-cols-2 lg:w-100">
+      <Tabs
+        value={viewMode}
+        onValueChange={(value) => setViewMode(value as 'cards' | 'notes' | 'investigationResults')}
+      >
+        <TabsList
+          className={`grid w-full ${hasInvestigationResults ? 'grid-cols-3' : 'grid-cols-2'} lg:w-120`}
+        >
           <TabsTrigger value="cards" className="flex items-center gap-2">
             <LayoutGrid className="h-4 w-4" />
             Cards View
           </TabsTrigger>
+          {hasInvestigationResults && (
+            <TabsTrigger value="investigationResults" className="flex items-center gap-2">
+              <FlaskConical className="h-4 w-4" />
+              <span className="hidden sm:inline">Investigation</span> Results
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {labFileUrls.length + radiologyFileUrls.length}
+              </Badge>
+            </TabsTrigger>
+          )}
           <TabsTrigger value="notes" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Doctor&apos;s Notes
@@ -75,6 +98,16 @@ const PastConsultationView = ({ appointment }: PastConsultationViewProps): JSX.E
             labClinicalHistory={lab?.history}
           />
         </TabsContent>
+
+        {hasInvestigationResults && (
+          <TabsContent value="investigationResults" className="mt-6">
+            <InvestigationResultsCard
+              labFileUrls={labFileUrls}
+              radiologyFileUrls={radiologyFileUrls}
+              postInvestigationData={postInvestigationData}
+            />
+          </TabsContent>
+        )}
 
         <TabsContent value="notes" className="mt-6">
           <div className="rounded-lg border border-gray-200 bg-white p-6">

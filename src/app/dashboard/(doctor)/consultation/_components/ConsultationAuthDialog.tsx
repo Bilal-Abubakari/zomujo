@@ -24,6 +24,7 @@ interface ConsultationAuthDialogProps {
   description?: string;
   submitButtonText?: string;
   hasInvestigation?: boolean;
+  isAuthenticated?: boolean;
 }
 
 const ConsultationAuthDialog = ({
@@ -35,6 +36,7 @@ const ConsultationAuthDialog = ({
   description = 'Please enter the 6-digit authentication code provided by the patient to continue.',
   submitButtonText = 'Authenticate',
   hasInvestigation = false,
+  isAuthenticated = false,
 }: ConsultationAuthDialogProps): JSX.Element => {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
@@ -44,17 +46,22 @@ const ConsultationAuthDialog = ({
     e.preventDefault();
     setError('');
 
-    if (!code.trim()) {
-      setError('Authentication code is required');
-      return;
+    if (!isAuthenticated) {
+      if (!code.trim()) {
+        setError('Authentication code is required');
+        return;
+      }
+
+      if (code.trim().length > 6) {
+        setError('Code must be maximum 6 characters');
+        return;
+      }
     }
 
-    if (code.trim().length > 6) {
-      setError('Code must be maximum 6 characters');
-      return;
-    }
-
-    await onSubmit(code.trim(), hasInvestigation ? allowPostInvestigation : undefined);
+    await onSubmit(
+      isAuthenticated ? '' : code.trim(),
+      hasInvestigation ? allowPostInvestigation : undefined,
+    );
     setCode('');
     setAllowPostInvestigation(false);
   };
@@ -106,14 +113,17 @@ const ConsultationAuthDialog = ({
             )}
 
             {hasInvestigation && (
-              <div className="flex items-start space-x-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <label
+                htmlFor="allow-post-investigation"
+                className="flex items-start space-x-3 rounded-lg border border-gray-200 bg-gray-50 p-3"
+              >
                 <Checkbox
                   id="allow-post-investigation"
                   checked={allowPostInvestigation}
                   onCheckedChange={(checked) => setAllowPostInvestigation(checked === true)}
                   disabled={isLoading}
                 />
-                <div className="flex-1">
+                <label htmlFor="allow-post-investigation" className="flex-1">
                   <Label
                     htmlFor="allow-post-investigation"
                     className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -124,34 +134,36 @@ const ConsultationAuthDialog = ({
                     This enables the patient to book a follow-up appointment after completing their
                     lab tests or radiology investigations.
                   </p>
-                </div>
-              </div>
+                </label>
+              </label>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="auth-code">Authentication Code</Label>
-              <Input
-                id="auth-code"
-                placeholder="Enter code"
-                value={code}
-                onChange={(e) => handleCodeChange(e.target.value)}
-                disabled={isLoading}
-                className="text-center text-lg font-semibold tracking-wider"
-                maxLength={6}
-                autoComplete="off"
-                autoFocus
-              />
-              {error && <p className="text-destructive text-sm">{error}</p>}
-              <p className="text-muted-foreground text-xs">
-                Ask the patient for the authentication code sent to their email and notifications.
-              </p>
-            </div>
+            {!isAuthenticated && (
+              <div className="space-y-2">
+                <Label htmlFor="auth-code">Authentication Code</Label>
+                <Input
+                  id="auth-code"
+                  placeholder="Enter code"
+                  value={code}
+                  onChange={(e) => handleCodeChange(e.target.value)}
+                  disabled={isLoading}
+                  className="text-center text-lg font-semibold tracking-wider"
+                  maxLength={6}
+                  autoComplete="off"
+                  autoFocus
+                />
+                {error && <p className="text-destructive text-sm">{error}</p>}
+                <p className="text-muted-foreground text-xs">
+                  Ask the patient for the authentication code sent to their email and notifications.
+                </p>
+              </div>
+            )}
           </div>
           <DialogFooter className="flex-col space-y-2 sm:flex-col sm:space-x-0">
             <Button
               type="submit"
               isLoading={isLoading}
-              disabled={isLoading || !code.trim()}
+              disabled={isLoading || (!isAuthenticated && !code.trim())}
               child={submitButtonText}
               className="w-full"
             />

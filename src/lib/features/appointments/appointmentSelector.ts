@@ -31,6 +31,26 @@ export const isConsultationInProgress = createSelector(
   (status) => status === AppointmentStatus.Progress,
 );
 
+export const isConsultationInvestigating = createSelector(
+  consultationStatus,
+  (status) => status === AppointmentStatus.Investigating,
+);
+
+export const isConsultationNotInProgress = createSelector(
+  consultationStatus,
+  (status) => status !== AppointmentStatus.Progress,
+);
+
+export const isConsultationInvestigatingScheduled = createSelector(
+  consultationStatus,
+  (status) => status === AppointmentStatus.InvestigatingScheduled,
+);
+
+export const isConsultationInvestigatingProgress = createSelector(
+  consultationStatus,
+  (status) => status === AppointmentStatus.InvestigatingProgress,
+);
+
 export const selectSymptoms = createSelector(
   selectAppointment,
   (appointment) => appointment?.symptoms,
@@ -106,4 +126,9 @@ export const selectIsConsultationAuthenticated = createSelector(
 export const selectAppointmentDoctorId = createSelector(
   selectAppointment,
   (appointment) => appointment?.doctor?.id,
+);
+
+export const selectPostInvestigationData = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.ipData,
 );

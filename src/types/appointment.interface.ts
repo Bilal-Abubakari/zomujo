@@ -21,6 +21,12 @@ export interface IAppointmentSymptoms extends IConsultationSymptomsRequest {
   id: string;
   createdAt: string;
 }
+export interface IPostInvestigationData {
+  historyOfPresentingComplaints: string;
+  assessmentImpression: string;
+  addendum: string;
+}
+
 export interface IAppointment extends IBaseAppointment, ISlotBase {
   slot: ISlot;
   status: AppointmentStatus;
@@ -35,6 +41,7 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   prescriptionUrl: string | null;
   diagnosis: IDiagnosisResponse[];
   prescriptions: IPrescriptionResponse[];
+  ipData: string;
 }
 
 export interface IRecordRequest extends IBaseAppointment {

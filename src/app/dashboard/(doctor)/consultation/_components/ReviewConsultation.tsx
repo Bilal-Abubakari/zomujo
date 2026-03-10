@@ -41,6 +41,7 @@ import {
   generateSignature,
   generateSymptoms,
 } from '@/lib/utils/doctorNotesUtils';
+import { parsePostInvestigationInitialNotes } from '@/constants/historyNotes.constant';
 
 interface ReviewConsultationProps {
   isPastConsultation?: boolean;
@@ -254,6 +255,7 @@ const ReviewConsultation = ({
                 labInstructions={lab?.instructions}
                 labClinicalHistory={lab?.history}
                 labFileUrls={lab?.fileUrls}
+                postInvestigationData={parsePostInvestigationInitialNotes(appointment?.ipData)}
               />
             ) : (
               <DoctorNotesView

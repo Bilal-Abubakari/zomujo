@@ -8,7 +8,8 @@ import { LabTestsCard } from './LabTestsCard';
 import { RadiologyTestsCard } from './RadiologyTestsCard';
 import { PrescriptionsCard } from './PrescriptionsCard';
 import { ReferralsCard } from './ReferralsCard';
-import { IAppointment } from '@/types/appointment.interface';
+import { PostInvestigationCard } from './PostInvestigationCard';
+import { IAppointment, IPostInvestigationData } from '@/types/appointment.interface';
 import { ILaboratoryRequest } from '@/types/labs.interface';
 import { IRadiology } from '@/types/radiology.interface';
 import { IPrescription } from '@/types/medical.interface';
@@ -27,6 +28,7 @@ interface CardsViewProps {
   labInstructions?: string;
   labClinicalHistory?: string;
   labFileUrls?: string[];
+  postInvestigationData?: IPostInvestigationData | null;
 }
 
 export const CardsView = ({
@@ -42,6 +44,7 @@ export const CardsView = ({
   labInstructions,
   labClinicalHistory,
   labFileUrls,
+  postInvestigationData,
 }: CardsViewProps): JSX.Element => (
   <>
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -54,6 +57,9 @@ export const CardsView = ({
             <ChiefComplaintsCard complaints={complaints} appointment={appointment} />
             <SymptomsCard symptoms={symptoms} />
           </>
+        )}
+        {postInvestigationData && (
+          <PostInvestigationCard postInvestigationData={postInvestigationData} />
         )}
         <MedicationsTakenCard medicinesTaken={appointment?.symptoms?.medicinesTaken} />
         <PrescriptionsCard prescriptions={prescriptions} />

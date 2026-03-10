@@ -160,7 +160,7 @@ const Investigation = ({
           </TabsContent>
         </Tabs>
         {hasInvestigation && (
-          <div className="fixed right-4 bottom-16 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
+          <div className="fixed right-4 bottom-14 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
             <Label htmlFor="signature-labs">
               {hasSignature ? 'Edit digital Signature' : 'Add digital Signature'}
             </Label>
@@ -171,7 +171,7 @@ const Investigation = ({
             />
           </div>
         )}
-        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white p-4 shadow-md">
+        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white px-4 py-2 shadow-md">
           <Button onClick={goToPrevious} variant="outline" child="Back to History" />
           <Button onClick={handleSubmitAndGoToExamination} child="Continue to Prescription" />
         </div>

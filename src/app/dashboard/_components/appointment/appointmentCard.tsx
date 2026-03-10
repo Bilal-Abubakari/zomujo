@@ -140,12 +140,13 @@ const AppointmentDetails = ({
   const dispatch = useAppDispatch();
   const statusStyles: Record<AppointmentStatus, string> = {
     [AppointmentStatus.Pending]: 'border-[#93C4F0] bg-[#E0EFFE]',
+    [AppointmentStatus.InvestigatingProgress]: 'border-yellow-300 bg-yellow-100',
     [AppointmentStatus.Accepted]: 'border-green-300 bg-green-100',
     [AppointmentStatus.Declined]: 'border-error-300 bg-error-100',
     [AppointmentStatus.Completed]: 'border-green-300 bg-green-100',
     [AppointmentStatus.Progress]: 'border-yellow-300 bg-yellow-100',
     [AppointmentStatus.Investigating]: 'border-yellow-300 bg-yellow-100',
-    [AppointmentStatus.InvestigatingScheduled]: 'border-yellow-300 bg-yellow-100',
+    [AppointmentStatus.InvestigatingScheduled]: 'border-[#93C4F0] bg-[#E0EFFE]',
     [AppointmentStatus.Cancelled]: 'border-error-300 bg-error-100',
     [AppointmentStatus.Incomplete]: 'border-gray-300 bg-gray-100',
   };
