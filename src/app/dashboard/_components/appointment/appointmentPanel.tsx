@@ -98,7 +98,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   }, [selectedDate]);
 
   const todayAppointments = upcomingAppointment.filter((appointment) => {
-    const appointmentDate = moment(appointment.startTime);
+    const appointmentDate = moment(appointment.slot.date);
     return appointmentDate.isSame(selectedDate, 'day');
   });
 
@@ -112,12 +112,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
       {loading && <LoadingOverlay />}
       <div className="relative flex flex-col gap-8 border-b border-gray-200 p-6">
         <div className="flex flex-row items-center gap-2.5">
-          <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>
-          {user?.role === Role.Doctor && (
-            <Badge variant={'brown'}>
-              {todayAppointments.length} <span className="ml-1 hidden sm:block">appointments</span>
-            </Badge>
-          )}
+          <p className="truncate text-2xl font-bold">Appointments</p>
         </div>
         <div className="flex flex-row items-center justify-between">
           <DateSelector
@@ -125,6 +120,11 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
             onIncrement={() => setSelectedDate(moment(selectedDate).add(1, 'day').toDate())}
             date={selectedDate}
           />
+          {user?.role === Role.Doctor && (
+            <Badge variant={'brown'}>
+              {todayAppointments.length} <span className="ml-1 hidden sm:block">appointments</span>
+            </Badge>
+          )}
           <div className="flex h-8 items-center justify-center rounded-lg border bg-white px-3 text-center text-sm">
             Week
           </div>
