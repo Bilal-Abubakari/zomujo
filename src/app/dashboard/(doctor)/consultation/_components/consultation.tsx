@@ -20,7 +20,7 @@ import {
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams, useRouter } from 'next/navigation';
 import {
-  consultationStatus,
+  selectConsultationStatus,
   hasConsultationEnded,
   isConsultationInProgress,
   isConsultationInvestigatingProgress,
@@ -146,7 +146,7 @@ const Consultation = (): JSX.Element => {
   const [update, setUpdate] = useState(false);
   const dispatch = useAppDispatch();
   const isLoadingAppointment = useAppSelector(selectIsLoading);
-  const currentConsultationStatus = useAppSelector(consultationStatus);
+  const currentConsultationStatus = useAppSelector(selectConsultationStatus);
   const isInProgress = useAppSelector(isConsultationInProgress);
   const isInvestigatingProgress = useAppSelector(isConsultationInvestigatingProgress);
   const hasEnded = useAppSelector(hasConsultationEnded);

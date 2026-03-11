@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { RequestStatus } from '@/types/shared.enum';
+import { CONSULTATION_START_ALLOWED_STATUS } from '@/constants/consultation.constants';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const selectAppointments = ({ appointments }: RootState) => appointments;
@@ -16,38 +17,43 @@ export const selectIsLoading = createSelector(
   (appointments) => appointments.isLoading,
 );
 
-export const consultationStatus = createSelector(
+export const selectConsultationStatus = createSelector(
   selectAppointment,
   (appointment) => appointment?.status,
 );
 
+export const selectCanStartConsultation = createSelector(
+  selectConsultationStatus,
+  (status) => status && CONSULTATION_START_ALLOWED_STATUS.includes(status),
+);
+
 export const hasConsultationEnded = createSelector(
-  consultationStatus,
+  selectConsultationStatus,
   (status) => status === AppointmentStatus.Completed,
 );
 
 export const isConsultationInProgress = createSelector(
-  consultationStatus,
+  selectConsultationStatus,
   (status) => status === AppointmentStatus.Progress,
 );
 
 export const isConsultationInvestigating = createSelector(
-  consultationStatus,
+  selectConsultationStatus,
   (status) => status === AppointmentStatus.Investigating,
 );
 
 export const isConsultationNotInProgress = createSelector(
-  consultationStatus,
+  selectConsultationStatus,
   (status) => status !== AppointmentStatus.Progress,
 );
 
 export const isConsultationInvestigatingScheduled = createSelector(
-  consultationStatus,
+  selectConsultationStatus,
   (status) => status === AppointmentStatus.InvestigatingScheduled,
 );
 
 export const isConsultationInvestigatingProgress = createSelector(
-  consultationStatus,
+  selectConsultationStatus,
   (status) => status === AppointmentStatus.InvestigatingProgress,
 );
 
