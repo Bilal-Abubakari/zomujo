@@ -23,6 +23,8 @@ import {
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
+import { selectInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSelector';
+import { setInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSlice';
 import { useParams } from 'next/navigation';
 import { selectRequestedLabs } from '@/lib/features/appointments/appointmentSelector';
 import LabCategorySection from '@/app/dashboard/(doctor)/consultation/_components/LabCategorySection';
@@ -44,6 +46,7 @@ import { LabsForm, labsSchema } from '@/schemas/labs.schema';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { useDebounce } from 'use-debounce';
 
 type LabFormData = LabsForm;
 
@@ -57,17 +60,30 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   }>({
     selectedTests: new Map(),
   });
+  const sharedHistory = useAppSelector(selectInvestigationHistory);
   const [searchQuery, setSearchQuery] = useState('');
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<LabFormData>({
     resolver: zodResolver(labsSchema),
     mode: MODE.ON_TOUCH,
+    defaultValues: {
+      history: sharedHistory || '',
+    },
   });
   const dispatch = useAppDispatch();
+
+  const history = watch('history');
+  const [debouncedHistory] = useDebounce(history, 500);
+
+  useEffect(() => {
+    dispatch(setInvestigationHistory(debouncedHistory || ''));
+  }, [debouncedHistory, dispatch]);
+
   const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
@@ -107,6 +123,9 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       setValue('labs', lab.data, { shouldValidate: true });
       setValue('history', lab.history, { shouldValidate: true });
       setValue('instructions', lab.instructions, { shouldValidate: true });
+      if (lab.history) {
+        dispatch(setInvestigationHistory(lab.history));
+      }
     }
   };
 

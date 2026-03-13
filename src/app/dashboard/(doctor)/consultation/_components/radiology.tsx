@@ -21,6 +21,8 @@ import {
   addRadiologyRequests,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
+import { selectInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSelector';
+import { setInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSlice';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import InvestigationBase, {
   InvestigationBaseRef,
@@ -31,12 +33,14 @@ import {
 } from '@/app/dashboard/(doctor)/consultation/_components/shared/investigationHooks';
 import { MainCategorySection } from '@/app/dashboard/(doctor)/consultation/_components/shared/TestSelectionComponents';
 import { RadiologyForm, radiologySchema } from '@/schemas/radiology.schema';
+import { useDebounce } from 'use-debounce';
 
 export type RadiologyRef = InvestigationBaseRef;
 
 const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
   const dispatch = useAppDispatch();
   const recordId = useAppSelector(selectRecordId);
+  const sharedHistory = useAppSelector(selectInvestigationHistory);
   const [radiologyTests, setRadiologyTests] = useState<RadiologyTest | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -65,12 +69,18 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
     defaultValues: {
       tests: [],
       procedureRequest: ' ',
-      history: '',
+      history: sharedHistory || '',
       instructions: '',
     },
   });
 
   const selectedTests = watch('tests');
+  const history = watch('history');
+  const [debouncedHistory] = useDebounce(history, 500);
+
+  useEffect(() => {
+    dispatch(setInvestigationHistory(debouncedHistory || ''));
+  }, [debouncedHistory, dispatch]);
 
   const getRadiologyData = async (): Promise<void> => {
     const response = await fetchRadiology();
@@ -93,6 +103,9 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
         setValue('tests', latest.tests || []);
         setValue('history', latest.history || '');
         setValue('instructions', latest.instructions || '');
+        if (latest.history) {
+          dispatch(setInvestigationHistory(latest.history));
+        }
       }
     }
     setIsLoadingRadiology(false);
