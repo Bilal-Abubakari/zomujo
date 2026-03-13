@@ -8,19 +8,28 @@ import { useAppDispatch } from '@/lib/hooks';
 import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { referPatient } from '@/lib/features/appointments/consultation/consultationThunk';
 import { IDoctor } from '@/types/doctor.interface';
-import { IReferral } from '@/types/consultation.interface';
+import { IReferral, ReferralType } from '@/types/consultation.interface';
 import { Search, Check, Loader2 } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { showErrorToast } from '@/lib/utils';
 import { Toast, toast } from '@/hooks/use-toast';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { IPagination } from '@/types/shared.interface';
+import { MODE } from '@/constants/constants';
 
-enum ReferralType {
-  Internal = 'internal',
-  External = 'external',
-}
+const externalReferralSchema = z.object({
+  facility: z.string().min(1, 'Hospital / Facility is required'),
+  doctorName: z.string().optional(),
+  email: z.email('Invalid email address').optional().or(z.literal('')),
+  notes: z.string().optional(),
+});
+
+type ExternalReferralFormValues = z.infer<typeof externalReferralSchema>;
+
 interface ReferralModalProps {
   open: boolean;
   onClose: () => void;
@@ -35,7 +44,7 @@ export const ReferralModal = ({
   patientId,
 }: ReferralModalProps): JSX.Element => {
   const dispatch = useAppDispatch();
-  const [activeTab, setActiveTab] = useState<ReferralType>(ReferralType.Internal);
+  const [activeTab, setActiveTab] = useState<ReferralType>('internal');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch] = useDebounce(searchTerm, 500);
@@ -45,11 +54,20 @@ export const ReferralModal = ({
   const [selectedDoctor, setSelectedDoctor] = useState<IDoctor | null>(null);
   const [internalLetter, setInternalLetter] = useState('');
 
-  const [externalDetails, setExternalDetails] = useState({
-    doctorName: '',
-    facility: '',
-    email: '',
-    notes: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ExternalReferralFormValues>({
+    mode: MODE.ON_TOUCH,
+    resolver: zodResolver(externalReferralSchema),
+    defaultValues: {
+      facility: '',
+      doctorName: '',
+      email: '',
+      notes: '',
+    },
   });
 
   const searchDoctors = useCallback(
@@ -98,12 +116,12 @@ export const ReferralModal = ({
     ).unwrap();
 
     if (showErrorToast(result)) {
-      toast(result as Toast);
+      toast(result);
       setIsSubmitting(false);
       return;
     }
 
-    toast(result as Toast);
+    toast(result);
     onSave({
       type: 'internal',
       doctorId: selectedDoctor.id,
@@ -114,12 +132,13 @@ export const ReferralModal = ({
     onClose();
   };
 
-  const handleSaveExternal = (): void => {
+  const handleSaveExternal = (data: ExternalReferralFormValues): void => {
     onSave({
       type: 'external',
-      ...externalDetails,
+      ...data,
     });
     onClose();
+    reset();
   };
 
   const getDoctorListContent = (): React.ReactNode => {
@@ -254,48 +273,39 @@ export const ReferralModal = ({
             <TabsContent value="external" className="space-y-4">
               <div className="w-full space-y-3">
                 <Input
-                  labelName="Doctor's Name"
-                  placeholder="e.g. Dr. John medical"
-                  value={externalDetails.doctorName}
-                  defaultMaxWidth={false}
-                  onChange={(e) =>
-                    setExternalDetails((prev) => ({ ...prev, doctorName: e.target.value }))
-                  }
-                />
-                <Input
                   labelName="Hospital / Facility"
                   placeholder="e.g. City General Hospital"
-                  value={externalDetails.facility}
                   defaultMaxWidth={false}
-                  onChange={(e) =>
-                    setExternalDetails((prev) => ({ ...prev, facility: e.target.value }))
-                  }
+                  {...register('facility')}
+                  error={errors.facility?.message}
+                />
+                <Input
+                  labelName="Doctor's Name"
+                  placeholder="e.g. Dr. John medical"
+                  defaultMaxWidth={false}
+                  {...register('doctorName')}
+                  error={errors.doctorName?.message}
                 />
                 <Input
                   labelName="Email (Optional)"
                   placeholder="For sending referral letter digitally"
                   type="email"
                   className="max-w-full"
-                  value={externalDetails.email}
                   defaultMaxWidth={false}
-                  onChange={(e) =>
-                    setExternalDetails((prev) => ({ ...prev, email: e.target.value }))
-                  }
+                  {...register('email')}
+                  error={errors.email?.message}
                 />
                 <Textarea
                   placeholder="Short note or reason for referral..."
-                  value={externalDetails.notes}
-                  onChange={(e) =>
-                    setExternalDetails((prev) => ({ ...prev, notes: e.target.value }))
-                  }
                   className="min-h-25"
+                  {...register('notes')}
+                  error={errors.notes?.message}
                 />
               </div>
               <div className="mt-auto pt-4">
                 <Button
                   className="w-full"
-                  disabled={!externalDetails.doctorName || !externalDetails.facility}
-                  onClick={handleSaveExternal}
+                  onClick={handleSubmit(handleSaveExternal)}
                   child="Generate Referral"
                 />
               </div>
