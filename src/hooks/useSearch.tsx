@@ -1,8 +1,11 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, ChangeEvent, SyntheticEvent } from 'react';
 
 export function useSearch(
-  handleSubmit?: (event: FormEvent<HTMLFormElement>, search?: string) => void,
-): { searchTerm: string; handleSearch: (event: ChangeEvent<HTMLInputElement>) => void } {
+  handleSubmit?: (event: SyntheticEvent<HTMLFormElement>, search?: string) => void,
+): {
+  searchTerm: string;
+  handleSearch: (event: ChangeEvent<HTMLInputElement>) => void;
+} {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   function handleSearch(event: ChangeEvent<HTMLInputElement>): void {
@@ -10,7 +13,7 @@ export function useSearch(
     setSearchTerm(value);
     if (value === '' && handleSubmit) {
       setSearchTerm('');
-      handleSubmit(event as unknown as FormEvent<HTMLFormElement>, '');
+      handleSubmit(event as unknown as SyntheticEvent<HTMLFormElement>, '');
     }
   }
 
