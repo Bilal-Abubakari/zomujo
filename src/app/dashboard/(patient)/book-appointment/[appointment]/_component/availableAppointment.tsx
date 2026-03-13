@@ -66,13 +66,20 @@ const AvailableAppointment = (): JSX.Element => {
     },
   });
 
-  const onSubmit = async ({ reason, additionalInfo, slotId }: IBookingForm): Promise<void> => {
+  const onSubmit = async ({
+    reason,
+    additionalInfo,
+    slotId,
+    isFollowUp,
+  }: IBookingForm): Promise<void> => {
     if (!information) {
       return;
     }
     setIsPaymentInitiated(true);
 
-    const { payload } = await dispatch(initiatePayment({ additionalInfo, reason, slotId }));
+    const { payload } = await dispatch(
+      initiatePayment({ additionalInfo, reason, slotId, isFollowUp }),
+    );
 
     if (payload && showErrorToast(payload)) {
       toast(payload);
@@ -81,7 +88,7 @@ const AvailableAppointment = (): JSX.Element => {
     }
 
     const { authorization_url } = payload as ICheckout;
-    window.location.replace(authorization_url);
+    globalThis.location.replace(authorization_url);
     setIsPaymentInitiated(false);
   };
 
@@ -121,13 +128,13 @@ const AvailableAppointment = (): JSX.Element => {
         <ChevronLeft /> <span className="hidden sm:block">Go back</span>
       </button>
 
-      <div className="m-auto w-[80vw] max-w-[447px]">
+      <div className="m-auto w-[80vw] max-w-111.75">
         <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row">
           <p className="leading-4">Step {currentStep} of 3</p>
           <div className="flex flex-row items-center justify-between">
-            {new Array(3).fill('').map((_, i) => (
+            {new Array(3).fill('').map((value, i) => (
               <div
-                key={`progress-${i}`}
+                key={`progress-${i}-${value}`}
                 className={cn(
                   'h-1 w-20 duration-150',
                   currentStep >= i + 1 ? 'bg-primary' : 'bg-gray-200',
@@ -156,7 +163,7 @@ const AvailableAppointment = (): JSX.Element => {
         )}
         {currentStep === 3 && (
           <form
-            className="mb-8 w-[447px] max-w-[80vw] rounded-md border bg-white p-8"
+            className="mb-8 w-111.75 max-w-[80vw] rounded-md border bg-white p-8"
             onSubmit={handleSubmit(onSubmit)}
           >
             <p className="mb-8 text-xl font-bold"> Booking Summary</p>
@@ -199,8 +206,8 @@ const AvailableAppointment = (): JSX.Element => {
                   <div className="flex flex-col">
                     <p className="text-lg font-bold">{information.name}</p>
                     <div className="flex flex-wrap gap-2">
-                      {information.specialties?.map((specialty, index) => (
-                        <Badge key={index} variant="secondary">
+                      {information.specialties?.map((specialty) => (
+                        <Badge key={specialty} variant="secondary">
                           {specialty}
                         </Badge>
                       ))}
