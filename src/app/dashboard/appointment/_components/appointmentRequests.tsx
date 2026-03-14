@@ -38,7 +38,7 @@ import {
   Waypoints,
 } from 'lucide-react';
 import moment from 'moment';
-import React, { FormEvent, JSX, useState } from 'react';
+import React, { JSX, SyntheticEvent, useState } from 'react';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 import { IDoctor } from '@/types/doctor.interface';
@@ -70,6 +70,7 @@ type RescheduleAppointment = {
   specializations?: string[];
   experience?: number;
   noOfConsultations?: number;
+  consultationCount?: number;
 };
 
 const AppointmentRequests = (): JSX.Element => {
@@ -244,7 +245,6 @@ const AppointmentRequests = (): JSX.Element => {
                   ),
                 visible: !isDone && !isCancelled,
               },
-              // TODO: Is a refund functionality feasible???
               {
                 title: (
                   <>
@@ -260,6 +260,7 @@ const AppointmentRequests = (): JSX.Element => {
                     specializations: doctor.specializations,
                     experience: doctor.experience,
                     noOfConsultations: doctor.noOfConsultations,
+                    consultationCount: doctor.consultationCount,
                   });
                   setOpenRescheduleModal(true);
                   reset();
@@ -324,7 +325,7 @@ const AppointmentRequests = (): JSX.Element => {
     });
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement>, search?: string): void {
     event.preventDefault();
     setQueryParameters((prev) => ({
       ...prev,
@@ -430,7 +431,7 @@ const AppointmentRequests = (): JSX.Element => {
           <Input
             error=""
             placeholder="Search by patient"
-            className="max-w-[333px] sm:w-[333px]"
+            className="max-w-83.25 sm:w-83.25"
             type="search"
             leftIcon={<Search className="cursor-pointer text-gray-500" size={20} />}
             onChange={handleSearch}
@@ -456,21 +457,12 @@ const AppointmentRequests = (): JSX.Element => {
             <Input
               error=""
               type="date"
-              className="w-[150px]"
+              className="w-37.5"
               placeholder="Start Date"
               value={startDate ? moment(startDate).format('YYYY-MM-DD') : ''}
               leftIcon={<CalendarIcon size={16} />}
               onChange={(e) => handleDateChange('start', e.target.value)}
             />
-            {/*Will activate maybe later*/}
-            {/*<Input*/}
-            {/*  error=""*/}
-            {/*  type="date"*/}
-            {/*  className="w-[150px]"*/}
-            {/*  value={endDate ? moment(endDate).format('YYYY-MM-DD') : ''}*/}
-            {/*  leftIcon={<CalendarIcon size={16} />}*/}
-            {/*  onChange={(e) => handleDateChange('end', e.target.value)}*/}
-            {/*/>*/}
             {(startDate || endDate) && (
               <Button variant="ghost" child="Clear" onClick={clearDates} />
             )}
@@ -522,6 +514,7 @@ const AppointmentRequests = (): JSX.Element => {
           specializations={rescheduleAppointmentData.specializations}
           experience={rescheduleAppointmentData.experience}
           noOfConsultations={rescheduleAppointmentData.noOfConsultations}
+          consultationCount={rescheduleAppointmentData.consultationCount}
           registerAction={register}
           setValueAction={setValue}
           watch={watch}
@@ -569,8 +562,19 @@ const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps): J
   return (
     <div>
       <p className="font-medium"> Available Doctors</p>
-      {!isLoading ? (
-        <div className="mt-2 max-h-[300px] overflow-y-auto">
+      {isLoading ? (
+        <div className="mt-4">
+          {Array.from({ length: 5 }).map((value, index) => (
+            <div key={`${index}-${value}`} className="flex animate-pulse items-center space-x-4">
+              <div className="flex flex-row gap-4 space-y-2">
+                <div className="h-4 w-32 rounded bg-gray-300" />
+                <div className="h-4 w-48 rounded bg-gray-300" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-2 max-h-75 overflow-y-auto">
           <RadioGroup>
             {tableData.map(({ firstName, lastName, id }) => (
               <div className="mt-2 flex items-center space-x-2" key={id}>
@@ -581,17 +585,6 @@ const AvailableDoctors = ({ closeModal, appointment }: AvailableDoctorsProps): J
               </div>
             ))}
           </RadioGroup>
-        </div>
-      ) : (
-        <div className="mt-4">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="flex animate-pulse items-center space-x-4">
-              <div className="flex flex-row gap-4 space-y-2">
-                <div className="h-4 w-32 rounded bg-gray-300" />
-                <div className="h-4 w-48 rounded bg-gray-300" />
-              </div>
-            </div>
-          ))}
         </div>
       )}
       {!isLoading && !tableData.length && <div>Sorry, no doctors available at the moment.</div>}

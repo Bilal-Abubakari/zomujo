@@ -22,6 +22,7 @@ import { capitalize, showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { ICheckout } from '@/types/payment.interface';
 import { Role } from '@/types/shared.enum';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export type DoctorCardProps = {
   doctor: IDoctor;
@@ -34,6 +35,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     specializations,
     experience,
     appointmentSlots,
+    consultationCount,
     noOfConsultations,
     id,
     profilePicture,
@@ -43,6 +45,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
   const { register, setValue, getValues, watch } = useForm<IBookingForm>({
     resolver: zodResolver(bookingSchema),
     mode: MODE.ON_TOUCH,
+    defaultValues: {
+      isFollowUp: false,
+    },
   });
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -92,15 +97,20 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
   };
 
   const handleConfirmAndProceed = (): void => {
-    const { slotId } = getValues();
-    void onSubmit(slotId);
+    const { slotId, isFollowUp } = getValues();
+    void onSubmit(slotId, isFollowUp);
   };
 
-  const onSubmit = async (slotId: string): Promise<void> => {
+  const onSubmit = async (slotId: string, isFollowUp: boolean): Promise<void> => {
     setIsInitiatingPayment(true);
 
     const { payload } = await dispatch(
-      initiatePayment({ additionalInfo: '', reason: 'Reason is not a priority now', slotId }), // TODO: Will remove or handle reason later
+      initiatePayment({
+        additionalInfo: '',
+        reason: 'Reason is not a priority now',
+        slotId,
+        isFollowUp,
+      }),
     );
 
     if (payload && showErrorToast(payload)) {
@@ -111,7 +121,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     }
 
     const { authorization_url } = payload as ICheckout;
-    window.location.replace(authorization_url);
+    globalThis.location.replace(authorization_url);
   };
 
   return (
@@ -200,7 +210,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
                 <div className="flex items-center gap-3">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
                   <p className="text-sm font-medium text-blue-700">
-                    Processing payment... Redirecting to Paystack
+                    Processing payment... Redirecting to Payment Service
                   </p>
                 </div>
               </div>
@@ -216,8 +226,11 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
                       {specializations ? capitalize(specializations[0]) : 'General Practitioner'}
                     </p>
                     <p className="mt-1 text-sm text-gray-600">
-                      {experience ?? 1} year(s) experience &#8226; {noOfConsultations}{' '}
-                      {noOfConsultations === 1 ? 'consultation' : 'consultations'}
+                      {experience ?? 1} year(s) experience &#8226;{' '}
+                      {consultationCount ?? noOfConsultations ?? 0}{' '}
+                      {(consultationCount ?? noOfConsultations) === 1
+                        ? 'consultation'
+                        : 'consultations'}
                     </p>
                   </div>
                 </div>
@@ -258,6 +271,27 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
                   </div>
                 </div>
 
+                <div className="mt-4 flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50/50 p-4">
+                  <Checkbox
+                    id="isFollowUp"
+                    checked={watch('isFollowUp')}
+                    onCheckedChange={(checked) => setValue('isFollowUp', checked === true)}
+                    className="mt-1"
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <label
+                      htmlFor="isFollowUp"
+                      className="text-sm leading-none font-semibold text-gray-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      This is a follow-up consultation
+                    </label>
+                    <p className="text-xs text-gray-500">
+                      Check this if you have seen Dr. {lastName} before for this same health
+                      concern. This helps the doctor prepare for your session.
+                    </p>
+                  </div>
+                </div>
+
                 <div className="border-primary-200 bg-primary-50 rounded-lg border p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -295,7 +329,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
       />
       <div className="group flex h-full w-62.5 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
         {/* Image Section - Top Half */}
-        <div
+        <button
           className="relative h-40 w-full cursor-pointer overflow-hidden bg-gray-100"
           onClick={() => setOpenDoctorDetails(true)}
           onKeyDown={(e) => {
@@ -304,11 +338,10 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
               setOpenDoctorDetails(true);
             }
           }}
-          tabIndex={0}
-          role="button"
           aria-label={`View details for Dr. ${fullName}`}
         >
           {profilePicture ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={profilePicture}
               alt={`Dr. ${fullName}`}
@@ -322,18 +355,14 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
               </span>
             </div>
           )}
-          {/* Online Status Badge */}
-          {/*<div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-sm">*/}
-          {/*  <div className="h-2 w-2 rounded-full bg-green-500"></div>*/}
-          {/*  <span className="text-xs font-medium text-gray-700">Available</span>*/}
-          {/*</div>*/}
-        </div>
+        </button>
 
         {/* Information Section */}
         <div className="flex flex-1 flex-col p-4">
           {/* Doctor Name and Specialty */}
           <div className="mb-3">
-            <h3
+            <button
+              type="button"
               title={`Dr. ${fullName}`}
               className="hover:text-primary-600 cursor-pointer truncate text-lg font-bold text-gray-900 transition-colors"
               onClick={() => setOpenDoctorDetails(true)}
@@ -343,12 +372,10 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
                   setOpenDoctorDetails(true);
                 }
               }}
-              tabIndex={0}
-              role="button"
               aria-label={`View details for Dr. ${fullName}`}
             >
               Dr. {fullName}
-            </h3>
+            </button>
             <p
               title={specializations ? specializations[0] : 'General Practitioner'}
               className="text-primary-600 truncate text-xs font-medium"
@@ -358,9 +385,11 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
           </div>
 
           {/* Compact Info Lines */}
-          <div className="mb-3 flex items-center gap-2 text-xs text-gray-600">
-            <Medal size={14} className="text-primary-500 shrink-0" />
-            <span className="truncate">{experience ?? 1} years experience</span>
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+            <div className="flex items-center gap-1">
+              <Medal size={14} className="text-primary-500 shrink-0" />
+              <span className="truncate">{experience ?? 1} years experience</span>
+            </div>
           </div>
           <div className="mb-3 flex items-center gap-2 text-sm text-gray-600">
             <span className="text-gray-400">•</span>

@@ -19,6 +19,7 @@ export type SlotSelectionModalProps = {
   specializations?: string[];
   experience?: number;
   noOfConsultations?: number;
+  consultationCount?: number;
   registerAction: UseFormRegister<IBookingForm>;
   setValueAction: UseFormSetValue<IBookingForm>;
   watch: UseFormWatch<IBookingForm>;
@@ -38,6 +39,7 @@ export const SlotSelectionModal = ({
   specializations,
   experience,
   noOfConsultations,
+  consultationCount,
   registerAction,
   setValueAction,
   watch,
@@ -61,12 +63,12 @@ export const SlotSelectionModal = ({
               <p className="text-primary-600 text-sm font-medium md:text-base">
                 {specializations ? capitalize(specializations[0]) : 'General Practitioner'}
               </p>
-              {(experience || noOfConsultations) && (
+              {(experience || consultationCount || noOfConsultations) && (
                 <p className="text-sm md:text-base">
                   {experience && `${experience} year(s) experience`}
-                  {experience && noOfConsultations && ' \u2022 '}
-                  {noOfConsultations &&
-                    `${noOfConsultations} ${noOfConsultations === 1 ? 'consultation' : 'consultations'}`}
+                  {experience && (consultationCount || noOfConsultations) && ' \u2022 '}
+                  {(consultationCount || noOfConsultations) &&
+                    `${consultationCount ?? noOfConsultations} ${(consultationCount ?? noOfConsultations) === 1 ? 'consultation' : 'consultations'}`}
                 </p>
               )}
             </div>

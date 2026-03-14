@@ -5,6 +5,7 @@ export interface IInitializeAppointment {
   slotId: string;
   reason: string;
   additionalInfo: string;
+  isFollowUp: boolean;
 }
 
 export interface IBookingForm extends IInitializeAppointment {

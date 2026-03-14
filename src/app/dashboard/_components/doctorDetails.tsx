@@ -85,12 +85,10 @@ const DoctorDetails = ({
             <p className="mt-4 font-medium text-gray-500"> {doctor.MDCRegistration}</p>
             {showBookmark && <Button child="Book Appointment" onClick={() => bookAppointment()} />}
           </div>
-          {doctor.experience > 0 && (
-            <div className="mt-8 flex gap-6 font-semibold">
-              <p> 💼 {doctor.experience} years of experience</p>
-              {/*/!*<p>🤩 200+ Consultations</p>*!/ TODO: Bring once consultation statistics is ready*/}
-            </div>
-          )}
+          <div className="mt-8 flex gap-6 font-semibold">
+            {doctor.experience > 0 && <p> 💼 {doctor.experience} years of experience</p>}
+            {doctor.consultationCount > 0 && <p>🤩 {doctor.consultationCount}+ Consultations</p>}
+          </div>
         </div>
         <div className="mt-6 flex-wrap">
           {doctor.specializations.map((specialization) => (
