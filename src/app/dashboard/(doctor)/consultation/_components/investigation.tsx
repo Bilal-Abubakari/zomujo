@@ -153,7 +153,7 @@ const Investigation = ({
             </TabsTrigger>
             <TabsTrigger value="radiology" className="flex cursor-pointer items-center gap-2">
               <Microscope className="h-4 w-4" />
-              <span>Radiology</span>
+              <span>Radiology & Others</span>
             </TabsTrigger>
           </TabsList>
 
