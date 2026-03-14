@@ -26,6 +26,7 @@ import {
   ChevronRight,
   Lock,
   AlertTriangle,
+  Target,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -85,6 +86,7 @@ const PostInvestigationHistoryView = ({
         postData.historyOfPresentingComplaints ===
           initialPostInvestigationNotes.historyOfPresentingComplaints &&
         postData.assessmentImpression === initialPostInvestigationNotes.assessmentImpression &&
+        postData.plan === initialPostInvestigationNotes.plan &&
         postData.addendum === initialPostInvestigationNotes.addendum;
 
       if (isUnchanged) {
@@ -236,6 +238,21 @@ const PostInvestigationHistoryView = ({
             placeholder="Enter your updated clinical assessment and impression based on the investigation results..."
             className="min-h-28 resize-y"
             name="assessmentImpression"
+          />
+        </div>
+
+        {/* Plan */}
+        <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <Target className="text-primary h-5 w-5" />
+            <h3 className="text-base font-semibold text-gray-800">Plan</h3>
+          </div>
+          <Textarea
+            value={postData.plan}
+            onChange={(e) => handleChange('plan', e.target.value)}
+            placeholder="Enter your treatment plan based on the investigation results..."
+            className="min-h-28 resize-y"
+            name="plan"
           />
         </div>
 

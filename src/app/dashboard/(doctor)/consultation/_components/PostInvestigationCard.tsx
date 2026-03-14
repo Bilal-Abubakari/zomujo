@@ -11,6 +11,7 @@ const FIELD_LABELS: Record<keyof IPostInvestigationData, string> = {
   historyOfPresentingComplaints: 'History of Presenting Complaints',
   assessmentImpression: 'Assessment / Impression',
   addendum: 'Addendum',
+  plan: 'Plan',
 };
 
 const PostInvestigationCard = ({
@@ -20,38 +21,29 @@ const PostInvestigationCard = ({
     Object.entries(postInvestigationData) as [keyof IPostInvestigationData, string][]
   ).filter(([, value]) => value && value.trim() !== '');
 
-  if (sections.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FlaskConical className="h-5 w-5" />
-            Post-Investigation Notes
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500">No post-investigation notes available.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <div className="space-y-4">
-      {sections.map(([key, value]) => (
-        <Card key={key}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FlaskConical className="h-4 w-4 text-amber-500" />
-              {FIELD_LABELS[key]}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm whitespace-pre-wrap text-gray-700">{value}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FlaskConical className="h-5 w-5" />
+          Post-Investigation Notes
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {sections.length === 0 ? (
+          <p className="text-sm text-gray-500">No post-investigation notes available.</p>
+        ) : (
+          <div className="space-y-4">
+            {sections.map(([key, value]) => (
+              <div key={key} className="border-b border-gray-200 pb-4 last:border-b-0">
+                <h4 className="mb-2 text-sm font-semibold text-gray-800">{FIELD_LABELS[key]}</h4>
+                <p className="text-sm whitespace-pre-wrap text-gray-700">{value}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

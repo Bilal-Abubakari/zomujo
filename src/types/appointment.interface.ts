@@ -24,12 +24,15 @@ export interface IAppointmentSymptoms extends IConsultationSymptomsRequest {
 export interface IPostInvestigationData {
   historyOfPresentingComplaints: string;
   assessmentImpression: string;
+  plan: string;
   addendum: string;
 }
 
 export interface IAppointment extends IBaseAppointment, ISlotBase {
   slot: ISlot;
   status: AppointmentStatus;
+  appointmentLinkId: string | null;
+  isFollowUp: boolean;
   reason: string;
   additionalInfo: string;
   symptoms: IAppointmentSymptoms;
