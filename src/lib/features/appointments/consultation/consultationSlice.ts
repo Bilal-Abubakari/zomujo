@@ -5,11 +5,13 @@ import { createSlice } from '@reduxjs/toolkit';
 interface ConsultationState {
   currentLabRequest: ILaboratoryRequest[];
   currentRadiologyRequest: IRadiologyRequest | null;
+  investigationHistory: string;
 }
 
 export const initialState: ConsultationState = {
   currentLabRequest: [],
   currentRadiologyRequest: null,
+  investigationHistory: '',
 };
 
 export const consultationSlice = createSlice({
@@ -29,10 +31,17 @@ export const consultationSlice = createSlice({
     ) => {
       state.currentRadiologyRequest = action.payload;
     },
+    setInvestigationHistory: (state: ConsultationState, action: { payload: string }) => {
+      state.investigationHistory = action.payload;
+    },
   },
 });
 
-export const { setCurrentLabRequest, setCurrentRadiologyRequest, removeLabRequest } =
-  consultationSlice.actions;
+export const {
+  setCurrentLabRequest,
+  setCurrentRadiologyRequest,
+  removeLabRequest,
+  setInvestigationHistory,
+} = consultationSlice.actions;
 
 export default consultationSlice.reducer;

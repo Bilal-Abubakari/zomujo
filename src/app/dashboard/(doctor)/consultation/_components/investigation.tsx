@@ -8,11 +8,12 @@ import { Modal } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAppSelector } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
 import { Button } from '@/components/ui/button';
 import Signature from '@/components/signature/signature';
 import { selectHasInvestigation } from '@/lib/features/appointments/consultation/consultationSelector';
+import { setInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSlice';
 
 const Investigation = ({
   goToNext,
@@ -21,6 +22,7 @@ const Investigation = ({
   goToNext: () => void;
   goToPrevious: () => void;
 }): JSX.Element => {
+  const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<'labs' | 'radiology'>('labs');
   const [openAddSignature, setOpenAddSignature] = useState(false);
   const [addSignature, setAddSignature] = useState(false);
@@ -54,6 +56,10 @@ const Investigation = ({
       setAddSignature(false);
     }
   }, [openAddSignature]);
+
+  useEffect(() => {
+    dispatch(setInvestigationHistory(''));
+  }, []);
 
   useEffect(() => {
     // Show signature alert if no signature exists
