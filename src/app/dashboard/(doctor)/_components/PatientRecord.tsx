@@ -85,7 +85,6 @@ const PatientOverview = (): JSX.Element => {
     void fetchConsultation();
   }, [getQueryParam]);
 
-  // Fetch linked appointment details whenever appointmentLinkId changes
   useEffect(() => {
     if (!appointmentLinkId) {
       setLinkedAppointment(null);

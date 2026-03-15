@@ -48,7 +48,6 @@ const FollowUpLinkingBanner = ({
     return null;
   }
 
-  // Render the bottom status row without nested ternaries
   const renderLinkStatus = (): JSX.Element => {
     if (appointmentLinkId) {
       return (
@@ -128,7 +127,6 @@ const FollowUpLinkingBanner = ({
   return (
     <>
       <div className="mb-6 overflow-hidden rounded-xl border border-amber-200 bg-linear-to-r from-amber-50 via-orange-50 to-amber-50 shadow-sm">
-        {/* Banner Header */}
         <div className="flex items-start gap-3 px-4 py-3 sm:px-5 sm:py-4">
           <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100">
             <GitMerge className="h-4 w-4 text-amber-700" />
@@ -164,7 +162,6 @@ const FollowUpLinkingBanner = ({
           )}
         </div>
 
-        {/* Link status section */}
         <div className="border-t border-amber-200 bg-white/60 px-4 py-3 sm:px-5">
           {renderLinkStatus()}
         </div>

@@ -421,9 +421,7 @@ const PatientConsultationHistory = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="from-primary/5 rounded-xl bg-linear-to-r via-green-50 to-indigo-50 p-6">
-        {/* Title row */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-xl">

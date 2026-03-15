@@ -72,7 +72,6 @@ interface ReviewConsultationProps {
   goToPrevious?: () => void;
 }
 
-// ─── Linked Consultation Banner ───────────────────────────────────────────────
 interface LinkedConsultationBannerProps {
   appointmentLinkId: string;
 }
@@ -458,10 +457,8 @@ const ReviewConsultation = ({
       />
 
       <div className="space-y-6 pb-20">
-        {/* Linked appointment — rich expandable card */}
         {appointmentLinkId && <LinkedConsultationBanner appointmentLinkId={appointmentLinkId} />}
 
-        {/* Follow-up flag notice (no link set) */}
         {isFollowUp && !appointmentLinkId && (
           <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100">

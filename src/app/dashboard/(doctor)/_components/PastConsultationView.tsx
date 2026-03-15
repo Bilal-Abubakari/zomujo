@@ -38,7 +38,6 @@ const PastConsultationView = ({
 
   return (
     <div className="space-y-6">
-      {/* Linked consultation notice */}
       {appointment.appointmentLinkId && (
         <div className="flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
           <div className="flex items-center gap-2">

@@ -24,7 +24,6 @@ const ConsultationViewModal = ({
 }: ConsultationViewModalProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [consultationData, setConsultationData] = useState<IAppointment | null>(null);
-  // Stack of appointment IDs for back navigation when following linked consultations
   const [navigationStack, setNavigationStack] = useState<string[]>([]);
   const [currentViewId, setCurrentViewId] = useState<string | null>(appointmentId);
 
