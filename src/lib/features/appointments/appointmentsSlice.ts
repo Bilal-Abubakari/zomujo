@@ -57,6 +57,11 @@ const appointmentsSlice = createSlice({
         state.appointment.ipData = JSON.stringify(action.payload);
       }
     },
+    updateAppointmentLinkId: (state, action: PayloadAction<string | null>) => {
+      if (state.appointment) {
+        state.appointment.appointmentLinkId = action.payload;
+      }
+    },
     showReviewModal: (state, action: PayloadAction<{ appointmentId: string }>) => {
       state.showReviewModal = true;
       state.reviewAppointmentId = action.payload.appointmentId;
@@ -90,6 +95,7 @@ export const {
   updateAppointmentHistoryNotes,
   updateDiagnosis,
   updatePostInvestigationData,
+  updateAppointmentLinkId,
 } = appointmentsSlice.actions;
 
 export default appointmentsSlice.reducer;

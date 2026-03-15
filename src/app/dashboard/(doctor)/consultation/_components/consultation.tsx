@@ -7,6 +7,7 @@ import {
   Clock,
   ClockFading,
   FlaskConical,
+  GitMerge,
   History as HistoryIcon,
   Loader2,
   ShieldCheck,
@@ -18,6 +19,11 @@ import {
   endConsultation as endConsultationRequest,
   getConsultationAppointment,
 } from '@/lib/features/appointments/consultation/consultationThunk';
+import { linkAppointment, unlinkAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import {
+  updateAppointmentLinkId,
+  showReviewModal,
+} from '@/lib/features/appointments/appointmentsSlice';
 import { useParams, useRouter } from 'next/navigation';
 import {
   selectConsultationStatus,
@@ -30,8 +36,10 @@ import {
   selectIsLoading,
   selectRequestedLabs,
   selectSymptoms,
+  selectAppointmentLinkId,
+  selectIsFollowUp,
+  selectAppointmentDoctorId,
 } from '@/lib/features/appointments/appointmentSelector';
-import { showReviewModal } from '@/lib/features/appointments/appointmentsSlice';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { getPatientRecords } from '@/lib/features/records/recordsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
@@ -163,6 +171,12 @@ const Consultation = (): JSX.Element => {
   const [showPastConsultationsDrawer, setShowPastConsultationsDrawer] = useState(false);
   const [selectedConsultationId, setSelectedConsultationId] = useState<string | null>(null);
   const [showConsultationSheet, setShowConsultationSheet] = useState(false);
+  const appointmentLinkId = useAppSelector(selectAppointmentLinkId);
+  const isFollowUp = useAppSelector(selectIsFollowUp);
+  const doctorId = useAppSelector(selectAppointmentDoctorId);
+
+  const [isLinking, setIsLinking] = useState(false);
+  const [isUnlinking, setIsUnlinking] = useState(false);
 
   // Stages depend on consultation type
   const stages = useMemo<readonly StageType[]>(
@@ -262,8 +276,8 @@ const Consultation = (): JSX.Element => {
     }
   };
 
-  const handleViewPastConsultation = (appointmentId: string): void => {
-    setSelectedConsultationId(appointmentId);
+  const handleViewPastConsultation = (consultationId: string): void => {
+    setSelectedConsultationId(consultationId);
     setShowConsultationSheet(true);
     setShowPastConsultationsDrawer(false);
   };
@@ -321,13 +335,55 @@ const Consultation = (): JSX.Element => {
     void fetchConsultationAppointment();
   }, []);
 
+  const linkedDrawerNote = appointmentLinkId
+    ? 'The linked past visit is highlighted below.'
+    : 'Use "My consultations only" filter to find and link a past visit.';
+  const drawerDescription = isFollowUp
+    ? `This is a follow-up consultation. ${linkedDrawerNote}`
+    : 'View previous consultations with this patient.';
+
+  const handleLink = async (linkedAppointmentId: string): Promise<void> => {
+    setIsLinking(true);
+    const result = await dispatch(
+      linkAppointment({
+        appointmentId: String(params.appointmentId),
+        appointmentLinkId: linkedAppointmentId,
+      }),
+    ).unwrap();
+    toast(result);
+    if (!showErrorToast(result)) {
+      dispatch(updateAppointmentLinkId(linkedAppointmentId));
+    }
+    setIsLinking(false);
+  };
+
+  const handleUnlink = async (): Promise<void> => {
+    if (!appointmentLinkId) {
+      return;
+    }
+    setIsUnlinking(true);
+    const result = await dispatch(
+      unlinkAppointment({
+        appointmentId: String(params.appointmentId),
+        appointmentLinkId: String(appointmentLinkId),
+      }),
+    ).unwrap();
+    toast(result);
+    if (!showErrorToast(result)) {
+      dispatch(updateAppointmentLinkId(null));
+    }
+    setIsUnlinking(false);
+  };
+
   return (
     <RoleProvider role={Role.Doctor}>
       <div>
         {isLoadingConsultation && <LoadingOverlay />}
         <div className="rounded-2xl border border-gray-300 px-4 py-6 sm:px-6 sm:py-4">
           {(isLoadingAppointment || isLoadingRecords) && <LoadingOverlay />}
-          <div className="mb-1 flex items-center gap-3">
+
+          {/* Title row — status badges live here */}
+          <div className="mb-1 flex flex-wrap items-center gap-3">
             <span className="text-sm font-medium sm:text-base">Consultation</span>
             {currentConsultationStatus && (
               <Badge
@@ -344,7 +400,21 @@ const Consultation = (): JSX.Element => {
                 Post-Investigation
               </Badge>
             )}
+            {/* Follow-Up indicators — shown next to status, not buried in the actions row */}
+            {isFollowUp && appointmentLinkId && (
+              <Badge className="flex items-center gap-1 border-green-300 bg-green-50 px-2 py-1 text-xs text-green-700">
+                <GitMerge className="h-3 w-3" />
+                Follow-Up · Linked
+              </Badge>
+            )}
+            {isFollowUp && !appointmentLinkId && (
+              <Badge className="flex items-center gap-1 border-amber-300 bg-amber-50 px-2 py-1 text-xs text-amber-700">
+                <GitMerge className="h-3 w-3" />
+                Follow-Up
+              </Badge>
+            )}
           </div>
+
           {hasEnded ? (
             <div className="mt-8">
               <ConsultationHistory />
@@ -454,19 +524,46 @@ const Consultation = (): JSX.Element => {
           isAuthenticated={isConsultationAuthenticated}
         />
 
-        {/* Floating button to view past consultations during active consultation */}
+        {/* Past consultations drawer — also supports linking for follow-up consultations */}
         {(isInProgress || isInvestigatingProgress) && (
           <Drawer open={showPastConsultationsDrawer} onOpenChange={setShowPastConsultationsDrawer}>
             <DrawerContent className="max-h-[85vh]">
               <DrawerHeader>
-                <DrawerTitle>Patient&apos;s Consultation History</DrawerTitle>
-                <DrawerDescription>View previous consultations with this patient</DrawerDescription>
+                <DrawerTitle className="flex flex-wrap items-center gap-2">
+                  Patient&apos;s Consultation History
+                  {isFollowUp && (
+                    <Badge
+                      className={`text-xs ${
+                        appointmentLinkId
+                          ? 'border-green-300 bg-green-50 text-green-700'
+                          : 'border-amber-300 bg-amber-50 text-amber-700'
+                      }`}
+                    >
+                      <GitMerge className="mr-1 h-3 w-3" />
+                      {appointmentLinkId ? 'Follow-Up · Linked' : 'Follow-Up · Not Linked'}
+                    </Badge>
+                  )}
+                </DrawerTitle>
+                <DrawerDescription>{drawerDescription}</DrawerDescription>
               </DrawerHeader>
               <div className="overflow-y-auto px-4 pb-4">
                 <PatientConsultationHistory
                   patientId={String(params.patientId)}
                   onViewConsultation={handleViewPastConsultation}
+                  onViewLinkedConsultation={(id) => {
+                    setSelectedConsultationId(id);
+                    setShowConsultationSheet(true);
+                    setShowPastConsultationsDrawer(false);
+                  }}
                   currentAppointmentId={String(params.appointmentId)}
+                  doctorId={doctorId}
+                  isFollowUp={isFollowUp}
+                  appointmentLinkId={appointmentLinkId}
+                  onLink={handleLink}
+                  onUnlink={handleUnlink}
+                  isLinking={isLinking}
+                  isUnlinking={isUnlinking}
+                  isConsultationCompleted={hasEnded}
                 />
               </div>
               <DrawerFooter>

@@ -55,3 +55,8 @@ export interface IAppointmentDoctorId {
   appointmentId: string;
   doctorId: string;
 }
+
+export interface IAppointmentLinkPayload {
+  appointmentId: string;
+  appointmentLinkId: string;
+}

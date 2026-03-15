@@ -8,11 +8,25 @@ import {
   getConsultationAppointment,
   startConsultation,
 } from '@/lib/features/appointments/consultation/consultationThunk';
+import { linkAppointment, unlinkAppointment } from '@/lib/features/appointments/appointmentsThunk';
+import { updateAppointmentLinkId } from '@/lib/features/appointments/appointmentsSlice';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import ExpiredConsultationView from './ExpiredConsultationView';
 import PatientConsultationHistory from './PatientConsultationHistory';
 import ConsultationViewSheet from './ConsultationViewSheet';
-import { selectCanStartConsultation } from '@/lib/features/appointments/appointmentSelector';
+import FollowUpLinkingBanner from './FollowUpLinkingBanner';
+import {
+  selectCanStartConsultation,
+  selectAppointmentDoctorId,
+  selectAppointmentLinkId,
+  selectIsFollowUp,
+  hasConsultationEnded,
+} from '@/lib/features/appointments/appointmentSelector';
+import { toast } from '@/hooks/use-toast';
+import { showErrorToast } from '@/lib/utils';
+import { IAppointment } from '@/types/appointment.interface';
+import axios from '@/lib/axios';
+import { IResponse } from '@/types/shared.interface';
 
 const PatientOverview = (): JSX.Element => {
   const router = useRouter();
@@ -20,15 +34,23 @@ const PatientOverview = (): JSX.Element => {
   const patientId = params.id as string;
   const { getQueryParam } = useQueryParam();
   const canStartConsultation = useAppSelector(selectCanStartConsultation);
+  const doctorId = useAppSelector(selectAppointmentDoctorId);
+  const appointmentLinkId = useAppSelector(selectAppointmentLinkId);
+  const isFollowUp = useAppSelector(selectIsFollowUp);
+  const isConsultationCompleted = useAppSelector(hasConsultationEnded);
   const dispatch = useAppDispatch();
   const [isStartingConsultation, setIsStartingConsultation] = useState(false);
   const [consultationExpired, setConsultationExpired] = useState(false);
   const [selectedConsultationId, setSelectedConsultationId] = useState<string | null>(null);
   const [showConsultationSheet, setShowConsultationSheet] = useState(false);
   const [isLoadingConsultation, setIsLoadingConsultation] = useState(false);
+  const [isLinking, setIsLinking] = useState(false);
+  const [isUnlinking, setIsUnlinking] = useState(false);
+  const [linkedAppointment, setLinkedAppointment] = useState<IAppointment | null>(null);
+
+  const appointmentId = getQueryParam('appointmentId');
 
   const redirectToConsultation = async (): Promise<void> => {
-    const appointmentId = getQueryParam('appointmentId');
     if (!appointmentId) {
       return;
     }
@@ -39,7 +61,6 @@ const PatientOverview = (): JSX.Element => {
   };
 
   const handleViewPastConsultation = (): void => {
-    const appointmentId = getQueryParam('appointmentId');
     if (appointmentId) {
       router.push(`/dashboard/consultation/review?appointmentId=${appointmentId}`);
     }
@@ -52,7 +73,6 @@ const PatientOverview = (): JSX.Element => {
 
   const fetchConsultation = async (): Promise<void> => {
     setIsLoadingConsultation(true);
-    const appointmentId = getQueryParam('appointmentId');
     if (!appointmentId) {
       setIsLoadingConsultation(false);
       return;
@@ -65,8 +85,55 @@ const PatientOverview = (): JSX.Element => {
     void fetchConsultation();
   }, [getQueryParam]);
 
-  const handleViewConsultation = (appointmentId: string): void => {
-    setSelectedConsultationId(appointmentId);
+  // Fetch linked appointment details whenever appointmentLinkId changes
+  useEffect(() => {
+    if (!appointmentLinkId) {
+      setLinkedAppointment(null);
+      return;
+    }
+    const fetchLinked = async (): Promise<void> => {
+      try {
+        const { data } = await axios.get<IResponse<IAppointment>>(
+          `appointments/${appointmentLinkId}`,
+        );
+        setLinkedAppointment(data.data);
+      } catch {
+        setLinkedAppointment(null);
+      }
+    };
+    void fetchLinked();
+  }, [appointmentLinkId]);
+
+  const handleLink = async (linkedAppointmentId: string): Promise<void> => {
+    if (!appointmentId) {
+      return;
+    }
+    setIsLinking(true);
+    const result = await dispatch(
+      linkAppointment({ appointmentId, appointmentLinkId: linkedAppointmentId }),
+    ).unwrap();
+    toast(result);
+    if (!showErrorToast(result)) {
+      dispatch(updateAppointmentLinkId(linkedAppointmentId));
+    }
+    setIsLinking(false);
+  };
+
+  const handleUnlink = async (): Promise<void> => {
+    if (!appointmentId || !appointmentLinkId) {
+      return;
+    }
+    setIsUnlinking(true);
+    const result = await dispatch(unlinkAppointment({ appointmentId, appointmentLinkId })).unwrap();
+    toast(result);
+    if (!showErrorToast(result)) {
+      dispatch(updateAppointmentLinkId(null));
+    }
+    setIsUnlinking(false);
+  };
+
+  const handleViewConsultation = (id: string): void => {
+    setSelectedConsultationId(id);
     setShowConsultationSheet(true);
   };
 
@@ -87,7 +154,7 @@ const PatientOverview = (): JSX.Element => {
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <span className="self-center text-xl font-bold">Patient Record</span>
-        {getQueryParam('appointmentId') && (
+        {appointmentId && (
           <div className="flex flex-wrap gap-3">
             {canStartConsultation && (
               <Button
@@ -100,10 +167,28 @@ const PatientOverview = (): JSX.Element => {
         )}
       </div>
 
+      {appointmentId && (
+        <FollowUpLinkingBanner
+          linkedAppointment={linkedAppointment}
+          onUnlink={handleUnlink}
+          isUnlinking={isUnlinking}
+          isConsultationCompleted={isConsultationCompleted}
+        />
+      )}
+
       <PatientConsultationHistory
         patientId={patientId}
         onViewConsultation={handleViewConsultation}
-        currentAppointmentId={getQueryParam('appointmentId') || undefined}
+        onViewLinkedConsultation={handleViewConsultation}
+        currentAppointmentId={appointmentId || undefined}
+        doctorId={doctorId}
+        isFollowUp={isFollowUp}
+        appointmentLinkId={appointmentLinkId}
+        onLink={handleLink}
+        onUnlink={handleUnlink}
+        isLinking={isLinking}
+        isUnlinking={isUnlinking}
+        isConsultationCompleted={isConsultationCompleted}
       />
 
       {/* Consultation View Modal */}

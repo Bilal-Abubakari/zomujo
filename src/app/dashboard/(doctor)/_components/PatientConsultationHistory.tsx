@@ -14,15 +14,22 @@ import { StatusBadge } from '@/components/ui/statusBadge';
 import axios from '@/lib/axios';
 import {
   Activity,
+  CalendarDays,
   ChevronRight,
   Clock,
   ClipboardCheck,
+  Eye,
   FileText,
   FlaskConical,
+  GitMerge,
+  Link2,
+  Link2Off,
   Loader2,
   Pill,
+  SlidersHorizontal,
   Target,
   User,
+  X,
 } from 'lucide-react';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
@@ -44,13 +51,39 @@ const TimelineDot = ({ isActive }: { isActive: boolean }): JSX.Element => (
 interface PatientConsultationHistoryProps {
   patientId: string;
   onViewConsultation: (appointmentId: string) => void;
+  onViewLinkedConsultation?: (appointmentId: string) => void;
   currentAppointmentId?: string;
+  /** The current doctor's id — used for the "My consultations only" filter */
+  doctorId?: string;
+  /** Whether the current appointment is a follow-up (shows link/unlink actions) */
+  isFollowUp?: boolean;
+  /** The currently linked appointment id */
+  appointmentLinkId?: string | null;
+  /** Called when the user wants to link a past consultation */
+  onLink?: (linkedAppointmentId: string) => void;
+  /** Called when the user wants to unlink a past consultation */
+  onUnlink?: () => void;
+  /** Loading state for the link action */
+  isLinking?: boolean;
+  /** Loading state for the unlink action */
+  isUnlinking?: boolean;
+  /** When true the consultation is already completed — hide link/unlink actions */
+  isConsultationCompleted?: boolean;
 }
 
 const PatientConsultationHistory = ({
   patientId,
   onViewConsultation,
+  onViewLinkedConsultation,
   currentAppointmentId,
+  doctorId,
+  isFollowUp = false,
+  appointmentLinkId,
+  onLink,
+  onUnlink,
+  isLinking = false,
+  isUnlinking = false,
+  isConsultationCompleted = false,
 }: PatientConsultationHistoryProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const [consultations, setConsultations] = useState<IAppointment[]>([]);
@@ -62,6 +95,46 @@ const PatientConsultationHistory = ({
     {},
   );
   const [loadingPreviews, setLoadingPreviews] = useState<Record<string, boolean>>({});
+  const [showMyConsultationsOnly, setShowMyConsultationsOnly] = useState(false);
+  // Auto-open filter panel for active follow-up appointments so the doctor can link easily
+  const [showFilterPanel, setShowFilterPanel] = useState(isFollowUp && !isConsultationCompleted);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const hasDateFilter = startDate !== '' || endDate !== '';
+  const activeFilterCount = (showMyConsultationsOnly ? 1 : 0) + (hasDateFilter ? 1 : 0);
+
+  const displayedConsultations = consultations.filter((c) => {
+    if (showMyConsultationsOnly && doctorId && c.doctor.id !== doctorId) {
+      return false;
+    }
+    if (startDate) {
+      const slotDate = moment(c.slot.date);
+      if (slotDate.isBefore(moment(startDate), 'day')) {
+        return false;
+      }
+    }
+    if (endDate) {
+      const slotDate = moment(c.slot.date);
+      if (slotDate.isAfter(moment(endDate), 'day')) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const resultLabel = displayedConsultations.length === 1 ? 'result' : 'results';
+  const filterLabel = activeFilterCount === 1 ? 'filter' : 'filters';
+  const consultationLabel = totalConsultations === 1 ? 'consultation' : 'consultations';
+  const subtitleText =
+    activeFilterCount > 0
+      ? `${displayedConsultations.length} ${resultLabel} · ${activeFilterCount} ${filterLabel} active`
+      : `${totalConsultations} total ${consultationLabel}`;
+
+  const clearDateFilter = (): void => {
+    setStartDate('');
+    setEndDate('');
+  };
 
   const lastConsultationRef = useInfiniteScroll({
     isLoading,
@@ -350,22 +423,150 @@ const PatientConsultationHistory = ({
     <div className="space-y-6">
       {/* Header */}
       <div className="from-primary/5 rounded-xl bg-linear-to-r via-green-50 to-indigo-50 p-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-xl">
-            <Clock className="text-primary h-6 w-6" />
+        {/* Title row */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-xl">
+              <Clock className="text-primary h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Consultation Timeline</h2>
+              <p className="mt-0.5 text-sm text-gray-500">{subtitleText}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Consultation Timeline</h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Complete medical history and consultations
-              {totalConsultations > 0 && (
-                <Badge variant="secondary" className="bg-primary/10 text-primary ml-2">
-                  {totalConsultations} consultation{totalConsultations === 1 ? '' : 's'}
-                </Badge>
+
+          {/* Filter icon badge – opens/closes the filter panel */}
+          {doctorId && (
+            <button
+              onClick={() => setShowFilterPanel((prev) => !prev)}
+              className={`relative flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                activeFilterCount > 0
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+              title="Toggle filters"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="bg-primary flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white">
+                  {activeFilterCount}
+                </span>
               )}
-            </p>
-          </div>
+            </button>
+          )}
         </div>
+
+        {/* Filter Panel */}
+        {showFilterPanel && (
+          <div className="mt-4">
+            <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white/80 p-4">
+              {/* My Consultations toggle */}
+              {doctorId && (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-medium text-gray-500">Consulting doctor</span>
+                  <button
+                    onClick={() => setShowMyConsultationsOnly((prev) => !prev)}
+                    aria-pressed={showMyConsultationsOnly}
+                    className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
+                      showMyConsultationsOnly
+                        ? 'border-primary bg-primary text-white shadow-sm'
+                        : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'
+                    }`}
+                  >
+                    <User className="h-3.5 w-3.5" />
+                    {showMyConsultationsOnly ? (
+                      <>
+                        My consultations only
+                        <X className="ml-0.5 h-3 w-3 opacity-70" />
+                      </>
+                    ) : (
+                      'All doctors'
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Divider */}
+              {doctorId && <div className="hidden h-10 w-px bg-gray-200 sm:block" />}
+
+              {/* Date range */}
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="flex items-center gap-1 text-xs font-medium text-gray-500">
+                    <CalendarDays className="h-3 w-3" />
+                    From
+                  </label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    max={endDate || undefined}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="focus:border-primary focus:ring-primary/30 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 focus:ring-1 focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="flex items-center gap-1 text-xs font-medium text-gray-500">
+                    <CalendarDays className="h-3 w-3" />
+                    To
+                  </label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    min={startDate || undefined}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="focus:border-primary focus:ring-primary/30 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 focus:ring-1 focus:outline-none"
+                  />
+                </div>
+                {hasDateFilter && (
+                  <button
+                    onClick={clearDateFilter}
+                    className="flex items-center gap-1 rounded-lg border border-red-100 bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-500 hover:bg-red-100"
+                  >
+                    <X className="h-3 w-3" />
+                    Clear dates
+                  </button>
+                )}
+              </div>
+
+              {/* Clear all */}
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={() => {
+                    setShowMyConsultationsOnly(false);
+                    clearDateFilter();
+                  }}
+                  className="ml-auto flex items-center gap-1 self-end text-xs text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-3 w-3" />
+                  Clear all
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Follow-up linking hint — only shown when filter panel is collapsed and consultation is active */}
+        {isFollowUp &&
+          !isConsultationCompleted &&
+          !showFilterPanel &&
+          !showMyConsultationsOnly &&
+          doctorId && (
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs text-amber-700">
+              <GitMerge className="h-3.5 w-3.5 shrink-0" />
+              <span>
+                <span className="font-semibold">Tip:</span> Open{' '}
+                <button
+                  onClick={() => setShowFilterPanel(true)}
+                  className="font-semibold underline underline-offset-2 hover:text-amber-900"
+                >
+                  Filters
+                </button>{' '}
+                and toggle <span className="font-semibold">My consultations only</span> to quickly
+                find a past visit to link to this follow-up.
+              </span>
+            </div>
+          )}
       </div>
 
       {/* Timeline Container */}
@@ -375,16 +576,35 @@ const PatientConsultationHistory = ({
 
         {/* Timeline items */}
         <div className="space-y-6">
-          {consultations.map((consultation, index) => {
+          {displayedConsultations.map((consultation, index) => {
             const isCurrentConsultation = consultation.id === currentAppointmentId;
             const preview = consultationPreviews[consultation.id];
             const isLoadingPreview = loadingPreviews[consultation.id];
             const hasLab = !!preview?.lab;
+            const isLinked = consultation.id === appointmentLinkId;
+            const isByCurrentDoctor = doctorId ? consultation.doctor.id === doctorId : false;
+            // Show link action only: follow-up, not current consultation, not already linked, doctor's own consult, has handler, consultation still active
+            const canLink =
+              isFollowUp &&
+              !isCurrentConsultation &&
+              !isLinked &&
+              isByCurrentDoctor &&
+              !!onLink &&
+              !appointmentLinkId &&
+              !isConsultationCompleted;
+            const canUnlink = isFollowUp && isLinked && !!onUnlink && !isConsultationCompleted;
+
+            let cardBorder = 'hover:border-primary/30 border-gray-200';
+            if (isCurrentConsultation) {
+              cardBorder = 'border-primary/50 ring-primary/20 shadow-md ring-2';
+            } else if (isLinked) {
+              cardBorder = 'border-green-400 ring-2 ring-green-200';
+            }
 
             return (
               <div
                 key={`${consultation.id}-${index}`}
-                ref={index === consultations.length - 1 ? lastConsultationRef : null}
+                ref={index === displayedConsultations.length - 1 ? lastConsultationRef : null}
                 className="relative"
               >
                 {/* Timeline Row: Dot + Content */}
@@ -411,11 +631,7 @@ const PatientConsultationHistory = ({
 
                     {/* Card */}
                     <div
-                      className={`group rounded-xl border bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg ${
-                        isCurrentConsultation
-                          ? 'border-primary/50 ring-primary/20 shadow-md ring-2'
-                          : 'hover:border-primary/30 border-gray-200'
-                      }`}
+                      className={`group rounded-xl border bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg ${cardBorder}`}
                     >
                       {/* Status Row */}
                       <div className="mb-3 flex items-center justify-between gap-3">
@@ -427,20 +643,89 @@ const PatientConsultationHistory = ({
                               Current Session
                             </Badge>
                           )}
+                          {isLinked && (
+                            <Badge className="border-green-300 bg-green-100 text-xs text-green-700">
+                              <GitMerge className="mr-1 h-3 w-3" />
+                              Linked Follow-Up
+                            </Badge>
+                          )}
+                          {!isLinked && consultation.appointmentLinkId && (
+                            <Badge className="border-green-200 bg-green-50 text-xs text-green-700">
+                              <GitMerge className="mr-1 h-3 w-3" />
+                              Linked Visit
+                            </Badge>
+                          )}
                         </div>
 
-                        <Button
-                          onClick={() => onViewConsultation(consultation.id)}
-                          size="sm"
-                          variant={isCurrentConsultation ? 'default' : 'outline'}
-                          className="shrink-0 text-xs"
-                          child={
-                            <>
-                              <span>View</span>
-                              <ChevronRight className="ml-1 h-3.5 w-3.5" />
-                            </>
-                          }
-                        />
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                          {consultation.appointmentLinkId &&
+                            onViewLinkedConsultation &&
+                            !isLinked && (
+                              <Button
+                                onClick={() =>
+                                  onViewLinkedConsultation(consultation.appointmentLinkId!)
+                                }
+                                size="sm"
+                                variant="outline"
+                                className="border-green-300 text-xs text-green-700 hover:bg-green-50"
+                                child={
+                                  <>
+                                    <Eye className="mr-1 h-3.5 w-3.5" />
+                                    <span className="hidden sm:inline">Linked</span>
+                                  </>
+                                }
+                              />
+                            )}
+
+                          {/* Link action */}
+                          {canLink && (
+                            <Button
+                              onClick={() => onLink(consultation.id)}
+                              size="sm"
+                              variant="outline"
+                              isLoading={isLinking}
+                              disabled={isLinking}
+                              className="border-amber-300 bg-amber-50 text-xs text-amber-700 hover:bg-amber-100"
+                              child={
+                                <>
+                                  <Link2 className="mr-1 h-3.5 w-3.5" />
+                                  Link Visit
+                                </>
+                              }
+                            />
+                          )}
+
+                          {/* Unlink action */}
+                          {canUnlink && (
+                            <Button
+                              onClick={onUnlink}
+                              size="sm"
+                              variant="outline"
+                              isLoading={isUnlinking}
+                              disabled={isUnlinking}
+                              className="border-red-200 bg-red-50 text-xs text-red-600 hover:bg-red-100"
+                              child={
+                                <>
+                                  <Link2Off className="mr-1 h-3.5 w-3.5" />
+                                  Unlink
+                                </>
+                              }
+                            />
+                          )}
+
+                          <Button
+                            onClick={() => onViewConsultation(consultation.id)}
+                            size="sm"
+                            variant={isCurrentConsultation ? 'default' : 'outline'}
+                            className="shrink-0 text-xs"
+                            child={
+                              <>
+                                <span>View</span>
+                                <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                              </>
+                            }
+                          />
+                        </div>
                       </div>
 
                       <div className="mb-3 flex items-center gap-2 text-sm text-gray-600">
@@ -450,6 +735,11 @@ const PatientConsultationHistory = ({
                         <span className="font-medium">
                           Dr. {consultation.doctor.firstName} {consultation.doctor.lastName}
                         </span>
+                        {isByCurrentDoctor && (
+                          <Badge className="border-primary/20 bg-primary/5 text-primary text-[10px]">
+                            You
+                          </Badge>
+                        )}
                       </div>
 
                       {/* Preview Section */}
@@ -486,7 +776,34 @@ const PatientConsultationHistory = ({
             </div>
           )}
 
-          {!hasMore && consultations.length > 0 && (
+          {/* Empty state when filters are active but no results */}
+          {!isLoading && activeFilterCount > 0 && displayedConsultations.length === 0 && (
+            <div className="relative flex gap-4">
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[3px] border-gray-200 bg-white" />
+              <div className="flex-1">
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-amber-200 bg-amber-50/50 p-8 text-center">
+                  <SlidersHorizontal className="mb-3 h-8 w-8 text-amber-400" />
+                  <p className="text-sm font-semibold text-amber-800">
+                    No consultations match your filters
+                  </p>
+                  <p className="mt-1 text-xs text-amber-600">
+                    Try adjusting the date range or doctor filter.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setShowMyConsultationsOnly(false);
+                      clearDateFilter();
+                    }}
+                    className="mt-3 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50"
+                  >
+                    Clear all filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!hasMore && displayedConsultations.length > 0 && (
             <div className="relative flex gap-4">
               {/* End dot */}
               <div className="border-primary/30 bg-primary/10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[3px]">
