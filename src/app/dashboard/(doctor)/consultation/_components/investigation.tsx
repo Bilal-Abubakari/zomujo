@@ -120,7 +120,7 @@ const Investigation = ({
           <Alert
             id="signature-alert"
             variant="info"
-            className="my-3 border-amber-500 bg-amber-50 p-2"
+            className="mb-1 border-amber-500 bg-amber-50 p-2"
           >
             <AlertDescription className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-1">
@@ -146,14 +146,14 @@ const Investigation = ({
           onValueChange={(value) => setActiveTab(value as 'labs' | 'radiology')}
           className="w-full"
         >
-          <TabsList className="mb-3 grid w-full max-w-md grid-cols-2">
+          <TabsList className="mb-2 grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="labs" className="flex cursor-pointer items-center gap-2">
               <TestTube2 className="h-4 w-4" />
               <span>Laboratory Tests</span>
             </TabsTrigger>
             <TabsTrigger value="radiology" className="flex cursor-pointer items-center gap-2">
               <Microscope className="h-4 w-4" />
-              <span>Radiology</span>
+              <span>Radiology & Others</span>
             </TabsTrigger>
           </TabsList>
 
@@ -166,7 +166,7 @@ const Investigation = ({
           </TabsContent>
         </Tabs>
         {hasInvestigation && (
-          <div className="fixed right-4 bottom-14 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
+          <div className="fixed right-4 bottom-14 z-100 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
             <Label htmlFor="signature-labs">
               {hasSignature ? 'Edit digital Signature' : 'Add digital Signature'}
             </Label>

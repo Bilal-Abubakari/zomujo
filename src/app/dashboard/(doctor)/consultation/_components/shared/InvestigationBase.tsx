@@ -109,7 +109,7 @@ function InvestigationBase(
       )}
 
       <div className="relative h-full w-full">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold">{title}</h2>
             <p className="mt-1 text-xs text-gray-600">{description}</p>
@@ -135,7 +135,7 @@ function InvestigationBase(
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="max-h-130 space-y-3 overflow-y-auto">
           {/* Selected Tests Summary */}
           {selectedCount > 0 && (
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">

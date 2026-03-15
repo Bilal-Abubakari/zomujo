@@ -138,3 +138,13 @@ export const selectPostInvestigationData = createSelector(
   selectAppointment,
   (appointment) => appointment?.ipData,
 );
+
+export const selectIsFollowUp = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.isFollowUp ?? false,
+);
+
+export const selectAppointmentLinkId = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.appointmentLinkId ?? null,
+);

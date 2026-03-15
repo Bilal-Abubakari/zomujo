@@ -125,6 +125,7 @@ export const parseInitialNotes = (initialNotes: string | null | undefined): Hist
 const DEFAULT_POST_DATA: IPostInvestigationData = {
   historyOfPresentingComplaints: '',
   assessmentImpression: '',
+  plan: '',
   addendum: '',
 };
 

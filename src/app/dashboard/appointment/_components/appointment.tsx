@@ -2,24 +2,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UpcomingAppointments from '@/app/dashboard/appointment/_components/upcomingAppointments';
 import AppointmentRequests from '@/app/dashboard/appointment/_components/appointmentRequests';
-import { JSX, useEffect } from 'react';
+import { JSX } from 'react';
 import { AppointmentView, useQueryParam } from '@/hooks/useQueryParam';
 
 const Appointment = (): JSX.Element => {
   const { updateQuery, getQueryParam } = useQueryParam();
 
-  useEffect(() => {
-    updateQuery(
-      'appointmentView',
-      getQueryParam('appointmentView') === AppointmentView.Requests
-        ? AppointmentView.Requests
-        : AppointmentView.Upcoming,
-    );
-  }, []);
   return (
     <div>
       <div>
-        <Tabs value={getQueryParam('appointmentView')} className="mt-2">
+        <Tabs value={getQueryParam('appointmentView') || AppointmentView.Upcoming} className="mt-2">
           <div className="flex items-center">
             <p className="text-xl font-bold">Appointment</p>
             <div className="m-auto">
@@ -41,21 +33,29 @@ const Appointment = (): JSX.Element => {
               </TabsList>
             </div>
           </div>
-          {getQueryParam('appointmentView') === AppointmentView.Upcoming && (
+          {(getQueryParam('appointmentView') || AppointmentView.Upcoming) ===
+            AppointmentView.Upcoming && (
             <TabsContent
               className="mt-6"
               value={AppointmentView.Upcoming}
               forceMount={true}
-              hidden={getQueryParam('appointmentView') !== AppointmentView.Upcoming}
+              hidden={
+                (getQueryParam('appointmentView') || AppointmentView.Upcoming) !==
+                AppointmentView.Upcoming
+              }
             >
               <UpcomingAppointments />
             </TabsContent>
           )}
-          {getQueryParam('appointmentView') === AppointmentView.Requests && (
+          {(getQueryParam('appointmentView') || AppointmentView.Upcoming) ===
+            AppointmentView.Requests && (
             <TabsContent
               value={AppointmentView.Requests}
               forceMount={true}
-              hidden={getQueryParam('appointmentView') !== AppointmentView.Requests}
+              hidden={
+                (getQueryParam('appointmentView') || AppointmentView.Upcoming) !==
+                AppointmentView.Requests
+              }
               className="mt-6"
             >
               <AppointmentRequests />

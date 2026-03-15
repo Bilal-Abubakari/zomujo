@@ -266,11 +266,8 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
         getSelectedCount={() => selectedTests?.length || 0}
         getSelectedTestNames={() => selectedTests?.map((t) => t.testName) || []}
         renderContent={() => (
-          <form
-            onSubmit={handleSubmit(handleSaveRadiology)}
-            className="max-h-125 space-y-6 overflow-y-auto"
-          >
-            <div className="mb-40 space-y-6">
+          <form onSubmit={handleSubmit(handleSaveRadiology)} className="space-y-6">
+            <div className="mb-20 space-y-2">
               <div>
                 <Label>History/Clinical Information</Label>
                 <Textarea

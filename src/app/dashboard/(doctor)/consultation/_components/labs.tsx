@@ -319,11 +319,8 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         getSelectedTestNames={() => Array.from(state.selectedTests.keys())}
         isLoading={isLoading}
         renderContent={() => (
-          <form
-            onSubmit={handleSubmit(handleSaveLabs)}
-            className="max-h-125 space-y-6 overflow-y-auto"
-          >
-            <div className="mb-40 space-y-6">
+          <form onSubmit={handleSubmit(handleSaveLabs)} className="space-y-6">
+            <div className="mb-20 space-y-2">
               <div>
                 <Label>Clinical History</Label>
                 <Textarea

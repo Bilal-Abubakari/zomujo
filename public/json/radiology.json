@@ -31,12 +31,7 @@
       "Lumbosacral Spine X-Ray",
       "Full Spine X-Ray"
     ],
-    "Pelvis X-Ray": [
-      "Pelvis X-Ray (AP)",
-      "Hip X-Ray",
-      "Sacrum X-Ray",
-      "Coccyx X-Ray"
-    ],
+    "Pelvis X-Ray": ["Pelvis X-Ray (AP)", "Hip X-Ray", "Sacrum X-Ray", "Coccyx X-Ray"],
     "Skull X-Ray": [
       "Skull X-Ray (AP)",
       "Skull X-Ray (Lateral)",
@@ -44,14 +39,10 @@
       "Nasal Bones X-Ray",
       "Mandible X-Ray"
     ],
-    "Others": [
-      "Soft Tissue Neck X-Ray",
-      "Sinuses X-Ray",
-      "Mastoid X-Ray",
-      "Dental X-Ray"
-    ]
+    "Others": ["Soft Tissue Neck X-Ray", "Sinuses X-Ray", "Mastoid X-Ray", "Dental X-Ray"]
   },
   "Ultrasound Scans": {
+    "Chest Ultrasound": ["Echocardiogram (Echo)"],
     "Abdominal Ultrasound": [
       "Upper Abdominal Ultrasound",
       "Lower Abdominal Ultrasound",
@@ -106,7 +97,9 @@
       "Soft Tissue Ultrasound",
       "Neck Ultrasound",
       "Salivary Gland Ultrasound",
-      "Eye Ultrasound"
+      "Eye Ultrasound",
+      "Electrocardiogram (ECG)",
+      "Electroencephalogram (EEG)"
     ]
   },
   "Specialized Imaging": {
@@ -162,13 +155,7 @@
       "DEXA Scan (Forearm)",
       "DEXA Scan (Whole Body)"
     ],
-    "Others": [
-      "Nuclear Medicine Scan",
-      "PET Scan",
-      "PET-CT Scan",
-      "Bone Scan",
-      "Thyroid Scan"
-    ]
+    "Others": ["Nuclear Medicine Scan", "PET Scan", "PET-CT Scan", "Bone Scan", "Thyroid Scan"]
   },
   "Interventional Radiology": {
     "Image-Guided Biopsy": [
@@ -193,12 +180,6 @@
       "Peripheral Angiography",
       "Pulmonary Angiography"
     ],
-    "Others": [
-      "Joint Injection",
-      "Nephrostomy",
-      "Embolization",
-      "Stent Placement"
-    ]
+    "Others": ["Joint Injection", "Nephrostomy", "Embolization", "Stent Placement"]
   }
 }
-
