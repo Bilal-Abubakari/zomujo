@@ -271,7 +271,10 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50/50 p-4">
+                <label
+                  htmlFor="isFollowUp"
+                  className="mt-4 flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50/50 p-4"
+                >
                   <Checkbox
                     id="isFollowUp"
                     checked={watch('isFollowUp')}
@@ -279,18 +282,15 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
                     className="mt-1"
                   />
                   <div className="grid gap-1.5 leading-none">
-                    <label
-                      htmlFor="isFollowUp"
-                      className="text-sm leading-none font-semibold text-gray-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
+                    <span className="text-sm leading-none font-semibold text-gray-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                       This is a follow-up consultation
-                    </label>
+                    </span>
                     <p className="text-xs text-gray-500">
                       Check this if you have seen Dr. {lastName} before for this same health
                       concern. This helps the doctor prepare for your session.
                     </p>
                   </div>
-                </div>
+                </label>
 
                 <div className="border-primary-200 bg-primary-50 rounded-lg border p-4">
                   <div className="flex items-center justify-between">
