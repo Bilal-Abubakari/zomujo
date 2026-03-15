@@ -4,7 +4,7 @@ import { showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { Modal } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import PastConsultationView from '@/app/dashboard/(doctor)/_components/PastConsultationView';
 import LoadingOverlay from '@/components/loadingOverlay/loadingOverlay';
 import { IAppointment } from '@/types/appointment.interface';
@@ -24,15 +24,13 @@ const ConsultationViewModal = ({
 }: ConsultationViewModalProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [consultationData, setConsultationData] = useState<IAppointment | null>(null);
+  const [navigationStack, setNavigationStack] = useState<string[]>([]);
+  const [currentViewId, setCurrentViewId] = useState<string | null>(appointmentId);
 
-  const fetchConsultationDetails = async (): Promise<void> => {
-    if (!appointmentId) {
-      return;
-    }
-
+  const fetchConsultationDetails = async (id: string): Promise<void> => {
     setIsLoading(true);
     try {
-      const { data } = await axios.get<IResponse<IAppointment>>(`appointments/${appointmentId}`);
+      const { data } = await axios.get<IResponse<IAppointment>>(`appointments/${id}`);
       setConsultationData(data.data);
     } catch (error) {
       if (showErrorToast(error)) {
@@ -49,11 +47,33 @@ const ConsultationViewModal = ({
 
   useEffect(() => {
     if (open && appointmentId) {
-      void fetchConsultationDetails();
+      setCurrentViewId(appointmentId);
+      setNavigationStack([]);
+      void fetchConsultationDetails(appointmentId);
     } else if (!open) {
       setConsultationData(null);
+      setNavigationStack([]);
+      setCurrentViewId(null);
     }
   }, [open, appointmentId]);
+
+  const handleViewLinked = (linkedId: string): void => {
+    if (currentViewId) {
+      setNavigationStack((prev) => [...prev, currentViewId]);
+    }
+    setCurrentViewId(linkedId);
+    void fetchConsultationDetails(linkedId);
+  };
+
+  const handleGoBack = (): void => {
+    const stack = [...navigationStack];
+    const previousId = stack.pop();
+    setNavigationStack(stack);
+    if (previousId) {
+      setCurrentViewId(previousId);
+      void fetchConsultationDetails(previousId);
+    }
+  };
 
   const handleClose = (): void => {
     onOpenChange(false);
@@ -63,6 +83,8 @@ const ConsultationViewModal = ({
     const newValue = typeof value === 'function' ? value(open) : value;
     onOpenChange(newValue);
   };
+
+  const canGoBack = navigationStack.length > 0;
 
   return (
     <Modal
@@ -77,11 +99,27 @@ const ConsultationViewModal = ({
 
           <div className="sticky top-0 shrink-0 border-b bg-white px-6 py-4">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-900">Consultation Details</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Review the details of this past consultation
-                </p>
+              <div className="flex flex-1 items-center gap-3">
+                {canGoBack && (
+                  <Button
+                    onClick={handleGoBack}
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 shrink-0 rounded-full p-0 hover:bg-gray-100"
+                    aria-label="Go back"
+                    child={<ArrowLeft className="h-5 w-5 text-gray-500" />}
+                  />
+                )}
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {canGoBack ? 'Linked Consultation' : 'Consultation Details'}
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {canGoBack
+                      ? 'Viewing a linked past consultation'
+                      : 'Review the details of this past consultation'}
+                  </p>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -99,7 +137,10 @@ const ConsultationViewModal = ({
 
           <div className="min-h-0 flex-1 overflow-y-auto bg-gray-50 px-6 py-4">
             {!isLoading && consultationData && (
-              <PastConsultationView appointment={consultationData} />
+              <PastConsultationView
+                appointment={consultationData}
+                onViewLinkedConsultation={handleViewLinked}
+              />
             )}
           </div>
         </div>

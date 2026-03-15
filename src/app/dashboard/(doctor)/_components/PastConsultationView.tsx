@@ -2,7 +2,7 @@
 import React, { JSX, useState } from 'react';
 import { IAppointment } from '@/types/appointment.interface';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, FlaskConical, LayoutGrid } from 'lucide-react';
+import { Eye, FileText, FlaskConical, GitMerge, LayoutGrid } from 'lucide-react';
 import { CardsView } from '@/app/dashboard/(doctor)/consultation/_components/CardsView';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { getFormattedDate, getTimeFromDateStamp } from '@/lib/date';
@@ -10,12 +10,17 @@ import { Card, CardHeader } from '@/components/ui/card';
 import { InvestigationResultsCard } from '@/app/dashboard/(doctor)/consultation/_components/InvestigationResultsCard';
 import { Badge } from '@/components/ui/badge';
 import { parsePostInvestigationInitialNotes } from '@/constants/historyNotes.constant';
+import { Button } from '@/components/ui/button';
 
 interface PastConsultationViewProps {
   appointment: IAppointment;
+  onViewLinkedConsultation?: (appointmentId: string) => void;
 }
 
-const PastConsultationView = ({ appointment }: PastConsultationViewProps): JSX.Element => {
+const PastConsultationView = ({
+  appointment,
+  onViewLinkedConsultation,
+}: PastConsultationViewProps): JSX.Element => {
   const [viewMode, setViewMode] = useState<'cards' | 'notes' | 'investigationResults'>('cards');
 
   const complaints = appointment.symptoms?.complaints?.map((c) => c.complaint) || [];
@@ -33,6 +38,51 @@ const PastConsultationView = ({ appointment }: PastConsultationViewProps): JSX.E
 
   return (
     <div className="space-y-6">
+      {appointment.appointmentLinkId && (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100">
+              <GitMerge className="h-3.5 w-3.5 text-green-700" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-green-800">Linked Follow-Up Consultation</p>
+              <p className="text-xs text-green-600">
+                This consultation is linked to a previous visit for continuity of care.
+              </p>
+            </div>
+          </div>
+          {onViewLinkedConsultation && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onViewLinkedConsultation(appointment.appointmentLinkId!)}
+              className="shrink-0 border-green-300 text-xs text-green-700 hover:bg-green-100"
+              child={
+                <>
+                  <Eye className="mr-1.5 h-3.5 w-3.5" />
+                  View Linked
+                </>
+              }
+            />
+          )}
+        </div>
+      )}
+
+      {/* isFollowUp flag indicator (not yet linked) */}
+      {appointment.isFollowUp && !appointment.appointmentLinkId && (
+        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100">
+            <GitMerge className="h-3.5 w-3.5 text-amber-700" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-amber-800">Follow-Up Visit</p>
+            <p className="text-xs text-amber-600">
+              Patient indicated this was a follow-up visit, but no past consultation was linked.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Consultation Header */}
       <Card className="border-l-primary border-l-4">
         <CardHeader className="bg-gray-50">

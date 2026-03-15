@@ -4,7 +4,11 @@ import axios, { axiosErrorHandler } from '@/lib/axios';
 import { Toast } from '@/hooks/use-toast';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
-import { IAppointment, IAppointmentDoctorId } from '@/types/appointment.interface';
+import {
+  IAppointment,
+  IAppointmentDoctorId,
+  IAppointmentLinkPayload,
+} from '@/types/appointment.interface';
 import {
   AppointmentDate,
   AppointmentSlots,
@@ -209,6 +213,30 @@ export const rescheduleAppointment = createAsyncThunk(
   async (payload: { slotId: string; appointmentId: string }): Promise<Toast> => {
     try {
       const { data } = await axios.patch<IResponse>(`appointments/reschedule`, payload);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const linkAppointment = createAsyncThunk(
+  'appointment/link',
+  async (payload: IAppointmentLinkPayload): Promise<Toast> => {
+    try {
+      const { data } = await axios.put<IResponse>(`appointments/link`, payload);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const unlinkAppointment = createAsyncThunk(
+  'appointment/unlink',
+  async (payload: IAppointmentLinkPayload): Promise<Toast> => {
+    try {
+      const { data } = await axios.put<IResponse>(`appointments/unlink`, payload);
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
