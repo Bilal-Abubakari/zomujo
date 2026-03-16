@@ -60,9 +60,7 @@ const DoctorDetails = ({
 
   return (
     <div className="flex flex-col overflow-hidden">
-      {/* ── Hero Banner ── */}
       <div className="relative h-52 w-full shrink-0 overflow-hidden bg-gray-900 sm:h-64">
-        {/* Blurred background — full-width cinematic banner */}
         {doctor.profilePicture && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -72,10 +70,8 @@ const DoctorDetails = ({
             className="h-full w-full scale-110 object-cover object-top blur-sm brightness-50"
           />
         )}
-        {/* Deep scrim so portrait pops */}
         <div className="absolute inset-0 bg-linear-to-b from-black/20 via-transparent to-black/70" />
 
-        {/* Book button — top-right */}
         {showBookmark && (
           <div className="absolute top-4 right-4 z-10">
             <Button
@@ -86,7 +82,6 @@ const DoctorDetails = ({
           </div>
         )}
 
-        {/* Doctor portrait — large circle, half-overlapping hero and content */}
         <div className="absolute -bottom-16 left-1/2 z-10 -translate-x-1/2 sm:left-8 sm:translate-x-0">
           <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white shadow-2xl sm:h-36 sm:w-36">
             {doctor.profilePicture ? (
@@ -107,7 +102,6 @@ const DoctorDetails = ({
           </div>
         </div>
 
-        {/* Name & registration on the hero — visible on md+ next to portrait */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center sm:bottom-5 sm:left-52 sm:translate-x-0 sm:text-left">
           <h2 className="text-xl font-extrabold text-white drop-shadow sm:text-2xl">
             Dr. {doctor.firstName} {doctor.lastName}
@@ -118,7 +112,6 @@ const DoctorDetails = ({
         </div>
       </div>
 
-      {/* ── Content (padded to clear the floating avatar) ── */}
       <div className="mt-20 flex flex-col gap-6 px-5 pb-8 sm:mt-8 sm:flex-row sm:gap-8 sm:px-6 sm:pt-2">
         {/* Left sidebar — fee + quick stats */}
         <aside className="flex shrink-0 flex-row flex-wrap gap-3 sm:w-44 sm:flex-col sm:gap-4">
@@ -153,9 +146,7 @@ const DoctorDetails = ({
           )}
         </aside>
 
-        {/* Right main content */}
         <div className="min-w-0 flex-1">
-          {/* Specializations */}
           {doctor.specializations.length > 0 && (
             <div className="mb-6">
               <div className="flex flex-wrap gap-2">
@@ -170,7 +161,6 @@ const DoctorDetails = ({
 
           <hr className="mb-6 border-gray-100" />
 
-          {/* About */}
           {doctor.bio && (
             <section className="mb-6">
               <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900">
@@ -180,7 +170,6 @@ const DoctorDetails = ({
             </section>
           )}
 
-          {/* Education */}
           {doctor.education && (
             <section className="mb-6">
               <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900">
@@ -190,7 +179,6 @@ const DoctorDetails = ({
             </section>
           )}
 
-          {/* Languages */}
           {doctor.languages.length > 0 && (
             <section className="mb-6">
               <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900">
@@ -206,7 +194,6 @@ const DoctorDetails = ({
             </section>
           )}
 
-          {/* Awards */}
           {doctor.awards.length > 0 && (
             <section className="mb-6">
               <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900">
@@ -222,7 +209,6 @@ const DoctorDetails = ({
             </section>
           )}
 
-          {/* ID Cards */}
           {doctor.IDs && (
             <section className="mb-2">
               <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
