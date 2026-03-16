@@ -124,6 +124,8 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     globalThis.location.replace(authorization_url);
   };
 
+  const hasSlots = appointmentSlots.length > 0;
+
   return (
     <>
       <Modal
@@ -327,10 +329,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         title="Confirm Appointment"
         showClose={!isInitiatingPayment}
       />
-      <div className="group flex h-full w-62.5 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
-        {/* Image Section - Top Half */}
+      <div className="group relative flex h-full w-62.5 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
         <button
-          className="relative h-40 w-full cursor-pointer overflow-hidden bg-gray-100"
+          className="relative block h-72 w-full shrink-0 cursor-pointer overflow-hidden bg-gray-200"
           onClick={() => setOpenDoctorDetails(true)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -338,80 +339,72 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
               setOpenDoctorDetails(true);
             }
           }}
-          aria-label={`View details for Dr. ${fullName}`}
+          aria-label={`View profile of Dr. ${fullName}`}
         >
           {profilePicture ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={profilePicture}
               alt={`Dr. ${fullName}`}
-              className="h-40 w-full object-center transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="from-primary-100 to-primary-200 flex h-48 w-full items-center justify-center bg-linear-to-br">
-              <span className="text-primary-600 text-4xl font-bold">
+            <div className="from-primary-100 to-primary-200 flex h-full w-full items-center justify-center bg-linear-to-br">
+              <span className="text-primary-600 text-6xl font-extrabold drop-shadow-sm">
                 {firstName[0]}
                 {lastName[0]}
               </span>
             </div>
           )}
-        </button>
 
-        {/* Information Section */}
-        <div className="flex flex-1 flex-col p-4">
-          {/* Doctor Name and Specialty */}
-          <div className="mb-3">
-            <button
-              type="button"
-              title={`Dr. ${fullName}`}
-              className="hover:text-primary-600 cursor-pointer truncate text-lg font-bold text-gray-900 transition-colors"
-              onClick={() => setOpenDoctorDetails(true)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setOpenDoctorDetails(true);
-                }
-              }}
-              aria-label={`View details for Dr. ${fullName}`}
-            >
+          <div className="absolute inset-x-0 bottom-0 h-36 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
+
+          <div className="absolute top-3 left-3">
+            {hasSlots ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                {''}
+                Available
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-semibold text-white/80 backdrop-blur-sm">
+                No Slots
+              </span>
+            )}
+          </div>
+
+          <div className="absolute inset-x-0 bottom-0 px-3.5 pb-3.5">
+            <h3 className="truncate text-base leading-tight font-bold text-white drop-shadow">
               Dr. {fullName}
-            </button>
-            <p
-              title={specializations ? specializations[0] : 'General Practitioner'}
-              className="text-primary-600 truncate text-xs font-medium"
-            >
+            </h3>
+            <p className="mt-0.5 truncate text-[11px] font-medium text-white/80">
               {specializations ? capitalize(specializations[0]) : 'General Practitioner'}
             </p>
           </div>
+        </button>
 
-          {/* Compact Info Lines */}
-          <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-gray-600">
-            <div className="flex items-center gap-1">
-              <Medal size={14} className="text-primary-500 shrink-0" />
-              <span className="truncate">{experience ?? 1} years experience</span>
+        <div className="flex flex-col gap-3 p-3.5">
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <Medal size={12} className="text-primary-400 shrink-0" />
+            <span className="font-medium text-gray-700">{experience ?? 1} yrs exp</span>
+            <span className="text-gray-300">·</span>
+            <span>{noOfConsultations ?? 0} consults</span>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
+            <Calendar size={12} className="text-primary-500 shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] text-gray-400">Next available</p>
+              <p className="truncate text-xs font-semibold text-gray-800">{getAvailability()}</p>
             </div>
+            <span className="text-primary shrink-0 text-xs font-bold">GH&#8373;{fee?.amount}</span>
           </div>
-          <div className="mb-3 flex items-center gap-2 text-sm text-gray-600">
-            <span className="text-gray-400">•</span>
-            <span className="text-primary font-semibold">GH&#8373; {fee?.amount} / session</span>
-          </div>
-
-          {/* Next Available */}
-          <div className="mb-4 flex items-center gap-2 rounded-md bg-gray-50 px-3 py-2">
-            <Calendar size={14} className="text-primary-500 shrink-0" />
-            <div className="flex-1">
-              <p className="text-xs text-gray-500">Next available</p>
-              <p className="text-sm font-medium text-gray-900">{getAvailability()}</p>
-            </div>
-          </div>
-
-          {/* Book Appointment Button */}
           <Button
-            disabled={appointmentSlots.length === 0}
-            title={appointmentSlots.length === 0 ? 'No available slots' : 'Book Appointment'}
+            disabled={!hasSlots}
+            title={hasSlots ? 'Book Appointment' : 'No available slots'}
             onClick={handleBookAppointment}
-            className="bg-primary hover:bg-primary-600 mt-auto w-full rounded-md py-2.5 text-sm font-medium text-white transition-colors duration-300 disabled:cursor-not-allowed disabled:opacity-50"
-            child={appointmentSlots.length === 0 ? 'No Slots Available' : 'Book Appointment'}
+            className="w-full rounded-xl py-2.5 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50"
+            child={hasSlots ? 'Book Appointment' : 'No Slots Available'}
           />
         </div>
       </div>

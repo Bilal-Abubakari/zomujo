@@ -1,41 +1,40 @@
 import { JSX } from 'react';
 
 const SkeletonDoctorPatientCard = (): JSX.Element => (
-  <div className="group flex h-full w-62.5 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
-    {/* Image Section Skeleton */}
-    <div className="relative h-40 w-full animate-pulse bg-gray-300"></div>
+  <div className="group flex h-full w-62.5 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md">
+    {/* Dominant image skeleton */}
+    <div className="relative h-72 w-full animate-pulse bg-gray-300">
+      {/* Availability pill placeholder */}
+      <div className="absolute top-3 left-3 h-5 w-20 rounded-full bg-gray-400/50" />
+      {/* Name overlay placeholder */}
+      <div className="absolute inset-x-0 bottom-0 space-y-1.5 px-3.5 pb-3.5">
+        <div className="h-4 w-32 rounded bg-gray-400/60" />
+        <div className="h-3 w-24 rounded bg-gray-400/40" />
+      </div>
+    </div>
 
-    {/* Information Section Skeleton */}
-    <div className="flex flex-1 flex-col p-4">
-      {/* Doctor Name and Specialty Skeleton */}
-      <div className="mb-3 animate-pulse">
-        <div className="mb-2 h-6 w-32 rounded bg-gray-300"></div>
-        <div className="h-4 w-24 rounded bg-gray-300"></div>
+    {/* Compact info strip skeleton */}
+    <div className="flex flex-col gap-3 p-3.5">
+      {/* Stats row */}
+      <div className="flex animate-pulse items-center gap-2">
+        <div className="h-3 w-3 rounded bg-gray-300" />
+        <div className="h-3 w-20 rounded bg-gray-300" />
+        <div className="h-3 w-1 rounded bg-gray-200" />
+        <div className="h-3 w-16 rounded bg-gray-300" />
       </div>
 
-      {/* Experience Line Skeleton */}
-      <div className="mb-3 flex animate-pulse items-center gap-2">
-        <div className="h-4 w-4 rounded bg-gray-300"></div>
-        <div className="h-4 w-20 rounded bg-gray-300"></div>
-      </div>
-
-      {/* Price Line Skeleton */}
-      <div className="mb-3 flex animate-pulse items-center gap-2">
-        <div className="h-3 w-3 rounded-full bg-gray-400"></div>
-        <div className="h-4 w-16 rounded bg-gray-300"></div>
-      </div>
-
-      {/* Next Available Skeleton */}
-      <div className="mb-4 flex animate-pulse items-center gap-2 rounded-md bg-gray-50 px-3 py-2">
-        <div className="h-4 w-4 rounded bg-gray-300"></div>
-        <div className="flex-1">
-          <div className="mb-1 h-3 w-20 rounded bg-gray-300"></div>
-          <div className="h-4 w-24 rounded bg-gray-300"></div>
+      {/* Next available pill */}
+      <div className="flex animate-pulse items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
+        <div className="h-3 w-3 rounded bg-gray-300" />
+        <div className="flex-1 space-y-1">
+          <div className="h-2 w-16 rounded bg-gray-300" />
+          <div className="h-3 w-24 rounded bg-gray-300" />
         </div>
+        <div className="h-3 w-12 rounded bg-gray-300" />
       </div>
 
-      {/* Book Appointment Button Skeleton */}
-      <div className="mt-auto h-10 w-full animate-pulse rounded-md bg-gray-300"></div>
+      {/* Book button */}
+      <div className="h-10 w-full animate-pulse rounded-xl bg-gray-300" />
     </div>
   </div>
 );
