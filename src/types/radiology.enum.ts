@@ -16,6 +16,7 @@ export enum PlainRadiologyCategory {
 }
 
 export enum UltrasoundScansCategory {
+  ChestUltrasound = 'Chest Ultrasound',
   AbdominalUltrasound = 'Abdominal Ultrasound',
   PelvicUltrasound = 'Pelvic Ultrasound',
   ObstetricUltrasound = 'Obstetric Ultrasound',
