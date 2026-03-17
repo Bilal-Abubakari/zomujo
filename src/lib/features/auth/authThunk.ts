@@ -232,7 +232,7 @@ export const logout = createAsyncThunk(
   async (_, { dispatch }): Promise<void> => {
     const cleanUp = (): void => {
       dispatch(resetAuthentication());
-      window.localStorage.clear();
+      globalThis.localStorage.clear();
     };
     try {
       await axios.delete(`${authPath}logout`);
@@ -272,7 +272,9 @@ export const initiateGoogleOAuth = createAsyncThunk(
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const path = `/${authPath}oauth`;
 
-      window.location.href = queryString ? `${baseUrl}${path}?${queryString}` : `${baseUrl}${path}`;
+      globalThis.location.href = queryString
+        ? `${baseUrl}${path}?${queryString}`
+        : `${baseUrl}${path}`;
       return true;
     } catch (error) {
       console.error('OAuth initiation error:', error);
@@ -320,6 +322,31 @@ export const handleOAuthCallback = createAsyncThunk(
         message: axiosErrorHandler(error) as string,
         success: false,
       };
+    }
+  },
+);
+
+export const updateProfilePicture = createAsyncThunk(
+  'authentication/profile-picture',
+  async (profilePicture: File, { dispatch }) => {
+    try {
+      const { data } = await axios.patch<IResponse<string>>(
+        `${authPath}profile-picture`,
+        { profilePicture },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      dispatch(
+        updateExtra({
+          profilePicture: data.data,
+        }),
+      );
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
     }
   },
 );
