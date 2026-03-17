@@ -230,7 +230,6 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
             }
           />
         ))}
-      {errors.tests && <p className="text-sm text-red-500">{errors.tests.message}</p>}
     </div>
   );
 

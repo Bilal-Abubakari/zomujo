@@ -97,9 +97,7 @@
       "Soft Tissue Ultrasound",
       "Neck Ultrasound",
       "Salivary Gland Ultrasound",
-      "Eye Ultrasound",
-      "Electrocardiogram (ECG)",
-      "Electroencephalogram (EEG)"
+      "Eye Ultrasound"
     ]
   },
   "Specialized Imaging": {
@@ -181,5 +179,12 @@
       "Pulmonary Angiography"
     ],
     "Others": ["Joint Injection", "Nephrostomy", "Embolization", "Stent Placement"]
+  },
+  "Other Investigations": {
+    "Electrodiagnostic": [
+      "Electrocardiogram (ECG)",
+      "Electroencephalogram (EEG)",
+      "Electromyography (EMG)"
+    ]
   }
 }

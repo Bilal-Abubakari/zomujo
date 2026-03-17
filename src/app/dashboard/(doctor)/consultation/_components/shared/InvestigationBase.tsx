@@ -135,7 +135,7 @@ function InvestigationBase(
           </div>
         </div>
 
-        <div className="max-h-130 space-y-3 overflow-y-auto">
+        <div className="max-h-[calc(100dvh-16rem)] space-y-3 overflow-y-auto pb-40">
           {/* Selected Tests Summary */}
           {selectedCount > 0 && (
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
