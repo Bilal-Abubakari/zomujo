@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   InterventionalRadiologyCategory,
+  OtherInvestigationsCategory,
   PlainRadiologyCategory,
   RadiologySection,
   SpecializedImagingCategory,
@@ -18,6 +19,7 @@ export const radiologySchema = z.object({
           z.enum(UltrasoundScansCategory),
           z.enum(SpecializedImagingCategory),
           z.enum(InterventionalRadiologyCategory),
+          z.enum(OtherInvestigationsCategory),
         ]),
       }),
     )

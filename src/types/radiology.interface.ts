@@ -4,6 +4,7 @@ import {
   UltrasoundScansCategory,
   SpecializedImagingCategory,
   InterventionalRadiologyCategory,
+  OtherInvestigationsCategory,
 } from '@/types/radiology.enum';
 import { RequestStatus } from '@/types/shared.enum';
 
@@ -11,7 +12,8 @@ export type RadiologyCategoryType =
   | PlainRadiologyCategory
   | UltrasoundScansCategory
   | SpecializedImagingCategory
-  | InterventionalRadiologyCategory;
+  | InterventionalRadiologyCategory
+  | OtherInvestigationsCategory;
 
 export interface IRadiologyTest {
   category: RadiologySection;
@@ -53,6 +55,7 @@ export interface RadiologyTest {
   [RadiologySection.UltrasoundScans]: UltrasoundScans;
   [RadiologySection.SpecializedImaging]: SpecializedImaging;
   [RadiologySection.InterventionalRadiology]: InterventionalRadiology;
+  [RadiologySection.OtherInvestigations]: OtherInvestigations;
 }
 
 export type PlainRadiology = Record<PlainRadiologyCategory, string[]>;
@@ -62,3 +65,5 @@ export type UltrasoundScans = Record<UltrasoundScansCategory, string[]>;
 export type SpecializedImaging = Record<SpecializedImagingCategory, string[]>;
 
 export type InterventionalRadiology = Record<InterventionalRadiologyCategory, string[]>;
+
+export type OtherInvestigations = Record<OtherInvestigationsCategory, string[]>;
