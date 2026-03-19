@@ -29,7 +29,7 @@ export default function AuthenticationFrame({
       <div
         className={cn(
           'relative hidden h-full w-1/2 flex-col justify-end overflow-clip rounded-[22px] bg-gray-400 lg:flex',
-          imagePosition !== ImagePosition.Right ? 'ml-[2.9rem]' : 'mr-[1.5rem]',
+          imagePosition === ImagePosition.Right ? 'mr-6' : 'ml-[2.9rem]',
         )}
       >
         <Image
@@ -58,13 +58,13 @@ export default function AuthenticationFrame({
             © {getCurrentYear()} {BRANDING.COPYRIGHT_HOLDER}. All rights reserved.
           </p>
 
-          <div className="text-primary space-x-1">
-            <Link href="/terms-conditions" className="text-xs sm:text-sm">
+          <div className="text-primary flex items-center gap-1.5">
+            <Link href="/terms-conditions" className="text-xs hover:underline sm:text-sm">
               Terms & Conditions
             </Link>
-            <span className="text-black">|</span>
-            <Link href="/privacy-policy" className="text-xs sm:text-sm">
-              Privacy & Policy
+            <span className="text-muted-foreground">·</span>
+            <Link href="/privacy-policy" className="text-xs hover:underline sm:text-sm">
+              Privacy Policy
             </Link>
           </div>
         </div>
