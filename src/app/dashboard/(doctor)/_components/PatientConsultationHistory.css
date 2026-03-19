@@ -6,13 +6,6 @@
   top: 8px;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(
-    to bottom,
-    rgba(34, 197, 94, 0.6),
-    #d1d5db 50%,
-    #d1d5db
-  );
+  background: linear-gradient(to bottom, rgba(34, 197, 94, 0.6), #d1d5db 50%, #d1d5db);
   z-index: 0;
 }
-
-

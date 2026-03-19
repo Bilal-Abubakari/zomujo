@@ -121,6 +121,33 @@ export const capitalize = (text: string): string =>
  */
 export const openExternalUrls = (url: string): Window | null => window.open(url, '_blank');
 
+export type ParsedNotificationMessage = {
+  text: string;
+  url?: string;
+};
+
+/**
+ * Parses notification messages that may contain html anchors and raw urls.
+ * Extracts the first available url and returns cleaned plain text for display.
+ *
+ * @param message - The raw notification message received from the API.
+ * @returns Normalized notification text and an optional extracted url.
+ */
+export const parseNotificationMessage = (message: string): ParsedNotificationMessage => {
+  const hrefMatch = message.match(/href=["']([^"']+)["']/i);
+  const urlMatch = message.match(/https?:\/\/[^\s"'<>]+/i);
+  const url = hrefMatch?.[1] || urlMatch?.[0];
+
+  const messageWithoutHtml = message.replace(/<[^>]+>/g, ' ');
+  const messageWithoutDownloadUrl = messageWithoutHtml.replace(
+    /download\s+url:\s*https?:\/\/[^\s"'<>]+/gi,
+    '',
+  );
+  const text = messageWithoutDownloadUrl.replace(/\s+/g, ' ').trim();
+
+  return { text, url };
+};
+
 /**
  * Generates a valid query string from the given query parameters.
  * Filters out any parameters with undefined values.
