@@ -30,7 +30,7 @@ const SignUp = (): JSX.Element => {
   }, [searchParams]);
 
   return (
-    <div className="relative md:-ml-6">
+    <div className="relative h-full overflow-hidden md:-ml-6">
       {isLoading && hasBookingInfo && <LoadingOverlay />}
       {hasBookingInfo && (
         <AuthPopIn

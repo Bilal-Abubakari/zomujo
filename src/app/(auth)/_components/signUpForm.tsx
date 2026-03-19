@@ -30,7 +30,6 @@ const roleOptions: ISelected[] = [
     value: Role.Patient,
   },
   { label: 'Doctor', value: Role.Doctor },
-  // { label: 'Organization', value: Role.Admin }, TODO: Organization not part of MVP
 ];
 
 export type SignUpFormProps = {
@@ -80,20 +79,14 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
         ...userCredentials,
         name: capitalize(userCredentials.name.trim()),
       };
-      const { payload: organizationRequestResponse } = await dispatch(
-        requestOrganization(formattedCredentials),
-      );
-      payload = organizationRequestResponse;
+      payload = await dispatch(requestOrganization(formattedCredentials)).unwrap();
     } else if (role !== Role.Admin && 'firstName' in userCredentials) {
-      const { payload: userSignUpResponse } = await dispatch(
-        signUp({ ...userCredentials, role, doctorId, slotId }),
-      );
-      payload = userSignUpResponse;
+      payload = await dispatch(signUp({ ...userCredentials, role, doctorId, slotId })).unwrap();
     } else {
       return;
     }
     if (payload) {
-      setSuccessMessage(String(payload));
+      setSuccessMessage(payload as string);
       reset();
       userSignUpRef.current?.resetUserSignUp();
     }
@@ -152,7 +145,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
   }, [roleParam]);
 
   return (
-    <div className="mx-auto w-full max-w-sm overflow-y-auto">
+    <div className="mx-auto w-full max-w-sm">
       <div className="mt-4">
         {successMessage ? (
           <Modal

@@ -1,21 +1,23 @@
 import Link from 'next/link';
 import { JSX } from 'react';
 import { BRANDING } from '@/constants/branding.constant';
+import { Shield, FileText } from 'lucide-react';
 
 const Footer = (): JSX.Element => {
   const footerSections = [
     {
       title: 'Product',
-      links: ['Features', 'Pricing'],
+      links: [
+        { label: 'Features', href: '#features' },
+        { label: 'Pricing', href: '#pricing' },
+      ],
     },
-    // TODO: Implement this when we have the integrations feature
-    // {
-    //   title: 'Company',
-    //   links: ['About us', 'Blog', 'Careers', 'Customers', 'Brand'],
-    // },
     {
-      title: 'Resources',
-      links: ['Privacy Policy', 'Terms of service'],
+      title: 'Legal',
+      links: [
+        { label: 'Privacy Policy', href: '/privacy-policy' },
+        { label: 'Terms & Conditions', href: '/terms-conditions' },
+      ],
     },
   ];
 
@@ -33,13 +35,13 @@ const Footer = (): JSX.Element => {
               <div key={title}>
                 <h4 className="text-foreground mb-4 font-semibold">{title}</h4>
                 <ul className="space-y-2">
-                  {links.map((link, linkIndex) => (
-                    <li key={link + linkIndex}>
+                  {links.map((link) => (
+                    <li key={link.href}>
                       <Link
-                        href="#"
+                        href={link.href}
                         className="text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {link}
+                        {link.label}
                       </Link>
                     </li>
                   ))}
@@ -49,10 +51,29 @@ const Footer = (): JSX.Element => {
           </div>
         </div>
 
-        <div className="border-border mt-12 border-t pt-8 text-center">
-          <p className="text-muted-foreground">
-            &copy; {new Date().getFullYear()} {BRANDING.COPYRIGHT_HOLDER}. All rights reserved.
-          </p>
+        <div className="border-border mt-12 border-t pt-8">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <p className="text-muted-foreground text-sm">
+              &copy; {new Date().getFullYear()} {BRANDING.COPYRIGHT_HOLDER}. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4 text-sm">
+              <Link
+                href="/privacy-policy"
+                className="text-muted-foreground hover:text-primary flex items-center gap-1.5 transition-colors"
+              >
+                <Shield className="h-3.5 w-3.5" />
+                Privacy Policy
+              </Link>
+              <span className="text-muted-foreground">·</span>
+              <Link
+                href="/terms-conditions"
+                className="text-muted-foreground hover:text-primary flex items-center gap-1.5 transition-colors"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                Terms & Conditions
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
