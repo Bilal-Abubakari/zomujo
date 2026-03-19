@@ -81,7 +81,7 @@ const UpcomingAppointmentCard = (): JSX.Element => {
         <WeekPicker weekChange={handleWeekChange} dateChange={handleDateChange} />
       </div>
       <hr />
-      <div className="flex min-h-[144px] flex-col items-center justify-center gap-4">
+      <div className="flex min-h-36 flex-col items-center justify-center gap-4">
         {isLoading && <Loader2 className="animate-spin" size={32} />}
         {visibleAppointment?.length === 0 && !isLoading && (
           <p className="text-sm text-gray-500">No upcoming appointments</p>
@@ -115,7 +115,7 @@ const UpcomingAppointmentCard = (): JSX.Element => {
             <hr />
             <div className="flex flex-row items-center justify-between">
               <div className="bg-success-50 text-primary flex w-fit flex-row items-center gap-1 rounded-full px-4 py-2">
-                <div className="bg-primary h-[5px] w-[5px] rounded-full"></div>
+                <div className="bg-primary h-1.25 w-1.25 rounded-full"></div>
                 <p className="text-xs font-medium">Accepted</p>
               </div>
               <p className="text-xs font-medium text-gray-500">
@@ -226,7 +226,7 @@ const WeekPicker = ({ dateChange, weekChange }: WeekPickerProps): JSX.Element =>
             >
               <div
                 className={cn(
-                  'flex h-12 w-[38px] items-center justify-center rounded-full text-sm font-medium transition-all',
+                  'flex h-12 w-9.5 items-center justify-center rounded-full text-sm font-medium transition-all',
                   (isSelected ?? isToday) && 'bg-primary text-white',
                   !isSelected && isToday && 'bg-gray-200 text-black',
                   !isSelected && !isToday && 'bg-gray-100 text-gray-400',
@@ -236,7 +236,7 @@ const WeekPicker = ({ dateChange, weekChange }: WeekPickerProps): JSX.Element =>
               </div>
               <p
                 className={cn(
-                  'text-sm leading-[14px] font-medium',
+                  'text-sm leading-3.5 font-medium',
                   isSelected && 'text-primary-dark',
                   !isSelected && isToday && 'text-black',
                   !isSelected && !isToday && 'text-gray-400',

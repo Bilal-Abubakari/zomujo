@@ -31,7 +31,12 @@ import { Logo } from '@/assets/images';
 import { cn } from '@/lib/utils';
 import { AvatarComp } from '@/components/ui/avatar';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectIsAnAdmin, selectUserName, selectUserRole } from '@/lib/features/auth/authSelector';
+import {
+  selectIsAnAdmin,
+  selectUserName,
+  selectUserProfilePicture,
+  selectUserRole,
+} from '@/lib/features/auth/authSelector';
 import { Role, SidebarType } from '@/types/shared.enum';
 import { JSX } from 'react';
 import { ISidebar } from '@/types/sidebar.interface';
@@ -62,6 +67,7 @@ export const SidebarLayout = ({
   hideOnMobile = false,
 }: SideBarProps): JSX.Element => {
   const userName = useAppSelector(selectUserName);
+  const profileImage = useAppSelector(selectUserProfilePicture);
   const isAnAdmin = useAppSelector(selectIsAnAdmin);
   const role = useAppSelector(selectUserRole);
   const pathName = usePathname();
@@ -96,7 +102,7 @@ export const SidebarLayout = ({
   return (
     <Sidebar className={cn('flex h-screen flex-col', sidebarClassName)}>
       {!type && (
-        <SidebarHeader className="pt-3.5 pb-[10px]">
+        <SidebarHeader className="pt-3.5 pb-2.5">
           <SidebarTrigger
             child={<Image src={Logo} alt="Fornix Link-logo" />}
             className="h-14 w-14"
@@ -168,12 +174,12 @@ export const SidebarLayout = ({
         ))}
       </SidebarContent>
       {!type && (
-        <SidebarFooter className="me:block hidden flex-shrink-0">
+        <SidebarFooter className="me:block hidden shrink-0">
           {!isAnAdmin && <ProfileCompletionCard />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton className="mt-4 py-10">
-                <AvatarComp name={userName} />
+                <AvatarComp name={userName} imageSrc={profileImage} imageAlt={userName} />
                 <div className="flex flex-col text-xs font-medium">
                   <span>{userName}</span>
                   <span className="text-badge rounded-lg py-1.5">{getRole()}</span>
@@ -233,20 +239,18 @@ const ProfileDropdownMenu = (): JSX.Element => {
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logout());
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   return (
-    <>
-      <DropdownMenuContent side="top" className="w-(--radix-popper-anchor-width)">
-        <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-          <span>Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => logoutHandler()}>
-          <span>Log out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </>
+    <DropdownMenuContent side="top" className="w-(--radix-popper-anchor-width)">
+      <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+        <span>Profile</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => logoutHandler()}>
+        <span>Log out</span>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
   );
 };
 

@@ -11,6 +11,7 @@ export const BRANDING = {
   CONTACT_PHONE: '+233 20 146 2313',
   CONTACT_ADDRESS: 'Ghana, Accra',
   COPYRIGHT_HOLDER: 'Fornix Link',
+  SLOGAN: 'Quality Care. Made Simple.',
 } as const;
 
 export const PLACEHOLDER_HOSPITAL_NAME = 'Fornix Link Hospital';

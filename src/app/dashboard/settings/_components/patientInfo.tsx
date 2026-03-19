@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MODE } from '@/constants/constants';
 import { toast } from '@/hooks/use-toast';
 import { selectExtra } from '@/lib/features/auth/authSelector';
-import { selectRecordId } from '@/lib/features/patients/patientsSelector';
 import { updatePatient } from '@/lib/features/patients/patientsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { nameSchema, phoneNumberSchema } from '@/schemas/zod.schemas';
@@ -13,18 +12,13 @@ import React, { JSX, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
+import { useProfilePictureUpload } from '@/hooks/useProfilePictureUpload';
 import { isEqual } from 'lodash';
-import PatientCard from '@/app/dashboard/_components/patient/patientCard';
-// TODO: Telemedicine limitation - vitals measurement not supported yet. PatientVitalsCard disabled until remote vitals collection is implemented.
-// import PatientVitalsCard from '@/app/dashboard/_components/patient/patientVitalsCard';
-import PatientConditionsCard from '@/app/dashboard/_components/patient/patientConditionsCard';
-import PatientSurgeriesCard from '@/app/dashboard/_components/patient/patientSurgeriesCard';
-import PatientFamilyMembersCard from '@/app/dashboard/_components/patient/PatientFamilyMembersCard';
-import PatientLifestyleCard from '@/app/dashboard/_components/patient/patientLifestyleCard';
-import PatientAllergiesCard from '@/app/dashboard/_components/patient/patientAllergiesCard';
 import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
 import PersonalDetailsForm from '@/components/forms/PersonalDetailsForm';
 import { capitalize } from '@/lib/utils';
+import PatientConsultationHistory from '@/app/dashboard/(doctor)/_components/PatientConsultationHistory';
+import ConsultationViewModal from '@/app/dashboard/(doctor)/_components/ConsultationViewSheet';
 
 const PatientPersonalInfoSchema = z.object({
   firstName: nameSchema,
@@ -35,7 +29,15 @@ const PatientPersonalInfoSchema = z.object({
 type PatientPersonalInfo = z.infer<typeof PatientPersonalInfoSchema>;
 const PatientInfo = (): JSX.Element => {
   const personalDetails = useAppSelector(selectExtra) as IPatient;
-  const recordId = useAppSelector(selectRecordId);
+  const patientId = personalDetails?.id;
+  const [showConsultationSheet, setShowConsultationSheet] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+
+  const handleViewConsultation = (appointmentId: string): void => {
+    setSelectedAppointmentId(appointmentId);
+    setShowConsultationSheet(true);
+  };
+
   const getFormDataFromPersonalDetails = (details: IPatient | null): PatientPersonalInfo => ({
     firstName: details?.firstName || '',
     lastName: details?.lastName || '',
@@ -66,6 +68,8 @@ const PatientInfo = (): JSX.Element => {
     setValue,
     defaultImageUrl: personalDetails?.profilePicture,
   });
+  const { handleProfilePictureChange, isUploading: isUploadingProfilePicture } =
+    useProfilePictureUpload({ handleImageChange });
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const currentFormData = watch();
@@ -91,25 +95,27 @@ const PatientInfo = (): JSX.Element => {
     toast(payload);
     setIsLoading(false);
   }
+
   return (
     <Tabs defaultValue="personal-details" className="w-full">
       <TabsList className="mx-auto grid w-1/2 grid-cols-2 rounded-2xl">
         <TabsTrigger value="personal-details" className="rounded-2xl">
           Personal Details
         </TabsTrigger>
-        <TabsTrigger value="records" className="rounded-2xl">
-          Records
+        <TabsTrigger value="consultation-history" className="rounded-2xl">
+          Consultation History
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="personal-details">
         <ProfilePictureUpload
           userProfilePicture={userProfilePicture}
-          imageRef={imageRef as React.RefObject<HTMLInputElement | null>}
-          handleImageChange={handleImageChange}
+          imageRef={imageRef}
+          handleImageChange={handleProfilePictureChange}
           resetImage={resetImage}
+          isUploading={isUploadingProfilePicture}
         />
-        <hr className="my-[30px]" />
+        <hr className="my-7.5" />
         <PersonalDetailsForm
           register={register}
           errors={errors}
@@ -120,25 +126,18 @@ const PatientInfo = (): JSX.Element => {
         />
       </TabsContent>
 
-      <TabsContent value="records">
+      <TabsContent value="consultation-history">
         <div className="py-8">
-          <h2 className="mb-6 text-2xl font-bold">Medical Records</h2>
-          <div className="grid grid-cols-1 gap-4 justify-self-center md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
-            <div className="space-y-4">
-              <PatientCard />
-              <PatientSurgeriesCard recordId={recordId} />
-              <PatientAllergiesCard recordId={recordId} />
-            </div>
-            <div className="space-y-4">
-              {/* TODO: Re-enable <PatientVitalsCard /> when vitals data becomes available for telemedicine patients */}
-              <PatientFamilyMembersCard recordId={recordId} />
-            </div>
-            <div className="space-y-4">
-              <PatientConditionsCard recordId={recordId} />
-              <PatientLifestyleCard />
-            </div>
-          </div>
+          <PatientConsultationHistory
+            patientId={patientId || ''}
+            onViewConsultation={handleViewConsultation}
+          />
         </div>
+        <ConsultationViewModal
+          open={showConsultationSheet}
+          onOpenChange={setShowConsultationSheet}
+          appointmentId={selectedAppointmentId}
+        />
       </TabsContent>
     </Tabs>
   );
