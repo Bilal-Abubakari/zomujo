@@ -127,6 +127,35 @@ export type ParsedNotificationMessage = {
 };
 
 /**
+ * Removes html tags using a single-pass parser.
+ * This avoids regex backtracking risks on malicious input.
+ *
+ * @param value - The input string that may contain html tags.
+ * @returns The input text without html tags.
+ */
+const stripHtmlTags = (value: string): string => {
+  let sanitizedText = '';
+  let insideTag = false;
+
+  for (const character of value) {
+    if (character === '<') {
+      insideTag = true;
+      sanitizedText += ' ';
+      continue;
+    }
+    if (character === '>' && insideTag) {
+      insideTag = false;
+      continue;
+    }
+    if (!insideTag) {
+      sanitizedText += character;
+    }
+  }
+
+  return sanitizedText;
+};
+
+/**
  * Parses notification messages that may contain html anchors and raw urls.
  * Extracts the first available url and returns cleaned plain text for display.
  *
@@ -138,7 +167,7 @@ export const parseNotificationMessage = (message: string): ParsedNotificationMes
   const urlMatch = message.match(/https?:\/\/[^\s"'<>]+/i);
   const url = hrefMatch?.[1] || urlMatch?.[0];
 
-  const messageWithoutHtml = message.replace(/<[^>]+>/g, ' ');
+  const messageWithoutHtml = stripHtmlTags(message);
   const messageWithoutDownloadUrl = messageWithoutHtml.replace(
     /download\s+url:\s*https?:\/\/[^\s"'<>]+/gi,
     '',
