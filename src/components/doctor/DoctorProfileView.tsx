@@ -36,8 +36,14 @@ export default function DoctorProfileView({
   const [url, setUrl] = useState('');
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const { profilePictureBase64 } = useProfilePictureBase64(doctor);
-  const { copyToClipboard, shareOnSocial, downloadQRCode } = useShareQR(url, cardRef, doctorId);
+  const { profilePictureBase64, isImageLoading } = useProfilePictureBase64(doctor);
+  const { copyToClipboard, shareOnSocial, downloadQRCode } = useShareQR(
+    url,
+    cardRef,
+    doctorId,
+    profilePictureBase64,
+    isImageLoading,
+  );
 
   useEffect(() => {
     if (globalThis.window !== undefined) {
