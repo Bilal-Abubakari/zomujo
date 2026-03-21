@@ -8,8 +8,8 @@ import {
 } from '@/lib/features/notifications/notificationsSelector';
 import { AvatarComp } from '@/components/ui/avatar';
 import { Logo } from '@/assets/images';
-import { Bell, CheckCheck, EyeIcon, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Bell, CheckCheck, EyeIcon, ExternalLink, Loader2 } from 'lucide-react';
+import { cn, parseNotificationMessage } from '@/lib/utils';
 import { markAsRead } from '@/lib/features/notifications/notificationsThunk';
 import { INotification, NotificationTopic } from '@/types/notification.interface';
 import { useRouter } from 'next/navigation';
@@ -102,6 +102,7 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                 <div className="space-y-2 sm:space-y-3 lg:space-y-4">
                   {notifications.map((notification, index) => {
                     const { id, payload, createdAt, read } = notification;
+                    const parsedMessage = parseNotificationMessage(payload.message);
                     return (
                       <div
                         ref={notifications.length === index + 1 ? lastNotificationRef : null}
@@ -148,8 +149,21 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                           <div className="mt-2 w-full sm:mt-3">
                             <div className="w-full max-w-full rounded-lg bg-gray-50 p-2 sm:p-3">
                               <p className="overflow-wrap-anywhere text-xs leading-relaxed wrap-break-word whitespace-pre-wrap text-gray-700 sm:text-sm">
-                                {payload.message}
+                                {parsedMessage.text || payload.message}
                               </p>
+                              {parsedMessage.url && (
+                                <a
+                                  href={parsedMessage.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary-dark mt-2 inline-flex items-center gap-1 text-xs font-medium underline-offset-2 hover:underline sm:text-sm"
+                                >
+                                  {payload.topic === NotificationTopic.PrescriptionGenerated
+                                    ? 'Download Prescription'
+                                    : 'Open Link'}
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                              )}
                             </div>
                           </div>
 

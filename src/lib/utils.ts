@@ -4,6 +4,12 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { IQueryParams } from '@/types/shared.interface';
 import { CategoryType } from '@/types/labs.interface';
+import {
+  NOTIFICATION_DOWNLOAD_URL_REGEX,
+  NOTIFICATION_HREF_REGEX,
+  NOTIFICATION_URL_REGEX,
+  NOTIFICATION_WHITESPACE_REGEX,
+} from '@/constants/notification.constant';
 
 /**
  * Combines multiple class names into a single string
@@ -120,6 +126,59 @@ export const capitalize = (text: string): string =>
  * @param url
  */
 export const openExternalUrls = (url: string): Window | null => window.open(url, '_blank');
+
+export type ParsedNotificationMessage = {
+  text: string;
+  url?: string;
+};
+
+/**
+ * Removes html tags using a single-pass parser.
+ * This avoids regex backtracking risks on malicious input.
+ *
+ * @param value - The input string that may contain html tags.
+ * @returns The input text without html tags.
+ */
+const stripHtmlTags = (value: string): string => {
+  let sanitizedText = '';
+  let insideTag = false;
+
+  for (const character of value) {
+    if (character === '<') {
+      insideTag = true;
+      sanitizedText += ' ';
+      continue;
+    }
+    if (character === '>' && insideTag) {
+      insideTag = false;
+      continue;
+    }
+    if (!insideTag) {
+      sanitizedText += character;
+    }
+  }
+
+  return sanitizedText;
+};
+
+/**
+ * Parses notification messages that may contain html anchors and raw urls.
+ * Extracts the first available url and returns cleaned plain text for display.
+ *
+ * @param message - The raw notification message received from the API.
+ * @returns Normalized notification text and an optional extracted url.
+ */
+export const parseNotificationMessage = (message: string): ParsedNotificationMessage => {
+  const hrefMatch = NOTIFICATION_HREF_REGEX.exec(message);
+  const urlMatch = NOTIFICATION_URL_REGEX.exec(message);
+  const url = hrefMatch?.[1] || urlMatch?.[0];
+
+  const messageWithoutHtml = stripHtmlTags(message);
+  const messageWithoutDownloadUrl = messageWithoutHtml.replace(NOTIFICATION_DOWNLOAD_URL_REGEX, '');
+  const text = messageWithoutDownloadUrl.replace(NOTIFICATION_WHITESPACE_REGEX, ' ').trim();
+
+  return { text, url };
+};
 
 /**
  * Generates a valid query string from the given query parameters.
