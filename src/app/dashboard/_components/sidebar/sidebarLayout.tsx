@@ -16,7 +16,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { CollapsibleTrigger } from '@radix-ui/react-collapsible';
-import { ChevronDown, EllipsisVertical } from 'lucide-react';
+import { ChevronDown, EllipsisVertical, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -36,9 +36,10 @@ import {
   selectUserName,
   selectUserProfilePicture,
   selectUserRole,
+  selectUserId,
 } from '@/lib/features/auth/authSelector';
 import { Role, SidebarType } from '@/types/shared.enum';
-import { JSX } from 'react';
+import { JSX, useMemo } from 'react';
 import { ISidebar } from '@/types/sidebar.interface';
 import {
   ADMIN_SETTINGS_SIDEBAR,
@@ -51,6 +52,39 @@ import {
 } from '@/constants/sidebar.constant';
 import { logout } from '@/lib/features/auth/authThunk';
 import { useIsMobile } from '@/hooks/useMobile';
+
+/**
+ * Helper function to add doctor's "My Profile" link to sidebar data
+ */
+const getSidebarDataWithProfile = (
+  role: Role | undefined,
+  type: SidebarType | undefined,
+  userId: string | undefined,
+): ISidebar => {
+  const data = getSidebarByRole(role, type);
+  if (role === Role.Doctor && userId && !type) {
+    return {
+      ...data,
+      sidebarGroup: data.sidebarGroup.map((group) => {
+        if (group.groupTitle === 'MENU') {
+          return {
+            ...group,
+            menu: [
+              ...group.menu,
+              {
+                title: 'My Profile',
+                url: `/dashboard/doctor/${userId}`,
+                Icon: User,
+              },
+            ],
+          };
+        }
+        return group;
+      }),
+    };
+  }
+  return data;
+};
 
 type SideBarProps = {
   type?: SidebarType;
@@ -70,9 +104,15 @@ export const SidebarLayout = ({
   const profileImage = useAppSelector(selectUserProfilePicture);
   const isAnAdmin = useAppSelector(selectIsAnAdmin);
   const role = useAppSelector(selectUserRole);
+  const userId = useAppSelector(selectUserId);
   const pathName = usePathname();
   const isMobile = useIsMobile(1024);
   const { setOpenMobile } = useSidebar();
+
+  const sidebarData = useMemo(
+    () => getSidebarDataWithProfile(role, type, userId),
+    [role, type, userId],
+  );
 
   const getRole = (): string => {
     switch (role) {
@@ -110,7 +150,7 @@ export const SidebarLayout = ({
         </SidebarHeader>
       )}
       <SidebarContent className={sidebarContentClassName}>
-        {getSidebarByRole(role, type).sidebarGroup.map((category) => (
+        {sidebarData.sidebarGroup.map((category) => (
           <SidebarGroup key={category.groupTitle}>
             <SidebarGroupLabel>{category.groupTitle}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -138,7 +178,7 @@ export const SidebarLayout = ({
                                       title={title}
                                       isActive={
                                         pathName === url ||
-                                        !!(relatedUrl && pathName.includes(relatedUrl))
+                                        (!!relatedUrl && pathName.includes(relatedUrl))
                                       }
                                       className={'data-[active=true]/menu-action:before:opacity-0'}
                                     >
@@ -156,7 +196,7 @@ export const SidebarLayout = ({
                         <SidebarMenuButton
                           asChild
                           isActive={
-                            pathName === url || !!(relatedUrl && pathName.includes(relatedUrl))
+                            pathName === url || (!!relatedUrl && pathName.includes(relatedUrl))
                           }
                           title={title}
                           className={sidebarTabClassName}
@@ -200,7 +240,14 @@ export const Navbar = ({
 }: Pick<SideBarProps, 'type'>): JSX.Element => {
   const pathName = usePathname();
   const role = useAppSelector(selectUserRole);
-  const flattenedMenu = getSidebarByRole(role, type).sidebarGroup.flatMap((group) => group.menu);
+  const userId = useAppSelector(selectUserId);
+
+  const sidebarData = useMemo(
+    () => getSidebarDataWithProfile(role, type, userId),
+    [role, type, userId],
+  );
+
+  const flattenedMenu = sidebarData.sidebarGroup.flatMap((group) => group.menu);
 
   return (
     <>
