@@ -10,7 +10,7 @@ const Faq = (): JSX.Element => {
     {
       question: 'How do I book an appointment with a doctor?',
       answer:
-        'Simply sign up, verify your email, and browse our directory of healthcare providers by specialty or location. Select your preferred doctor, choose an available time slot, and complete payment to confirm your appointment. You can attend virtually or in-person based on your preference.',
+        'Simply sign up, verify your email, and browse our directory of healthcare providers by specialty or location. Select your preferred doctor, choose an available time slot, and complete payment to confirm your appointment. You can attend virtually based on your preference.',
     },
     {
       question: 'Can I access my medical records on the platform?',

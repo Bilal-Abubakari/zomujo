@@ -14,17 +14,17 @@ import {
 } from '@/schemas/zod.schemas';
 import { DoctorPersonalInfo, IDoctor } from '@/types/doctor.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { JSX, useState, useMemo, ChangeEvent } from 'react';
+import React, { JSX, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
+import { useProfilePictureUpload } from '@/hooks/useProfilePictureUpload';
 import { isEqual } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { PaymentTab } from '@/hooks/useQueryParam';
-import { dataCompletionToast, showErrorToast } from '@/lib/utils';
+import { dataCompletionToast } from '@/lib/utils';
 import ProfilePictureUpload from '@/components/profile/ProfilePictureUpload';
 import PersonalDetailsForm from '@/components/forms/PersonalDetailsForm';
-import { updateProfilePicture } from '@/lib/features/auth/authThunk';
 
 const PersonalDetailsSchema = z.object({
   firstName: nameSchema,
@@ -81,9 +81,10 @@ const PersonalInfo = (): JSX.Element => {
     setValue,
     defaultImageUrl: personalDetails?.profilePicture,
   });
+  const { handleProfilePictureChange, isUploading: isUploadingProfilePicture } =
+    useProfilePictureUpload({ handleImageChange });
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const [isUploadingProfilePicture, setIsUploadingProfilePicture] = useState(false);
   const currentFormData = watch();
   const currentFormDataWithImage = useMemo(
     () => ({
@@ -127,32 +128,6 @@ const PersonalInfo = (): JSX.Element => {
 
   const handleMultiInputChange = (key: keyof DoctorPersonalInfo, value: string[]): void =>
     setValue(key, value, { shouldTouch: true, shouldValidate: true });
-
-  const handleProfilePictureChange = async (
-    event: ChangeEvent<HTMLInputElement>,
-  ): Promise<void> => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    if (file.size > 1024 * 1024 * 5) {
-      toast({
-        title: 'File size exceeds 5MB',
-        description: 'Please select a file smaller than 5MB',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsUploadingProfilePicture(true);
-    const response = await dispatch(updateProfilePicture(file)).unwrap();
-    toast(response);
-    if (!showErrorToast(response)) {
-      handleImageChange(event);
-    }
-    setIsUploadingProfilePicture(false);
-  };
 
   return (
     <div className="max-sm:ml-5">

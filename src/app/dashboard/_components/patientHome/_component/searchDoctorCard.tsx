@@ -21,12 +21,12 @@ const SearchDoctorsCard = (): JSX.Element => {
     );
 
   return (
-    <div className="bg-primary bg-arc1 relative flex w-full flex-col gap-8 rounded-2xl bg-no-repeat p-8">
+    <div className="bg-primary bg-arc1 relative flex w-full flex-col gap-8 rounded-2xl bg-no-repeat p-8 max-sm:gap-4 max-sm:p-4">
       <div className="flex flex-col gap-3 text-white">
-        <p className="text-xl leading-6 font-bold md:text-2xl">
+        <p className="text-lg leading-6 font-bold md:text-2xl">
           Find the right doctor / hospital for you, faster
         </p>
-        <p className="max-md:text:sm leading-4">
+        <p className="max-md:text:sm text-xs leading-4">
           Search for top hospitals or qualified doctors and book an appointment online.
         </p>
       </div>
@@ -45,7 +45,7 @@ const SearchDoctorsCard = (): JSX.Element => {
         <Input
           type="text"
           placeholder="Search by doctors' name"
-          className="py-6 font-medium text-[#111111] placeholder:text-[#111111] focus:border-1 focus:border-gray-400 focus:shadow-none focus:outline-none"
+          className="py-6 font-medium text-[#111111] placeholder:text-[#111111] focus:border focus:border-gray-400 focus:shadow-none focus:outline-none"
           labelName="Doctors' name"
           labelClassName="text-left text-[#111]"
           value={params.search}
@@ -73,7 +73,7 @@ const SearchDoctorsCard = (): JSX.Element => {
         <Button
           child="Find"
           onClick={findMedical}
-          className="mt-8 rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm 2xl:mt-2"
+          className="mt-4 rounded-md bg-black text-white outline-hidden duration-75 hover:bg-gray-900 max-md:text-sm 2xl:mt-2"
         />
       </div>
     </div>

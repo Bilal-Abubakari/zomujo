@@ -12,7 +12,7 @@ const HowItWorks = (): JSX.Element => {
     'Payment Preference',
     'Browse Doctors (by specialty, location)',
     'Book Appointment & Pay',
-    'Attend Virtual or In-Person Visit',
+    'Attend Virtual Calls',
     'Access Medical Records Anytime',
   ];
 
@@ -21,7 +21,7 @@ const HowItWorks = (): JSX.Element => {
     'Set Up Profile (specialty, location, pricing)',
     'Create Time Slots & Availability',
     'Receive Appointment Requests & Confirm',
-    'Conduct Virtual or In-Person Consultations',
+    'Conduct Virtual Consultations',
     'Manage Patient Records & Prescriptions',
   ];
 
@@ -121,7 +121,7 @@ const HowItWorks = (): JSX.Element => {
                           transition={{ delay: index * 0.1, duration: 0.3 }}
                           className="flex items-start space-x-3"
                         >
-                          <span className="bg-primary text-primary-foreground mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium shadow-md">
+                          <span className="bg-primary text-primary-foreground mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-medium shadow-md">
                             {index + 1}
                           </span>
                           <p className="text-foreground">{step}</p>
@@ -135,10 +135,6 @@ const HowItWorks = (): JSX.Element => {
                   <div className="text-vertical text-primary origin-bottom-right rotate-90 transform font-semibold">
                     {activeTab === 'patient' ? 'For Patients' : 'Individual Doctors '}
                   </div>
-                  {/* TODO: Implement this when we have the clinics feature */}
-                  {/* <div className="text-vertical text-muted-foreground mt-20 origin-bottom-right rotate-90 transform font-semibold">
-                    For Clinics
-                  </div> */}
                 </div>
               </div>
             </div>
