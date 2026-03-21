@@ -13,19 +13,26 @@ import { useAppDispatch } from '@/lib/hooks';
 type DoctorDetailsProps = {
   showBookmark?: boolean;
   doctorId: string;
+  doctor?: IDoctor;
   bookAppointmentHandler?: () => void;
 };
 
 const DoctorDetails = ({
   showBookmark,
   doctorId,
+  doctor: doctorProp,
   bookAppointmentHandler,
 }: DoctorDetailsProps): JSX.Element | null => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const [doctor, setDoctor] = useState<IDoctor | null>(null);
+  const [doctor, setDoctor] = useState<IDoctor | null>(doctorProp || null);
 
   useEffect(() => {
+    if (doctorProp) {
+      setDoctor(doctorProp);
+      return;
+    }
+
     async function getDoctorDetails(): Promise<void> {
       setIsLoading(true);
       try {
@@ -60,106 +67,91 @@ const DoctorDetails = ({
 
   return (
     <div className="flex flex-col overflow-hidden">
-      <div className="relative h-52 w-full shrink-0 overflow-hidden bg-gray-900 sm:h-64">
-        {doctor.profilePicture && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={doctor.profilePicture}
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full scale-110 object-cover object-top blur-sm brightness-50"
-          />
-        )}
-        <div className="absolute inset-0 bg-linear-to-b from-black/20 via-transparent to-black/70" />
-
-        {showBookmark && (
-          <div className="absolute top-4 right-4 z-10">
-            <Button
-              child="Book Appointment"
-              onClick={() => bookAppointment()}
-              className="rounded-full px-5 py-2 text-sm font-semibold shadow-lg"
+      {/* Hero Section - Full image displayed prominently */}
+      <div className="flex flex-col sm:flex-row">
+        {/* Doctor full photo */}
+        <div className="relative w-full shrink-0 bg-gray-100 sm:min-h-80 sm:w-64">
+          {doctor.profilePicture ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={doctor.profilePicture}
+              alt={`Dr. ${doctor.firstName} ${doctor.lastName}`}
+              className="h-72 w-full object-contain object-center sm:h-full"
+              style={{ backgroundColor: '#f3f4f6' }}
             />
-          </div>
-        )}
+          ) : (
+            <div className="from-primary-100 to-primary-200 flex h-72 w-full items-center justify-center bg-linear-to-br sm:h-full">
+              <span className="text-primary-600 text-6xl font-extrabold">
+                {doctor.firstName[0]}
+                {doctor.lastName[0]}
+              </span>
+            </div>
+          )}
+        </div>
 
-        <div className="absolute -bottom-16 left-1/2 z-10 -translate-x-1/2 sm:left-8 sm:translate-x-0">
-          <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white shadow-2xl sm:h-36 sm:w-36">
-            {doctor.profilePicture ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={doctor.profilePicture}
-                alt={`Dr. ${doctor.firstName} ${doctor.lastName}`}
-                className="h-full w-full object-cover object-top"
+        {/* Info panel */}
+        <div className="from-primary-900 to-primary-700 relative flex flex-1 flex-col justify-between bg-linear-to-br p-6 sm:p-8">
+          {showBookmark && (
+            <div className="flex justify-end">
+              <Button
+                child="Book Appointment"
+                onClick={() => bookAppointment()}
+                className="rounded-full px-5 py-2 text-sm font-semibold shadow-lg"
               />
-            ) : (
-              <div className="from-primary-100 to-primary-200 flex h-full w-full items-center justify-center bg-linear-to-br">
-                <span className="text-primary-600 text-4xl font-extrabold">
-                  {doctor.firstName[0]}
-                  {doctor.lastName[0]}
-                </span>
-              </div>
+            </div>
+          )}
+
+          <div className="mt-4 sm:mt-auto">
+            <h2 className="text-2xl font-extrabold text-white drop-shadow sm:text-3xl">
+              Dr. {doctor.firstName} {doctor.lastName}
+            </h2>
+            {doctor.MDCRegistration && (
+              <p className="mt-1 text-xs font-medium text-white/70">{doctor.MDCRegistration}</p>
             )}
-          </div>
-        </div>
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center sm:bottom-5 sm:left-52 sm:translate-x-0 sm:text-left">
-          <h2 className="text-xl font-extrabold text-white drop-shadow sm:text-2xl">
-            Dr. {doctor.firstName} {doctor.lastName}
-          </h2>
-          {doctor.MDCRegistration && (
-            <p className="mt-0.5 text-xs font-medium text-white/70">{doctor.MDCRegistration}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-20 flex flex-col gap-6 px-5 pb-8 sm:mt-8 sm:flex-row sm:gap-8 sm:px-6 sm:pt-2">
-        {/* Left sidebar — fee + quick stats */}
-        <aside className="flex shrink-0 flex-row flex-wrap gap-3 sm:w-44 sm:flex-col sm:gap-4">
-          <div className="flex flex-col rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 shadow-sm">
-            <span className="text-[10px] font-medium tracking-wide text-gray-400 uppercase">
-              Consultation Fee
-            </span>
-            <span className="text-primary-dark mt-1 text-xl font-extrabold">
-              GHs {doctor.fee?.amount}
-            </span>
-            <span className="text-xs text-gray-400">per session</span>
-          </div>
-
-          {doctor.experience > 0 && (
-            <div className="flex items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 shadow-sm">
-              <Calendar size={16} className="text-primary-500 shrink-0" />
-              <div>
-                <p className="text-xs font-semibold text-gray-800">{doctor.experience} yrs</p>
-                <p className="text-[10px] text-gray-400">experience</p>
-              </div>
-            </div>
-          )}
-
-          {doctor.consultationCount > 0 && (
-            <div className="flex items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 shadow-sm">
-              <Stethoscope size={16} className="text-primary-500 shrink-0" />
-              <div>
-                <p className="text-xs font-semibold text-gray-800">{doctor.consultationCount}+</p>
-                <p className="text-[10px] text-gray-400">consultations</p>
-              </div>
-            </div>
-          )}
-        </aside>
-
-        <div className="min-w-0 flex-1">
-          {doctor.specializations.length > 0 && (
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-2">
+            {doctor.specializations.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
                 {doctor.specializations.map((s) => (
                   <Badge variant="gray" key={s} className="text-xs">
                     {s}
                   </Badge>
                 ))}
               </div>
-            </div>
-          )}
+            )}
 
-          <hr className="mb-6 border-gray-100" />
+            <div className="mt-4 flex flex-wrap gap-4 text-sm text-white/80">
+              {doctor.experience > 0 && (
+                <span className="flex items-center gap-1.5">
+                  <Calendar size={14} className="text-white/60" />
+                  {doctor.experience} yrs experience
+                </span>
+              )}
+              {doctor.consultationCount > 0 && (
+                <span className="flex items-center gap-1.5">
+                  <Stethoscope size={14} className="text-white/60" />
+                  {doctor.consultationCount}+ consultations
+                </span>
+              )}
+            </div>
+
+            {doctor.fee && (
+              <div className="mt-4 inline-flex flex-col rounded-xl bg-white/10 px-4 py-2 backdrop-blur-sm">
+                <span className="text-[10px] font-medium tracking-wide text-white/60 uppercase">
+                  Consultation Fee
+                </span>
+                <span className="mt-0.5 text-xl font-extrabold text-white">
+                  GHs {doctor.fee.amount}
+                </span>
+                <span className="text-[10px] text-white/50">per session</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-6 px-5 py-8 sm:px-6">
+        <div className="min-w-0 flex-1">
+          {doctor.specializations.length > 0 && <hr className="mb-6 border-gray-100" />}
 
           {doctor.bio && (
             <section className="mb-6">

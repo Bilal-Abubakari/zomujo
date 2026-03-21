@@ -14,7 +14,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { MODE } from '@/constants/constants';
 import { IBookingForm } from '@/types/booking.interface';
 import { bookingSchema } from '@/schemas/booking.schema';
-import DoctorDetails from '@/app/dashboard/_components/doctorDetails';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
@@ -23,6 +22,7 @@ import { toast } from '@/hooks/use-toast';
 import { ICheckout } from '@/types/payment.interface';
 import { Role } from '@/types/shared.enum';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DoctorProfile } from '@/components/doctor/DoctorProfile';
 
 export type DoctorCardProps = {
   doctor: IDoctor;
@@ -131,14 +131,20 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
       <Modal
         open={openDoctorDetails}
         content={
-          <DoctorDetails
-            doctorId={doctor.id}
-            showBookmark={true}
-            bookAppointmentHandler={() => {
-              setOpenDoctorDetails(false);
-              setShowSlots(true);
-            }}
-          />
+          <div className="mt-3z relative flex flex-col">
+            <DoctorProfile ctaLabel={'Book Appointment'} doctorId={doctor.id} />
+            <div className="sticky right-0 bottom-0 left-0 z-20 flex justify-center border-t bg-white p-4">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  setOpenDoctorDetails(false);
+                  router.push(`/doctor/${doctor.id}`);
+                }}
+                child="View Full Profile & Share"
+              />
+            </div>
+          </div>
         }
         className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
         setState={setOpenDoctorDetails}
