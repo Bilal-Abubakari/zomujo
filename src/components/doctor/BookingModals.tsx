@@ -58,7 +58,7 @@ export default function BookingModals({
               <div>
                 <h2 className="text-lg font-bold text-gray-900 md:text-xl">Dr. {fullName}</h2>
                 <p className="text-primary-600 text-sm font-medium md:text-base">
-                  {doctor?.specializations
+                  {doctor?.specializations.length
                     ? capitalize(doctor.specializations[0])
                     : 'General Practitioner'}
                 </p>
@@ -135,7 +135,7 @@ export default function BookingModals({
                   <div className="flex-1">
                     <h2 className="text-lg font-bold text-gray-900">Dr. {fullName}</h2>
                     <p className="text-primary-600 text-sm font-medium">
-                      {doctor?.specializations
+                      {doctor?.specializations.length
                         ? capitalize(doctor.specializations[0])
                         : 'General Practitioner'}
                     </p>
