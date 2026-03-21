@@ -7,6 +7,8 @@ export function useShareQR(
   url: string,
   cardRef: RefObject<HTMLDivElement | null>,
   doctorId: string,
+  profilePictureBase64?: string,
+  isImageLoading?: boolean,
 ): {
   copyToClipboard: () => Promise<void>;
   shareOnSocial: (platform: string) => void;
@@ -35,9 +37,21 @@ export function useShareQR(
     if (!cardRef.current) {
       return;
     }
+
+    // If the profile image is still being converted to base64, wait for it
+    if (isImageLoading) {
+      await new Promise<void>((resolve) => {
+        const interval = setInterval(() => {
+          clearInterval(interval);
+          resolve();
+        }, 100);
+      });
+    }
+
     try {
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
+        allowTaint: false,
         logging: false,
         scale: 2,
         backgroundColor: '#ffffff',
@@ -48,6 +62,13 @@ export function useShareQR(
           const clonedCard = clonedDoc.querySelector('[data-card-ref="true"]') as HTMLElement;
           if (clonedCard) {
             clonedCard.style.backgroundColor = '#ffffff';
+            // Ensure any img tags in the cloned card use the base64 src
+            if (profilePictureBase64) {
+              const imgs = clonedCard.querySelectorAll('img[data-profile-pic="true"]');
+              imgs.forEach((img) => {
+                (img as HTMLImageElement).src = profilePictureBase64;
+              });
+            }
           }
         },
       });

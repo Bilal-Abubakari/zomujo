@@ -14,6 +14,46 @@ interface QRCardProps {
   fullName: string;
 }
 
+function ProfileImage({
+  doctor,
+  profilePictureBase64,
+}: Readonly<{
+  doctor: IDoctor | null;
+  profilePictureBase64: string;
+}>): JSX.Element {
+  if (doctor?.profilePicture && profilePictureBase64) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={profilePictureBase64}
+        data-profile-pic="true"
+        aria-hidden="true"
+        alt={doctor.firstName}
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      />
+    );
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#e5e7eb',
+        fontSize: '36px',
+        fontWeight: 'bold',
+        color: '#6b7280',
+      }}
+    >
+      {doctor?.firstName?.[0]}
+      {doctor?.lastName?.[0]}
+    </div>
+  );
+}
+
 export default function QRCard({
   cardRef,
   doctor,
@@ -61,33 +101,7 @@ export default function QRCard({
               backgroundColor: '#ffffff',
             }}
           >
-            {doctor?.profilePicture ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={profilePictureBase64 || doctor.profilePicture}
-                aria-hidden="true"
-                alt={doctor.firstName}
-                crossOrigin="anonymous"
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
-            ) : (
-              <div
-                style={{
-                  display: 'flex',
-                  width: '100%',
-                  height: '100%',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#e5e7eb',
-                  fontSize: '36px',
-                  fontWeight: 'bold',
-                  color: '#6b7280',
-                }}
-              >
-                {doctor?.firstName?.[0]}
-                {doctor?.lastName?.[0]}
-              </div>
-            )}
+            <ProfileImage doctor={doctor} profilePictureBase64={profilePictureBase64} />
           </div>
           <div>
             <h2
