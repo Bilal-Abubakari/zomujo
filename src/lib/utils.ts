@@ -4,6 +4,12 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { IQueryParams } from '@/types/shared.interface';
 import { CategoryType } from '@/types/labs.interface';
+import {
+  NOTIFICATION_DOWNLOAD_URL_REGEX,
+  NOTIFICATION_HREF_REGEX,
+  NOTIFICATION_URL_REGEX,
+  NOTIFICATION_WHITESPACE_REGEX,
+} from '@/constants/notification.constant';
 
 /**
  * Combines multiple class names into a single string
@@ -163,16 +169,13 @@ const stripHtmlTags = (value: string): string => {
  * @returns Normalized notification text and an optional extracted url.
  */
 export const parseNotificationMessage = (message: string): ParsedNotificationMessage => {
-  const hrefMatch = message.match(/href=["']([^"']+)["']/i);
-  const urlMatch = message.match(/https?:\/\/[^\s"'<>]+/i);
+  const hrefMatch = NOTIFICATION_HREF_REGEX.exec(message);
+  const urlMatch = NOTIFICATION_URL_REGEX.exec(message);
   const url = hrefMatch?.[1] || urlMatch?.[0];
 
   const messageWithoutHtml = stripHtmlTags(message);
-  const messageWithoutDownloadUrl = messageWithoutHtml.replace(
-    /download\s+url:\s*https?:\/\/[^\s"'<>]+/gi,
-    '',
-  );
-  const text = messageWithoutDownloadUrl.replace(/\s+/g, ' ').trim();
+  const messageWithoutDownloadUrl = messageWithoutHtml.replace(NOTIFICATION_DOWNLOAD_URL_REGEX, '');
+  const text = messageWithoutDownloadUrl.replace(NOTIFICATION_WHITESPACE_REGEX, ' ').trim();
 
   return { text, url };
 };
