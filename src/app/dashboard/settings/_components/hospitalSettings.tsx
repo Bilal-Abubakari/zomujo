@@ -18,6 +18,7 @@ import { selectExtra } from '@/lib/features/auth/authSelector';
 import { IAdmin } from '@/types/admin.interface';
 import useImageUpload from '@/hooks/useImageUpload';
 import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
+import { ghcToPesewas, pesewasToGhc } from '@/lib/utils';
 
 const hospitalSettingsSchema = z.object({
   image: z.union([z.instanceof(File), z.url(), z.null()]),
@@ -40,7 +41,10 @@ const HospitalSettings = (): JSX.Element => {
   } = useForm<Required<IHospitalProfile>>({
     resolver: zodResolver(hospitalSettingsSchema),
     mode: MODE.ON_TOUCH,
-    defaultValues: org,
+    defaultValues: {
+      ...org,
+      regularFee: pesewasToGhc(org.regularFee),
+    },
   });
   const {
     imageRef,
@@ -58,7 +62,13 @@ const HospitalSettings = (): JSX.Element => {
     if (typeof hospitalProfile.image === 'string') {
       delete hospitalProfile.image;
     }
-    const { payload } = await dispatch(updateHospitalDetails(hospitalProfile));
+    const payload$ = {
+      ...hospitalProfile,
+      ...(hospitalProfile.regularFee !== undefined && {
+        regularFee: ghcToPesewas(hospitalProfile.regularFee),
+      }),
+    };
+    const { payload } = await dispatch(updateHospitalDetails(payload$));
     if (payload) {
       toast(payload);
     }
@@ -79,14 +89,14 @@ const HospitalSettings = (): JSX.Element => {
           <div>
             {hospitalImage ? (
               <Image
-                className="h-[79px] w-[79px] rounded-full bg-gray-600 object-fill"
+                className="h-19.75 w-19.75 rounded-full bg-gray-600 object-fill"
                 src={hospitalImage}
                 alt="Hospital's Picture"
                 width={79}
                 height={79}
               />
             ) : (
-              <div className="flex h-[79px] w-[79px] items-center justify-center rounded-full bg-gray-200">
+              <div className="flex h-19.75 w-19.75 items-center justify-center rounded-full bg-gray-200">
                 <span className="text-gray-500">No Image</span>
               </div>
             )}
@@ -109,7 +119,7 @@ const HospitalSettings = (): JSX.Element => {
           </div>
         </div>
       </section>
-      <hr className="my-[30px]" />
+      <hr className="my-7.5" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <Input
@@ -156,7 +166,7 @@ const HospitalSettings = (): JSX.Element => {
         </div>
         <Button
           child="Save Changes"
-          className="me:mb-0 my-[15px] mb-24 ml-auto flex"
+          className="me:mb-0 my-3.75 mb-24 ml-auto flex"
           isLoading={isLoading}
           disabled={!isValid || isLoading}
         />

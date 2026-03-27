@@ -8,7 +8,7 @@ import {
   Medal,
   Stethoscope,
 } from 'lucide-react';
-import { capitalize, showErrorToast } from '@/lib/utils';
+import { capitalize, pesewasToGhc, showErrorToast } from '@/lib/utils';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -212,7 +212,7 @@ export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps
                   Consultation Fee
                 </span>
                 <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
-                  GHs {doctorInfo.fee}
+                  GHs {pesewasToGhc(doctorInfo.fee)}
                 </span>
                 <span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)' }}>
                   per session

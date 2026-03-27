@@ -11,7 +11,7 @@ import { IRate } from '@/types/payment.interface';
 import { IDoctor } from '@/types/doctor.interface';
 import { AsyncThunkAction } from '@reduxjs/toolkit';
 import { useRouter } from 'next/navigation';
-import { dataCompletionToast, sliderPosition } from '@/lib/utils';
+import { dataCompletionToast, ghcToPesewas, pesewasToGhc, sliderPosition } from '@/lib/utils';
 import { PaymentTab } from '@/hooks/useQueryParam';
 import { MAX_AMOUNT, MIN_AMOUNT } from '@/constants/constants';
 
@@ -63,7 +63,7 @@ const Pricing = (): JSX.Element => {
 
   useEffect(() => {
     if (doctorInfo?.fee) {
-      const amount = doctorInfo.fee;
+      const amount = pesewasToGhc(doctorInfo.fee);
       if (amount) {
         setCurrentAmount(amount);
         setCurrentSessionLength(Number(MIN_SESSION));
@@ -116,7 +116,7 @@ const Pricing = (): JSX.Element => {
         child="Save Changes"
         isLoading={isLoading}
         disabled={isLoading}
-        onClick={() => updateRate({ amount: currentAmount })}
+        onClick={() => updateRate({ amount: ghcToPesewas(currentAmount) })}
       />
     </div>
   );

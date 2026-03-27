@@ -1,5 +1,5 @@
 'use client';
-import { cn, showErrorToast } from '@/lib/utils';
+import { cn, pesewasToGhc, showErrorToast } from '@/lib/utils';
 import { Building2, ChevronLeft } from 'lucide-react';
 import React, { JSX, useCallback, useEffect, useState } from 'react';
 import AvailableDates from './availableDates';
@@ -25,6 +25,7 @@ import { getHospital } from '@/lib/features/hospitals/hospitalThunk';
 import Image from 'next/image';
 import { AppointmentType } from '@/types/slots.interface';
 import { bookingSchema } from '@/schemas/booking.schema';
+import { SERVICE_AND_TAX_FEE } from '@/constants/payment.constants';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -251,14 +252,32 @@ const AvailableAppointment = (): JSX.Element => {
               <div className="w-full max-w-32 border-b border-dashed text-gray-400"></div>
             </div>
 
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-3 flex items-center justify-between">
               <div className="text-gray-500">Consultation Fee</div>
-              <div className="font-medium"> GHC {getAmount()}.00</div>
+              <div className="font-medium">GHC {pesewasToGhc(getAmount())}.00</div>
             </div>
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-gray-500">Total</div>
-              <div className="text-lg font-bold"> GHC {getAmount()}.00</div>
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-gray-500">
+                Service &amp; Tax Fee{''}
+                <span
+                  className="inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-gray-500"
+                  title="A flat platform service and tax fee applied to every booking."
+                >
+                  ?
+                </span>
+              </div>
+              <div className="font-medium">GHC {SERVICE_AND_TAX_FEE}.00</div>
             </div>
+            <div className="my-3 border-t border-dashed border-gray-200" />
+            <div className="flex items-center justify-between">
+              <div className="font-semibold text-gray-800">Total</div>
+              <div className="text-primary text-lg font-bold">
+                GHC {pesewasToGhc(getAmount()) + SERVICE_AND_TAX_FEE}.00
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-gray-400">
+              Includes a GHC {SERVICE_AND_TAX_FEE}.00 service &amp; tax fee charged by the platform.
+            </p>
 
             <div className="mt-4 flex justify-between">
               <Button child={'Back'} variant={'outline'} onClick={() => setCurrentStep(2)} />

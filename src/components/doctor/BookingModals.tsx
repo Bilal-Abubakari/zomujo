@@ -5,13 +5,15 @@ import { Modal } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import AvailableDates from '@/app/dashboard/(patient)/book-appointment/[appointment]/_component/availableDates';
 import { AvatarComp } from '@/components/ui/avatar';
-import { capitalize } from '@/lib/utils';
+import { capitalize, pesewasToGhc } from '@/lib/utils';
 import moment from 'moment';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar, Clock, Medal } from 'lucide-react';
 import { IDoctor } from '@/types/doctor.interface';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { IBookingForm } from '@/types/booking.interface';
+
+import { SERVICE_AND_TAX_FEE } from '@/constants/payment.constants';
 
 interface BookingModalsProps {
   showSlots: boolean;
@@ -200,12 +202,41 @@ export default function BookingModals({
                 </label>
 
                 <div className="border-primary-200 bg-primary-50 rounded-lg border p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium text-gray-600">Total Amount</p>
-                      <p className="text-primary-600 text-xl font-bold">GHS {doctor?.fee || '0'}</p>
+                  <p className="mb-3 text-sm font-semibold text-gray-700">Payment Summary</p>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Consultation Fee</span>
+                      <span className="font-medium text-gray-900">
+                        GHS {pesewasToGhc(doctor?.fee ?? 0)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-1.5 text-gray-600">
+                        Service &amp; Tax Fee{' '}
+                        <span
+                          className="inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full bg-gray-300 text-[10px] font-bold text-gray-600"
+                          title="A flat platform service and tax fee applied to every booking."
+                        >
+                          ?
+                        </span>
+                      </span>
+                      <span className="font-medium text-gray-900">
+                        GHS {SERVICE_AND_TAX_FEE}.00
+                      </span>
+                    </div>
+                    <div className="border-t border-gray-200 pt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-gray-800">Total</span>
+                        <span className="text-primary-600 text-xl font-bold">
+                          GHS {pesewasToGhc(doctor?.fee || 0) + SERVICE_AND_TAX_FEE}
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  <p className="mt-2 text-xs text-gray-400">
+                    Includes a GHS {SERVICE_AND_TAX_FEE}.00 service &amp; tax fee charged by the
+                    platform.
+                  </p>
                 </div>
               </div>
             </div>

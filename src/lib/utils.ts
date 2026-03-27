@@ -10,6 +10,7 @@ import {
   NOTIFICATION_URL_REGEX,
   NOTIFICATION_WHITESPACE_REGEX,
 } from '@/constants/notification.constant';
+import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
 
 /**
  * Combines multiple class names into a single string
@@ -379,3 +380,15 @@ export const caseToSentence = (str: string, capitalize: boolean = false): string
 
   return result;
 };
+
+/**
+ * Converts an amount in pesewas to Ghana Cedis.
+ * @param pesewas - The amount in pesewas.
+ */
+export const pesewasToGhc = (pesewas: number): number => pesewas / PESEWAS_PER_CEDI;
+
+/**
+ * Converts an amount in Ghana Cedis to pesewas.
+ * @param ghc - The amount in Ghana Cedis.
+ */
+export const ghcToPesewas = (ghc: number): number => Math.round(ghc * PESEWAS_PER_CEDI);
