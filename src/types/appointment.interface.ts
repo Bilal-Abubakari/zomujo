@@ -3,7 +3,11 @@ import { ApproveDeclineStatus } from './shared.enum';
 import { IDoctor } from '@/types/doctor.interface';
 import { IPatient } from '@/types/patient.interface';
 import { IHospital } from './hospital.interface';
-import { IConsultationSymptomsRequest } from '@/types/consultation.interface';
+import {
+  IConsultationSymptomsRequest,
+  IExternalReferralRequest,
+  IInternalReferralResponse,
+} from '@/types/consultation.interface';
 import { IDiagnosisResponse, IPrescriptionResponse } from '@/types/medical.interface';
 import { ILab } from '@/types/labs.interface';
 import { ISlot, ISlotBase } from '@/types/slots.interface';
@@ -45,6 +49,8 @@ export interface IAppointment extends IBaseAppointment, ISlotBase {
   diagnosis: IDiagnosisResponse[];
   prescriptions: IPrescriptionResponse[];
   ipData: string;
+  referralData: IExternalReferralRequest | null;
+  referral: IInternalReferralResponse | null;
 }
 
 export interface IRecordRequest extends IBaseAppointment {

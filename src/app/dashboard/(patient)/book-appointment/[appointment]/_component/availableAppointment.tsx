@@ -42,7 +42,7 @@ const AvailableAppointment = (): JSX.Element => {
       return 0;
     }
     if ('fee' in information) {
-      return Number(information.fee?.amount);
+      return Number(information.fee);
     }
     if ('regularFee' in information) {
       return information.regularFee;

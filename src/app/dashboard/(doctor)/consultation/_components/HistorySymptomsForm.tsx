@@ -7,6 +7,7 @@ import {
   getSystemSymptoms,
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { cn, showErrorToast } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 import { toast, Toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -109,6 +110,7 @@ type HistorySymptomsFormProps = {
 };
 
 const HistorySymptomsForm = ({ goToNext }: HistorySymptomsFormProps): JSX.Element => {
+  const { state, isMobile } = useSidebar();
   const symptoms = useAppSelector(selectSymptoms);
   const params = useParams();
   const dispatch = useAppDispatch();
@@ -534,7 +536,14 @@ const HistorySymptomsForm = ({ goToNext }: HistorySymptomsFormProps): JSX.Elemen
           <MedicationTaken control={control} medicationsTaken={watch('medicinesTaken') || []} />
         </div>
 
-        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white p-4 shadow-md">
+        <div
+          className={cn(
+            'fixed bottom-0 z-50 flex justify-between border-t border-gray-300 bg-white p-4 shadow-md',
+            !isMobile && state === 'expanded'
+              ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+              : 'left-0 w-full',
+          )}
+        >
           <div></div>
           <Button
             isLoading={isLoading}

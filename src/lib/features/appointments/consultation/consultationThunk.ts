@@ -7,11 +7,11 @@ import { generateSuccessToast } from '@/lib/utils';
 import {
   IConsultationDetails,
   IConsultationSymptoms,
-  IDiagnosisRequest,
   IPrescriptionRequest,
   IDiagnosisOnlyRequest,
   IDiagnosisUpdateRequest,
   IInternalReferralRequest,
+  IExternalReferralRequest,
 } from '@/types/consultation.interface';
 import { IAppointment, IPostInvestigationData } from '@/types/appointment.interface';
 import {
@@ -121,6 +121,20 @@ export const referPatient = createAsyncThunk(
   },
 );
 
+export const referPatientToHospital = createAsyncThunk(
+  'consultation/refer-patient-to-hospital',
+  async (referralData: IExternalReferralRequest): Promise<Toast> => {
+    try {
+      const {
+        data: { message },
+      } = await axios.put<IResponse>('consultation/refer-hospital', referralData);
+      return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const getConsultationDetail = createAsyncThunk(
   'consultation/get-consultation-appointment',
   async (id: string): Promise<Toast | IConsultationDetails> => {
@@ -157,20 +171,6 @@ export const addRadiologyRequests = createAsyncThunk(
       const {
         data: { message },
       } = await axios.put<IResponse>(`consultation/radiology-request`, radiologyRequests);
-      return generateSuccessToast(message);
-    } catch (error) {
-      return axiosErrorHandler(error, true) as Toast;
-    }
-  },
-);
-
-export const addDiagnosisAndPrescription = createAsyncThunk(
-  'consultation/add-diagnosis-prescription',
-  async (diagnosisRequest: IDiagnosisRequest): Promise<Toast> => {
-    try {
-      const {
-        data: { message },
-      } = await axios.post<IResponse>(`consultation/add-diagnosis`, diagnosisRequest);
       return generateSuccessToast(message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -394,26 +394,6 @@ export const joinConsultation = createAsyncThunk(
   },
 );
 
-export const saveConsultationSummary = createAsyncThunk(
-  'consultation/save-summary',
-  async ({
-    appointmentId,
-    summary,
-  }: {
-    appointmentId: string;
-    summary: string;
-  }): Promise<Toast> => {
-    try {
-      const {
-        data: { message },
-      } = await axios.post<IResponse>(`consultation/save-summary`, { appointmentId, summary });
-      return generateSuccessToast(message);
-    } catch (error) {
-      return axiosErrorHandler(error, true) as Toast;
-    }
-  },
-);
-
 export const downloadLabRequestPdf = createAsyncThunk(
   'consultation/download-lab-pdf',
   async (consultationId: string): Promise<Toast | Blob> => {
@@ -473,6 +453,20 @@ export const downloadReferralLetter = createAsyncThunk(
         },
       );
       return response.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const generateExternalReferralPdf = createAsyncThunk(
+  'consultation/generateExternalReferralPdf',
+  async (appointmentId: string): Promise<string | Toast> => {
+    try {
+      const {
+        data: { data },
+      } = await axios.get<IResponse<string>>(`consultation/generate-referral-pdf/${appointmentId}`);
+      return data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

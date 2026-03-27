@@ -28,12 +28,16 @@ import {
 } from 'lucide-react';
 import { selectUserName, selectUserId } from '@/lib/features/auth/authSelector';
 import { IReferral } from '@/types/consultation.interface';
-import { showErrorToast } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 import { Modal } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Signature from '@/components/signature/signature';
 import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
-import { startConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
+import {
+  getConsultationAppointment,
+  startConsultation,
+} from '@/lib/features/appointments/consultation/consultationThunk';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -296,6 +300,7 @@ const ReviewConsultation = ({
   isPastConsultation = false,
   goToPrevious,
 }: ReviewConsultationProps): JSX.Element => {
+  const { state, isMobile } = useSidebar();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const doctorSignature = useAppSelector(selectDoctorSignature);
@@ -453,7 +458,13 @@ const ReviewConsultation = ({
         open={showReferralModal}
         patientId={appointment?.patient?.id}
         onClose={() => setShowReferralModal(false)}
-        onSave={(referral) => setReferrals((prev) => [...prev, referral])}
+        onSave={(referral) => {
+          setReferrals((prev) => [...prev, referral]);
+          // Refetch appointment so persisted referral data is always fresh
+          if (appointment?.id) {
+            void dispatch(getConsultationAppointment(appointment.id));
+          }
+        }}
       />
 
       <div className="space-y-6 pb-20">
@@ -515,6 +526,8 @@ const ReviewConsultation = ({
                 onRemoveReferral={(index) =>
                   setReferrals((prev) => prev.filter((_, i) => i !== index))
                 }
+                savedExternalReferral={appointment?.referralData}
+                savedInternalReferral={appointment?.referral}
                 labInstructions={lab?.instructions}
                 labClinicalHistory={lab?.history}
                 labFileUrls={lab?.fileUrls}
@@ -541,7 +554,14 @@ const ReviewConsultation = ({
         </Tabs>
 
         {!isPastConsultation && goToPrevious && (
-          <div className="fixed bottom-0 left-0 flex w-full justify-start border-t border-gray-300 bg-white p-4 shadow-md">
+          <div
+            className={cn(
+              'fixed bottom-0 z-50 flex justify-start border-t border-gray-300 bg-white p-4 shadow-md',
+              !isMobile && state === 'expanded'
+                ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+                : 'left-0 w-full',
+            )}
+          >
             <Button onClick={goToPrevious} variant="outline" child="Back to Prescription" />
           </div>
         )}

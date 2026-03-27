@@ -1,7 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
-import { RequestStatus } from '@/types/shared.enum';
 import { CONSULTATION_START_ALLOWED_STATUS } from '@/constants/consultation.constants';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -27,32 +26,17 @@ export const selectCanStartConsultation = createSelector(
   (status) => status && CONSULTATION_START_ALLOWED_STATUS.includes(status),
 );
 
-export const hasConsultationEnded = createSelector(
+export const selectHasConsultationEnded = createSelector(
   selectConsultationStatus,
   (status) => status === AppointmentStatus.Completed,
 );
 
-export const isConsultationInProgress = createSelector(
+export const selectIsConsultationInProgress = createSelector(
   selectConsultationStatus,
   (status) => status === AppointmentStatus.Progress,
 );
 
-export const isConsultationInvestigating = createSelector(
-  selectConsultationStatus,
-  (status) => status === AppointmentStatus.Investigating,
-);
-
-export const isConsultationNotInProgress = createSelector(
-  selectConsultationStatus,
-  (status) => status !== AppointmentStatus.Progress,
-);
-
-export const isConsultationInvestigatingScheduled = createSelector(
-  selectConsultationStatus,
-  (status) => status === AppointmentStatus.InvestigatingScheduled,
-);
-
-export const isConsultationInvestigatingProgress = createSelector(
+export const selectIsConsultationInvestigatingProgress = createSelector(
   selectConsultationStatus,
   (status) => status === AppointmentStatus.InvestigatingProgress,
 );
@@ -114,14 +98,6 @@ export const selectReviewAppointmentId = createSelector(
 export const selectAppointmentRadiology = createSelector(
   selectAppointment,
   (appointment) => appointment?.radiology,
-);
-
-export const selectRequestedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
-  radiology?.status === RequestStatus.Pending ? radiology : null,
-);
-
-export const selectConductedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
-  radiology?.fileUrls && radiology.fileUrls.length > 0 ? radiology : null,
 );
 
 export const selectIsConsultationAuthenticated = createSelector(

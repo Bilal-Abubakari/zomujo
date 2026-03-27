@@ -1,26 +1,16 @@
 'use client';
 import { Calendar, Medal } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import React, { JSX, useState } from 'react';
 import { IDoctor } from '@/types/doctor.interface';
 import { Button } from '@/components/ui/button';
 import moment from 'moment';
 import { isToday } from '@/lib/date';
 import { Modal } from '@/components/ui/dialog';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { MODE } from '@/constants/constants';
-import { IBookingForm } from '@/types/booking.interface';
-import { bookingSchema } from '@/schemas/booking.schema';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectUser } from '@/lib/features/auth/authSelector';
-import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
-import { capitalize, showErrorToast } from '@/lib/utils';
-import { toast } from '@/hooks/use-toast';
-import { ICheckout } from '@/types/payment.interface';
-import { Role } from '@/types/shared.enum';
+import { capitalize } from '@/lib/utils';
 import { DoctorProfile } from '@/components/doctor/DoctorProfile';
 import BookingModals from '@/components/doctor/BookingModals';
+import { useBookingFlow } from '@/hooks/useBookingFlow';
+import { useRouter } from 'next/navigation';
 
 export type DoctorCardProps = {
   doctor: IDoctor;
@@ -39,24 +29,21 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     fee,
   } = doctor;
   const fullName = `${firstName} ${lastName}`;
-  const { register, setValue, getValues, watch } = useForm<IBookingForm>({
-    resolver: zodResolver(bookingSchema),
-    mode: MODE.ON_TOUCH,
-    defaultValues: {
-      isFollowUp: false,
-    },
-  });
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const [showSlots, setShowSlots] = useState(false);
   const [openDoctorDetails, setOpenDoctorDetails] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const user = useAppSelector(selectUser);
-  const [isInitiatingPayment, setIsInitiatingPayment] = useState<boolean>(false);
 
-  const handleBookAppointment = (): void => {
-    setShowSlots(true);
-  };
+  const {
+    showSlots,
+    setShowSlots,
+    showPreview,
+    setShowPreview,
+    isInitiatingPayment,
+    register,
+    setValue,
+    watch,
+    handleContinueBooking,
+    handleConfirmAndPay,
+  } = useBookingFlow({ doctorId: id, fullName });
 
   const getAvailability = (): string => {
     if (appointmentSlots.length === 0) {
@@ -64,61 +51,6 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     }
     const date = appointmentSlots[0].date;
     return isToday(date) ? 'Today' : moment(date).format('ddd, MMM, D');
-  };
-
-  const bookAppointment = (): void => {
-    const { slotId, date, time } = getValues();
-    if (!slotId || !date || !time) {
-      toast({
-        title: 'Please select a time slot',
-        description: 'You need to select a date and time before proceeding',
-        variant: 'default',
-      });
-      return;
-    }
-
-    if (user) {
-      if (user.role !== Role.Patient) {
-        toast({
-          title: 'Please use a patient account',
-          description: 'Only patients can book appointments',
-          variant: 'default',
-        });
-        return;
-      }
-      setShowSlots(false);
-      setShowPreview(true);
-      return;
-    }
-    router.push(`/sign-up?doctorId=${id}&slotId=${slotId}&doctor=${encodeURIComponent(fullName)}`);
-  };
-
-  const handleConfirmAndProceed = (): void => {
-    const { slotId, isFollowUp } = getValues();
-    void onSubmit(slotId, isFollowUp);
-  };
-
-  const onSubmit = async (slotId: string, isFollowUp: boolean): Promise<void> => {
-    setIsInitiatingPayment(true);
-
-    const { payload } = await dispatch(
-      initiatePayment({
-        additionalInfo: '',
-        reason: 'Reason is not a priority now',
-        slotId,
-        isFollowUp,
-      }),
-    );
-
-    if (payload && showErrorToast(payload)) {
-      toast(payload);
-      setIsInitiatingPayment(false);
-      setShowPreview(false);
-      return;
-    }
-
-    const { authorization_url } = payload as ICheckout;
-    globalThis.location.replace(authorization_url);
   };
 
   const hasSlots = appointmentSlots.length > 0;
@@ -158,8 +90,8 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
         register={register}
         setValue={setValue}
         watch={watch}
-        handleContinueBooking={bookAppointment}
-        handleConfirmAndPay={handleConfirmAndProceed}
+        handleContinueBooking={handleContinueBooking}
+        handleConfirmAndPay={handleConfirmAndPay}
       />
       <div className="group relative flex h-full w-62.5 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
         <button
@@ -229,12 +161,12 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
               <p className="text-[10px] text-gray-400">Next available</p>
               <p className="truncate text-xs font-semibold text-gray-800">{getAvailability()}</p>
             </div>
-            <span className="text-primary shrink-0 text-xs font-bold">GH&#8373;{fee?.amount}</span>
+            <span className="text-primary shrink-0 text-xs font-bold">GH&#8373;{fee}</span>
           </div>
           <Button
             disabled={!hasSlots}
             title={hasSlots ? 'Book Appointment' : 'No available slots'}
-            onClick={handleBookAppointment}
+            onClick={() => setShowSlots(true)}
             className="w-full rounded-xl py-2.5 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50"
             child={hasSlots ? 'Book Appointment' : 'No Slots Available'}
           />

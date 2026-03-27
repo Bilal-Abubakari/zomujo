@@ -15,7 +15,8 @@ import {
 import { getDrugs } from '@/lib/features/records/recordsThunk';
 import { selectPrescriptions } from '@/lib/features/appointments/appointmentSelector';
 import { Toast, toast } from '@/hooks/use-toast';
-import { showErrorToast } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 import { AlertMessage } from '@/components/ui/alert';
 import { IPrescriptionRequest } from '@/types/consultation.interface';
 import {
@@ -68,6 +69,7 @@ const Prescription = ({
   updatePrescription,
   setUpdatePrescription,
 }: PrescriptionProps): JSX.Element => {
+  const { state, isMobile } = useSidebar();
   const dispatch = useAppDispatch();
   const params = useParams();
   const appointmentId = String(params.appointmentId);
@@ -376,7 +378,14 @@ const Prescription = ({
         showClose={true}
       />
 
-      <div className="fixed bottom-0 left-0 flex w-full justify-between gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
+      <div
+        className={cn(
+          'fixed bottom-0 z-50 flex justify-between gap-4 border-t border-gray-300 bg-white p-4 shadow-md',
+          !isMobile && state === 'expanded'
+            ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+            : 'left-0 w-full',
+        )}
+      >
         <Button onClick={goToPrevious} variant="outline" child="Back to Investigation" />
         <Button onClick={handleNextWithWarning} child="Continue to Review" />
       </div>

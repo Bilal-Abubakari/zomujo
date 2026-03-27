@@ -172,9 +172,7 @@ export default function BookingModals({
                       <Medal size={20} className="text-primary-500" />
                       <div>
                         <p className="text-xs font-medium text-gray-500">Session Duration</p>
-                        <p className="text-base font-semibold text-gray-900">
-                          {doctor?.fee?.lengthOfSession || '45'} minutes
-                        </p>
+                        <p className="text-base font-semibold text-gray-900">45 minutes</p>
                       </div>
                     </div>
                   </div>
@@ -205,9 +203,7 @@ export default function BookingModals({
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-medium text-gray-600">Total Amount</p>
-                      <p className="text-primary-600 text-xl font-bold">
-                        GHS {doctor?.fee?.amount || '0'}
-                      </p>
+                      <p className="text-primary-600 text-xl font-bold">GHS {doctor?.fee || '0'}</p>
                     </div>
                   </div>
                 </div>

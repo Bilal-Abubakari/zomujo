@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { useAppSelector } from '@/lib/hooks';
 import { Loader2 } from 'lucide-react';
 import {
-  isConsultationInvestigatingProgress,
+  selectIsConsultationInvestigatingProgress,
   selectHistoryNotes,
   selectPostInvestigationData,
 } from '@/lib/features/appointments/appointmentSelector';
@@ -35,7 +35,7 @@ const LoadingFallback = (): JSX.Element => (
 
 const History = ({ goToNext }: SymptomsProps): JSX.Element => {
   const historyNotes = useAppSelector(selectHistoryNotes);
-  const isInvestigatingProgress = useAppSelector(isConsultationInvestigatingProgress);
+  const isInvestigatingProgress = useAppSelector(selectIsConsultationInvestigatingProgress);
   const postInvestigationData = useAppSelector(selectPostInvestigationData);
   const params = useParams();
   const goToLabs = goToNext;

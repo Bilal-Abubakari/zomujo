@@ -6,7 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAppDispatch } from '@/lib/hooks';
 import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
-import { referPatient } from '@/lib/features/appointments/consultation/consultationThunk';
+import {
+  referPatient,
+  referPatientToHospital,
+} from '@/lib/features/appointments/consultation/consultationThunk';
 import { IDoctor } from '@/types/doctor.interface';
 import { IReferral, ReferralType } from '@/types/consultation.interface';
 import { Search, Check, Loader2 } from 'lucide-react';
@@ -20,6 +23,7 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { IPagination } from '@/types/shared.interface';
 import { MODE } from '@/constants/constants';
+import { useParams } from 'next/navigation';
 
 const externalReferralSchema = z.object({
   facility: z.string().min(1, 'Hospital / Facility is required'),
@@ -43,6 +47,7 @@ export const ReferralModal = ({
   onSave,
   patientId,
 }: ReferralModalProps): JSX.Element => {
+  const params = useParams();
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<ReferralType>('internal');
 
@@ -112,6 +117,7 @@ export const ReferralModal = ({
         patientId,
         referredDoctorId: selectedDoctor.id,
         letter: internalLetter,
+        appointmentId: String(params.appointmentId),
       }),
     ).unwrap();
 
@@ -132,11 +138,30 @@ export const ReferralModal = ({
     onClose();
   };
 
-  const handleSaveExternal = (data: ExternalReferralFormValues): void => {
+  const handleSaveExternal = async (data: ExternalReferralFormValues): Promise<void> => {
+    setIsSubmitting(true);
+    const result = await dispatch(
+      referPatientToHospital({
+        facility: data.facility,
+        doctorName: data.doctorName,
+        notes: data.notes,
+        email: data.email || undefined,
+        appointmentId: String(params.appointmentId),
+      }),
+    ).unwrap();
+
+    if (showErrorToast(result)) {
+      toast(result);
+      setIsSubmitting(false);
+      return;
+    }
+
+    toast(result);
     onSave({
       type: 'external',
       ...data,
     });
+    setIsSubmitting(false);
     onClose();
     reset();
   };
@@ -237,7 +262,7 @@ export const ReferralModal = ({
                 />
               </div>
 
-              <div className="-mr-1 max-h-[45vh] overflow-y-auto pr-1">{doctorListContent}</div>
+              <div className="-mr-1 max-h-[30vh] overflow-y-auto pr-1">{doctorListContent}</div>
 
               {selectedDoctor && (
                 <div className="animate-in fade-in slide-in-from-top-2 space-y-3 border-t border-slate-100 pt-2 duration-300">
@@ -259,7 +284,7 @@ export const ReferralModal = ({
                 </div>
               )}
 
-              <div className="mt-4 pb-4">
+              <div className="mt-4">
                 <Button
                   className="h-12 w-full text-base font-semibold"
                   disabled={!selectedDoctor || isSubmitting}
@@ -304,6 +329,7 @@ export const ReferralModal = ({
               </div>
               <div className="mt-auto pt-4">
                 <Button
+                  isLoading={isSubmitting}
                   className="w-full"
                   onClick={handleSubmit(handleSaveExternal)}
                   child="Generate Referral"

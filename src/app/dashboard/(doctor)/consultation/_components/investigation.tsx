@@ -14,6 +14,8 @@ import { Button } from '@/components/ui/button';
 import Signature from '@/components/signature/signature';
 import { selectHasInvestigation } from '@/lib/features/appointments/consultation/consultationSelector';
 import { setInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSlice';
+import { cn } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 
 const Investigation = ({
   goToNext,
@@ -22,6 +24,7 @@ const Investigation = ({
   goToNext: () => void;
   goToPrevious: () => void;
 }): JSX.Element => {
+  const { state, isMobile } = useSidebar();
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<'labs' | 'radiology'>('labs');
   const [openAddSignature, setOpenAddSignature] = useState(false);
@@ -177,7 +180,14 @@ const Investigation = ({
             />
           </div>
         )}
-        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white px-4 py-2 shadow-md">
+        <div
+          className={cn(
+            'fixed bottom-0 z-50 flex justify-between border-t border-gray-300 bg-white px-4 py-2 shadow-md',
+            !isMobile && state === 'expanded'
+              ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+              : 'left-0 w-full',
+          )}
+        >
           <Button onClick={goToPrevious} variant="outline" child="Back to History" />
           <Button onClick={handleSubmitAndGoToExamination} child="Continue to Prescription" />
         </div>

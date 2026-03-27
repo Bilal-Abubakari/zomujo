@@ -20,7 +20,7 @@ import {
   selectAppointmentDoctorId,
   selectAppointmentLinkId,
   selectIsFollowUp,
-  hasConsultationEnded,
+  selectHasConsultationEnded,
 } from '@/lib/features/appointments/appointmentSelector';
 import { toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
@@ -37,7 +37,7 @@ const PatientOverview = (): JSX.Element => {
   const doctorId = useAppSelector(selectAppointmentDoctorId);
   const appointmentLinkId = useAppSelector(selectAppointmentLinkId);
   const isFollowUp = useAppSelector(selectIsFollowUp);
-  const isConsultationCompleted = useAppSelector(hasConsultationEnded);
+  const isConsultationCompleted = useAppSelector(selectHasConsultationEnded);
   const dispatch = useAppDispatch();
   const [isStartingConsultation, setIsStartingConsultation] = useState(false);
   const [consultationExpired, setConsultationExpired] = useState(false);
