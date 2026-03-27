@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import moment from 'moment';
 import { isToday } from '@/lib/date';
 import { Modal } from '@/components/ui/dialog';
-import { capitalize } from '@/lib/utils';
+import { capitalize, pesewasToGhc } from '@/lib/utils';
 import { DoctorProfile } from '@/components/doctor/DoctorProfile';
 import BookingModals from '@/components/doctor/BookingModals';
 import { useBookingFlow } from '@/hooks/useBookingFlow';
@@ -161,7 +161,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
               <p className="text-[10px] text-gray-400">Next available</p>
               <p className="truncate text-xs font-semibold text-gray-800">{getAvailability()}</p>
             </div>
-            <span className="text-primary shrink-0 text-xs font-bold">GH&#8373;{fee}</span>
+            <span className="text-primary shrink-0 text-xs font-bold">
+              GH&#8373;{pesewasToGhc(fee || 0)}
+            </span>
           </div>
           <Button
             disabled={!hasSlots}

@@ -1,9 +1,7 @@
 import { SelectOption } from '@/components/ui/select';
 import {
   AcceptDeclineStatus,
-  BloodGroup,
   ConditionStatus,
-  Denomination,
   DurationType,
   Gender,
   MaritalStatus,
@@ -19,7 +17,6 @@ export const DAYS_IN_WEEK = 7;
 export const MINUTES_IN_HOUR = 60;
 export const MILLISECONDS_IN_SECOND = 1000;
 export const SECONDS_IN_MINUTE = 60;
-export const PIXELS_PER_HOUR = 60;
 export const TWELVE_HOUR_SYSTEM = 12;
 export const METERS_TO_KM_FACTOR = 1000;
 export const MAX_RADIUS_IN_KM = 30;
@@ -35,7 +32,7 @@ export const DAYS_OF_WEEK = [
   'Saturday',
   'Sunday',
 ] as const;
-export const unMatchingPasswords = 'Passwords do not match';
+export const unMatchingPasswords = 'Passwords do not match'; //NOSONAR
 
 export const selectGenderOptions = [
   { label: 'Male', value: Gender.Male },
@@ -155,23 +152,6 @@ export const maritalOptions = [
   { value: MaritalStatus.Married, label: 'Married' },
   { value: MaritalStatus.Divorced, label: 'Divorced' },
   { value: MaritalStatus.Widowed, label: 'Widowed' },
-];
-
-export const denominationOptions = [
-  { value: Denomination.Muslim, label: 'Muslim' },
-  { value: Denomination.Christian, label: 'Christian' },
-  { value: Denomination.Other, label: 'Other' },
-];
-
-export const bloodGroupOptions = [
-  { value: BloodGroup.APositive, label: 'APositive' },
-  { value: BloodGroup.ANegative, label: 'ANegative' },
-  { value: BloodGroup.BPositive, label: 'BPositive' },
-  { value: BloodGroup.BNegative, label: 'BNegative' },
-  { value: BloodGroup.ABPositive, label: 'ABPositive' },
-  { value: BloodGroup.ABNegative, label: 'ABNegative' },
-  { value: BloodGroup.OPositive, label: 'OPositive' },
-  { value: BloodGroup.ONegative, label: 'ONegative' },
 ];
 
 export const familyRelations = [

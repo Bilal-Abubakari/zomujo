@@ -85,7 +85,7 @@ export const setPaymentRate = createAsyncThunk(
       } = await axios.patch<IResponse<IRate>>('doctors/set-fee', rate);
       dispatch(
         updateExtra({
-          fee: rate,
+          fee: rate.amount,
         }),
       );
       return generateSuccessToast(message);

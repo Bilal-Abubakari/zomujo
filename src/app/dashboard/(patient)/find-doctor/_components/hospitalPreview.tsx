@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { IHospital } from '@/types/hospital.interface';
 import { METERS_TO_KM_FACTOR } from '@/constants/constants';
-import { openExternalUrls } from '@/lib/utils';
+import { openExternalUrls, pesewasToGhc } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 
@@ -92,7 +92,7 @@ const HospitalPreview = (hospital: IHospital): JSX.Element => {
             <h3 className="mb-3 font-semibold">Specialties</h3>
             <div className="flex flex-wrap gap-2">
               {specialties?.map((specialty, index) => (
-                <Badge key={index} variant="secondary">
+                <Badge key={`${index}-${specialty}`} variant="secondary">
                   {specialty}
                 </Badge>
               ))}
@@ -103,7 +103,7 @@ const HospitalPreview = (hospital: IHospital): JSX.Element => {
             <h3 className="mb-3 font-semibold">Regular Fee</h3>
             <div className="flex items-center gap-2 text-gray-600">
               <CircleDollarSign size={16} />
-              <span>GHC {regularFee}</span>
+              <span>GHC {pesewasToGhc(regularFee)}</span>
             </div>
           </div>
         </div>
@@ -114,7 +114,7 @@ const HospitalPreview = (hospital: IHospital): JSX.Element => {
             <div className="flex flex-wrap gap-2">
               {supportedInsurance?.map((insurance, index) => (
                 <div
-                  key={index}
+                  key={`${index}-${insurance}`}
                   className="flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1"
                 >
                   <Shield size={14} />

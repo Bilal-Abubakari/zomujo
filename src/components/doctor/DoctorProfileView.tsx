@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { doctorInfo } from '@/lib/features/doctors/doctorsThunk';
 import { IDoctor } from '@/types/doctor.interface';
-import { showErrorToast } from '@/lib/utils';
+import { pesewasToGhc, showErrorToast } from '@/lib/utils';
 import { Logo } from '@/assets/images';
 import Image from 'next/image';
 import { BRANDING } from '@/constants/branding.constant';
@@ -143,7 +143,9 @@ export default function DoctorProfileView({
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {doctor.fee && (
             <div className="flex flex-col items-center rounded-xl border bg-white p-4 shadow-sm">
-              <span className="text-primary text-2xl font-extrabold">GHs {doctor.fee}</span>
+              <span className="text-primary text-2xl font-extrabold">
+                GHs {pesewasToGhc(doctor.fee)}
+              </span>
               <span className="mt-1 text-xs text-gray-500">Consultation Fee</span>
             </div>
           )}
