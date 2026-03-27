@@ -36,10 +36,7 @@ export interface IDoctor extends IExtraBase {
   signaturePath: string;
   noOfConsultations?: number;
   ratings: number;
-  fee?: {
-    lengthOfSession: string;
-    amount: number;
-  };
+  fee?: number;
   hasDefaultPayment: boolean;
   hasSlot: boolean;
 }

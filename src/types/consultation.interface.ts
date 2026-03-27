@@ -50,7 +50,8 @@ export interface IConsultationDetails {
   radiology: IRadiology | null;
   diagnosis: IDiagnosis[];
   prescriptions: IPrescription[];
-  referrals: IReferral[] | null;
+  referralData: IExternalReferralRequest | null;
+  referral: IInternalReferralResponse | null;
   slot: ISlot;
 }
 
@@ -96,16 +97,6 @@ export enum ConsultationStatus {
   Cancelled = 'cancelled',
 }
 
-export interface ConsultationStatusRequest {
-  status: ConsultationStatus;
-  appointmentId: string;
-}
-
-export interface IConsultationAuthRequest {
-  appointmentId: string;
-  code: string;
-}
-
 export type ReferralType = 'internal' | 'external';
 
 export interface IReferral {
@@ -132,4 +123,16 @@ export interface IInternalReferralRequest {
   patientId: string;
   referredDoctorId: string;
   letter: string;
+  appointmentId: string;
+}
+
+export type IExternalReferralRequest = Pick<
+  IReferral,
+  'doctorName' | 'facility' | 'email' | 'notes'
+> & {
+  appointmentId: string;
+};
+
+export interface IInternalReferralResponse extends IInternalReferralRequest {
+  status: 'pending';
 }

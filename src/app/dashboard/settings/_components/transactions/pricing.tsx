@@ -19,11 +19,11 @@ const Pricing = (): JSX.Element => {
   const router = useRouter();
   const doctorInfo = useAppSelector(selectExtra) as IDoctor;
 
-  const MIN_SESSION = 30;
+  const MIN_SESSION = 45;
   const MAX_SESSION = 120;
 
   const [currentAmount, setCurrentAmount] = useState(MIN_AMOUNT);
-  const [currentSessionLength, setCurrentSessionLength] = useState(45);
+  const [currentSessionLength, setCurrentSessionLength] = useState(MIN_SESSION);
   const dispatch = useAppDispatch();
   const isAdmin = useAppSelector(selectIsOrganizationAdmin);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,11 +63,10 @@ const Pricing = (): JSX.Element => {
 
   useEffect(() => {
     if (doctorInfo?.fee) {
-      const { amount, lengthOfSession } = doctorInfo.fee;
-      const sectionLength = lengthOfSession.split(' ')[0];
+      const amount = doctorInfo.fee;
       if (amount) {
         setCurrentAmount(amount);
-        setCurrentSessionLength(Number(sectionLength));
+        setCurrentSessionLength(Number(MIN_SESSION));
       }
     }
   }, []);
@@ -117,9 +116,7 @@ const Pricing = (): JSX.Element => {
         child="Save Changes"
         isLoading={isLoading}
         disabled={isLoading}
-        onClick={() =>
-          updateRate({ amount: currentAmount, lengthOfSession: `${currentSessionLength} mins` })
-        }
+        onClick={() => updateRate({ amount: currentAmount })}
       />
     </div>
   );

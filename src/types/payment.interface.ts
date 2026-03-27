@@ -30,7 +30,7 @@ export interface IPaymentDetails extends ICreatePaymentDetails {
 
 export interface IRate {
   amount: number;
-  lengthOfSession: string;
+  lengthOfSession?: number;
 }
 
 export interface IBank {

@@ -27,9 +27,9 @@ import {
 import { useParams, useRouter } from 'next/navigation';
 import {
   selectConsultationStatus,
-  hasConsultationEnded,
-  isConsultationInProgress,
-  isConsultationInvestigatingProgress,
+  selectHasConsultationEnded,
+  selectIsConsultationInProgress,
+  selectIsConsultationInvestigatingProgress,
   selectAppointmentRadiology,
   selectHistoryNotes,
   selectIsConsultationAuthenticated,
@@ -155,9 +155,9 @@ const Consultation = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const isLoadingAppointment = useAppSelector(selectIsLoading);
   const currentConsultationStatus = useAppSelector(selectConsultationStatus);
-  const isInProgress = useAppSelector(isConsultationInProgress);
-  const isInvestigatingProgress = useAppSelector(isConsultationInvestigatingProgress);
-  const hasEnded = useAppSelector(hasConsultationEnded);
+  const isInProgress = useAppSelector(selectIsConsultationInProgress);
+  const isInvestigatingProgress = useAppSelector(selectIsConsultationInvestigatingProgress);
+  const hasEnded = useAppSelector(selectHasConsultationEnded);
   const params = useParams();
   const [isEndingConsultation, setIsEndingConsultation] = useState(false);
   const symptoms = useAppSelector(selectSymptoms);

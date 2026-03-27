@@ -21,6 +21,8 @@ export interface IPagination<T> {
   nextPage: number | null;
   prevPage: number | null;
   totalPages: number;
+  isFirstPage: boolean;
+  isLastPage: boolean;
 }
 
 export type Month =

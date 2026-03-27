@@ -52,7 +52,7 @@ const Pricing = (): JSX.Element => {
             <ul className="mb-8 space-y-3">
               {features.map((feature) => (
                 <li key={feature} className="flex items-start">
-                  <Check className="text-primary mt-0.5 mr-3 h-5 w-5 flex-shrink-0" />
+                  <Check className="text-primary mt-0.5 mr-3 h-5 w-5 shrink-0" />
                   <span className="text-foreground">{feature}</span>
                 </li>
               ))}
@@ -86,7 +86,7 @@ const Pricing = (): JSX.Element => {
             <ul className="mb-8 space-y-3">
               {doctorFeatures.map((feature) => (
                 <li key={feature} className="flex items-start">
-                  <Check className="text-primary mt-0.5 mr-3 h-5 w-5 flex-shrink-0" />
+                  <Check className="text-primary mt-0.5 mr-3 h-5 w-5 shrink-0" />
                   <span className="text-foreground">{feature}</span>
                 </li>
               ))}

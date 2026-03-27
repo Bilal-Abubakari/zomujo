@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/lib/hooks';
 import { savePostInvestigationData } from '@/lib/features/appointments/consultation/consultationThunk';
 import { toast, Toast } from '@/hooks/use-toast';
-import { showErrorToast } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 import { LocalStorageManager } from '@/lib/localStorage';
 import {
   parseInitialNotes,
@@ -44,6 +45,7 @@ const PostInvestigationHistoryView = ({
   initialPostData,
   goToNext,
 }: PostInvestigationHistoryViewProps): JSX.Element => {
+  const { state, isMobile } = useSidebar();
   const initialPostInvestigationNotes = parsePostInvestigationInitialNotes(initialPostData);
   const dispatch = useAppDispatch();
   const [postData, setPostData] = useState<IPostInvestigationData>(initialPostInvestigationNotes);
@@ -273,7 +275,14 @@ const PostInvestigationHistoryView = ({
       </div>
 
       {/* Fixed Footer */}
-      <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white p-4 shadow-md">
+      <div
+        className={cn(
+          'fixed bottom-0 z-50 flex justify-between border-t border-gray-300 bg-white p-4 shadow-md',
+          !isMobile && state === 'expanded'
+            ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+            : 'left-0 w-full',
+        )}
+      >
         <div className="flex items-center gap-2">
           {hasUnsavedChanges && !initialPostData && (
             <span className="text-sm text-amber-600">Unsaved changes (auto-saved locally)</span>

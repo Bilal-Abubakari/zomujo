@@ -21,6 +21,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 
 interface InvestigationResultsProps {
   goToNext: () => void;
@@ -32,6 +33,7 @@ type PreviewFile = {
 };
 
 const InvestigationResults = ({ goToNext }: InvestigationResultsProps): JSX.Element => {
+  const { state, isMobile } = useSidebar();
   const lab = useAppSelector(selectAppointmentLabs);
   const radiology = useAppSelector(selectAppointmentRadiology);
   const [previewFile, setPreviewFile] = useState<PreviewFile | null>(null);
@@ -286,7 +288,14 @@ const InvestigationResults = ({ goToNext }: InvestigationResultsProps): JSX.Elem
       </div>
 
       {/* Fixed Footer */}
-      <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white p-4 shadow-md">
+      <div
+        className={cn(
+          'fixed bottom-0 z-50 flex justify-between border-t border-gray-300 bg-white p-4 shadow-md',
+          !isMobile && state === 'expanded'
+            ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+            : 'left-0 w-full',
+        )}
+      >
         <div />
         <Button
           onClick={goToNext}

@@ -13,7 +13,12 @@ import { IAppointment, IPostInvestigationData } from '@/types/appointment.interf
 import { ILaboratoryRequest } from '@/types/labs.interface';
 import { IRadiology } from '@/types/radiology.interface';
 import { IPrescription } from '@/types/medical.interface';
-import { IPatientSymptomMap, IReferral } from '@/types/consultation.interface';
+import {
+  IExternalReferralRequest,
+  IInternalReferralResponse,
+  IPatientSymptomMap,
+  IReferral,
+} from '@/types/consultation.interface';
 
 interface CardsViewProps {
   appointment: IAppointment | null | undefined;
@@ -25,6 +30,8 @@ interface CardsViewProps {
   prescriptions: IPrescription[];
   referrals: IReferral[];
   onRemoveReferral?: (index: number) => void;
+  savedExternalReferral?: IExternalReferralRequest | null;
+  savedInternalReferral?: IInternalReferralResponse | null;
   labInstructions?: string;
   labClinicalHistory?: string;
   labFileUrls?: string[];
@@ -41,6 +48,8 @@ export const CardsView = ({
   prescriptions,
   referrals,
   onRemoveReferral,
+  savedExternalReferral,
+  savedInternalReferral,
   labInstructions,
   labClinicalHistory,
   labFileUrls,
@@ -63,9 +72,12 @@ export const CardsView = ({
         )}
         <MedicationsTakenCard medicinesTaken={appointment?.symptoms?.medicinesTaken} />
         <PrescriptionsCard prescriptions={prescriptions} />
-        {/* DiagnosisCard hidden - Impression is now part of Assessment in History Notes */}
-        {/* <DiagnosisCard diagnoses={diagnoses} doctorName={doctorName} /> */}
-        <ReferralsCard referrals={referrals} onRemove={onRemoveReferral} />
+        <ReferralsCard
+          referrals={referrals}
+          onRemove={onRemoveReferral}
+          savedExternalReferral={savedExternalReferral}
+          savedInternalReferral={savedInternalReferral}
+        />
       </div>
 
       {/* Right Column */}

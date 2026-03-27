@@ -16,17 +16,9 @@ import React, { JSX, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { IDoctor } from '@/types/doctor.interface';
-import { initiatePayment } from '@/lib/features/payments/paymentsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
-import { ICheckout } from '@/types/payment.interface';
-import { Role } from '@/types/shared.enum';
-import { MODE } from '@/constants/constants';
-import { bookingSchema } from '@/schemas/booking.schema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IBookingForm } from '@/types/booking.interface';
 import BookingModals from '@/components/doctor/BookingModals';
-import { useRouter } from 'next/navigation';
+import { useBookingFlow } from '@/hooks/useBookingFlow';
 import { doctorInfo as getDoctorInfo } from '@/lib/features/doctors/doctorsThunk';
 import Loading from '@/components/loadingOverlay/loading';
 
@@ -37,15 +29,6 @@ type DoctorProfileProps = {
 };
 export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps): JSX.Element => {
   const dispatch = useAppDispatch();
-  const router = useRouter();
-  const [showSlots, setShowSlots] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
-  const { register, setValue, getValues, watch } = useForm<IBookingForm>({
-    resolver: zodResolver(bookingSchema),
-    mode: MODE.ON_TOUCH,
-    defaultValues: { isFollowUp: false },
-  });
   const [doctorData, setDoctorData] = useState<IDoctor | null>(null);
   const user = useAppSelector(selectUser);
   const doctorInfo = useMemo(() => doctor ?? doctorData, [doctor, doctorData]);
@@ -54,47 +37,18 @@ export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps
     [doctorInfo],
   );
 
-  const handleContinueBooking = (): void => {
-    const { slotId, date, time } = getValues();
-    if (!slotId || !date || !time) {
-      toast({
-        title: 'Please select a time slot',
-        description: 'You need to select a date and time before proceeding',
-      });
-      return;
-    }
-    if (user) {
-      if (user.role !== Role.Patient) {
-        toast({
-          title: 'Please use a patient account',
-          description: 'Only patients can book appointments',
-        });
-        return;
-      }
-      setShowSlots(false);
-      setShowPreview(true);
-      return;
-    }
-    router.push(
-      `/sign-up?doctorId=${doctorId}&slotId=${slotId}&doctor=${encodeURIComponent(fullName)}`,
-    );
-  };
-
-  const handleConfirmAndPay = async (): Promise<void> => {
-    const { slotId, isFollowUp } = getValues();
-    setIsInitiatingPayment(true);
-    const { payload } = await dispatch(
-      initiatePayment({ additionalInfo: '', reason: 'Consultation', slotId, isFollowUp }),
-    );
-    if (payload && showErrorToast(payload)) {
-      toast(payload);
-      setIsInitiatingPayment(false);
-      setShowPreview(false);
-      return;
-    }
-    const { authorization_url } = payload as ICheckout;
-    globalThis.location.replace(authorization_url);
-  };
+  const {
+    showSlots,
+    setShowSlots,
+    showPreview,
+    setShowPreview,
+    isInitiatingPayment,
+    register,
+    setValue,
+    watch,
+    handleContinueBooking,
+    handleConfirmAndPay,
+  } = useBookingFlow({ doctorId, fullName });
 
   useEffect(() => {
     async function getDoctorDetails(): Promise<void> {
@@ -258,7 +212,7 @@ export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps
                   Consultation Fee
                 </span>
                 <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
-                  GHs {doctorInfo.fee.amount}
+                  GHs {doctorInfo.fee}
                 </span>
                 <span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)' }}>
                   per session
