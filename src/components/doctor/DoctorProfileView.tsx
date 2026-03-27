@@ -143,7 +143,7 @@ export default function DoctorProfileView({
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {doctor.fee && (
             <div className="flex flex-col items-center rounded-xl border bg-white p-4 shadow-sm">
-              <span className="text-primary text-2xl font-extrabold">GHs {doctor.fee.amount}</span>
+              <span className="text-primary text-2xl font-extrabold">GHs {doctor.fee}</span>
               <span className="mt-1 text-xs text-gray-500">Consultation Fee</span>
             </div>
           )}
