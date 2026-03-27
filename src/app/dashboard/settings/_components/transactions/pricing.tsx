@@ -63,11 +63,10 @@ const Pricing = (): JSX.Element => {
 
   useEffect(() => {
     if (doctorInfo?.fee) {
-      const { amount, lengthOfSession } = doctorInfo.fee;
-      const sectionLength = lengthOfSession ?? MIN_SESSION;
+      const amount = doctorInfo.fee;
       if (amount) {
         setCurrentAmount(amount);
-        setCurrentSessionLength(Number(sectionLength));
+        setCurrentSessionLength(Number(MIN_SESSION));
       }
     }
   }, []);
