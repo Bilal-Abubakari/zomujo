@@ -139,7 +139,9 @@ const DoctorDetails = ({
                 <span className="text-[10px] font-medium tracking-wide text-white/60 uppercase">
                   Consultation Fee
                 </span>
-                <span className="mt-0.5 text-xl font-extrabold text-white">GHs {pesewasToGhc(doctor.fee)}</span>
+                <span className="mt-0.5 text-xl font-extrabold text-white">
+                  GHs {pesewasToGhc(doctor.fee)}
+                </span>
                 <span className="text-[10px] text-white/50">per session</span>
               </div>
             )}
