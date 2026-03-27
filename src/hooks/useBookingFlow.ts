@@ -1,7 +1,13 @@
 'use client';
 
 import { Dispatch, SetStateAction, useState } from 'react';
-import { useForm, UseFormGetValues, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import {
+  useForm,
+  UseFormGetValues,
+  UseFormRegister,
+  UseFormSetValue,
+  UseFormWatch,
+} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { bookingSchema } from '@/schemas/booking.schema';
@@ -34,7 +40,10 @@ export interface UseBookingFlowReturn {
   handleConfirmAndPay: () => Promise<void>;
 }
 
-export const useBookingFlow = ({ doctorId, fullName }: UseBookingFlowParams): UseBookingFlowReturn => {
+export const useBookingFlow = ({
+  doctorId,
+  fullName,
+}: UseBookingFlowParams): UseBookingFlowReturn => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector(selectUser);
@@ -105,4 +114,3 @@ export const useBookingFlow = ({ doctorId, fullName }: UseBookingFlowParams): Us
     handleConfirmAndPay,
   };
 };
-
