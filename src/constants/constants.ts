@@ -263,4 +263,3 @@ export const transactionTypeOptions: ISelected[] = [
   { value: TransactionType.Withdrawal, label: 'Withdrawal' },
   { value: TransactionType.Payout, label: 'Payout' },
 ];
-

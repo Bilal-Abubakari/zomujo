@@ -113,4 +113,3 @@ export enum TransactionType {
   Withdrawal = 'withdrawal',
   Payout = 'payout',
 }
-
