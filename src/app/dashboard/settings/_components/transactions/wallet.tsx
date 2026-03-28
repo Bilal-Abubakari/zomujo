@@ -10,6 +10,7 @@ import React, { JSX, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import WithdrawModal from './WithdrawModal';
 import { IWallet } from '@/types/payment.interface';
+import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
 
 const Wallet = (): JSX.Element => {
   const [walletAmount, setWalletAmount] = useState<number>(0);
@@ -42,12 +43,14 @@ const Wallet = (): JSX.Element => {
   return (
     <>
       <div>
-        <div className="w-full rounded-xl border p-6 sm:h-[200px] sm:w-[453px]">
+        <div className="w-full rounded-xl border p-6 sm:h-50 sm:w-113.25">
           <p className="mb-2 text-sm font-medium text-gray-400">AVAILABLE</p>
           {isLoading ? (
             <Skeleton className="h-10 w-32 bg-gray-300" />
           ) : (
-            <p className="text-[20px] font-bold sm:text-[38px]">GHS {walletAmount.toFixed(2)}</p>
+            <p className="text-[20px] font-bold sm:text-[38px]">
+              GHS {(walletAmount / PESEWAS_PER_CEDI).toFixed(2)}
+            </p>
           )}
           <hr className="my-4" />
           <Button
