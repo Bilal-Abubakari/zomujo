@@ -34,7 +34,6 @@ interface DataTableProps<TData, TValue> {
   userPaginationChange?: (value: PaginationState) => void;
   columnVisibility?: VisibilityState;
   page?: number;
-  pageCount?: number;
   paginationData?: PaginationData;
   isLoading?: boolean;
 }
@@ -189,6 +188,56 @@ export const TableData = <TData, TValue>({
     }
   }, [page, paginationData]);
 
+  const renderHeaderCell = (
+    header: ReturnType<typeof table.getFlatHeaders>[number],
+  ): JSX.Element | null => {
+    if (isLoading) {
+      return <Skeleton className="h-4 max-w-62.5 bg-gray-300" />;
+    }
+    if (header.isPlaceholder) {
+      return null;
+    }
+    return flexRender(header.column.columnDef.header, header.getContext()) as JSX.Element;
+  };
+
+  const renderTableBody = (): JSX.Element | JSX.Element[] => {
+    if (isLoading) {
+      return Array.from({ length: rowCount }).map((value, rowIndex) => (
+        <TableRow key={`${rowIndex}-${value}`}>
+          {Array.from({ length: columns.length }).map((value, colIndex) => (
+            <TableCell key={`${colIndex}-${value}`}>
+              <Skeleton className="h-4 max-w-62.5 bg-gray-300" />
+            </TableCell>
+          ))}
+        </TableRow>
+      ));
+    }
+
+    if (table.getRowModel().rows?.length) {
+      return table.getRowModel().rows.map((row) => (
+        <TableRow
+          key={row.id}
+          data-state={row.getIsSelected() && 'selected'}
+          className="text-sm font-medium text-gray-500"
+        >
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ));
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="h-24 text-center">
+          No results.
+        </TableCell>
+      </TableRow>
+    );
+  };
+
   return (
     <>
       <div className="border-y bg-white">
@@ -198,49 +247,13 @@ export const TableData = <TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id} className="text-black">
-                    {isLoading ? (
-                      <Skeleton className="h-4 max-w-[250px] bg-gray-300" />
-                    ) : header.isPlaceholder ? null : (
-                      flexRender(header.column.columnDef.header, header.getContext())
-                    )}
+                    {renderHeaderCell(header)}
                   </TableHead>
                 ))}
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: rowCount }).map((_, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  {Array.from({ length: columns.length }).map((_, colIndex) => (
-                    <TableCell key={colIndex}>
-                      <Skeleton className="h-4 max-w-[250px] bg-gray-300" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className="text-sm font-medium text-gray-500"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+          <TableBody>{renderTableBody()}</TableBody>
         </Table>
       </div>
       <div className="mr-2 flex items-center justify-between space-x-2 py-4">

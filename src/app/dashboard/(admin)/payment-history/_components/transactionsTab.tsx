@@ -73,7 +73,7 @@ const TransactionsTab = (): JSX.Element => {
     <div className="rounded-lg bg-white shadow-sm">
       <div className="p-6">
         {/* Filter bar */}
-        <div className="mb-4 flex flex-wrap gap-3">
+        <div className="mb-4 flex flex-wrap items-center gap-3">
           {/* Search */}
           <form className="flex" onSubmit={handleSubmit}>
             <Input
@@ -132,7 +132,7 @@ const TransactionsTab = (): JSX.Element => {
           </div>
 
           {/* Date range */}
-          <div className="flex items-center gap-1">
+          <div className="mb-5 flex gap-1">
             <Input
               error=""
               labelName="From"
