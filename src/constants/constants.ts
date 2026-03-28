@@ -5,6 +5,8 @@ import {
   DurationType,
   Gender,
   MaritalStatus,
+  TransactionStatus,
+  TransactionType,
 } from '@/types/shared.enum';
 import { ISelected } from '@/components/ui/dropdown-menu';
 import { capitalize } from '@/lib/utils';
@@ -240,4 +242,24 @@ export const doseRegimenOptions = [
   { value: 'Every 6 hours', label: 'Every 6 hours' },
   { value: 'Every 8 hours', label: 'Every 8 hours' },
   { value: 'Every 12 hours', label: 'Every 12 hours' },
+];
+
+export const transactionStatusOptions: ISelected[] = [
+  { value: '', label: 'All Statuses' },
+  { value: TransactionStatus.Pending, label: 'Pending' },
+  { value: TransactionStatus.Success, label: 'Success' },
+  { value: TransactionStatus.Failed, label: 'Failed' },
+  { value: TransactionStatus.Reversed, label: 'Reversed' },
+];
+
+export const transactionTypeOptions: ISelected[] = [
+  { value: '', label: 'All Types' },
+  { value: TransactionType.PatientCharge, label: 'Patient Charge' },
+  { value: TransactionType.PlatformShare, label: 'Platform Share' },
+  { value: TransactionType.DoctorShare, label: 'Doctor Share' },
+  { value: TransactionType.TaxCollected, label: 'Tax Collected' },
+  { value: TransactionType.PaystackFee, label: 'Paystack Fee' },
+  { value: TransactionType.Refund, label: 'Refund' },
+  { value: TransactionType.Withdrawal, label: 'Withdrawal' },
+  { value: TransactionType.Payout, label: 'Payout' },
 ];

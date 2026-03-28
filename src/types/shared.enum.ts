@@ -95,3 +95,21 @@ export enum DurationType {
   Weeks = 'weeks',
   Months = 'months',
 }
+
+export enum TransactionStatus {
+  Pending = 'pending',
+  Success = 'success',
+  Failed = 'failed',
+  Reversed = 'reversed',
+}
+
+export enum TransactionType {
+  PatientCharge = 'patient_charge',
+  PlatformShare = 'platform_share',
+  DoctorShare = 'doctor_share',
+  TaxCollected = 'tax_collected',
+  PaystackFee = 'paystack_fee',
+  Refund = 'refund',
+  Withdrawal = 'withdrawal',
+  Payout = 'payout',
+}

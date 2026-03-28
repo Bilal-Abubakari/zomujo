@@ -53,18 +53,6 @@ export const PATIENT_SIDE_BAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/records`,
           Icon: Archive,
         },
-        // TODO: Not planned for MVP
-        // {
-        //   title: 'Favorite Doctors',
-        //   url: '#',
-        //   Icon: Heart,
-        //   phoneTitle: 'Favorite',
-        // },
-        // {
-        //   title: 'Message',
-        //   url: '#',
-        //   Icon: MessageCircleMore,
-        // },
       ],
     },
 
@@ -112,12 +100,6 @@ export const DOCTOR_SIDE_BAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/availability`,
           Icon: BetweenHorizontalStart,
         },
-        // TODO: Not planned for MVP
-        // {
-        //   title: 'Message',
-        //   url: '#',
-        //   Icon: MessageCircleMore,
-        // },
       ],
     },
 
@@ -186,7 +168,7 @@ export const ADMIN_SIDE_BAR: ISidebar = {
         },
         {
           title: 'Transactions',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/payment-history`,
           Icon: Banknote,
         },
         {
