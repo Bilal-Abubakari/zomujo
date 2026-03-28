@@ -19,14 +19,14 @@ const PaymentHistory = (): JSX.Element => (
       <TabsList className="mb-4 h-auto gap-1 bg-transparent p-0">
         <TabsTrigger
           value="transactions"
-          className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-medium data-[state=active]:border-primary data-[state=active]:bg-primary/5"
+          className="data-[state=active]:border-primary data-[state=active]:bg-primary/5 flex items-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-medium"
         >
           <Banknote size={16} />
           Transactions
         </TabsTrigger>
         <TabsTrigger
           value="cash-flow"
-          className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-medium data-[state=active]:border-primary data-[state=active]:bg-primary/5"
+          className="data-[state=active]:border-primary data-[state=active]:bg-primary/5 flex items-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-medium"
         >
           <TrendingUp size={16} />
           Cash Flow
@@ -45,4 +45,3 @@ const PaymentHistory = (): JSX.Element => (
 );
 
 export default PaymentHistory;
-

@@ -22,4 +22,3 @@ const TransactionStatusBadge = ({ status }: TransactionStatusBadgeProps): JSX.El
 };
 
 export default TransactionStatusBadge;
-
