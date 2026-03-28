@@ -3,11 +3,14 @@ import { ITransaction } from '@/types/payment.interface';
 import { JSX } from 'react';
 import { AvatarWithName } from '@/components/ui/avatar';
 import { getFormattedDate } from '@/lib/date';
+import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
 import { capitalize } from '@/lib/utils';
 import TransactionStatusBadge from './transactionStatusBadge';
 
-const formatAmount = (amount: number, currency: string): string =>
-  `${currency ?? 'GHS'} ${amount.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const formatAmount = (amount: number, currency: string): string => {
+  const inCedis = amount / PESEWAS_PER_CEDI;
+  return `${currency ?? 'GHS'} ${inCedis.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
 
 const formatType = (type: string): string =>
   type
