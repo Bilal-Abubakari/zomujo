@@ -12,4 +12,3 @@ const TransactionsPage = (): JSX.Element => (
 );
 
 export default TransactionsPage;
-
