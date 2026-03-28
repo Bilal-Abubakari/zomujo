@@ -261,7 +261,15 @@ export const LegalLayout = ({
                   {title} is effective as of {formattedDate}.{' '}
                   {title === 'Comprehensive Privacy & Data Protection Policy'
                     ? 'Material changes will be communicated via email notifications to all registered users.'
-                    : `By using ${BRANDING.APP_NAME}, You agree to be bound by these Terms in their entirety.`}
+                    : `By using ${BRANDING.APP_NAME}, You agree to be bound by these Terms in their entirety.`}{' '}
+                  Also see our{' '}
+                  <a
+                    href="/cookie-policy"
+                    className="underline underline-offset-2 hover:text-white"
+                  >
+                    Cookie Policy
+                  </a>
+                  {''}.
                 </p>
               </CardContent>
             </Card>

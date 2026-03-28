@@ -8,6 +8,7 @@ export const BRANDING = {
   APP_TAGLINE: 'Your trusted health companion',
   CONTACT_EMAIL: 'admin@fornixlink.com',
   SUPPORT_EMAIL: 'support@fornix.com',
+  DPO_EMAIL: 'dpo@fornixlabs.com',
   CONTACT_PHONE: '+233 20 146 2313',
   CONTACT_ADDRESS: 'Ghana, Accra',
   COPYRIGHT_HOLDER: 'Fornix Link',
