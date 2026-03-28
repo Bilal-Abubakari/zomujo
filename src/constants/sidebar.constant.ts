@@ -231,6 +231,11 @@ export const DOCTOR_SETTINGS_SIDEBAR: ISidebar = {
           Icon: Banknote,
         },
         {
+          title: 'Transactions',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/transactions`,
+          Icon: ChartNoAxesCombined,
+        },
+        {
           title: 'Identification',
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/identification`,
           Icon: CreditCard,
@@ -294,6 +299,11 @@ export const PATIENT_SETTINGS_SIDEBAR: ISidebar = {
           title: 'Notification',
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/notification`,
           Icon: Bell,
+        },
+        {
+          title: 'Transactions',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/transactions`,
+          Icon: ChartNoAxesCombined,
         },
       ],
     },
