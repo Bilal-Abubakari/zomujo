@@ -398,6 +398,7 @@ const PatientConsultationView = (): JSX.Element => {
   const { on } = useWebSocket();
   const endRef = useRef<HTMLDivElement | null>(null);
   const params = useParams();
+
   const [consultationDetails, setConsultationDetails] = useState<IConsultationDetails>();
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);

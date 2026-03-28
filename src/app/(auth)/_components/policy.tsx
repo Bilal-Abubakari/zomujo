@@ -15,6 +15,11 @@ import {
   Baby,
   Bot,
   Building2,
+  Stethoscope,
+  Pill,
+  FlaskConical,
+  Scan,
+  GitMerge,
 } from 'lucide-react';
 import { JSX } from 'react';
 import { BRANDING } from '@/constants/branding.constant';
@@ -23,7 +28,6 @@ import { LegalLayout, LegalSection, SectionCard, SubSection, BulletItem } from '
 import { Separator } from '@/components/ui/separator';
 
 const LAST_UPDATED = new Date('2026-03-19');
-const DPO_EMAIL = 'dpo@fornixlabs.com';
 
 const sections: LegalSection[] = [
   {
@@ -43,6 +47,12 @@ const sections: LegalSection[] = [
   { id: 'section-10', title: '10. Security & Incident Response', icon: Fingerprint, number: '10' },
   { id: 'section-11', title: '11. Pediatric Data', icon: Baby, number: '11' },
   { id: 'section-12', title: '12. Dispute Resolution', icon: Scale, number: '12' },
+  {
+    id: 'section-13',
+    title: '13. Patient Consultation Data Recording',
+    icon: FileText,
+    number: '13',
+  },
 ];
 
 const Policy = (): JSX.Element => (
@@ -62,7 +72,7 @@ const Policy = (): JSX.Element => (
       { icon: Lock, label: 'HIPAA Aligned' },
       { icon: Scale, label: 'Act 843 Compliant' },
     ]}
-    contactEmail={DPO_EMAIL}
+    contactEmail={BRANDING.DPO_EMAIL}
     contactLabel="Contact DPO"
     footerTitle="Have privacy questions?"
     footerDescription="Our Data Protection Officer is here to assist you with any privacy concerns or to exercise your data subject rights."
@@ -71,7 +81,7 @@ const Policy = (): JSX.Element => (
         <Button
           variant="secondary"
           child={
-            <a href={`mailto:${DPO_EMAIL}`} className="flex items-center gap-2">
+            <a href={`mailto:${BRANDING.DPO_EMAIL}`} className="flex items-center gap-2">
               <Mail className="h-4 w-4" /> Email DPO
             </a>
           }
@@ -973,11 +983,11 @@ const Policy = (): JSX.Element => (
         </p>
         <div className="mt-3 space-y-2">
           <a
-            href={`mailto:${DPO_EMAIL}`}
+            href={`mailto:${BRANDING.DPO_EMAIL}`}
             className="text-primary flex items-center gap-2 text-sm font-medium hover:underline"
           >
             <Mail className="h-4 w-4" />
-            <strong>Official DPO Corridor:</strong>&nbsp;{DPO_EMAIL}
+            <strong>Official DPO Corridor:</strong>&nbsp;{BRANDING.DPO_EMAIL}
           </a>
           <div className="flex items-start gap-2 text-sm">
             <Building2 className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
@@ -1001,6 +1011,177 @@ const Policy = (): JSX.Element => (
         <ul className="mt-2 space-y-2">
           <BulletItem>
             <strong>The Data Protection Commission (DPC) of the Republic of Ghana.</strong>
+          </BulletItem>
+        </ul>
+      </SubSection>
+    </SectionCard>
+
+    {/* ── SECTION 13 ── */}
+    <SectionCard
+      id="section-13"
+      number="13"
+      icon={FileText}
+      title="13. Patient Consultation Data Recording"
+    >
+      <SubSection title="13.1. What This Section Covers">
+        <p className="text-foreground text-sm leading-relaxed">
+          This section is written in plain language specifically for <strong>patients</strong>. It
+          explains exactly what clinical information your doctor records about you during a
+          consultation on Fornix Link, why it is recorded, and how it is protected. By creating an
+          account and accepting these policies you give your informed consent for this processing,
+          as required under the <strong>Data Protection Act, 2012 (Act 843)</strong>.
+        </p>
+      </SubSection>
+
+      <SubSection title="13.2. Clinical Data Recorded During a Consultation">
+        <p className="text-foreground text-sm leading-relaxed">
+          When you attend a consultation (in-person at a Fornix Guild House or virtually through the
+          platform), your treating doctor may record any or all of the following categories of
+          clinical data directly within your Relational Health Memory:
+        </p>
+        <ul className="mt-3 space-y-3">
+          <BulletItem>
+            <span className="flex items-start gap-2">
+              <Stethoscope className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                <strong>Symptoms &amp; Chief Complaints</strong> — A description of your current
+                symptoms, when they started, their severity, and any associated factors you describe
+                to the doctor.
+              </span>
+            </span>
+          </BulletItem>
+          <BulletItem>
+            <span className="flex items-start gap-2">
+              <FileText className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                <strong>Medical History &amp; Clinical Notes</strong> — Your past medical
+                conditions, surgical history, known allergies, family health history, and the
+                doctor&apos;s own clinical assessment notes from the consultation.
+              </span>
+            </span>
+          </BulletItem>
+          <BulletItem>
+            <span className="flex items-start gap-2">
+              <Pill className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                <strong>Diagnoses &amp; Prescriptions</strong> — The diagnosis reached by your
+                doctor and any medications prescribed, including the name, dosage, frequency, and
+                duration of each prescription.
+              </span>
+            </span>
+          </BulletItem>
+          <BulletItem>
+            <span className="flex items-start gap-2">
+              <FlaskConical className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                <strong>Laboratory Investigation Requests</strong> — Requests for blood tests, urine
+                analysis, microbiological cultures, or any other diagnostic laboratory
+                investigations ordered by the doctor.
+              </span>
+            </span>
+          </BulletItem>
+          <BulletItem>
+            <span className="flex items-start gap-2">
+              <Scan className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                <strong>Radiology &amp; Imaging Requests</strong> — Requests for X-rays, ultrasound
+                scans, MRI, CT scans, or other diagnostic imaging investigations ordered by the
+                doctor.
+              </span>
+            </span>
+          </BulletItem>
+          <BulletItem>
+            <span className="flex items-start gap-2">
+              <GitMerge className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                <strong>Referrals &amp; Follow-Up Plans</strong> — Any referrals to specialist
+                doctors or external healthcare facilities, and post-consultation follow-up
+                instructions or scheduled review appointments.
+              </span>
+            </span>
+          </BulletItem>
+        </ul>
+      </SubSection>
+
+      <SubSection title="13.3. Purpose and Lawful Basis for Recording">
+        <p className="text-foreground text-sm leading-relaxed">
+          This clinical data is recorded for the following purposes, each of which has a distinct
+          lawful basis under Act 843:
+        </p>
+        <ul className="mt-2 space-y-2">
+          <BulletItem>
+            <strong>Continuity of Care</strong> — So that any doctor you consult on the platform
+            (with your consent) has access to your longitudinal health history, enabling safer,
+            better-informed clinical decisions. <em>Lawful basis: Vital interests / healthcare.</em>
+          </BulletItem>
+          <BulletItem>
+            <strong>Statutory Medical Records Obligation</strong> — Healthcare providers in Ghana
+            are legally required to maintain accurate patient records under professional practice
+            regulations. <em>Lawful basis: Legal obligation.</em>
+          </BulletItem>
+          <BulletItem>
+            <strong>Patient Access &amp; Portability</strong> — So that you can access, download,
+            and share your own records at any time.{' '}
+            <em>Lawful basis: Explicit consent / data subject rights.</em>
+          </BulletItem>
+        </ul>
+      </SubSection>
+
+      <SubSection title="13.4. Who Can See Your Consultation Records">
+        <p className="text-foreground text-sm leading-relaxed">
+          Access to your consultation records is strictly controlled:
+        </p>
+        <ul className="mt-2 space-y-2">
+          <BulletItem>
+            <strong>Only the doctor who conducted the consultation</strong> can create or append
+            records to that specific consultation note.
+          </BulletItem>
+          <BulletItem>
+            Any other doctor on the platform may only access your records if you explicitly grant
+            them a time-bound <strong>Consent Grant</strong> (see Section 9.3). There is no passive,
+            open access to your data.
+          </BulletItem>
+          <BulletItem>
+            Platform administrators may access records solely for the purpose of resolving technical
+            disputes or responding to lawful legal process — never for commercial purposes.
+          </BulletItem>
+          <BulletItem>
+            <strong>Your data is never sold.</strong> It is not shared with advertisers, insurers
+            (without your consent), or any third party for commercial profiling.
+          </BulletItem>
+        </ul>
+      </SubSection>
+
+      <SubSection title="13.5. Your Rights Regarding Consultation Records">
+        <p className="text-foreground text-sm leading-relaxed">
+          You retain full data subject rights over your consultation records at all times:
+        </p>
+        <ul className="mt-2 space-y-2">
+          <BulletItem>
+            <strong>Right of Access</strong> — You may view and download all consultation records
+            associated with your account at any time from your patient dashboard.
+          </BulletItem>
+          <BulletItem>
+            <strong>Right of Rectification</strong> — If you believe a clinical record contains a
+            factual inaccuracy, you may raise a formal dispute with the treating doctor or contact
+            our Data Protection Officer at{' '}
+            <a
+              href={`mailto:${BRANDING.DPO_EMAIL}`}
+              className="text-primary underline-offset-2 hover:underline"
+            >
+              {BRANDING.DPO_EMAIL}
+            </a>
+            {''}.
+          </BulletItem>
+          <BulletItem>
+            <strong>Right to Erasure</strong> — Subject to statutory medical record retention
+            obligations under Ghanaian law, you may request the deletion of your data. Requests are
+            reviewed within 30 days.
+          </BulletItem>
+          <BulletItem>
+            <strong>Right to Withdraw Consent</strong> — You may withdraw your consent for any
+            non-essential processing at any time without affecting the lawfulness of processing
+            carried out prior to withdrawal.
           </BulletItem>
         </ul>
       </SubSection>
