@@ -1,4 +1,44 @@
+import { IQueryParams } from '@/types/shared.interface';
+import { TransactionStatus } from '@/types/shared.enum';
+
 type PaymentType = 'mobile_money' | 'ghipss';
+
+export interface ITransactionUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profilePicture: string;
+}
+
+export interface ITransaction {
+  id: string;
+  status: string;
+  type: string;
+  amount: number;
+  currency: string;
+  reference: string;
+  createdAt: string;
+  updatedAt: string;
+  doctor: ITransactionUser | null;
+  patient: ITransactionUser | null;
+}
+
+export interface ICashFlow {
+  total: number;
+  doctor: number;
+  patient: number;
+  tax: number;
+  fees: number;
+  platform: number;
+}
+
+export interface ITransactionQueryParams extends IQueryParams<TransactionStatus | ''> {
+  amountMin?: string;
+  amountMax?: string;
+  from?: string;
+  to?: string;
+  type?: string;
+}
 
 export interface IWallet {
   gross: number;
