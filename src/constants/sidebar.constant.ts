@@ -16,7 +16,6 @@ import {
   ShieldCheck,
   Bell,
   CreditCard,
-  EarthLock,
   BetweenHorizontalStart,
   Smile,
   MessageSquare,
@@ -304,18 +303,6 @@ export const PATIENT_SETTINGS_SIDEBAR: ISidebar = {
           title: 'Transactions',
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/transactions`,
           Icon: ChartNoAxesCombined,
-        },
-      ],
-    },
-
-    {
-      groupTitle: 'OTHER',
-      menu: [
-        {
-          title: 'Privacy',
-          url: '#',
-          Icon: EarthLock,
-          phoneTitle: 'Help',
         },
       ],
     },

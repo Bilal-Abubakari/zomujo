@@ -7,7 +7,7 @@ import { Toast, toast } from '@/hooks/use-toast';
 import { MODE } from '@/constants/constants';
 import { getPaymentDetails, withdrawFunds } from '@/lib/features/payments/paymentsThunk';
 import { useAppDispatch } from '@/lib/hooks';
-import { showErrorToast } from '@/lib/utils';
+import { ghcToPesewas, showErrorToast } from '@/lib/utils';
 import { IPaymentDetails } from '@/types/payment.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { JSX, useEffect, useState } from 'react';
@@ -79,7 +79,12 @@ const WithdrawModal = ({
     }
 
     setIsLoading(true);
-    const response = await dispatch(withdrawFunds(formData)).unwrap();
+    const response = await dispatch(
+      withdrawFunds({
+        ...formData,
+        amount: ghcToPesewas(formData.amount),
+      }),
+    ).unwrap();
     toast(response);
     if (!showErrorToast(response)) {
       onSuccess();

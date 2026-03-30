@@ -6,8 +6,8 @@ export interface BaseCountResponse {
 export interface IStatsCard {
   title: string | number;
   value: string | number;
-  percentage: string | number;
-  trend: 'up' | 'down';
+  percentage?: string | number;
+  trend?: 'up' | 'down';
 }
 
 export interface IDoctorCountResponse extends BaseCountResponse {
