@@ -212,7 +212,7 @@ export default function BookingModals({
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-1.5 text-gray-600">
-                        Service &amp; Tax Fee{' '}
+                        Service Charge{' '}
                         <span
                           className="inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full bg-gray-300 text-[10px] font-bold text-gray-600"
                           title="A flat platform service and tax fee applied to every booking."
@@ -234,8 +234,7 @@ export default function BookingModals({
                     </div>
                   </div>
                   <p className="mt-2 text-xs text-gray-400">
-                    Includes a GHS {SERVICE_AND_TAX_FEE}.00 service &amp; tax fee charged by the
-                    platform.
+                    Includes a GHS {SERVICE_AND_TAX_FEE}.00 service fee charged by the platform.
                   </p>
                 </div>
               </div>
