@@ -9,4 +9,3 @@ export default function OnboardingLayout({
 }: Readonly<{ children: ReactNode }>): JSX.Element {
   return <>{children}</>;
 }
-

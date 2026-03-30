@@ -162,4 +162,3 @@ export function buildPhysicianJsonLd(doctor: DoctorJsonLdInput): JsonLdPhysician
     },
   };
 }
-

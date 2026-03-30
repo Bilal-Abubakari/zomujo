@@ -2,7 +2,12 @@ import React, { JSX, Suspense } from 'react';
 import DoctorProfileView from '@/components/doctor/DoctorProfileView';
 import type { Metadata } from 'next';
 import { BRANDING } from '@/constants/branding.constant';
-import { buildCanonicalUrl, buildOpenGraph, buildTwitterCard, buildPhysicianJsonLd } from '@/lib/seo';
+import {
+  buildCanonicalUrl,
+  buildOpenGraph,
+  buildTwitterCard,
+  buildPhysicianJsonLd,
+} from '@/lib/seo';
 import { IDoctor } from '@/types/doctor.interface';
 import { IResponse } from '@/types/shared.interface';
 
@@ -61,21 +66,22 @@ export async function generateMetadata({ params }: DoctorPageProps): Promise<Met
   };
 }
 
-export default async function PublicDoctorPage({ params }: Readonly<DoctorPageProps>): Promise<JSX.Element> {
+export default async function PublicDoctorPage({
+  params,
+}: Readonly<DoctorPageProps>): Promise<JSX.Element> {
   const { id } = await params;
   const doctor = await fetchDoctor(id);
 
-  const physicianJsonLd =
-    doctor
-      ? buildPhysicianJsonLd({
-          id,
-          firstName: doctor.firstName,
-          lastName: doctor.lastName,
-          profilePicture: doctor.profilePicture,
-          bio: doctor.bio,
-          specializations: doctor.specializations,
-        })
-      : null;
+  const physicianJsonLd = doctor
+    ? buildPhysicianJsonLd({
+        id,
+        firstName: doctor.firstName,
+        lastName: doctor.lastName,
+        profilePicture: doctor.profilePicture,
+        bio: doctor.bio,
+        specializations: doctor.specializations,
+      })
+    : null;
 
   return (
     <>
