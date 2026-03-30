@@ -11,7 +11,7 @@ import React, {
   Ref,
   useState,
 } from 'react';
-import { Control, Controller } from 'react-hook-form';
+import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { Label } from './label';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { Button } from './button';
@@ -30,16 +30,14 @@ export interface SelectOption {
   value: string;
 }
 
-type SelectInputProps = {
-  name: string;
+type SelectInputProps<T extends FieldValues = FieldValues> = {
+  name: Path<T>;
   options: SelectOption[];
   error?: string;
   ref: Ref<HTMLButtonElement>;
   label?: string;
   placeholder?: string;
-  // Any is used here because the type of control is known at the instance this property is passed in as prop
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<any>;
+  control: Control<T>;
   className?: string;
 };
 
@@ -177,7 +175,7 @@ const SelectSeparator = forwardRef<
 ));
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
 
-const SelectInput = ({
+const SelectInput = <T extends FieldValues = FieldValues>({
   control,
   ref,
   options,
@@ -186,7 +184,7 @@ const SelectInput = ({
   label,
   placeholder = '',
   className,
-}: SelectInputProps): JSX.Element => (
+}: SelectInputProps<T>): JSX.Element => (
   <Controller
     control={control}
     name={name}
@@ -210,7 +208,7 @@ const SelectInput = ({
   />
 );
 
-type SelectInputV2Props = Omit<SelectInputProps, 'ref' | 'name' | 'control'> & {
+type SelectInputV2Props = Omit<SelectInputProps<FieldValues>, 'ref' | 'name' | 'control'> & {
   onChange: (value: string) => void;
   value: string;
   selectLabel?: string;
