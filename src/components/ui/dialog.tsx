@@ -223,7 +223,6 @@ const Confirmation = ({
     open={open}
     content={
       <div>
-        {title && <DialogTitle>{title}</DialogTitle>}
         <p>{description}</p>
         <div className="flex justify-end gap-4 pt-4">
           <Button
