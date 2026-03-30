@@ -6,7 +6,12 @@ import { JSX, ReactNode } from 'react';
 import StoreProvider from '@/app/storeProvider';
 import { BRANDING } from '@/constants/branding.constant';
 import CookieConsentProvider from '@/components/consent/CookieConsentProvider';
-import { buildOpenGraph, buildTwitterCard, buildOrganizationJsonLd, buildCanonicalUrl } from '@/lib/seo';
+import {
+  buildOpenGraph,
+  buildTwitterCard,
+  buildOrganizationJsonLd,
+  buildCanonicalUrl,
+} from '@/lib/seo';
 
 const inter = Inter({
   subsets: ['latin'],
