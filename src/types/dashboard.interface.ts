@@ -60,4 +60,3 @@ export interface IChartDataPoint {
   date: string;
   value: number;
 }
-
