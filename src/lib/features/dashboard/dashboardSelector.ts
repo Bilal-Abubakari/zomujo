@@ -47,4 +47,3 @@ export const selectIsLoadingAppointmentStat = createSelector(
   selectDashboard,
   ({ isLoadingAppointmentStat }) => isLoadingAppointmentStat,
 );
-

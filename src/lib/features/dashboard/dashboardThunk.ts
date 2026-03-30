@@ -26,8 +26,9 @@ export const getRecentTransactions = createAsyncThunk(
   'dashboard/recentTransactions',
   async (): Promise<IRecentTransaction[] | Toast> => {
     try {
-      const { data } =
-        await axios.get<IResponse<IRecentTransaction[]>>('dashboard/recent-transactions');
+      const { data } = await axios.get<IResponse<IRecentTransaction[]>>(
+        'dashboard/recent-transactions',
+      );
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -70,4 +71,3 @@ export const getAppointmentStat = createAsyncThunk(
     }
   },
 );
-
