@@ -108,4 +108,3 @@ const DoctorPhotoUpload = (): JSX.Element => {
 };
 
 export default DoctorPhotoUpload;
-

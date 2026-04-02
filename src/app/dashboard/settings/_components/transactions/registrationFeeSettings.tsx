@@ -49,7 +49,7 @@ export default RegistrationFeeSettings;
 /* ─────────────────────────── Paid State ─────────────────────────── */
 
 const PaidState = ({ paidAt }: { paidAt: string | null }): JSX.Element => (
-  <div className="flex w-full flex-col gap-6 sm:max-w-[560px]">
+  <div className="flex w-full flex-col gap-6 sm:max-w-140">
     {/* Success banner */}
     <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4">
       <CheckCircle2 className="size-6 shrink-0 text-green-600" />
@@ -83,8 +83,7 @@ const PaidState = ({ paidAt }: { paidAt: string | null }): JSX.Element => (
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-500">Amount</span>
           <span className="text-lg font-extrabold text-gray-900">
-            GH₵{' '}
-            <span className="text-primary">{REGISTRATION_FEE.toLocaleString('en-GH')}</span>
+            GH₵ <span className="text-primary">{REGISTRATION_FEE.toLocaleString('en-GH')}</span>
           </span>
         </div>
         <div className="flex items-center justify-between">
@@ -105,13 +104,13 @@ const PaidState = ({ paidAt }: { paidAt: string | null }): JSX.Element => (
 
         {/* Benefits unlocked */}
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+          <p className="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
             Benefits unlocked
           </p>
           <ul className="flex flex-col gap-2">
             {BENEFITS.map((benefit) => (
               <li key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
-                <ShieldCheck size={15} className="mt-0.5 shrink-0 text-primary" />
+                <ShieldCheck size={15} className="text-primary mt-0.5 shrink-0" />
                 {benefit}
               </li>
             ))}
@@ -134,7 +133,7 @@ const PaidState = ({ paidAt }: { paidAt: string | null }): JSX.Element => (
 /* ─────────────────────────── Unpaid State ─────────────────────────── */
 
 const UnpaidState = (): JSX.Element => (
-  <div className="flex w-full flex-col gap-6 sm:max-w-[560px]">
+  <div className="flex w-full flex-col gap-6 sm:max-w-140">
     {/* Pending status banner */}
     <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
       <CreditCard className="size-5 shrink-0 text-amber-600" />
@@ -147,24 +146,23 @@ const UnpaidState = (): JSX.Element => (
     </div>
 
     {/* Fee card */}
-    <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-linear-to-br from-primary/5 via-white to-primary/10 p-6 shadow-sm">
-      <div className="absolute top-0 right-0 h-28 w-28 -translate-y-1/2 translate-x-1/2 rounded-full bg-primary/5" />
+    <div className="border-primary/20 from-primary/5 to-primary/10 relative overflow-hidden rounded-2xl border bg-linear-to-br via-white p-6 shadow-sm">
+      <div className="bg-primary/5 absolute top-0 right-0 h-28 w-28 translate-x-1/2 -translate-y-1/2 rounded-full" />
       <div className="relative flex flex-col gap-4">
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+        <span className="bg-primary/10 text-primary inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
           <BadgeCheck size={13} />
           One-Time Fee
         </span>
         <div className="flex flex-col gap-0.5">
           <p className="text-4xl font-extrabold tracking-tight text-gray-900">
-            GH₵{' '}
-            <span className="text-primary">{REGISTRATION_FEE.toLocaleString('en-GH')}</span>
+            GH₵ <span className="text-primary">{REGISTRATION_FEE.toLocaleString('en-GH')}</span>
           </p>
           <p className="text-sm text-gray-500">One-time platform registration fee</p>
         </div>
         <ul className="mt-1 flex flex-col gap-2">
           {BENEFITS.map((benefit) => (
             <li key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
-              <ShieldCheck size={15} className="mt-0.5 shrink-0 text-primary" />
+              <ShieldCheck size={15} className="text-primary mt-0.5 shrink-0" />
               {benefit}
             </li>
           ))}
@@ -178,8 +176,8 @@ const UnpaidState = (): JSX.Element => (
       <div className="flex flex-col gap-1">
         <p className="font-semibold">Payment will be required once you start earning</p>
         <p className="leading-5 text-amber-700">
-          You may delay payment for now, but once you begin receiving income through Fornix Link
-          — from consultations or appointments — you will be obligated to settle this one-time
+          You may delay payment for now, but once you begin receiving income through Fornix Link —
+          from consultations or appointments — you will be obligated to settle this one-time
           registration fee.
         </p>
       </div>
@@ -209,4 +207,3 @@ const UnpaidState = (): JSX.Element => (
     />
   </div>
 );
-

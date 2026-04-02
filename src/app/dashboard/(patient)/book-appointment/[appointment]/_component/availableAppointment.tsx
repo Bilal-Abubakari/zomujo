@@ -267,7 +267,7 @@ const AvailableAppointment = (): JSX.Element => {
                 </span>
               </div>
               <div className="font-medium">
-                GHC {(pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE / 100).toFixed(2)}
+                GHC {((pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2)}
               </div>
             </div>
             <div className="my-3 border-t border-dashed border-gray-200" />
@@ -279,7 +279,7 @@ const AvailableAppointment = (): JSX.Element => {
             </div>
             <p className="mt-2 text-xs text-gray-400">
               Includes a {SERVICE_CHARGE_PERCENTAGE}% (GHC{' '}
-              {(pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE / 100).toFixed(2)}) service
+              {((pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2)}) service
               &amp; tax fee charged by the platform.
             </p>
 

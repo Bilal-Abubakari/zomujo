@@ -37,14 +37,18 @@ export function useCookieConsent(): UseCookieConsentReturn {
     const stored = LocalStorageManager.getCookieConsent();
     return stored?.policyVersion === COOKIE_POLICY_VERSION ? stored : null;
   });
-  const [hasResponded, setHasResponded] = useState(
-    () => LocalStorageManager.hasCookieConsentForCurrentVersion(),
+  const [hasResponded, setHasResponded] = useState(() =>
+    LocalStorageManager.hasCookieConsentForCurrentVersion(),
   );
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const [draftPreferences, setDraftPreferences] = useState<CookiePreferences>(() => {
     const stored = LocalStorageManager.getCookieConsent();
     if (stored?.policyVersion === COOKIE_POLICY_VERSION) {
-      return { functional: stored.functional, analytics: stored.analytics, marketing: stored.marketing };
+      return {
+        functional: stored.functional,
+        analytics: stored.analytics,
+        marketing: stored.marketing,
+      };
     }
     return DEFAULT_DRAFT;
   });

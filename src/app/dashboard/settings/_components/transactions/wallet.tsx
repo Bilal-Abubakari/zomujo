@@ -11,7 +11,11 @@ import { Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import WithdrawModal from './WithdrawModal';
 import { IWallet } from '@/types/payment.interface';
-import { DOCTOR_EARNINGS_PERCENTAGE, PESEWAS_PER_CEDI, PLATFORM_FEE_PERCENTAGE } from '@/constants/payment.constants';
+import {
+  DOCTOR_EARNINGS_PERCENTAGE,
+  PESEWAS_PER_CEDI,
+  PLATFORM_FEE_PERCENTAGE,
+} from '@/constants/payment.constants';
 
 const Wallet = (): JSX.Element => {
   const [walletAmount, setWalletAmount] = useState<number>(0);
@@ -48,7 +52,9 @@ const Wallet = (): JSX.Element => {
           <Info size={14} className="mt-0.5 shrink-0" />
           <p>
             Your balance reflects{' '}
-            <span className="font-semibold">{DOCTOR_EARNINGS_PERCENTAGE}% of each consultation fee</span>{' '}
+            <span className="font-semibold">
+              {DOCTOR_EARNINGS_PERCENTAGE}% of each consultation fee
+            </span>{' '}
             — a <span className="font-semibold">{PLATFORM_FEE_PERCENTAGE}% platform fee</span> is
             deducted before funds reach your wallet.
           </p>

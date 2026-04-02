@@ -46,7 +46,9 @@ export default function BookingModals({
 }: Readonly<BookingModalsProps>): JSX.Element {
   const fullName = doctor ? `${doctor.firstName} ${doctor.lastName}` : '';
   const consultationFee = pesewasToGhc(doctor?.fee ?? 0);
-  const serviceCharge = parseFloat((consultationFee * SERVICE_CHARGE_PERCENTAGE / 100).toFixed(2));
+  const serviceCharge = parseFloat(
+    ((consultationFee * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2),
+  );
 
   return (
     <>

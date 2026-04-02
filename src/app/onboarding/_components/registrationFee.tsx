@@ -32,21 +32,18 @@ const RegistrationFee = (): JSX.Element => {
       </div>
 
       {/* Fee Card */}
-      <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-linear-to-br from-primary/5 via-white to-primary/10 p-6 shadow-sm sm:p-8">
-        <div className="absolute top-0 right-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 rounded-full bg-primary/5" />
+      <div className="border-primary/20 from-primary/5 to-primary/10 relative overflow-hidden rounded-2xl border bg-linear-to-br via-white p-6 shadow-sm sm:p-8">
+        <div className="bg-primary/5 absolute top-0 right-0 h-32 w-32 translate-x-1/2 -translate-y-1/2 rounded-full" />
         <div className="relative flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            <span className="bg-primary/10 text-primary inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
               <BadgeCheck size={13} />
               One-Time Fee
             </span>
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
-              GH₵{' '}
-              <span className="text-primary">
-                {REGISTRATION_FEE.toLocaleString('en-GH')}
-              </span>
+              GH₵ <span className="text-primary">{REGISTRATION_FEE.toLocaleString('en-GH')}</span>
             </p>
             <p className="text-sm text-gray-500">One-time platform registration fee</p>
           </div>
@@ -58,7 +55,7 @@ const RegistrationFee = (): JSX.Element => {
               'Access to consultation and appointment tools',
             ].map((benefit) => (
               <li key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
-                <ShieldCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+                <ShieldCheck size={16} className="text-primary mt-0.5 shrink-0" />
                 {benefit}
               </li>
             ))}
@@ -100,18 +97,13 @@ const RegistrationFee = (): JSX.Element => {
         />
         <Button
           variant="outline"
-          className="w-full border-primary text-primary hover:bg-primary/5"
+          className="border-primary text-primary hover:bg-primary/5 w-full"
           type="button"
           child={`Pay GH₵ ${REGISTRATION_FEE.toLocaleString('en-GH')} Now`}
           onClick={() => undefined}
           title="Payment coming soon — you can skip and pay later"
         />
-        <Button
-          className="w-full"
-          type="button"
-          child="Skip for Now"
-          onClick={handleSkip}
-        />
+        <Button className="w-full" type="button" child="Skip for Now" onClick={handleSkip} />
       </div>
     </div>
   );
@@ -142,5 +134,3 @@ const OnboardingSuccessful = (): JSX.Element => {
     </div>
   );
 };
-
-
