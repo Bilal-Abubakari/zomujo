@@ -78,6 +78,8 @@ const Prescription = ({
   const [isSavingAndGenerating, setIsSavingAndGenerating] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   const [search, setSearch] = useState('');
   const [value] = useDebounce(search, 500);
@@ -208,9 +210,10 @@ const Prescription = ({
       return;
     }
 
-    window.open(result as string, '_blank');
+    setPdfUrl(result as string);
+    setShowPdfPreview(true);
 
-    toast({ title: 'Prescription generated and opened successfully!', variant: 'default' });
+    toast({ title: 'Prescription generated successfully!', variant: 'default' });
 
     await dispatch(getConsultationAppointment(appointmentId));
 
@@ -347,6 +350,26 @@ const Prescription = ({
           ))}
         </div>
       )}
+
+      <Modal
+        open={showPdfPreview}
+        className="h-full w-full max-w-7xl"
+        setState={setShowPdfPreview}
+        showClose={true}
+        content={
+          <div className="h-full w-full">
+            {pdfUrl ? (
+              <iframe
+                title="Prescription PDF"
+                src={pdfUrl}
+                className="mt-5 h-full w-full"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center">Loading PDF...</div>
+            )}
+          </div>
+        }
+      />
 
       {addPrescriptionDrawer}
 

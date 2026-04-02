@@ -489,9 +489,6 @@ const CreateTimeSlots = ({ onSlotCreated }: CreateTimeSlotsProps): JSX.Element =
                         <li>
                           <strong>Monthly:</strong> Slots repeat once per month
                         </li>
-                        <li>
-                          <strong>Yearly:</strong> Slots repeat annually
-                        </li>
                       </ul>
                     </div>,
                     ['Most doctors use "Weekly" to maintain a consistent weekly schedule'],
