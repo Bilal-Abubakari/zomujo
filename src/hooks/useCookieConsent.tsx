@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { COOKIE_POLICY_VERSION, ICookieConsent, LocalStorageManager } from '@/lib/localStorage';
 
 export type CookiePreferences = Omit<ICookieConsent, 'essential' | 'acceptedAt' | 'policyVersion'>;
@@ -33,24 +33,25 @@ const DEFAULT_DRAFT: CookiePreferences = {
 };
 
 export function useCookieConsent(): UseCookieConsentReturn {
-  const [consent, setConsent] = useState<ICookieConsent | null>(null);
-  const [hasResponded, setHasResponded] = useState(false);
+  const [consent, setConsent] = useState<ICookieConsent | null>(() => {
+    const stored = LocalStorageManager.getCookieConsent();
+    return stored?.policyVersion === COOKIE_POLICY_VERSION ? stored : null;
+  });
+  const [hasResponded, setHasResponded] = useState(() =>
+    LocalStorageManager.hasCookieConsentForCurrentVersion(),
+  );
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
-  const [draftPreferences, setDraftPreferences] = useState<CookiePreferences>(DEFAULT_DRAFT);
-
-  // Hydrate from localStorage on mount (client-only)
-  useEffect(() => {
+  const [draftPreferences, setDraftPreferences] = useState<CookiePreferences>(() => {
     const stored = LocalStorageManager.getCookieConsent();
     if (stored?.policyVersion === COOKIE_POLICY_VERSION) {
-      setConsent(stored);
-      setHasResponded(true);
-      setDraftPreferences({
+      return {
         functional: stored.functional,
         analytics: stored.analytics,
         marketing: stored.marketing,
-      });
+      };
     }
-  }, []);
+    return DEFAULT_DRAFT;
+  });
 
   const persist = useCallback((prefs: CookiePreferences): void => {
     const full: ICookieConsent = {

@@ -13,6 +13,7 @@ import { capitalize } from '@/lib/utils';
 
 export const MODE = {
   ON_TOUCH: 'onTouched',
+  ON_CHANGE: 'onChange',
 } as const;
 
 export const DAYS_IN_WEEK = 7;

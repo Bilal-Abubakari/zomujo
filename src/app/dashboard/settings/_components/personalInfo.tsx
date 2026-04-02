@@ -8,8 +8,8 @@ import {
   nameArraySchema,
   nameSchema,
   phoneNumberSchema,
-  positiveNumberSchema,
   requiredStringSchema,
+  stringInputOptionalNumberSchema,
   textAreaSchema,
 } from '@/schemas/zod.schemas';
 import { DoctorPersonalInfo, IDoctor } from '@/types/doctor.interface';
@@ -37,7 +37,7 @@ const PersonalDetailsSchema = z.object({
     .optional(),
   languages: nameArraySchema,
   bio: textAreaSchema,
-  experience: positiveNumberSchema.refine((value) => (value === 0 ? '' : value)),
+  experience: stringInputOptionalNumberSchema,
   specializations: z.array(nameSchema).max(3, 'You can select up to 3 specializations'),
   contact: phoneNumberSchema,
 });
@@ -52,7 +52,7 @@ const PersonalInfo = (): JSX.Element => {
     lastName: details?.lastName || '',
     languages: details?.languages || [],
     bio: details?.bio || '',
-    experience: details?.experience || 0,
+    experience: details?.experience,
     specializations: details?.specializations || [],
     contact: details?.contact || '',
     profilePicture: details?.profilePicture || '',
