@@ -23,7 +23,7 @@ export const createAppointmentSlot = createAsyncThunk(
   'appointments/createSlot',
   async (pattern: ISlotPatternBase, { dispatch }): Promise<Toast> => {
     try {
-      const { data } = await axios.post<IResponse>(`appointments/slot-pattern`, pattern);
+      const { data } = await axios.post<IResponse>(`appointments/slot-patterns`, pattern);
       dispatch(updateExtra({ hasSlot: true }));
       return generateSuccessToast(data.message);
     } catch (error) {
@@ -124,7 +124,7 @@ export const deletePattern = createAsyncThunk(
   'appointments/deletePattern',
   async (id: string): Promise<Toast> => {
     try {
-      const { data } = await axios.delete<IResponse>(`appointments/slot-pattern/${id}`);
+      const { data } = await axios.delete<IResponse>(`appointments/slot-patterns/${id}`);
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
