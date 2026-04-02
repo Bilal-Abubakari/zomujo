@@ -209,7 +209,9 @@ const Prescription = ({
       await dispatch(getConsultationAppointment(appointmentId));
     }
 
-    const result = await dispatch(generatePrescription({ appointmentId, notes: prescriptionNotes })).unwrap();
+    const result = await dispatch(
+      generatePrescription({ appointmentId, notes: prescriptionNotes }),
+    ).unwrap();
 
     if (showErrorToast(result)) {
       setIsSavingAndGenerating(false);
@@ -371,14 +373,10 @@ const Prescription = ({
               onChange={(e) => setPrescriptionNotes(e.target.value)}
               placeholder="Enter notes here..."
               rows={4}
-              className="mt-4 w-full rounded-md border border-gray-300 p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+              className="focus:border-primary focus:ring-primary mt-4 w-full rounded-md border border-gray-300 p-3 text-sm focus:ring-1 focus:outline-none"
             />
             <div className="mt-6 flex justify-end gap-3">
-              <Button
-                onClick={() => setShowNotesModal(false)}
-                variant="outline"
-                child="Cancel"
-              />
+              <Button onClick={() => setShowNotesModal(false)} variant="outline" child="Cancel" />
               <Button onClick={() => void handleSaveAndGenerate()} child="Save & Generate PDF" />
             </div>
           </div>
