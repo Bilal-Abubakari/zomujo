@@ -149,7 +149,7 @@ export default function DoctorProfileView({
               <span className="mt-1 text-xs text-gray-500">Consultation Fee</span>
             </div>
           )}
-          {doctor.experience > 0 && (
+          {(doctor.experience || 0) > 0 && (
             <div className="flex flex-col items-center rounded-xl border bg-white p-4 shadow-sm">
               <span className="text-primary flex items-center gap-1 text-2xl font-extrabold">
                 <Clock size={20} />
