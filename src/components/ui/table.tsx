@@ -19,12 +19,22 @@ import {
   TdHTMLAttributes,
   ThHTMLAttributes,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { IPagination } from '@/types/shared.interface';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export type PaginationData = Omit<IPagination<unknown>, 'rows'>;
+const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50];
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -36,6 +46,7 @@ interface DataTableProps<TData, TValue> {
   page?: number;
   paginationData?: PaginationData;
   isLoading?: boolean;
+  pageSizeOptions?: number[];
 }
 
 const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
@@ -118,6 +129,33 @@ const TableCaption = forwardRef<HTMLTableCaptionElement, HTMLAttributes<HTMLTabl
 );
 TableCaption.displayName = 'TableCaption';
 
+const getPageNumbers = (currentPage: number, totalPages: number): (number | '...')[] => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const pages: (number | '...')[] = [1];
+
+  if (currentPage > 3) {
+    pages.push('...');
+  }
+
+  const start = Math.max(2, currentPage - 1);
+  const end = Math.min(totalPages - 1, currentPage + 1);
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+
+  if (currentPage < totalPages - 2) {
+    pages.push('...');
+  }
+
+  pages.push(totalPages);
+
+  return pages;
+};
+
 export const TableData = <TData, TValue>({
   columns,
   data,
@@ -129,6 +167,7 @@ export const TableData = <TData, TValue>({
   page,
   paginationData,
   isLoading,
+  pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
 }: DataTableProps<TData, TValue>): JSX.Element => {
   const [pagination, setPagination] = useState({
     pageIndex: page ? page - 1 : 0,
@@ -163,8 +202,6 @@ export const TableData = <TData, TValue>({
       columnVisibility,
     },
   });
-
-  const [record, setRecord] = useState({ startRecord: 1, endRecord: 10, total: 10 });
   const currentPage = table.getState().pagination.pageIndex + 1;
 
   useEffect(() => {
@@ -174,19 +211,17 @@ export const TableData = <TData, TValue>({
         pageIndex: page - 1,
       }));
     }
+  }, [page]);
 
-    if (paginationData) {
-      const { page, pageSize, total } = paginationData;
-      const startRecord = (page - 1) * pageSize + 1;
-      const endRecord = Math.min(page * pageSize, total);
-
-      setRecord({
-        startRecord,
-        endRecord,
-        total,
-      });
+  const record = useMemo(() => {
+    if (!paginationData) {
+      return { startRecord: 1, endRecord: data.length, total: data.length };
     }
-  }, [page, paginationData]);
+    const { page: serverPage, total } = paginationData;
+    const startRecord = (serverPage - 1) * pagination.pageSize + 1;
+    const endRecord = Math.min(startRecord + data.length - 1, total);
+    return { startRecord, endRecord, total };
+  }, [paginationData, data, pagination.pageSize]);
 
   const renderHeaderCell = (
     header: ReturnType<typeof table.getFlatHeaders>[number],
@@ -256,8 +291,8 @@ export const TableData = <TData, TValue>({
           <TableBody>{renderTableBody()}</TableBody>
         </Table>
       </div>
-      <div className="mr-2 flex items-center justify-between space-x-2 py-4">
-        <div>
+      <div className="mr-2 flex flex-wrap items-center justify-between gap-2 py-4">
+        <div className="flex items-center gap-4">
           <p className="text-sm text-gray-400">
             {manualPagination ? (
               <>
@@ -265,10 +300,8 @@ export const TableData = <TData, TValue>({
               </>
             ) : (
               <>
-                {' '}
                 Showing{' '}
-                {table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-                  1}{' '}
+                {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}{' '}
                 to{' '}
                 {Math.min(
                   (table.getState().pagination.pageIndex + 1) *
@@ -279,9 +312,28 @@ export const TableData = <TData, TValue>({
               </>
             )}
           </p>
-          <p className="text-sm text-gray-400"></p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm whitespace-nowrap text-gray-400">Rows per page</span>
+            <Select
+              value={String(table.getState().pagination.pageSize)}
+              onValueChange={(value) => {
+                table.setPagination({ pageIndex: 0, pageSize: Number(value) });
+              }}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {pageSizeOptions.map((size) => (
+                  <SelectItem key={size} value={String(size)}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center gap-1">
           <Button
             variant="outline"
             size="sm"
@@ -289,8 +341,23 @@ export const TableData = <TData, TValue>({
             disabled={!table.getCanPreviousPage() || isLoading}
             child="Previous"
           />
-          <span>{currentPage}</span>
-
+          {getPageNumbers(currentPage, table.getPageCount()).map((pageNum, idx) =>
+            pageNum === '...' ? (
+              <span key={`ellipsis-${idx}-${pageNum}`} className="px-2 text-sm text-gray-400">
+                ...
+              </span>
+            ) : (
+              <Button
+                key={pageNum}
+                variant={pageNum === currentPage ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => table.setPageIndex(pageNum - 1)}
+                disabled={isLoading}
+                child={String(pageNum)}
+                className="min-w-8"
+              />
+            ),
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -299,7 +366,7 @@ export const TableData = <TData, TValue>({
               (manualPagination ? record.endRecord === record.total : !table.getCanNextPage()) ||
               isLoading
             }
-            child={'Next'}
+            child="Next"
           />
         </div>
       </div>
