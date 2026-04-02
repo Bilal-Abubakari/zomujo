@@ -178,7 +178,7 @@ export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps
               className="mt-3 flex flex-wrap gap-4 text-sm"
               style={{ color: 'rgba(255,255,255,0.85)' }}
             >
-              {doctorInfo.experience > 0 && (
+              {(doctorInfo.experience || 0) > 0 && (
                 <span className="flex items-center gap-1.5">
                   <Stethoscope size={14} />
                   {doctorInfo.experience} yrs experience
