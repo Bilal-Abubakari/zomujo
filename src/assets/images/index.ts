@@ -1,4 +1,4 @@
-export { default as LoginSlide } from './login-slide.jpeg';
+export { default as LoginSlide } from './login-slide.png';
 export { default as Logo } from './logo.png';
 export { default as SignUpSlide } from './sign-up-slide.jpg';
 export { default as ForgotPasswordSlide } from './forgot-password-slide.jpg';

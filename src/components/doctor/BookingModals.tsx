@@ -13,7 +13,7 @@ import { IDoctor } from '@/types/doctor.interface';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { IBookingForm } from '@/types/booking.interface';
 
-import { SERVICE_AND_TAX_FEE } from '@/constants/payment.constants';
+import { SERVICE_CHARGE_PERCENTAGE } from '@/constants/payment.constants';
 
 interface BookingModalsProps {
   showSlots: boolean;
@@ -45,6 +45,8 @@ export default function BookingModals({
   handleConfirmAndPay,
 }: Readonly<BookingModalsProps>): JSX.Element {
   const fullName = doctor ? `${doctor.firstName} ${doctor.lastName}` : '';
+  const consultationFee = pesewasToGhc(doctor?.fee ?? 0);
+  const serviceCharge = parseFloat((consultationFee * SERVICE_CHARGE_PERCENTAGE / 100).toFixed(2));
 
   return (
     <>
@@ -207,7 +209,7 @@ export default function BookingModals({
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">Consultation Fee</span>
                       <span className="font-medium text-gray-900">
-                        GHS {pesewasToGhc(doctor?.fee ?? 0)}
+                        GHS {consultationFee.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
@@ -215,26 +217,27 @@ export default function BookingModals({
                         Service Charge{' '}
                         <span
                           className="inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full bg-gray-300 text-[10px] font-bold text-gray-600"
-                          title="A flat platform service and tax fee applied to every booking."
+                          title={`A ${SERVICE_CHARGE_PERCENTAGE}% platform service and tax fee applied to every booking.`}
                         >
                           ?
                         </span>
                       </span>
                       <span className="font-medium text-gray-900">
-                        GHS {SERVICE_AND_TAX_FEE}.00
+                        GHS {serviceCharge.toFixed(2)}
                       </span>
                     </div>
                     <div className="border-t border-gray-200 pt-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold text-gray-800">Total</span>
                         <span className="text-primary-600 text-xl font-bold">
-                          GHS {pesewasToGhc(doctor?.fee || 0) + SERVICE_AND_TAX_FEE}
+                          GHS {(consultationFee + serviceCharge).toFixed(2)}
                         </span>
                       </div>
                     </div>
                   </div>
                   <p className="mt-2 text-xs text-gray-400">
-                    Includes a GHS {SERVICE_AND_TAX_FEE}.00 service fee charged by the platform.
+                    Includes a {SERVICE_CHARGE_PERCENTAGE}% (GHS {serviceCharge.toFixed(2)}) service
+                    fee charged by the platform.
                   </p>
                 </div>
               </div>

@@ -21,6 +21,7 @@ export interface IRadiologyTest {
   testName: string;
   fileUrl?: string;
 }
+
 export interface IRadiologyRequest {
   tests: IRadiologyTest[];
   procedureRequest: string;
