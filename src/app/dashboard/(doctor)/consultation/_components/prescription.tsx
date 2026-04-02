@@ -359,11 +359,7 @@ const Prescription = ({
         content={
           <div className="h-full w-full">
             {pdfUrl ? (
-              <iframe
-                title="Prescription PDF"
-                src={pdfUrl}
-                className="mt-5 h-full w-full"
-              />
+              <iframe title="Prescription PDF" src={pdfUrl} className="mt-5 h-full w-full" />
             ) : (
               <div className="flex h-full items-center justify-center">Loading PDF...</div>
             )}
