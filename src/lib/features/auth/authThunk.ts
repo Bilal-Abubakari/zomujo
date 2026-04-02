@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios, { axiosErrorHandler } from '@/lib/axios';
+import { LocalStorageManager } from '@/lib/localStorage';
 import {
   resetAuthentication,
   setErrorMessage,
@@ -232,7 +233,11 @@ export const logout = createAsyncThunk(
   async (_, { dispatch }): Promise<void> => {
     const cleanUp = (): void => {
       dispatch(resetAuthentication());
+      const cookieConsent = LocalStorageManager.getCookieConsent();
       globalThis.localStorage.clear();
+      if (cookieConsent) {
+        LocalStorageManager.setCookieConsent(cookieConsent);
+      }
     };
     try {
       await axios.delete(`${authPath}logout`);
