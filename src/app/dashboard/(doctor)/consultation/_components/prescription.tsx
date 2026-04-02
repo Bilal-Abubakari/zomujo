@@ -80,6 +80,8 @@ const Prescription = ({
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [prescriptionNotes, setPrescriptionNotes] = useState('');
 
   const [search, setSearch] = useState('');
   const [value] = useDebounce(search, 500);
@@ -169,12 +171,16 @@ const Prescription = ({
     setDeletingIndex(null);
   };
 
-  const handleSaveAndGenerate = async (): Promise<void> => {
+  const handleOpenNotesModal = (): void => {
     if (combinedPrescriptions.length === 0) {
       toast({ title: 'Please add prescriptions first.', variant: 'destructive' });
       return;
     }
+    setShowNotesModal(true);
+  };
 
+  const handleSaveAndGenerate = async (): Promise<void> => {
+    setShowNotesModal(false);
     setIsSavingAndGenerating(true);
 
     if (localPrescriptions.length > 0) {
@@ -203,7 +209,7 @@ const Prescription = ({
       await dispatch(getConsultationAppointment(appointmentId));
     }
 
-    const result = await dispatch(generatePrescription({ appointmentId, notes: '' })).unwrap();
+    const result = await dispatch(generatePrescription({ appointmentId, notes: prescriptionNotes })).unwrap();
 
     if (showErrorToast(result)) {
       setIsSavingAndGenerating(false);
@@ -309,7 +315,7 @@ const Prescription = ({
         <h3 className="text-lg font-bold">Prescriptions</h3>
         <div className="flex gap-2">
           <Button
-            onClick={handleSaveAndGenerate}
+            onClick={handleOpenNotesModal}
             isLoading={isSavingAndGenerating}
             disabled={isSavingAndGenerating || combinedPrescriptions.length === 0}
             child="Save & Generate PDF"
@@ -350,6 +356,35 @@ const Prescription = ({
           ))}
         </div>
       )}
+
+      <Modal
+        setState={setShowNotesModal}
+        open={showNotesModal}
+        content={
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900">Prescription Notes</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Add any additional notes to include in the prescription (optional).
+            </p>
+            <textarea
+              value={prescriptionNotes}
+              onChange={(e) => setPrescriptionNotes(e.target.value)}
+              placeholder="Enter notes here..."
+              rows={4}
+              className="mt-4 w-full rounded-md border border-gray-300 p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+            />
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                onClick={() => setShowNotesModal(false)}
+                variant="outline"
+                child="Cancel"
+              />
+              <Button onClick={() => void handleSaveAndGenerate()} child="Save & Generate PDF" />
+            </div>
+          </div>
+        }
+        showClose={true}
+      />
 
       <Modal
         open={showPdfPreview}
