@@ -74,7 +74,7 @@ const PaymentMethod = ({ closeModal, paymentDetails }: PaymentMethodProps): JSX.
     trigger,
   } = useForm<PaymentInfoWithoutType>({
     resolver: zodResolver(createPaymentMethodSchema(paymentMethodType)),
-    mode: MODE.ON_TOUCH,
+    mode: MODE.ON_CHANGE,
     defaultValues: {
       reference: paymentDetails?.reference || '',
       accountNumber: paymentDetails?.accountNumber || '',

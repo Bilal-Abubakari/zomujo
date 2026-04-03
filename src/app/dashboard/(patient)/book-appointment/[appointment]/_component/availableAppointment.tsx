@@ -25,7 +25,7 @@ import { getHospital } from '@/lib/features/hospitals/hospitalThunk';
 import Image from 'next/image';
 import { AppointmentType } from '@/types/slots.interface';
 import { bookingSchema } from '@/schemas/booking.schema';
-import { SERVICE_AND_TAX_FEE } from '@/constants/payment.constants';
+import { SERVICE_CHARGE_PERCENTAGE } from '@/constants/payment.constants';
 
 const AvailableAppointment = (): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -261,22 +261,26 @@ const AvailableAppointment = (): JSX.Element => {
                 Service &amp; Tax Fee{''}
                 <span
                   className="inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-gray-500"
-                  title="A flat platform service and tax fee applied to every booking."
+                  title={`A ${SERVICE_CHARGE_PERCENTAGE}% platform service and tax fee applied to every booking.`}
                 >
                   ?
                 </span>
               </div>
-              <div className="font-medium">GHC {SERVICE_AND_TAX_FEE}.00</div>
+              <div className="font-medium">
+                GHC {((pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2)}
+              </div>
             </div>
             <div className="my-3 border-t border-dashed border-gray-200" />
             <div className="flex items-center justify-between">
               <div className="font-semibold text-gray-800">Total</div>
               <div className="text-primary text-lg font-bold">
-                GHC {pesewasToGhc(getAmount()) + SERVICE_AND_TAX_FEE}.00
+                GHC {(pesewasToGhc(getAmount()) * (1 + SERVICE_CHARGE_PERCENTAGE / 100)).toFixed(2)}
               </div>
             </div>
             <p className="mt-2 text-xs text-gray-400">
-              Includes a GHC {SERVICE_AND_TAX_FEE}.00 service &amp; tax fee charged by the platform.
+              Includes a {SERVICE_CHARGE_PERCENTAGE}% (GHC{' '}
+              {((pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2)}) service
+              &amp; tax fee charged by the platform.
             </p>
 
             <div className="mt-4 flex justify-between">

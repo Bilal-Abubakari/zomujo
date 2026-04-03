@@ -120,7 +120,7 @@ const DoctorDetails = ({
             )}
 
             <div className="mt-4 flex flex-wrap gap-4 text-sm text-white/80">
-              {doctor.experience > 0 && (
+              {(doctor.experience || 0) > 0 && (
                 <span className="flex items-center gap-1.5">
                   <Calendar size={14} className="text-white/60" />
                   {doctor.experience} yrs experience

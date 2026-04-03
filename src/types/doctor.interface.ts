@@ -12,7 +12,7 @@ export interface IDoctor extends IExtraBase {
   qualifications: string[];
   specializations: string[];
   schoolsAttended: string[];
-  experience: number;
+  experience?: number;
   consultationCount: number;
   education?: {
     school: string;

@@ -20,7 +20,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import {
-  History,
   FileText,
   ClipboardCheck,
   PenLine,
@@ -85,8 +84,6 @@ const PostInvestigationHistoryView = ({
   const handleSaveAndContinue = async (): Promise<void> => {
     if (initialPostData) {
       const isUnchanged =
-        postData.historyOfPresentingComplaints ===
-          initialPostInvestigationNotes.historyOfPresentingComplaints &&
         postData.assessmentImpression === initialPostInvestigationNotes.assessmentImpression &&
         postData.plan === initialPostInvestigationNotes.plan &&
         postData.addendum === initialPostInvestigationNotes.addendum;
@@ -112,7 +109,10 @@ const PostInvestigationHistoryView = ({
     goToNext();
   };
 
-  const isValid = Object.values(postData).some((v) => v.trim().length > 0);
+  const isValid =
+    postData.addendum.trim().length > 0 ||
+    postData.assessmentImpression.trim().length > 0 ||
+    postData.plan.trim().length > 0;
 
   const getSectionLabel = (key: string): string => {
     const labels: Record<string, string> = {
@@ -138,10 +138,10 @@ const PostInvestigationHistoryView = ({
       <div className="rounded-xl border border-indigo-200 bg-linear-to-r from-indigo-50 to-purple-50 p-4">
         <div className="flex items-start gap-3">
           <div className="rounded-lg bg-indigo-100 p-2">
-            <History className="h-5 w-5 text-indigo-600" />
+            <PenLine className="h-5 w-5 text-indigo-600" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-indigo-900">Post-Investigation History</h2>
+            <h2 className="text-sm font-semibold text-indigo-900">Addendum</h2>
             <p className="mt-0.5 text-xs text-indigo-700">
               This is a post-investigation consultation. Review the previous history below, then
               complete the new fields based on the investigation results.
@@ -211,20 +211,18 @@ const PostInvestigationHistoryView = ({
 
       {/* New Fields */}
       <div className="space-y-4">
-        {/* History of Presenting Complaints */}
+        {/* Addendum */}
         <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
-            <FileText className="text-primary h-5 w-5" />
-            <h3 className="text-base font-semibold text-gray-800">
-              History of Presenting Complaints
-            </h3>
+            <PenLine className="text-primary h-5 w-5" />
+            <h3 className="text-base font-semibold text-gray-800">Addendum</h3>
           </div>
           <Textarea
-            value={postData.historyOfPresentingComplaints}
-            onChange={(e) => handleChange('historyOfPresentingComplaints', e.target.value)}
-            placeholder="Document the history of presenting complaints as updated after the investigations..."
+            value={postData.addendum}
+            onChange={(e) => handleChange('addendum', e.target.value)}
+            placeholder="Add any additional notes, corrections, or addendum to this consultation record..."
             className="min-h-28 resize-y"
-            name="historyOfPresentingComplaints"
+            name="addendum"
           />
         </div>
 
@@ -255,21 +253,6 @@ const PostInvestigationHistoryView = ({
             placeholder="Enter your treatment plan based on the investigation results..."
             className="min-h-28 resize-y"
             name="plan"
-          />
-        </div>
-
-        {/* Addendum */}
-        <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center gap-2">
-            <PenLine className="text-primary h-5 w-5" />
-            <h3 className="text-base font-semibold text-gray-800">Addendum</h3>
-          </div>
-          <Textarea
-            value={postData.addendum}
-            onChange={(e) => handleChange('addendum', e.target.value)}
-            placeholder="Add any additional notes, corrections, or addendum to this consultation record..."
-            className="min-h-28 resize-y"
-            name="addendum"
           />
         </div>
       </div>

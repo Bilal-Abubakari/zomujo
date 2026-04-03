@@ -7,10 +7,15 @@ import { getWalletAmount } from '@/lib/features/payments/paymentsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { showErrorToast } from '@/lib/utils';
 import React, { JSX, useEffect, useState } from 'react';
+import { Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import WithdrawModal from './WithdrawModal';
 import { IWallet } from '@/types/payment.interface';
-import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
+import {
+  DOCTOR_EARNINGS_PERCENTAGE,
+  PESEWAS_PER_CEDI,
+  PLATFORM_FEE_PERCENTAGE,
+} from '@/constants/payment.constants';
 
 const Wallet = (): JSX.Element => {
   const [walletAmount, setWalletAmount] = useState<number>(0);
@@ -42,7 +47,18 @@ const Wallet = (): JSX.Element => {
 
   return (
     <>
-      <div>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700 sm:w-113.25">
+          <Info size={14} className="mt-0.5 shrink-0" />
+          <p>
+            Your balance reflects{' '}
+            <span className="font-semibold">
+              {DOCTOR_EARNINGS_PERCENTAGE}% of each consultation fee
+            </span>{' '}
+            — a <span className="font-semibold">{PLATFORM_FEE_PERCENTAGE}% platform fee</span> is
+            deducted before funds reach your wallet.
+          </p>
+        </div>
         <div className="w-full rounded-xl border p-6 sm:h-50 sm:w-113.25">
           <p className="mb-2 text-sm font-medium text-gray-400">AVAILABLE</p>
           {isLoading ? (

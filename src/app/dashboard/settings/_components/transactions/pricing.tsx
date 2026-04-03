@@ -1,6 +1,7 @@
 'use client';
 import { Slider } from '@/components/ui/slider';
 import React, { JSX, useEffect, useState } from 'react';
+import { Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -14,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { dataCompletionToast, ghcToPesewas, pesewasToGhc, sliderPosition } from '@/lib/utils';
 import { PaymentTab } from '@/hooks/useQueryParam';
 import { MAX_AMOUNT, MIN_AMOUNT } from '@/constants/constants';
+import { DOCTOR_EARNINGS_PERCENTAGE, PLATFORM_FEE_PERCENTAGE } from '@/constants/payment.constants';
 
 const Pricing = (): JSX.Element => {
   const router = useRouter();
@@ -71,6 +73,8 @@ const Pricing = (): JSX.Element => {
     }
   }, []);
 
+  const doctorEarnings = Math.round(currentAmount * (DOCTOR_EARNINGS_PERCENTAGE / 100));
+
   return (
     <div className="flex w-full flex-col items-end gap-24 sm:ml-6 sm:w-113.5">
       <div className="relative flex w-full flex-1 flex-col gap-4">
@@ -111,6 +115,21 @@ const Pricing = (): JSX.Element => {
         >
           <p className="text-sm text-white">{currentSessionLength} mins</p>
         </motion.div>
+      </div>
+      <div className="flex w-full items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
+        <Info size={16} className="mt-0.5 shrink-0" />
+        <div className="flex flex-col gap-1">
+          <p className="font-semibold">Earnings breakdown</p>
+          <p className="leading-5">
+            You will receive{' '}
+            <span className="font-bold">
+              ₵{doctorEarnings} ({DOCTOR_EARNINGS_PERCENTAGE}%)
+            </span>{' '}
+            per consultation. A{' '}
+            <span className="font-bold">{PLATFORM_FEE_PERCENTAGE}% platform fee</span> is deducted
+            from your set fee of <span className="font-bold">₵{currentAmount}</span>.
+          </p>
+        </div>
       </div>
       <Button
         child="Save Changes"

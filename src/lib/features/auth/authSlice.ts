@@ -25,6 +25,8 @@ interface AuthenticationState {
   extra: IDoctor | IAdmin | IPatient | undefined;
   loggedInAt: undefined | string;
   hideOnboardingModal: boolean;
+  registrationFeePaid: boolean;
+  registrationFeePaidAt: string | undefined;
 }
 
 const initialState: AuthenticationState = {
@@ -38,6 +40,8 @@ const initialState: AuthenticationState = {
   extra: undefined,
   loggedInAt: undefined,
   hideOnboardingModal: false,
+  registrationFeePaid: false,
+  registrationFeePaidAt: undefined,
 };
 
 const authSlice = createSlice({
@@ -85,6 +89,10 @@ const authSlice = createSlice({
     },
     dismissOnboardingModal: (state) => {
       state.hideOnboardingModal = true;
+    },
+    markRegistrationFeePaid: (state) => {
+      state.registrationFeePaid = true;
+      state.registrationFeePaidAt = JSON.stringify(new Date());
     },
   },
   extraReducers: (builder) => {
@@ -166,5 +174,6 @@ export const {
   resetAuthentication,
   updateDoctorSignature,
   dismissOnboardingModal,
+  markRegistrationFeePaid,
 } = authSlice.actions;
 export default authSlice.reducer;

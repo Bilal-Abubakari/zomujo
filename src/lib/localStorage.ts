@@ -244,11 +244,47 @@ export class LocalStorageManager {
 
   // ─── Cookie Consent ────────────────────────────────────────────────────────
 
+  /** Cookie name used to flag that the user has already responded. */
+  private static readonly CONSENT_COOKIE_NAME = `cookie_consent_v${COOKIE_POLICY_VERSION}`;
+
+  /**
+   * Sets a long-lived browser cookie (1 year) to remember the user responded.
+   * Using document.cookie means the flag survives localStorage.clear() calls.
+   */
+  private static setConsentBrowserCookie(): void {
+    try {
+      if (globalThis.document !== undefined) {
+        const maxAge = 365 * 24 * 60 * 60;
+        globalThis.document.cookie = `${this.CONSENT_COOKIE_NAME}=1; max-age=${maxAge}; path=/; SameSite=Lax`;
+      }
+    } catch {
+      // ignore – cookie write failure is non-critical
+    }
+  }
+
+  /**
+   * Returns true if the browser cookie flag is present.
+   */
+  private static hasConsentBrowserCookie(): boolean {
+    try {
+      if (globalThis.document !== undefined) {
+        return globalThis.document.cookie
+          .split(';')
+          .some((c) => c.trim().startsWith(`${this.CONSENT_COOKIE_NAME}=`));
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  }
+
   /**
    * Persist the user's cookie-consent preferences.
+   * Also sets a browser cookie so the banner stays hidden even if localStorage is cleared.
    */
   static setCookieConsent(consent: ICookieConsent): void {
     this.setJSON(this.KEYS.COOKIE_CONSENT, consent);
+    this.setConsentBrowserCookie();
   }
 
   /**
@@ -268,9 +304,12 @@ export class LocalStorageManager {
 
   /**
    * Returns true if the user has already responded to the consent banner
-   * AND the stored policy version matches the current version.
+   * for the current policy version, checking both localStorage and the browser cookie.
    */
   static hasCookieConsentForCurrentVersion(): boolean {
+    if (this.hasConsentBrowserCookie()) {
+      return true;
+    }
     const consent = this.getCookieConsent();
     return consent !== null && consent.policyVersion === COOKIE_POLICY_VERSION;
   }

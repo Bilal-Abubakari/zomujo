@@ -97,6 +97,16 @@ export const selectHideOnboardingModal = createSelector(
   ({ hideOnboardingModal }) => hideOnboardingModal,
 );
 
+export const selectRegistrationFeePaid = createSelector(
+  selectAuthentication,
+  ({ registrationFeePaid }) => registrationFeePaid,
+);
+
+export const selectRegistrationFeePaidAt = createSelector(
+  selectAuthentication,
+  ({ registrationFeePaidAt }) => registrationFeePaidAt,
+);
+
 export const selectShouldShowDoctorOnboardingModal = createSelector(
   selectIsDoctor,
   selectDoctorStatus,

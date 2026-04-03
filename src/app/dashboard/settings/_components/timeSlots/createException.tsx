@@ -13,24 +13,15 @@ import { CalendarIcon } from 'lucide-react';
 import moment from 'moment';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { SelectInput, SelectOption } from '@/components/ui/select';
 import { MODE } from '@/constants/constants';
 import { parseTime } from '@/lib/date';
 import { IPatternException } from '@/types/slots.interface';
-
-const exceptionTypes: SelectOption[] = [
-  { label: 'Modification', value: 'modification' },
-  { label: 'Cancellation', value: 'cancellation' },
-];
 
 const formSchema = z
   .object({
     date: requiredStringSchema(),
     startTime: requiredStringSchema(),
     endTime: requiredStringSchema(),
-    type: z.enum(['modification', 'cancellation']),
-    reason: requiredStringSchema(),
     patternId: requiredStringSchema(),
   })
   .refine(({ endTime, startTime }) => parseTime(endTime) > parseTime(startTime), {
@@ -49,7 +40,6 @@ const CreateException = ({
 }: CreateExceptionProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const {
-    control,
     register,
     handleSubmit,
     watch,
@@ -66,13 +56,10 @@ const CreateException = ({
 
   const onSubmit = async (data: IPatternException): Promise<void> => {
     setIsLoading(true);
-    const { startTime, endTime } = data;
     const { payload } = await dispatch(
       createPatternException({
         ...data,
         patternId,
-        startTime: parseTime(startTime).toISOString(),
-        endTime: parseTime(endTime).toISOString(),
       }),
     );
     toast(payload as Toast);
@@ -98,7 +85,7 @@ const CreateException = ({
                   id="date"
                   variant={'outline'}
                   className={cn(
-                    'w-[300px] justify-start text-left font-normal',
+                    'w-75 justify-start text-left font-normal',
                     !watch('date') && 'text-muted-foreground',
                   )}
                   child={
@@ -148,24 +135,6 @@ const CreateException = ({
             {...register('endTime')}
           />
         </div>
-
-        <SelectInput
-          ref={register('type').ref}
-          control={control}
-          options={exceptionTypes}
-          label="Type of Exception"
-          error={errors.type?.message}
-          name="type"
-          placeholder="Select exception type"
-        />
-
-        <Textarea
-          error={errors.reason?.message}
-          labelName="Reason for Exception"
-          {...register('reason')}
-          placeholder="Please provide a reason for this exception..."
-        />
-
         <div className="flex justify-end gap-4">
           <Button
             onClick={closeCreateException}

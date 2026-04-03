@@ -7,6 +7,7 @@ import PersonalDetails from '@/app/onboarding/_components/personalDetails';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import DoctorIdentification from '@/app/onboarding/_components/doctorIdentification';
 import DoctorPhotoUpload from '@/app/onboarding/_components/doctorPhotoUpload';
+import RegistrationFee from '@/app/onboarding/_components/registrationFee';
 import { AlertMessage } from '@/components/ui/alert';
 import {
   DropdownMenu,
@@ -28,13 +29,14 @@ const DoctorOnboarding = (): JSX.Element => {
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logout());
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   const currentView = {
     1: <PersonalDetails />,
     2: <DoctorIdentification />,
     3: <DoctorPhotoUpload />,
+    4: <RegistrationFee />,
   }[currentStep];
 
   return (
@@ -64,21 +66,19 @@ const DoctorOnboarding = (): JSX.Element => {
             </DropdownMenu>
           </div>
         </header>
-        <div className="mt-8 flex w-full max-w-[610px] flex-col gap-8 px-4 pb-8 sm:mt-12 sm:gap-10 sm:px-6 md:mt-16 md:gap-12 md:px-8 lg:mt-[70px] lg:px-0">
+        <div className="mt-8 flex w-full max-w-152.5 flex-col gap-8 px-4 pb-8 sm:mt-12 sm:gap-10 sm:px-6 md:mt-16 md:gap-12 md:px-8 lg:mt-17.5 lg:px-0">
           <div className="flex flex-col gap-3">
-            <p className="text-sm leading-4 sm:text-base">Step {currentStep} of 3</p>
+            <p className="text-sm leading-4 sm:text-base">Step {currentStep} of 4</p>
             <div className="flex flex-row items-center justify-between gap-4">
-              {Array(3)
-                .fill('')
-                .map((_, i) => (
-                  <div
-                    key={`progress-${i}`}
-                    className={cn(
-                      'h-1 w-full duration-150',
-                      currentStep >= i + 1 ? 'bg-primary' : 'bg-gray-200',
-                    )}
-                  />
-                ))}
+              {new Array(4).fill('').map((value, i) => (
+                <div
+                  key={`${value}-${i}`}
+                  className={cn(
+                    'h-1 w-full duration-150',
+                    currentStep >= i + 1 ? 'bg-primary' : 'bg-gray-200',
+                  )}
+                />
+              ))}
             </div>
           </div>
           {errorMessage && (

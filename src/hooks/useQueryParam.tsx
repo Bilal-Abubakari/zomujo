@@ -34,6 +34,7 @@ export enum PaymentTab {
   Pricing = 'pricing',
   PaymentMethod = 'paymentMethod',
   Wallet = 'wallet',
+  RegistrationFee = 'registrationFee',
 }
 
 interface IQuery extends Pick<Required<IQueryParams>, 'specialty' | 'priceMax' | 'search'> {

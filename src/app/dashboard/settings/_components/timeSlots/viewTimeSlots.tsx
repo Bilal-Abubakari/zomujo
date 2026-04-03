@@ -161,7 +161,7 @@ const ViewTimeSlots = (): JSX.Element => {
                       id="date"
                       variant={'outline'}
                       className={cn(
-                        'w-[300px] justify-start text-left font-normal',
+                        'w-75 justify-start text-left font-normal',
                         !queryParameters.startDate && 'text-muted-foreground',
                       )}
                       child={
@@ -225,10 +225,11 @@ const ViewTimeSlots = (): JSX.Element => {
             columns={columns}
             data={tableData}
             page={queryParameters.page}
-            userPaginationChange={({ pageIndex }) =>
+            userPaginationChange={({ pageIndex, pageSize }) =>
               setQueryParameters((prev) => ({
                 ...prev,
                 page: pageIndex + 1,
+                pageSize,
               }))
             }
             paginationData={paginationData}

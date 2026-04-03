@@ -54,10 +54,7 @@ export interface ISlotPattern extends ISlotPatternBase {
   updateAt: string;
 }
 
-export type IPatternException = Pick<ISlot, 'patternId' | 'date' | 'startTime' | 'endTime'> & {
-  reason: string;
-  type: 'modification' | 'cancellation';
-};
+export type IPatternException = Pick<ISlot, 'patternId' | 'date' | 'startTime' | 'endTime'>;
 export type AppointmentSlots = Pick<ISlot, 'startTime' | 'endTime' | 'id' | 'date'>;
 export type AppointmentDate = Pick<ISlot, 'date'>;
 

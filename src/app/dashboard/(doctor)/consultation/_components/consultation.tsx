@@ -113,6 +113,21 @@ const getStageLabel = (stage: StageType): string => {
   return capitalize(stage);
 };
 
+const getStageTabLabel = (stage: StageType, isPostInvestigation: boolean): JSX.Element | string => {
+  if (stage === 'investigationResults') {
+    return (
+      <span className="flex items-center gap-1">
+        <FlaskConical className="h-3 w-3" />
+        Results
+      </span>
+    );
+  }
+  if (stage === 'history' && isPostInvestigation) {
+    return 'Addendum';
+  }
+  return getStageLabel(stage);
+};
+
 const getStatusBadgeVariant = (
   status: AppointmentStatus | undefined,
 ): 'brown' | 'default' | 'destructive' => {
@@ -445,14 +460,7 @@ const Consultation = (): JSX.Element => {
                         'inline-block px-6 text-xs whitespace-nowrap md:px-8',
                       )}
                     >
-                      {stage === 'investigationResults' ? (
-                        <span className="flex items-center gap-1">
-                          <FlaskConical className="h-3 w-3" />
-                          Results
-                        </span>
-                      ) : (
-                        getStageLabel(stage)
-                      )}
+                      {getStageTabLabel(stage, isInvestigatingProgress)}
                     </button>
                   ))}
                 </div>
