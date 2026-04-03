@@ -22,7 +22,9 @@ const SingleDateInfo = (): JSX.Element => (
     <p>Select the specific date you want to create appointment slots for.</p>
     <ul className="ml-4 list-disc space-y-1">
       <li>Pick any future date from the calendar</li>
-      <li>Slots will be generated only for this single day between your chosen start and end times</li>
+      <li>
+        Slots will be generated only for this single day between your chosen start and end times
+      </li>
     </ul>
   </div>
 );
