@@ -7,7 +7,7 @@ interface HistoryNotesCardProps {
 }
 
 const HistoryNotesCard = ({ historyNotes }: HistoryNotesCardProps): JSX.Element => {
-  let parsedNotes: Record<string, string> = {};
+  let parsedNotes: Record<string, string>;
 
   try {
     parsedNotes = JSON.parse(historyNotes);
