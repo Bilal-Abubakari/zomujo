@@ -9,7 +9,7 @@ import {
   signUp,
   verifyEmail,
 } from '@/lib/features/auth/authThunk';
-import { IDoctorIdentification, IPersonalDetails, IUser } from '@/types/auth.interface';
+import { IPersonalDetails, IUser } from '@/types/auth.interface';
 import { IDoctor } from '@/types/doctor.interface';
 import { IAdmin } from '@/types/admin.interface';
 import { IPatient } from '@/types/patient.interface';
@@ -20,7 +20,6 @@ interface AuthenticationState {
   isOAuthLoading: boolean;
   currentStep: number;
   doctorPersonalDetails: IPersonalDetails | undefined;
-  doctorIdentification: IDoctorIdentification<File> | undefined;
   user: IUser | undefined;
   extra: IDoctor | IAdmin | IPatient | undefined;
   loggedInAt: undefined | string;
@@ -35,7 +34,6 @@ const initialState: AuthenticationState = {
   isOAuthLoading: false,
   currentStep: 1,
   doctorPersonalDetails: undefined,
-  doctorIdentification: undefined,
   user: undefined,
   extra: undefined,
   loggedInAt: undefined,
@@ -54,10 +52,6 @@ const authSlice = createSlice({
     updatePersonalDetails: (state, { payload }) => {
       state.doctorPersonalDetails = payload;
       state.currentStep = 2;
-    },
-    updateDoctorIdentification: (state, { payload }) => {
-      state.doctorIdentification = payload;
-      state.currentStep = 3;
     },
     updateCurrentStep: (state, { payload }) => {
       state.currentStep = payload;
@@ -166,7 +160,6 @@ const authSlice = createSlice({
 export const {
   setErrorMessage,
   updatePersonalDetails,
-  updateDoctorIdentification,
   updateCurrentStep,
   setUserInfo,
   updateExtra,
