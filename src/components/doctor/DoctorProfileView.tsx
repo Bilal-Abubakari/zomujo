@@ -43,6 +43,7 @@ export default function DoctorProfileView({
     doctorId,
     profilePictureBase64,
     isImageLoading,
+    doctor ? `${doctor.firstName} ${doctor.lastName}` : undefined,
   );
 
   useEffect(() => {
