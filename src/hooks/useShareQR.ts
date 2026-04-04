@@ -1,6 +1,6 @@
 import { toast } from '@/hooks/use-toast';
-import html2canvas from 'html2canvas';
 import { BRANDING } from '@/constants/branding.constant';
+import html2canvas from 'html2canvas';
 import { RefObject } from 'react';
 
 export function useShareQR(
@@ -9,6 +9,7 @@ export function useShareQR(
   doctorId: string,
   profilePictureBase64?: string,
   isImageLoading?: boolean,
+  doctorName?: string,
 ): {
   copyToClipboard: () => Promise<void>;
   shareOnSocial: (platform: string) => void;
@@ -20,12 +21,16 @@ export function useShareQR(
   };
 
   const shareOnSocial = (platform: string): void => {
-    const text = `Check out this doctor profile on ${BRANDING.APP_NAME}: `;
+    const name = doctorName ? `Dr. ${doctorName}` : 'your doctor';
+    const text =
+      `Hi I am ${name} on ${BRANDING.APP_NAME}.\n\n` +
+      `Your health is important to me. You can now book a session with me easily online on ${BRANDING.APP_NAME}.\n\n` +
+      `Tap the link below and pick a time that works for you \n${url}`;
     const map: Record<string, string> = {
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-      whatsapp: `https://wa.me/?text=${encodeURIComponent(text + url)}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`,
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(text)}`,
     };
     const shareUrl = map[platform];
     if (shareUrl && globalThis.window !== undefined) {
