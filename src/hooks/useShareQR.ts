@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast';
+import { BRANDING } from '@/constants/branding.constant';
 import html2canvas from 'html2canvas';
 import { RefObject } from 'react';
 
@@ -22,9 +23,9 @@ export function useShareQR(
   const shareOnSocial = (platform: string): void => {
     const name = doctorName ? `Dr. ${doctorName}` : 'your doctor';
     const text =
-      `Hi 👋🏾. I am ${name}.\n\n` +
-      `Your health is important to me. You can now book a session with me easily online.\n\n` +
-      `Tap the link below and pick a time that works for you 👇\n${url}`;
+      `Hi I am ${name} on ${BRANDING.APP_NAME}.\n\n` +
+      `Your health is important to me. You can now book a session with me easily online on ${BRANDING.APP_NAME}.\n\n` +
+      `Tap the link below and pick a time that works for you \n${url}`;
     const map: Record<string, string> = {
       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
