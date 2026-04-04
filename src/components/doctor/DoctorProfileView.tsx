@@ -91,7 +91,7 @@ export default function DoctorProfileView({
     }
     return (
       <>
-        <Link href="/sign-in">
+        <Link href="/login">
           <Button variant="outline" child="Log In" />
         </Link>
         <Link href="/sign-up">
