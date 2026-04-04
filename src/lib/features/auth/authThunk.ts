@@ -9,7 +9,6 @@ import {
   updateStatus,
 } from '@/lib/features/auth/authSlice';
 import {
-  DoctorOnboarding,
   IDoctorPhotoUpload,
   ILogin,
   ILoginResponse,
@@ -45,19 +44,20 @@ export const login = createAsyncThunk(
   },
 );
 
-export const doctorOnboarding = createAsyncThunk(
+type DoctorOnboardingArg = IDoctorPhotoUpload & { onUploadProgress?: (percent: number) => void };
+
+export const doctorOnboarding = createAsyncThunk<boolean | undefined, DoctorOnboardingArg>(
   'authentication/doctorOnboarding',
-  async (doctorPhotoUpload: IDoctorPhotoUpload, { dispatch, getState }) => {
+  async ({ onUploadProgress, ...doctorPhotoUpload }, { dispatch, getState }) => {
     const {
-      authentication: { doctorIdentification, doctorPersonalDetails },
+      authentication: { doctorPersonalDetails },
     } = getState() as RootState;
-    if (!doctorPersonalDetails || !doctorIdentification) {
+    if (!doctorPersonalDetails) {
       return;
     }
 
-    const doctorDetails: DoctorOnboarding = {
+    const doctorDetails = {
       ...doctorPersonalDetails,
-      ...doctorIdentification,
       ...doctorPhotoUpload,
     };
     try {
@@ -68,6 +68,14 @@ export const doctorOnboarding = createAsyncThunk(
           headers: {
             'Content-Type': 'multipart/form-data',
           },
+          onUploadProgress: onUploadProgress
+            ? (progressEvent): void => {
+                const percent = progressEvent.total
+                  ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                  : 0;
+                onUploadProgress(percent);
+              }
+            : undefined,
         },
       );
       dispatch(updateExtra(data.data));
