@@ -52,8 +52,8 @@ const UpdatePatientInfo = (): JSX.Element => {
     <div>
       <span className="text-lg font-bold">Update Your Information</span>
       <p className="text-sm text-gray-600">
-        We need a little extra information from you. Shouldn&#39;t take long. Thank you for your
-        patience{' '}
+        This information helps your doctor provide better care during your consultation. They need your
+        age and gender to proceed. It won&#39;t take long.
       </p>
       <form className="mt-4 space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <SelectInput
