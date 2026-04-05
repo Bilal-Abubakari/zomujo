@@ -190,9 +190,6 @@ export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps
                   {doctorInfo.consultationCount}+ consultations
                 </span>
               )}
-              {doctorInfo.MDCRegistration && (
-                <span style={{ color: 'rgba(255,255,255,0.6)' }}>{doctorInfo.MDCRegistration}</span>
-              )}
             </div>
 
             {/* Fee */}

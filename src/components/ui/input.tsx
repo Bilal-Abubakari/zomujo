@@ -6,7 +6,7 @@ import { Eye, EyeClosed } from 'lucide-react';
 
 export interface InputProps extends React.ComponentProps<'input'> {
   labelClassName?: string;
-  labelName?: string;
+  labelName?: string | ReactNode;
   enablePasswordToggle?: boolean;
   rightIcon?: ReactNode;
   leftIcon?: ReactNode;
