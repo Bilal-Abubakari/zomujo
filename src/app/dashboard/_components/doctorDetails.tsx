@@ -105,9 +105,6 @@ const DoctorDetails = ({
             <h2 className="text-2xl font-extrabold text-white drop-shadow sm:text-3xl">
               Dr. {doctor.firstName} {doctor.lastName}
             </h2>
-            {doctor.MDCRegistration && (
-              <p className="mt-1 text-xs font-medium text-white/70">{doctor.MDCRegistration}</p>
-            )}
 
             {doctor.specializations.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
