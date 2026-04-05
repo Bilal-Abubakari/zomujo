@@ -1,5 +1,5 @@
 'use client';
-import { JSX } from 'react';
+import { JSX, useEffect } from 'react';
 import { IDoctor } from '@/types/doctor.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import {
@@ -26,8 +26,25 @@ const OnboardingModalContent = ({
   handleDismissOnboarding,
   handleCompleteProfileClick,
 }: OnboardingModalContentProps): JSX.Element => {
+  useEffect(() => {
+    if (!extra) {
+      handleDismissOnboarding();
+      return;
+    }
+
+    const doctorStatus = extra.status;
+
+    const isPendingIncomplete = doctorStatus === AcceptDeclineStatus.Pending && !isComplete;
+    const isAcceptedIncomplete = doctorStatus === AcceptDeclineStatus.Accepted && !isComplete;
+    const isPendingComplete = doctorStatus === AcceptDeclineStatus.Pending && isComplete;
+
+    if (!isPendingIncomplete && !isAcceptedIncomplete && !isPendingComplete) {
+      handleDismissOnboarding();
+    }
+  }, [extra, isComplete, handleDismissOnboarding]);
+
   if (!extra) {
-    return <div></div>;
+    return null as unknown as JSX.Element;
   }
 
   const doctorStatus = extra.status;
@@ -66,6 +83,41 @@ const OnboardingModalContent = ({
         />
         <ActionButtons
           handleDismissOnboarding={handleDismissOnboarding}
+          handleCompleteProfileClick={handleCompleteProfileClick}
+        />
+      </div>
+    );
+  }
+
+  // Scenario 4: Pending doctor with complete profile
+  if (doctorStatus === AcceptDeclineStatus.Pending && isComplete) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-gray-900">Profile Complete!</h2>
+          <p className="text-sm text-gray-600">
+            You&#39;ve successfully completed your profile. We&#39;re now reviewing your
+            information.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <InfoCard
+            icon="⏳"
+            title="Verification in Progress"
+            description="Our admin team is currently verifying your profile and credentials. You'll be notified once your account is fully approved and ready to accept bookings."
+            bgColor="border-blue-200 bg-blue-50"
+            textColor="text-blue-800"
+          />
+        </div>
+
+        <CheckboxSection
+          dontShowAgain={dontShowAgain}
+          setDontShowAgain={(value) => setDontShowAgain(value)}
+        />
+        <ActionButtons
+          showCompleteProfile={false}
+          handleDismissOnboarding={() => handleDismissOnboarding()}
           handleCompleteProfileClick={handleCompleteProfileClick}
         />
       </div>
@@ -150,7 +202,7 @@ const OnboardingModalContent = ({
   //   );
   // }
 
-  return <div></div>;
+  return null as unknown as JSX.Element;
 };
 
 export default OnboardingModalContent;
