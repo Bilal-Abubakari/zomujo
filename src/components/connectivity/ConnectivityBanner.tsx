@@ -28,7 +28,7 @@ export const ConnectivityBanner = (): JSX.Element | null => {
   }
 
   return (
-    <Alert className="fixed top-0 right-0 left-0 z-50 border-red-500 bg-red-50 text-red-800 flex items-center justify-between">
+    <Alert className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between border-red-500 bg-red-50 text-red-800">
       <div className="flex items-center">
         <WifiOff className="h-4 w-4" />
         <AlertDescription>
@@ -37,7 +37,7 @@ export const ConnectivityBanner = (): JSX.Element | null => {
       </div>
       <button
         onClick={() => setIsDismissed(true)}
-        className="ml-2 p-1 hover:bg-red-100 rounded"
+        className="ml-2 rounded p-1 hover:bg-red-100"
         aria-label="Close connectivity banner"
       >
         <X className="h-4 w-4" />
