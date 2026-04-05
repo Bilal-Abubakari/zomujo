@@ -19,6 +19,7 @@ import {
   BetweenHorizontalStart,
   Smile,
   MessageSquare,
+  Receipt,
 } from 'lucide-react';
 import { getDynamicParamFromUrl } from '@/lib/utils';
 
@@ -98,6 +99,13 @@ export const DOCTOR_SIDE_BAR: ISidebar = {
           title: 'Availability',
           url: `${DASHBOARD_ROUTE}/availability`,
           Icon: BetweenHorizontalStart,
+        },
+        {
+          title: 'Invoices',
+          url: `${DASHBOARD_ROUTE}/invoices`,
+          Icon: Receipt,
+          phoneTitle: 'Invoices',
+          relatedUrl: `${DASHBOARD_ROUTE}/invoices`,
         },
       ],
     },
