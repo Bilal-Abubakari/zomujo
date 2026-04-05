@@ -166,7 +166,7 @@ const PatientHome = (): JSX.Element => {
             <Tabs defaultValue="home" className="w-full text-center text-sm xl:hidden">
               <TabsList>
                 <TabsTrigger value="home">Home</TabsTrigger>
-                <TabsTrigger value="upcomingAppointments">Upcoming Appointments 2</TabsTrigger>
+                <TabsTrigger value="upcomingAppointments">Upcoming Appointments</TabsTrigger>
               </TabsList>
               <TabsContent className="mt-6" value="home">
                 {suggestSmallerScreen}
