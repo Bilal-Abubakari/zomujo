@@ -1,4 +1,4 @@
-import { JSX, useCallback, useRef } from 'react';
+import { JSX, useCallback, useRef, useState } from 'react';
 import { getFormattedDateTime } from '@/lib/date';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
@@ -8,12 +8,13 @@ import {
 } from '@/lib/features/notifications/notificationsSelector';
 import { AvatarComp } from '@/components/ui/avatar';
 import { Logo } from '@/assets/images';
-import { Bell, CheckCheck, EyeIcon, ExternalLink, Loader2 } from 'lucide-react';
-import { cn, parseNotificationMessage } from '@/lib/utils';
-import { markAsRead } from '@/lib/features/notifications/notificationsThunk';
+import { Bell, CheckCheck, EyeIcon, ExternalLink, Loader2, Trash2 } from 'lucide-react';
+import { cn, parseNotificationMessage, showErrorToast } from '@/lib/utils';
+import { deleteNotification, markAsRead } from '@/lib/features/notifications/notificationsThunk';
 import { INotification, NotificationTopic } from '@/types/notification.interface';
 import { useRouter } from 'next/navigation';
 import { selectIsDoctor, selectIsPatient } from '@/lib/features/auth/authSelector';
+import { toast } from '@/hooks/use-toast';
 
 const notificationTopicsWithoutDetails: NotificationTopic[] = [
   NotificationTopic.DoctorApproved,
@@ -32,6 +33,7 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
   const notifications = useAppSelector(selectUserNotifications);
   const isLoading = useAppSelector(selectNotificationsLoading);
   const totalPages = useAppSelector(selectTotalPages);
+  const [deletingIds, setDeletingIds] = useState<number[]>([]);
   const observer = useRef<IntersectionObserver | null>(null);
   const lastNotificationRef = useCallback(
     (node: HTMLDivElement) => {
@@ -52,6 +54,17 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
     },
     [isLoading, page, totalPages, loadMore],
   );
+
+  const handleDelete = async (notification: INotification): Promise<void> => {
+    setDeletingIds((prev) => [...prev, notification.id]);
+    const response = await dispatch(deleteNotification(notification)).unwrap();
+    const newDeletingIds = deletingIds.filter((id) => id !== notification.id);
+    setDeletingIds([...newDeletingIds]);
+
+    if (showErrorToast(response)) {
+      toast(response);
+    }
+  };
 
   const loadingContainerStyle =
     'flex w-full flex-col items-center justify-center px-4 py-8 gap-3 min-h-[200px]';
@@ -137,11 +150,25 @@ const Notifications = ({ loadMore, page }: NotificationsProps): JSX.Element => {
                                   </time>
                                 </div>
 
-                                {!read && (
-                                  <span className="bg-primary-dark/10 text-primary-dark mt-1 inline-flex max-w-fit items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap sm:mt-0">
-                                    New
-                                  </span>
-                                )}
+                                <div className="mt-1 flex shrink-0 items-center gap-1.5 sm:mt-0">
+                                  {!read && (
+                                    <span className="bg-primary-dark/10 text-primary-dark inline-flex max-w-fit items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap">
+                                      New
+                                    </span>
+                                  )}
+                                  <button
+                                    onClick={() => handleDelete(notification)}
+                                    disabled={deletingIds.includes(id)}
+                                    aria-label="Delete notification"
+                                    className="rounded-md p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 focus:ring-2 focus:ring-red-300 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                  >
+                                    {deletingIds.includes(id) ? (
+                                      <Loader2 className="h-3.5 w-3.5 animate-spin sm:h-4 sm:w-4" />
+                                    ) : (
+                                      <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                    )}
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>

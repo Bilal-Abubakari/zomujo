@@ -15,8 +15,8 @@ export const selectNotificationsLoading = createSelector(
 );
 
 export const selectUnReadNotificationCount = createSelector(
-  selectUserNotifications,
-  (notifications) => notifications.filter(({ read }) => !read).length,
+  selectNotifications,
+  ({ unreadCount }) => unreadCount,
 );
 
 export const selectTotalPages = createSelector(selectNotifications, ({ totalPages }) => totalPages);

@@ -39,11 +39,6 @@ export const selectIsOAuthLoading = createSelector(
   ({ isOAuthLoading }) => isOAuthLoading,
 );
 
-export const selectUserName = createSelector(
-  selectAuthentication,
-  ({ user }) => `${user?.firstName} ${user?.lastName}`,
-);
-
 export const selectUserFirstName = createSelector(
   selectAuthentication,
   ({ user }) => user?.firstName,
@@ -66,6 +61,11 @@ export const selectThunkState = createSelector(
 );
 
 export const selectExtra = createSelector(selectAuthentication, ({ extra }) => extra);
+
+export const selectUserName = createSelector(
+  selectExtra,
+  (extra) => `${extra?.firstName} ${extra?.lastName}`,
+);
 
 export const selectUserId = createSelector(selectAuthentication, ({ user }) => user?.id);
 

@@ -7,7 +7,7 @@ import { FieldError, Merge } from 'react-hook-form';
 import { cn } from '@/lib/utils';
 
 type MultiInputProps = {
-  label?: string;
+  label?: string | React.ReactNode;
   name?: string;
   errors?: Merge<FieldError, (FieldError | undefined)[]>;
   placeholder?: string;
@@ -99,7 +99,7 @@ const MultiInputField = ({
           const hasError = errorDetails?.position === index;
           return (
             <div
-              key={index}
+              key={`${index}-${item}`}
               className={cn(
                 'flex items-center rounded-full px-3 py-1 text-sm shadow-sm',
                 hasError ? 'border border-red-300 bg-red-50' : 'bg-gray-100',

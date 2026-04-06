@@ -1,10 +1,11 @@
 import * as React from 'react';
+import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Label } from './label';
 
 export interface TextProps extends React.ComponentProps<'textarea'> {
   labelClassName?: string;
-  labelName?: string;
+  labelName?: string | ReactNode;
   error?: string;
   onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }

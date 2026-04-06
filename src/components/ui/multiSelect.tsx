@@ -109,7 +109,7 @@ interface MultiSelectProps
    * The label name to display for the multi-select component.
    * Optional, defaults to undefined.
    */
-  labelName?: string;
+  labelName?: string | React.ReactNode;
 
   /**
    * Additional class names to apply custom styles to the label.
