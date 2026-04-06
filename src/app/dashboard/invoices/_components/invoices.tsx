@@ -137,7 +137,9 @@ const Invoices = (): JSX.Element => {
     }
     const { paymentUrl } = payload as IInvoiceLinkResponse;
     const { firstName, lastName } = invoice.doctor;
-    await navigator.clipboard.writeText(buildInvoicePaymentCopyText(paymentUrl, firstName, lastName));
+    await navigator.clipboard.writeText(
+      buildInvoicePaymentCopyText(paymentUrl, firstName, lastName),
+    );
     setCopiedId(invoice.id);
     setTimeout(() => setCopiedId(null), 2000);
   }

@@ -33,7 +33,13 @@ import {
   IServiceInvoice,
   IInvoiceLinkResponse,
 } from '@/types/invoice.interface';
-import { generateUUID, ghcToPesewas, pesewasToGhc, showErrorToast, buildInvoicePaymentCopyText } from '@/lib/utils';
+import {
+  generateUUID,
+  ghcToPesewas,
+  pesewasToGhc,
+  showErrorToast,
+  buildInvoicePaymentCopyText,
+} from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
 type Step = 'form' | 'preview' | 'success';
@@ -213,7 +219,9 @@ const CreateInvoiceModal = ({ onSuccess, onCancel }: CreateInvoiceModalProps): J
     }
     const { paymentUrl } = payload as IInvoiceLinkResponse;
     const { firstName, lastName } = createdInvoice.doctor;
-    await navigator.clipboard.writeText(buildInvoicePaymentCopyText(paymentUrl, firstName, lastName));
+    await navigator.clipboard.writeText(
+      buildInvoicePaymentCopyText(paymentUrl, firstName, lastName),
+    );
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
   }
@@ -366,9 +374,7 @@ const CreateInvoiceModal = ({ onSuccess, onCancel }: CreateInvoiceModalProps): J
             <p className="text-xs text-gray-400">Patient</p>
             <p className="font-semibold text-gray-800">{patientName}</p>
             <p className="text-sm text-gray-500">{patientEmail}</p>
-            {patientAge && (
-              <p className="text-sm text-gray-500">Age: {patientAge}</p>
-            )}
+            {patientAge && <p className="text-sm text-gray-500">Age: {patientAge}</p>}
           </div>
 
           {/* Items */}
