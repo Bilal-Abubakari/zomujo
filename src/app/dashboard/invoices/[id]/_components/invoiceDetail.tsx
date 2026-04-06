@@ -20,7 +20,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { Role } from '@/types/shared.enum';
-import { showErrorToast, pesewasToGhc } from '@/lib/utils';
+import { showErrorToast, pesewasToGhc, buildInvoicePaymentCopyText } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import {
   getInvoice,
@@ -92,7 +92,10 @@ const InvoiceDetail = (): JSX.Element => {
       return;
     }
     const { paymentUrl } = payload as IInvoiceLinkResponse;
-    await navigator.clipboard.writeText(paymentUrl);
+    const { firstName, lastName } = invoice.doctor;
+    await navigator.clipboard.writeText(
+      buildInvoicePaymentCopyText(paymentUrl, firstName, lastName),
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -325,6 +328,9 @@ const InvoiceDetail = (): JSX.Element => {
                   <p className="font-semibold text-gray-800">
                     {invoice.patient.firstName} {invoice.patient.lastName}
                   </p>
+                  {invoice.patientAge != null && (
+                    <p className="text-sm text-gray-500">Age: {invoice.patientAge}</p>
+                  )}
                 </div>
               </div>
             </div>

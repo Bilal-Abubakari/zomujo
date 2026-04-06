@@ -33,7 +33,13 @@ import {
   IServiceInvoice,
   IInvoiceLinkResponse,
 } from '@/types/invoice.interface';
-import { generateUUID, ghcToPesewas, pesewasToGhc, showErrorToast } from '@/lib/utils';
+import {
+  generateUUID,
+  ghcToPesewas,
+  pesewasToGhc,
+  showErrorToast,
+  buildInvoicePaymentCopyText,
+} from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
 type Step = 'form' | 'preview' | 'success';
@@ -50,6 +56,7 @@ const CreateInvoiceModal = ({ onSuccess, onCancel }: CreateInvoiceModalProps): J
   // Patient info
   const [patientName, setPatientName] = useState('');
   const [patientEmail, setPatientEmail] = useState('');
+  const [patientAge, setPatientAge] = useState('');
 
   // Line items
   const [lineItems, setLineItems] = useState<IInvoiceLineItem[]>([]);
@@ -154,6 +161,7 @@ const CreateInvoiceModal = ({ onSuccess, onCancel }: CreateInvoiceModalProps): J
       createInvoice({
         patientName: patientName.trim(),
         patientEmail: patientEmail.trim(),
+        patientAge: patientAge ? Number(patientAge) : undefined,
         items: lineItems.map((item) => ({
           name: item.name.trim(),
           description: item.description.trim() || undefined,
@@ -210,7 +218,10 @@ const CreateInvoiceModal = ({ onSuccess, onCancel }: CreateInvoiceModalProps): J
       return;
     }
     const { paymentUrl } = payload as IInvoiceLinkResponse;
-    await navigator.clipboard.writeText(paymentUrl);
+    const { firstName, lastName } = createdInvoice.doctor;
+    await navigator.clipboard.writeText(
+      buildInvoicePaymentCopyText(paymentUrl, firstName, lastName),
+    );
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
   }
@@ -363,6 +374,7 @@ const CreateInvoiceModal = ({ onSuccess, onCancel }: CreateInvoiceModalProps): J
             <p className="text-xs text-gray-400">Patient</p>
             <p className="font-semibold text-gray-800">{patientName}</p>
             <p className="text-sm text-gray-500">{patientEmail}</p>
+            {patientAge && <p className="text-sm text-gray-500">Age: {patientAge}</p>}
           </div>
 
           {/* Items */}
@@ -464,6 +476,16 @@ const CreateInvoiceModal = ({ onSuccess, onCancel }: CreateInvoiceModalProps): J
           placeholder="e.g. kwame@example.com"
           value={patientEmail}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setPatientEmail(e.target.value)}
+          error=""
+        />
+        <Input
+          labelName="Patient Age (optional)"
+          type="number"
+          min="0"
+          max="150"
+          placeholder="e.g. 35"
+          value={patientAge}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setPatientAge(e.target.value)}
           error=""
         />
       </div>
