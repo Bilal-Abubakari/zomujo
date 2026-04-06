@@ -29,7 +29,7 @@ import {
 import { useAppDispatch } from '@/lib/hooks';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { OrderDirection } from '@/types/shared.enum';
-import { showErrorToast, pesewasToGhc } from '@/lib/utils';
+import { showErrorToast, pesewasToGhc, buildInvoicePaymentCopyText } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { useSearch } from '@/hooks/useSearch';
 import { InvoiceTab, useQueryParam } from '@/hooks/useQueryParam';
@@ -136,7 +136,8 @@ const Invoices = (): JSX.Element => {
       return;
     }
     const { paymentUrl } = payload as IInvoiceLinkResponse;
-    await navigator.clipboard.writeText(paymentUrl);
+    const { firstName, lastName } = invoice.doctor;
+    await navigator.clipboard.writeText(buildInvoicePaymentCopyText(paymentUrl, firstName, lastName));
     setCopiedId(invoice.id);
     setTimeout(() => setCopiedId(null), 2000);
   }
@@ -182,11 +183,10 @@ const Invoices = (): JSX.Element => {
     });
   }
 
-  //NOSONAR
   const columns: ColumnDef<IServiceInvoice>[] = [
     {
       accessorKey: 'reference',
-      header: 'Reference', //NOSONAR
+      header: 'Reference',
       cell: ({ row: { original } }) => (
         <span className="font-mono text-xs font-medium text-gray-700">{original.reference}</span>
       ), //NOSONAR

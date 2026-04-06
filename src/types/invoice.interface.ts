@@ -40,6 +40,7 @@ export interface IServiceInvoice {
   patient: IInvoiceUser;
   patientName: string;
   patientEmail: string;
+  patientAge: number | null;
   paymentReference: string | null;
   paidAt: string | null;
   emailSentAt: string | null;
@@ -50,6 +51,7 @@ export interface IServiceInvoice {
 export interface ICreateInvoicePayload {
   patientName: string;
   patientEmail: string;
+  patientAge?: number;
   patientId?: string;
   items: Array<{
     name: string;
