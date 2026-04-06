@@ -2,7 +2,10 @@ import { Bell, Menu } from 'lucide-react';
 import { JSX, useEffect, useState } from 'react';
 import Notifications from '@/app/dashboard/_components/notifications';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { previousNotifications } from '@/lib/features/notifications/notificationsThunk';
+import {
+  fetchUnreadCount,
+  previousNotifications,
+} from '@/lib/features/notifications/notificationsThunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUnReadNotificationCount } from '@/lib/features/notifications/notificationsSelector';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -30,6 +33,10 @@ const Toolbar = (): JSX.Element => {
     await dispatch(logout());
     globalThis.location.reload();
   };
+
+  useEffect(() => {
+    dispatch(fetchUnreadCount());
+  }, []);
 
   useEffect(() => {
     dispatch(previousNotifications(notificationPage));

@@ -9,8 +9,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { IUpdatePassword } from '@/types/auth.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { deleteAccount, updatePassword } from '@/lib/features/auth/authThunk';
+import { deleteAccount, logout, updatePassword } from '@/lib/features/auth/authThunk';
 import { toast } from '@/hooks/use-toast';
+import { showErrorToast } from '@/lib/utils';
 import { Confirmation, ConfirmationProps } from '@/components/ui/dialog';
 import { BRANDING } from '@/constants/branding.constant';
 import { selectIsOAuthOnly } from '@/lib/features/auth/authSelector';
@@ -78,6 +79,9 @@ const SecurityInfo = (): JSX.Element => {
     const { payload } = await dispatch(deleteAccount());
     if (payload) {
       toast(payload);
+    }
+    if (!showErrorToast(payload)) {
+      await dispatch(logout());
     }
     setIsConfirmationLoading(false);
   }
