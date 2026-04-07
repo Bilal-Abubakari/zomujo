@@ -128,6 +128,7 @@ export const specialties = [
   { value: 'public-health', label: 'Public Health' },
   { value: 'obstetrics', label: 'Obstetrics' },
   { value: 'neonatology', label: 'Neonatology' },
+  { value: 'dentistry', label: 'Dentistry' },
 ];
 
 export const healthInsurances = [
