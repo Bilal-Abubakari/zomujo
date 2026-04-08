@@ -29,6 +29,7 @@ import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
 import { Combobox } from '@/components/ui/select';
 import { useHybridScroll } from '@/hooks/useHybridScroll';
+import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
 
 const Doctors = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -196,7 +197,17 @@ const Doctors = (): JSX.Element => {
   useEffect(() => {
     async function allDoctors(): Promise<void> {
       setIsLoading(true);
-      const { payload } = await dispatch(getAllDoctors(queryParameters));
+      const { payload } = await dispatch(
+        getAllDoctors({
+          ...queryParameters,
+          priceMax: queryParameters.priceMax
+            ? String(Number(queryParameters.priceMax) * PESEWAS_PER_CEDI)
+            : queryParameters.priceMax,
+          priceMin: queryParameters.priceMin
+            ? String(Number(queryParameters.priceMin) * PESEWAS_PER_CEDI)
+            : queryParameters.priceMin,
+        }),
+      );
 
       if (payload && showErrorToast(payload)) {
         toast(payload);

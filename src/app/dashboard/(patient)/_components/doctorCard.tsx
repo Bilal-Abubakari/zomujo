@@ -23,7 +23,6 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
     specializations,
     experience,
     appointmentSlots,
-    noOfConsultations,
     id,
     profilePicture,
     fee,
@@ -152,7 +151,6 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
             <Medal size={12} className="text-primary-400 shrink-0" />
             <span className="font-medium text-gray-700">{experience ?? 1} yrs exp</span>
             <span className="text-gray-300">·</span>
-            <span>{noOfConsultations ?? 0} consults</span>
           </div>
 
           <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
