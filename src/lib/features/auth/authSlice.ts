@@ -84,6 +84,9 @@ const authSlice = createSlice({
     dismissOnboardingModal: (state) => {
       state.hideOnboardingModal = true;
     },
+    showOnboardingModal: (state) => {
+      state.hideOnboardingModal = false;
+    },
     markRegistrationFeePaid: (state) => {
       state.registrationFeePaid = true;
       state.registrationFeePaidAt = JSON.stringify(new Date());
@@ -167,6 +170,7 @@ export const {
   resetAuthentication,
   updateDoctorSignature,
   dismissOnboardingModal,
+  showOnboardingModal,
   markRegistrationFeePaid,
 } = authSlice.actions;
 export default authSlice.reducer;

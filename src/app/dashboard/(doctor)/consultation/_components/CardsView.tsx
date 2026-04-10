@@ -1,7 +1,5 @@
 import React, { JSX } from 'react';
 import { Separator } from '@/components/ui/separator';
-import { ChiefComplaintsCard } from './ChiefComplaintsCard';
-import { SymptomsCard } from './SymptomsCard';
 import { HistoryNotesCard } from './HistoryNotesCard';
 import { MedicationsTakenCard } from './MedicationsTakenCard';
 import { LabTestsCard } from './LabTestsCard';
@@ -59,14 +57,12 @@ export const CardsView = ({
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Left Column */}
       <div className="space-y-6">
-        {historyNotes ? (
-          <HistoryNotesCard historyNotes={historyNotes} />
-        ) : (
-          <>
-            <ChiefComplaintsCard complaints={complaints} appointment={appointment} />
-            <SymptomsCard symptoms={symptoms} />
-          </>
-        )}
+        <HistoryNotesCard
+          historyNotes={historyNotes}
+          complaints={complaints}
+          appointment={appointment}
+          symptoms={symptoms}
+        />
         {postInvestigationData && (
           <PostInvestigationCard postInvestigationData={postInvestigationData} />
         )}

@@ -322,9 +322,9 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
           <form onSubmit={handleSubmit(handleSaveLabs)} className="space-y-6">
             <div className="mb-20 space-y-2">
               <div>
-                <Label>Clinical History</Label>
+                <Label>Relevant Clinical Information</Label>
                 <Textarea
-                  placeholder="Relevant clinical history..."
+                  placeholder="Relevant clinical information..."
                   {...register('history')}
                   className={errors.history ? 'border-red-500' : ''}
                 />
