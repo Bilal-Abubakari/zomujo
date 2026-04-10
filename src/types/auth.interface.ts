@@ -4,7 +4,6 @@ import { ISharedBooking } from '@/types/shared-booking.interface';
 
 export interface IPersonalDetails {
   MDCRegistration: string;
-  dob: string;
   contact: string;
   gender: Gender;
 }

@@ -93,7 +93,7 @@ const MultiInputField = ({
         />
         <Button onClick={handleAddValue} child={'Add'} type="button" />
       </div>
-      <p className="text-xs text-gray-400">Type a value and press Enter or click Add</p>
+      <p className="text-xs text-gray-400">Type a language and press Enter or click Add</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {values.map((item: string, index: number) => {
           const hasError = errorDetails?.position === index;

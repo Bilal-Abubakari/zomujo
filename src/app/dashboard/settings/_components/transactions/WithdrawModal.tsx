@@ -13,6 +13,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React, { JSX, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
+import { Info } from 'lucide-react';
+
+const WITHDRAWAL_FEES: Record<string, number> = {
+  mobile_money: 1,
+  ghipss: 8,
+};
 
 const withdrawSchema = z.object({
   methodId: z.string().min(1, 'Please select a payment method'),
@@ -72,7 +79,7 @@ const WithdrawModal = ({
     if (formData.amount > walletAmount) {
       toast({
         title: 'Invalid Amount',
-        description: `Amount cannot exceed your available balance of GHS ${walletAmount.toFixed(2)}`,
+        description: `Amount cannot exceed your available balance of GHS ${(walletAmount / PESEWAS_PER_CEDI).toFixed(2)}`,
         variant: 'destructive',
       });
       return;
@@ -97,6 +104,9 @@ const WithdrawModal = ({
     value: method.id,
   }));
 
+  const selectedMethod = paymentMethods.find((m) => m.id === watch('methodId'));
+  const processingFee = selectedMethod ? WITHDRAWAL_FEES[selectedMethod.type] : null;
+
   return (
     <div>
       <p className="text-2xl font-bold">Withdraw Funds</p>
@@ -110,7 +120,10 @@ const WithdrawModal = ({
       >
         <div>
           <p className="mb-2 text-sm text-gray-600">
-            Available Balance: <span className="font-semibold">GHS {walletAmount.toFixed(2)}</span>
+            Available Balance:{' '}
+            <span className="font-semibold">
+              GHS {(walletAmount / PESEWAS_PER_CEDI).toFixed(2)}
+            </span>
           </p>
         </div>
 
@@ -123,6 +136,25 @@ const WithdrawModal = ({
           placeholder="Choose payment method"
           searchPlaceholder="Search payment methods..."
         />
+
+        {processingFee === null ? (
+          <div className="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2.5 text-xs text-blue-700">
+            <Info size={13} className="mt-0.5 shrink-0" />
+            <p>
+              Processing fees apply: <span className="font-semibold">GHS 1.00</span> for Mobile
+              Money and <span className="font-semibold">GHS 8.00</span> for bank transfers.
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-700">
+            <Info size={13} className="mt-0.5 shrink-0" />
+            <p>
+              A processing fee of <span className="font-semibold">GHS {processingFee}.00</span>{' '}
+              applies to {selectedMethod?.type === 'mobile_money' ? 'Mobile Money' : 'bank'}{' '}
+              withdrawals. The fee will be deducted from the withdrawn amount.
+            </p>
+          </div>
+        )}
 
         <Input
           labelName="Enter Amount"
