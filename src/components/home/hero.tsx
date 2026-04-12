@@ -88,7 +88,10 @@ const Hero = (): JSX.Element => {
             <Slider
               value={[Number(queryParameters?.priceMax)]}
               onValueChange={(value) =>
-                setQueryParameters((prev) => ({ ...prev, priceMax: String(value[0]) }))
+                setQueryParameters((prev) => ({
+                  ...prev,
+                  priceMax: String(value[0]),
+                }))
               }
               min={MIN_AMOUNT}
               max={MAX_AMOUNT}
@@ -97,7 +100,9 @@ const Hero = (): JSX.Element => {
             />
             <div className="absolute mt-2 flex h-8 items-center justify-center rounded-full bg-gray-500 px-2.5">
               <p className="text-sm font-medium text-black">
-                GHS {Number(queryParameters?.priceMax || MIN_AMOUNT).toLocaleString()}{' '}
+                {queryParameters?.priceMax
+                  ? `GHS ${Number(queryParameters.priceMax).toLocaleString()}`
+                  : 'Move the slider to filter by price'}
               </p>
             </div>
           </div>

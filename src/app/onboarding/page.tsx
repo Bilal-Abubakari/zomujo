@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import React, { JSX } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { Logo } from '@/assets/images';
 import { cn } from '@/lib/utils';
 import PersonalDetails from '@/app/onboarding/_components/personalDetails';
@@ -15,16 +15,31 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AvatarComp } from '@/components/ui/avatar';
-import { selectUserName } from '@/lib/features/auth/authSelector';
+import {
+  selectDoctorMustCompleteOnboarding,
+  selectUserName,
+} from '@/lib/features/auth/authSelector';
 import { logout } from '@/lib/features/auth/authThunk';
+import { showOnboardingModal } from '@/lib/features/auth/authSlice';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
+import { useRouter } from 'next/navigation';
 
 const DoctorOnboarding = (): JSX.Element => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const currentStep = useAppSelector(({ authentication }) => authentication.currentStep);
   const errorMessage = useAppSelector(({ authentication }) => authentication.errorMessage);
   const userName = useAppSelector(selectUserName);
+  const mustCompleteOnboarding = useAppSelector(selectDoctorMustCompleteOnboarding);
+
+  useEffect(() => {
+    if (mustCompleteOnboarding) {
+      dispatch(showOnboardingModal());
+    } else {
+      router.replace('/dashboard');
+    }
+  }, [mustCompleteOnboarding, router, dispatch]);
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logout());

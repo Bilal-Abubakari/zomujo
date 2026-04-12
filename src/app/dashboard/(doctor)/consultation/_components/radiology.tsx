@@ -268,9 +268,9 @@ const Radiology = React.forwardRef<RadiologyRef>((_, ref): JSX.Element => {
           <form onSubmit={handleSubmit(handleSaveRadiology)} className="space-y-6">
             <div className="mb-20 space-y-2">
               <div>
-                <Label>History/Clinical Information</Label>
+                <Label>Relevant Clinical Information</Label>
                 <Textarea
-                  placeholder="Relevant clinical history..."
+                  placeholder="Relevant clinical information..."
                   {...register('history')}
                   className={errors.history ? 'border-red-500' : ''}
                 />

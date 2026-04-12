@@ -20,7 +20,7 @@ const ReviewPastConsultation = (): JSX.Element => {
 
   return (
     <div className="space-y-6 pb-8">
-      <Card className="border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50 to-transparent p-6 dark:from-blue-950/20">
+      <Card className="border-l-4 border-l-blue-500 bg-linear-to-r from-blue-50 to-transparent p-6 dark:from-blue-950/20">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
             <div className="mb-2 flex items-center gap-2">

@@ -392,3 +392,10 @@ export const pesewasToGhc = (pesewas: number): number => pesewas / PESEWAS_PER_C
  * @param ghc - The amount in Ghana Cedis.
  */
 export const ghcToPesewas = (ghc: number): number => Math.round(ghc * PESEWAS_PER_CEDI);
+
+export const buildInvoicePaymentCopyText = (
+  paymentUrl: string,
+  doctorFirstName: string,
+  doctorLastName: string,
+): string =>
+  `Hello,\nPlease find your payment link below for services provided by Dr. ${doctorFirstName} ${doctorLastName}.\nA confirmation and receipt will be generated once payment is completed.\n\n${paymentUrl}`;
