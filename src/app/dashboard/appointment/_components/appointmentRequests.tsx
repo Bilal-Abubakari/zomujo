@@ -10,6 +10,7 @@ import { useSearch } from '@/hooks/useSearch';
 import {
   acceptAppointment,
   assignAppointment,
+  cancelAppointment,
   declineAppointment,
   getAppointments,
   rescheduleAppointment,
@@ -231,18 +232,27 @@ const AppointmentRequests = (): JSX.Element => {
               {
                 title: (
                   <>
-                    <Ban /> Cancel
+                    <Ban /> {user?.role === Role.Doctor ? 'Decline' : 'Cancel'}
                   </>
                 ),
                 clickCommand: () =>
-                  handleConfirmationOpen(
-                    'Decline',
-                    `decline ${getName()}'s appointment request`,
-                    id,
-                    declineAppointment,
-                    'Yes, decline',
-                    'Cancel',
-                  ),
+                  user?.role === Role.Doctor
+                    ? handleConfirmationOpen(
+                        'Decline',
+                        `decline ${getName()}'s appointment request`,
+                        id,
+                        declineAppointment,
+                        'Yes, decline',
+                        'Cancel',
+                      )
+                    : handleConfirmationOpen(
+                        'Cancel',
+                        `cancel your appointment with ${getName()}`,
+                        id,
+                        cancelAppointment,
+                        'Yes, cancel',
+                        'No, keep it',
+                      ),
                 visible: !isDone && !isCancelled,
               },
               {

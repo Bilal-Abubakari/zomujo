@@ -178,7 +178,15 @@ export const getDrugs = createAsyncThunk('record/get-drugs', async (searchTerm: 
     const { data } = await axiosBase.get<Array<Array<Array<string>>>>(
       `${process.env.NEXT_PUBLIC_CLINICAL_TABLES}/rxterms/v3/search?terms=${searchTerm}`,
     );
-    return data[3].map((item) => ({ label: item[0], value: item[0] }));
+    return data[3].map((item) => {
+      const normalized = item[0]
+        .split(/([\s/()])/)
+        .map((part) =>
+          /[a-zA-Z]/.test(part) ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : part,
+        )
+        .join('');
+      return { label: normalized, value: normalized };
+    });
   } catch (error) {
     return axiosErrorHandler(error, true) as Toast;
   }
