@@ -87,7 +87,7 @@ const PatientInfo = (): JSX.Element => {
   async function onSubmit(patientInfo: PatientPersonalInfo): Promise<void> {
     setIsLoading(true);
     const formattedPatientInfo = {
-      ...patientInfo,
+      contact: patientInfo.contact.trim(),
       firstName: capitalize(patientInfo.firstName.trim()),
       lastName: capitalize(patientInfo.lastName.trim()),
     };
