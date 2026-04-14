@@ -56,7 +56,12 @@ const PatientOverview = (): JSX.Element => {
     }
 
     setIsStartingConsultation(true);
-    await dispatch(startConsultation(appointmentId)).unwrap();
+    const response = await dispatch(startConsultation(appointmentId)).unwrap();
+
+    if (showErrorToast(response)) {
+      toast(response);
+      return;
+    }
     router.push(`/dashboard/consultation/${patientId}/${appointmentId}`);
   };
 
