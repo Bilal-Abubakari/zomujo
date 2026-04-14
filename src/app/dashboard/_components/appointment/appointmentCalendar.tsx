@@ -6,6 +6,7 @@ import { DAYS_IN_WEEK, DAYS_OF_WEEK, TWELVE_HOUR_SYSTEM } from '@/constants/cons
 import TimeIndicator from './timeIndicator';
 import { AnimatePresence } from 'framer-motion';
 import { IAppointment } from '@/types/appointment.interface';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 
 type AppointmentCalendarProps = {
   className?: string;
@@ -53,7 +54,7 @@ const AppointmentCalendar = ({
       )}
     >
       <AnimatePresence>
-        {appointments.map((appointment) => (
+        {appointments.filter((a) => a.status !== AppointmentStatus.Cancelled).map((appointment) => (
           <AppointmentCard
             key={appointment.id}
             appointment={appointment}
