@@ -28,8 +28,7 @@ export const selectCanStartConsultation = createSelector(
 
 export const selectHasConsultationEnded = createSelector(
   selectConsultationStatus,
-  (status) =>
-    status === AppointmentStatus.Completed || status === AppointmentStatus.Incomplete,
+  (status) => status === AppointmentStatus.Completed || status === AppointmentStatus.Incomplete,
 );
 
 export const selectIsConsultationInProgress = createSelector(
