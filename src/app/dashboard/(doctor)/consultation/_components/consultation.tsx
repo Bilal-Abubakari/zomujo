@@ -47,6 +47,14 @@ import { Button } from '@/components/ui/button';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
+
+const CONSULTATION_ACCESSIBLE_STATUSES = new Set<AppointmentStatus>([
+  AppointmentStatus.Progress,
+  AppointmentStatus.InvestigatingProgress,
+  AppointmentStatus.Completed,
+  AppointmentStatus.Incomplete,
+]);
+
 import ConsultationAuthDialog from './ConsultationAuthDialog';
 import { TooltipComp } from '@/components/ui/tooltip';
 import {
@@ -349,6 +357,23 @@ const Consultation = (): JSX.Element => {
     void fetchPatientRecords();
     void fetchConsultationAppointment();
   }, []);
+
+  useEffect(() => {
+    if (isLoadingConsultation) {
+      return;
+    }
+    if (
+      !currentConsultationStatus ||
+      !CONSULTATION_ACCESSIBLE_STATUSES.has(currentConsultationStatus)
+    ) {
+      toast({
+        title: 'Access denied',
+        description: 'This consultation has not been started.',
+        variant: 'destructive',
+      });
+      router.push(`/dashboard/patients/${String(params.patientId)}`);
+    }
+  }, [isLoadingConsultation, currentConsultationStatus]);
 
   const linkedDrawerNote = appointmentLinkId
     ? 'The linked past visit is highlighted below.'

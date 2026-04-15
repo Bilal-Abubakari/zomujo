@@ -4,8 +4,11 @@ import {
   BookOpen,
   ClipboardClock,
   GraduationCap,
+  IdCard,
   Languages,
+  Mail,
   Medal,
+  Phone,
   Stethoscope,
 } from 'lucide-react';
 import { capitalize, pesewasToGhc, showErrorToast } from '@/lib/utils';
@@ -26,8 +29,14 @@ type DoctorProfileProps = {
   ctaLabel: string | null;
   doctorId: string;
   doctor?: IDoctor;
+  showContactInfo?: boolean;
 };
-export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps): JSX.Element => {
+export const DoctorProfile = ({
+  doctor,
+  doctorId,
+  ctaLabel,
+  showContactInfo,
+}: DoctorProfileProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const [doctorData, setDoctorData] = useState<IDoctor | null>(null);
   const user = useAppSelector(selectUser);
@@ -68,7 +77,7 @@ export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps
     <>
       <div className="overflow-hidden rounded-2xl shadow-lg">
         {/* Image fills full width */}
-        <div className="relative w-full" style={{ height: '480px' }}>
+        <div className="relative mt-3 w-full" style={{ height: '480px' }}>
           {doctorInfo.profilePicture ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -230,6 +239,43 @@ export const DoctorProfile = ({ doctor, doctorId, ctaLabel }: DoctorProfileProps
 
         {/* Body — bio, education, etc. */}
         <div className="flex flex-col gap-6 bg-white px-5 py-8 sm:px-6">
+          {showContactInfo &&
+            (doctorInfo.email || doctorInfo.contact || doctorInfo.MDCRegistration) && (
+              <section>
+                <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900">
+                  Contact Information
+                </h3>
+                <div className="flex flex-col gap-2">
+                  {doctorInfo.MDCRegistration && (
+                    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                      <div className="bg-light-orange flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
+                        <IdCard size={18} className="text-deep-orange" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">MDC Registration</p>
+                        <p className="text-sm text-gray-800">{doctorInfo.MDCRegistration}</p>
+                      </div>
+                    </div>
+                  )}
+                  {doctorInfo.email && (
+                    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                      <div className="bg-light-orange flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
+                        <Mail size={18} className="text-deep-orange" />
+                      </div>
+                      <p className="text-sm text-gray-800">{doctorInfo.email}</p>
+                    </div>
+                  )}
+                  {doctorInfo.contact && (
+                    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                      <div className="bg-light-orange flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
+                        <Phone size={18} className="text-deep-orange" />
+                      </div>
+                      <p className="text-sm text-gray-800">{doctorInfo.contact}</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
           {doctorInfo.bio && (
             <section>
               <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900">

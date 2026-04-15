@@ -320,7 +320,7 @@ const Prescription = ({
             onClick={handleOpenNotesModal}
             isLoading={isSavingAndGenerating}
             disabled={isSavingAndGenerating || combinedPrescriptions.length === 0}
-            child="Save & Generate PDF"
+            child="Save & Send to Patient"
             variant="outline"
           />
           <Button onClick={() => setUpdatePrescription(true)} child="Add Prescription" />

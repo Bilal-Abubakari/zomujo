@@ -48,7 +48,7 @@ function InvestigationBase(
     renderContent,
     getSelectedCount,
     getSelectedTestNames,
-    submitButtonText = 'Save and Preview',
+    submitButtonText = 'Save & Send to Patient',
     previewButtonText = 'Preview Request PDF',
   } = props;
 

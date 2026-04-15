@@ -196,6 +196,18 @@ export const declineAppointment = createAsyncThunk(
   },
 );
 
+export const cancelAppointment = createAsyncThunk(
+  'appointment/cancelRequest',
+  async (id: string): Promise<Toast> => {
+    try {
+      const { data } = await axios.delete<IResponse>(`appointments/cancel/${id}`);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const assignAppointment = createAsyncThunk(
   'appointment/assignRequest',
   async (appointment: IAppointmentDoctorId): Promise<Toast> => {

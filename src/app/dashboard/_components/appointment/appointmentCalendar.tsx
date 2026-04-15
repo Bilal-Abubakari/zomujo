@@ -6,6 +6,7 @@ import { DAYS_IN_WEEK, DAYS_OF_WEEK, TWELVE_HOUR_SYSTEM } from '@/constants/cons
 import TimeIndicator from './timeIndicator';
 import { AnimatePresence } from 'framer-motion';
 import { IAppointment } from '@/types/appointment.interface';
+import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 
 type AppointmentCalendarProps = {
   className?: string;
@@ -53,22 +54,24 @@ const AppointmentCalendar = ({
       )}
     >
       <AnimatePresence>
-        {appointments.map((appointment) => (
-          <AppointmentCard
-            key={appointment.id}
-            appointment={appointment}
-            handleSelectedCard={(): void => {
-              if (selectedAppointmentId === appointment.id) {
-                setSelectedAppointmentId(null);
-              } else {
-                setSelectedAppointmentId(appointment.id);
-              }
-            }}
-            showDetails={selectedAppointmentId === appointment.id}
-            handleCloseDetails={(): void => setSelectedAppointmentId(null)}
-            calendarRef={calendarRef}
-          />
-        ))}
+        {appointments
+          .filter((a) => a.status !== AppointmentStatus.Cancelled)
+          .map((appointment) => (
+            <AppointmentCard
+              key={appointment.id}
+              appointment={appointment}
+              handleSelectedCard={(): void => {
+                if (selectedAppointmentId === appointment.id) {
+                  setSelectedAppointmentId(null);
+                } else {
+                  setSelectedAppointmentId(appointment.id);
+                }
+              }}
+              showDetails={selectedAppointmentId === appointment.id}
+              handleCloseDetails={(): void => setSelectedAppointmentId(null)}
+              calendarRef={calendarRef}
+            />
+          ))}
       </AnimatePresence>
 
       <div className="sticky left-0 z-10 flex h-max w-20 shrink-0 flex-col border-r border-gray-200 bg-white text-sm">
