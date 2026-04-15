@@ -50,11 +50,11 @@ export const approveDoctorRequest = createAsyncThunk(
 
 export const declineDoctor = createAsyncThunk(
   'doctors/declineDoctor',
-  async (id: string): Promise<Toast> => {
+  async ({ id, reason }: { id: string; reason: string }): Promise<Toast> => {
     try {
       const {
         data: { message },
-      } = await axios.delete<IResponse>(`admins/decline-doctor/${id}`);
+      } = await axios.delete<IResponse>(`admins/verify-doctor/${id}`, { data: { reason } });
 
       return generateSuccessToast(message);
     } catch (error) {
