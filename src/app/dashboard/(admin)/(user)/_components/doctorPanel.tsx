@@ -64,6 +64,10 @@ const DoctorPanel = (): JSX.Element => {
   const [openModal, setOpenModal] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
+  const [openDeclineModal, setOpenDeclineModal] = useState(false);
+  const [declineTargetId, setDeclineTargetId] = useState('');
+  const [declineReason, setDeclineReason] = useState('');
+  const [isDeclineLoading, setIsDeclineLoading] = useState(false);
   const dispatch = useAppDispatch();
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
@@ -164,13 +168,11 @@ const DoctorPanel = (): JSX.Element => {
                   </>
                 ),
                 visible: isPending,
-                clickCommand: () =>
-                  handleConfirmationOpen(
-                    'Decline',
-                    `decline ${firstName}'s request`,
-                    id,
-                    declineDoctor,
-                  ),
+                clickCommand: (): void => {
+                  setDeclineTargetId(id);
+                  setDeclineReason('');
+                  setOpenDeclineModal(true);
+                },
               },
               {
                 title: (
@@ -244,6 +246,21 @@ const DoctorPanel = (): JSX.Element => {
       search: search ?? searchTerm,
     }));
   }
+
+  const handleDeclineSubmit = async (): Promise<void> => {
+    setIsDeclineLoading(true);
+    const { payload } = await dispatch(
+      declineDoctor({ id: declineTargetId, reason: declineReason }),
+    );
+    setIsDeclineLoading(false);
+    if (payload) {
+      toast(payload as Toast);
+    }
+    if (!showErrorToast(payload)) {
+      setOpenDeclineModal(false);
+      setQueryParameters((prev) => ({ ...prev, page: 1 }));
+    }
+  };
 
   const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
     useDropdownAction({
@@ -395,6 +412,42 @@ const DoctorPanel = (): JSX.Element => {
         showClose={true}
         setState={() => handleConfirmationClose()}
         isLoading={isConfirmationLoading}
+      />
+
+      <Modal
+        open={openDeclineModal}
+        setState={setOpenDeclineModal}
+        showClose={!isDeclineLoading}
+        title="Decline Doctor Request"
+        content={
+          <div>
+            <p className="mb-3 text-sm text-gray-600">
+              Please provide a reason for declining this request.
+            </p>
+            <textarea
+              className="focus:ring-primary w-full rounded-md border border-gray-300 p-3 text-sm focus:ring-2 focus:outline-none"
+              rows={4}
+              placeholder="Enter reason for declining..."
+              value={declineReason}
+              onChange={(e) => setDeclineReason(e.target.value)}
+              disabled={isDeclineLoading}
+            />
+            <div className="mt-4 flex justify-end gap-4">
+              <Button
+                child="Decline Request"
+                onClick={handleDeclineSubmit}
+                isLoading={isDeclineLoading}
+                disabled={!declineReason.trim()}
+              />
+              <Button
+                child="Cancel"
+                variant="destructive"
+                onClick={() => setOpenDeclineModal(false)}
+                disabled={isDeclineLoading}
+              />
+            </div>
+          </div>
+        }
       />
     </>
   );
