@@ -29,8 +29,8 @@ import {
   SquareArrowOutUpRight,
   UserRoundPlus,
 } from 'lucide-react';
-import React, { FormEvent, JSX, useEffect, useState } from 'react';
-import DoctorDetails from '../../../_components/doctorDetails';
+import React, { JSX, SyntheticEvent, useEffect, useState } from 'react';
+import { DoctorProfile } from '@/components/doctor/DoctorProfile';
 import { Toast, toast } from '@/hooks/use-toast';
 import { downloadFileWithUrl, showErrorToast, capitalize } from '@/lib/utils';
 import { useSearch } from '@/hooks/useSearch';
@@ -204,12 +204,12 @@ const DoctorPanel = (): JSX.Element => {
   const { readCSV, result, setResult } = useCSVReader<IBaseUser>(processInviteDoctorRow, 'email');
 
   useEffect(() => {
-    if (!result.length) {
-      setOpenInvitationsPreview(false);
-    } else {
+    if (result.length) {
       if (!openInvitationsPreview) {
         setOpenInvitationsPreview(true);
       }
+    } else {
+      setOpenInvitationsPreview(false);
     }
   }, [result]);
 
@@ -236,7 +236,7 @@ const DoctorPanel = (): JSX.Element => {
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
+  function handleSubmit(event: SyntheticEvent, search?: string): void {
     event.preventDefault();
     setQueryParameters((prev) => ({
       ...prev,
@@ -382,7 +382,9 @@ const DoctorPanel = (): JSX.Element => {
 
       <Modal
         open={openModal}
-        content={<DoctorDetails doctorId={selectedDoctor?.id ?? ''} />}
+        content={
+          <DoctorProfile ctaLabel={null} doctorId={selectedDoctor?.id ?? ''} showContactInfo />
+        }
         className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
         setState={setOpenModal}
         showClose={true}
