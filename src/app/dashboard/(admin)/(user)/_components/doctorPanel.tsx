@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { AvatarWithName } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
@@ -18,8 +19,10 @@ import { ColumnDef } from '@tanstack/react-table';
 import {
   Binoculars,
   CalendarX,
+  Check,
   FileDown,
   FileUp,
+  Link2,
   ListFilter,
   MessageSquareX,
   Search,
@@ -59,6 +62,7 @@ const statusFilterOptions: ISelected[] = [
 ];
 
 const DoctorPanel = (): JSX.Element => {
+  const router = useRouter();
   const [openInvitationsPreview, setOpenInvitationsPreview] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<IDoctor>();
   const [openModal, setOpenModal] = useState(false);
@@ -68,6 +72,7 @@ const DoctorPanel = (): JSX.Element => {
   const [declineTargetId, setDeclineTargetId] = useState('');
   const [declineReason, setDeclineReason] = useState('');
   const [isDeclineLoading, setIsDeclineLoading] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const dispatch = useAppDispatch();
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
@@ -230,6 +235,12 @@ const DoctorPanel = (): JSX.Element => {
     toast(payload as Toast);
   };
 
+  async function handleCopyDoctorLink(doctorId: string): Promise<void> {
+    await navigator.clipboard.writeText(`${window.location.origin}/doctor/${doctorId}`);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  }
+
   function handleView(doctorId: string): void {
     const doctor = tableData.find(({ id }) => id === doctorId);
     if (doctor) {
@@ -312,7 +323,7 @@ const DoctorPanel = (): JSX.Element => {
                 <Input
                   error=""
                   placeholder="Search Doctor"
-                  className="max-w-[333px] sm:w-[333px]"
+                  className="max-w-83.25 sm:w-83.25"
                   type="search"
                   leftIcon={<Search className="text-gray-500" size={20} />}
                   onChange={handleSearch}
@@ -400,7 +411,36 @@ const DoctorPanel = (): JSX.Element => {
       <Modal
         open={openModal}
         content={
-          <DoctorProfile ctaLabel={null} doctorId={selectedDoctor?.id ?? ''} showContactInfo />
+          <div className="relative flex flex-col">
+            <DoctorProfile ctaLabel={null} doctorId={selectedDoctor?.id ?? ''} showContactInfo />
+            <div className="sticky right-0 bottom-0 left-0 z-20 flex justify-center gap-3 border-t bg-white p-4">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => handleCopyDoctorLink(selectedDoctor?.id ?? '')}
+                child={
+                  linkCopied ? (
+                    <>
+                      <Check size={16} /> Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Link2 size={16} /> Copy Link
+                    </>
+                  )
+                }
+              />
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  setOpenModal(false);
+                  router.push(`/doctor/${selectedDoctor?.id}`);
+                }}
+                child="View Full Profile & Share"
+              />
+            </div>
+          </div>
         }
         className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
         setState={setOpenModal}
