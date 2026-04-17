@@ -202,7 +202,7 @@ export const DoctorProfile = ({
             </div>
 
             {/* Fee */}
-            {doctorInfo.fee && (
+            {!!doctorInfo.fee && (
               <div
                 className="mt-3 inline-flex flex-col rounded-xl px-4 py-2"
                 style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)' }}
