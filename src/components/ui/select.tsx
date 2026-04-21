@@ -39,6 +39,7 @@ type SelectInputProps<T extends FieldValues = FieldValues> = {
   placeholder?: string;
   control: Control<T>;
   className?: string;
+  disabled?: boolean;
 };
 
 const Select = SelectPrimitive.Root;
@@ -184,12 +185,13 @@ const SelectInput = <T extends FieldValues = FieldValues>({
   label,
   placeholder = '',
   className,
+  disabled,
 }: SelectInputProps<T>): JSX.Element => (
   <Controller
     control={control}
     name={name}
     render={({ field }) => (
-      <Select {...field} onValueChange={(value) => field.onChange(value)}>
+      <Select {...field} onValueChange={(value) => field.onChange(value)} disabled={disabled}>
         {label && <Label>{label}</Label>}
         <SelectTrigger className={cn('max-w-sm', className)} ref={ref} error={error}>
           <SelectValue placeholder={placeholder} />

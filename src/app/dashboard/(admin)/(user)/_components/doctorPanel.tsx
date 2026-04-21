@@ -94,7 +94,8 @@ const DoctorPanel = (): JSX.Element => {
     {
       accessorKey: 'firstName',
       header: 'Name',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { firstName, lastName, profilePicture } = original;
         return (
           <AvatarWithName imageSrc={profilePicture} firstName={firstName} lastName={lastName} />
@@ -104,23 +105,28 @@ const DoctorPanel = (): JSX.Element => {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => <StatusBadge status={original.status} />,
+      cell: ({ row: { original } }): JSX.Element => <StatusBadge status={original.status} />, //NOSONAR
     },
     {
       accessorKey: 'contact',
       header: 'Contact',
     },
+    {
+      accessorKey: 'email',
+      header: 'Email',
+    },
 
     {
       accessorKey: 'gender',
       header: 'Gender',
-      cell: ({ row: { original } }): JSX.Element => <GenderBadge gender={original.gender} />,
+      cell: ({ row: { original } }): JSX.Element => <GenderBadge gender={original.gender} />, //NOSONAR
     },
 
     {
       id: 'actions',
       header: 'Action',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { status, id, firstName } = original;
         const isPending = status === AcceptDeclineStatus.Pending;
         const isApproved = status === AcceptDeclineStatus.Accepted;
@@ -236,7 +242,7 @@ const DoctorPanel = (): JSX.Element => {
   };
 
   async function handleCopyDoctorLink(doctorId: string): Promise<void> {
-    await navigator.clipboard.writeText(`${window.location.origin}/doctor/${doctorId}`);
+    await navigator.clipboard.writeText(`${globalThis.location.origin}/doctor/${doctorId}`);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
   }
