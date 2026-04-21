@@ -4,9 +4,24 @@ import UpcomingAppointments from '@/app/dashboard/appointment/_components/upcomi
 import AppointmentRequests from '@/app/dashboard/appointment/_components/appointmentRequests';
 import { JSX } from 'react';
 import { AppointmentView, useQueryParam } from '@/hooks/useQueryParam';
+import { useAppSelector } from '@/lib/hooks';
+import { selectUserRole } from '@/lib/features/auth/authSelector';
+import { Role } from '@/types/shared.enum';
 
 const Appointment = (): JSX.Element => {
   const { updateQuery, getQueryParam } = useQueryParam();
+  const role = useAppSelector(selectUserRole);
+
+  if (role === Role.SuperAdmin) {
+    return (
+      <div>
+        <p className="text-xl font-bold">Appointment</p>
+        <div className="mt-6">
+          <AppointmentRequests />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

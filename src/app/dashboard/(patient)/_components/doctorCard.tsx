@@ -109,7 +109,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps): JSX.Element => {
             <img
               src={profilePicture}
               alt={`Dr. ${fullName}`}
-              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-fill object-top transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="from-primary-100 to-primary-200 flex h-full w-full items-center justify-center bg-linear-to-br">

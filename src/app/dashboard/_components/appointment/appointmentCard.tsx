@@ -57,7 +57,7 @@ const AppointmentCard = ({
     if (role === Role.Patient) {
       return `${doctor.firstName} ${doctor.lastName}`;
     }
-    return `${patient.firstName} ${patient.lastName}`;
+    return patient ? `${patient.firstName} ${patient.lastName}` : '—';
   };
 
   return (
@@ -128,12 +128,14 @@ const AppointmentDetails = ({
   day,
   hour,
   status,
-  patient: { firstName, id: patientId },
+  patient,
   id,
   slot: { date },
   handleClose,
   calendarRef,
 }: AppointmentDetails): JSX.Element => {
+  const firstName = patient?.firstName;
+  const patientId = patient?.id;
   const detailsRef = useRef<HTMLDivElement>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });

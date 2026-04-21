@@ -377,8 +377,8 @@ const RecentTransactionsContent = ({
             <tr key={id} className="border-b transition-colors last:border-0 hover:bg-gray-50">
               <td className="px-6 py-4">
                 <div className="flex flex-col">
-                  <span className="font-medium">{patient.fullName}</span>
-                  <span className="text-grayscale-400 text-xs">{patient.email}</span>
+                  <span className="font-medium">{patient?.fullName ?? '—'}</span>
+                  <span className="text-grayscale-400 text-xs">{patient?.email ?? ''}</span>
                 </div>
               </td>
               <td className="text-grayscale-500 px-6 py-4 font-mono text-xs">{reference}</td>

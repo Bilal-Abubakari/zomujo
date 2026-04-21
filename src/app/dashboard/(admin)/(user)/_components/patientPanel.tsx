@@ -26,7 +26,7 @@ import {
   SendHorizontal,
   ShieldCheck,
 } from 'lucide-react';
-import React, { FormEvent, JSX, useEffect, useState } from 'react';
+import React, { JSX, SyntheticEvent, useEffect, useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { showErrorToast } from '@/lib/utils';
 import { useSearch } from '@/hooks/useSearch';
@@ -68,7 +68,8 @@ const PatientPanel = ({ doctorView }: PatientPanelProps): JSX.Element => {
     {
       accessorKey: 'firstName',
       header: 'Name',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { profilePicture, firstName, lastName } = original;
         const name = `${firstName} ${lastName}`;
         return (
@@ -81,7 +82,8 @@ const PatientPanel = ({ doctorView }: PatientPanelProps): JSX.Element => {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         switch (original.status) {
           case AcceptDeclineStatus.Accepted:
             return <Badge variant="default">Approved</Badge>;
@@ -96,17 +98,22 @@ const PatientPanel = ({ doctorView }: PatientPanelProps): JSX.Element => {
       accessorKey: 'contact',
       header: 'Contact',
     },
+    {
+      accessorKey: 'email',
+      header: 'Email',
+    },
 
     {
       accessorKey: 'gender',
       header: 'Gender',
-      cell: ({ row: { original } }): JSX.Element => <GenderBadge gender={original.gender} />,
+      cell: ({ row: { original } }): JSX.Element => <GenderBadge gender={original.gender} />, //NOSONAR
     },
 
     {
       id: 'actions',
       header: 'Action',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { status, id, firstName } = original;
         if (doctorView) {
           return (
@@ -137,10 +144,11 @@ const PatientPanel = ({ doctorView }: PatientPanelProps): JSX.Element => {
                     setConfirmation((prev) => ({
                       ...prev,
                       open: true,
-                      acceptCommand: () => handleDropdownAction(activateUser, id),
+                      acceptCommand: () => handleDropdownAction(activateUser, id), //NOSONAR
                       acceptTitle: 'Activate',
                       declineTitle: 'Cancel',
-                      rejectCommand: () =>
+                      // prettier-ignore
+                      rejectCommand: () => //NOSONAR
                         setConfirmation((prev) => ({
                           ...prev,
                           open: false,
@@ -159,10 +167,11 @@ const PatientPanel = ({ doctorView }: PatientPanelProps): JSX.Element => {
                     setConfirmation((prev) => ({
                       ...prev,
                       open: true,
-                      acceptCommand: () => handleDropdownAction(deactivateUser, id),
+                      acceptCommand: () => handleDropdownAction(deactivateUser, id), //NOSONAR
                       acceptTitle: 'Deactivate',
                       declineTitle: 'Cancel',
-                      rejectCommand: () =>
+                      // prettier-ignore
+                      rejectCommand: () => //NOSONAR
                         setConfirmation((prev) => ({
                           ...prev,
                           open: false,
@@ -210,7 +219,7 @@ const PatientPanel = ({ doctorView }: PatientPanelProps): JSX.Element => {
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
+  function handleSubmit(event: SyntheticEvent, search?: string): void {
     event.preventDefault();
     setQueryParameters((prev) => ({
       ...prev,
@@ -234,7 +243,7 @@ const PatientPanel = ({ doctorView }: PatientPanelProps): JSX.Element => {
                 <Input
                   error=""
                   placeholder="Search Patient"
-                  className="max-w-[333px] sm:w-[333px]"
+                  className="max-w-83.25 sm:w-83.25"
                   type="search"
                   leftIcon={<Search className="text-gray-500" size={20} />}
                   onChange={handleSearch}

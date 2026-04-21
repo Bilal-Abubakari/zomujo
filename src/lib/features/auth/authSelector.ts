@@ -64,7 +64,8 @@ export const selectExtra = createSelector(selectAuthentication, ({ extra }) => e
 
 export const selectUserName = createSelector(
   selectExtra,
-  (extra) => `${extra?.firstName} ${extra?.lastName}`,
+  selectUser,
+  (extra, user) => `${extra?.firstName ?? user?.firstName} ${extra?.lastName ?? user?.lastName}`,
 );
 
 export const selectUserId = createSelector(selectAuthentication, ({ user }) => user?.id);
@@ -72,7 +73,7 @@ export const selectUserId = createSelector(selectAuthentication, ({ user }) => u
 export const selectPatientMustUpdateMandatoryInfo = createSelector(
   selectIsPatient,
   selectExtra,
-  (isPatient, extra) => isPatient && (!extra?.dob || !extra?.gender),
+  (isPatient, extra) => isPatient && (!extra?.dob || !extra?.gender || !extra?.contact),
 );
 
 export const selectDoctorMustCompleteOnboarding = createSelector(
