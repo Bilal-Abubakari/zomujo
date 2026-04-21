@@ -63,7 +63,7 @@ export interface IBloodPressure {
   diastolic: number;
 }
 
-export type IPatientMandatory = Pick<IPatient, 'gender' | 'dob'>;
+export type IPatientMandatory = Pick<IPatient, 'gender' | 'dob' | 'contact'>;
 
 export type IPatientVitals = Pick<
   IMedicalRecord,

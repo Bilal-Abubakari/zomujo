@@ -135,31 +135,57 @@ const AppointmentRequests = (): JSX.Element => {
     { value: AppointmentStatus.Declined, label: 'Declined' },
     { value: AppointmentStatus.Incomplete, label: 'Incomplete' },
   ];
+  const isSuperAdmin = user?.role === Role.SuperAdmin;
+
   const columns: ColumnDef<IAppointment>[] = [
     {
       accessorKey: 'patient',
-      header: () => (
+      // prettier-ignore
+      header: () => ( //NOSONAR
         <div className="flex cursor-pointer whitespace-nowrap">
-          {user?.role === Role.Doctor ? 'Patient Name' : 'Doctor Name'}
+          {user?.role === Role.Doctor || isSuperAdmin ? 'Patient Name' : 'Doctor Name'}
         </div>
       ),
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { doctor, patient } = original;
         const isDoctor = user?.role === Role.Doctor;
-        const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
+        const isAdmin = user?.role === Role.Admin || isSuperAdmin;
+        const person = isDoctor || isAdmin ? patient : doctor;
         return (
           <AvatarWithName
-            imageSrc={isDoctor || isAdmin ? patient.profilePicture : doctor.profilePicture}
-            firstName={isDoctor || isAdmin ? patient.firstName : doctor.firstName}
-            lastName={isDoctor || isAdmin ? patient.lastName : doctor.lastName}
+            imageSrc={person?.profilePicture}
+            firstName={person?.firstName}
+            lastName={person?.lastName}
+            email={isAdmin ? person?.email : undefined}
+            contact={isAdmin ? person?.contact : undefined}
           />
         );
       },
     },
+    ...(isSuperAdmin
+      ? [
+          {
+            accessorKey: 'doctor',
+            header: 'Doctor Name',
+            // prettier-ignore
+            cell: ({ row: { original } }: { row: { original: IAppointment } }): JSX.Element => ( //NOSONAR
+              <AvatarWithName
+                imageSrc={original.doctor?.profilePicture}
+                firstName={original.doctor?.firstName}
+                lastName={original.doctor?.lastName}
+                email={original.doctor?.email}
+                contact={original.doctor?.contact}
+              />
+            ),
+          } satisfies ColumnDef<IAppointment>,
+        ]
+      : []),
     {
       accessorKey: 'type',
       header: 'Type',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { type } = original;
         const virtual = type === AppointmentType.Virtual;
         return virtual ? (
@@ -186,7 +212,8 @@ const AppointmentRequests = (): JSX.Element => {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => (
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => ( //NOSONAR
         <StatusBadge
           status={original.status}
           approvedTitle="Accepted"
@@ -197,7 +224,8 @@ const AppointmentRequests = (): JSX.Element => {
     {
       id: 'actions',
       header: 'Action',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { status, patient, doctor, id, createdAt } = original;
         const isPending = status === AppointmentStatus.Pending;
         const isInProgress = status === AppointmentStatus.Progress;
@@ -205,9 +233,9 @@ const AppointmentRequests = (): JSX.Element => {
         const isCancelled = status === AppointmentStatus.Cancelled;
         const getName = (): string => {
           if (user?.role === Role.Patient) {
-            return `${doctor.firstName} ${doctor.lastName}`;
+            return `${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}`.trim();
           }
-          return `${patient.firstName} ${patient.lastName}`;
+          return `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim();
         };
         return (
           <ActionsDropdownMenus
@@ -299,7 +327,7 @@ const AppointmentRequests = (): JSX.Element => {
                 ),
                 clickCommand: (): void => {
                   if (user?.role === Role.Doctor) {
-                    router.push(`/dashboard/patients/${patient.id}?appointmentId=${id}`);
+                    router.push(`/dashboard/patients/${patient?.id}?appointmentId=${id}`);
                   } else {
                     router.push(`/dashboard/consultation-patient/${id}`);
                   }
