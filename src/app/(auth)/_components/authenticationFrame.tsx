@@ -53,8 +53,8 @@ export default function AuthenticationFrame({
         <div className="flex flex-1 flex-col items-center justify-center max-sm:m-5">
           {children}
         </div>
-        <div className="mt-5 flex flex-col justify-center px-4 text-center text-xs sm:flex-row sm:gap-6 sm:text-sm">
-          <p className="">
+        <div className="mt-5 flex flex-col items-center justify-center gap-1.5 px-4 pb-4 text-center text-xs sm:flex-row sm:gap-6 sm:text-sm">
+          <p>
             © {getCurrentYear()} {BRANDING.COPYRIGHT_HOLDER}. All rights reserved.
           </p>
 

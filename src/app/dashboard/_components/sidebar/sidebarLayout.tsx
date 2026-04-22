@@ -12,7 +12,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { CollapsibleTrigger } from '@radix-ui/react-collapsible';
@@ -143,10 +142,9 @@ export const SidebarLayout = ({
     <Sidebar className={cn('flex h-screen flex-col', sidebarClassName)}>
       {!type && (
         <SidebarHeader className="pt-3.5 pb-2.5">
-          <SidebarTrigger
-            child={<Image src={Logo} alt="Fornix Link-logo" />}
-            className="h-14 w-14"
-          />
+          <Link href="/">
+            <Image src={Logo} alt="Fornix Link-logo" className="h-14 w-14" />
+          </Link>
         </SidebarHeader>
       )}
       <SidebarContent className={sidebarContentClassName}>

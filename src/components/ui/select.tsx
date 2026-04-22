@@ -251,6 +251,7 @@ type ComboboxProps = {
   searchPlaceholder?: string;
   onSearchChange?: (value: string) => void;
   isLoadingResults?: boolean;
+  showAllOption?: boolean;
 } & Pick<SelectInputProps, 'options' | 'label' | 'placeholder'>;
 const Combobox = ({
   options,
@@ -265,9 +266,15 @@ const Combobox = ({
   searchPlaceholder,
   onSearchChange,
   isLoadingResults,
+  showAllOption = false,
 }: ComboboxProps): JSX.Element => {
   const [open, setOpen] = useState(false);
-  const [currentOption, setCurrentOption] = useState<string | null>(null);
+
+  const allOptions: SelectOption[] = showAllOption
+    ? [{ label: 'All', value: '' }, ...(options ?? [])]
+    : (options ?? []);
+
+  const selectedLabel = allOptions.find(({ value }) => value === currentValue)?.label ?? null;
 
   return (
     <div
@@ -287,7 +294,7 @@ const Combobox = ({
             className={cn('hover:bg-background! text-accent-foreground justify-between', className)}
             child={
               <>
-                {isLoading ? 'Loading... Please wait' : currentOption || placeholder}
+                {isLoading ? 'Loading... Please wait' : (selectedLabel ?? placeholder)}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </>
             }
@@ -300,26 +307,24 @@ const Combobox = ({
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                {Array.isArray(options) &&
-                  options.map(({ label, value }) => (
-                    <CommandItem
-                      key={value}
-                      value={label}
-                      onSelect={() => {
-                        setCurrentOption(label);
-                        onChange(value);
-                        setOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          'mr-2 h-4 w-4',
-                          value === currentValue ? 'opacity-100' : 'opacity-0',
-                        )}
-                      />
-                      {label}
-                    </CommandItem>
-                  ))}
+                {allOptions.map(({ label, value }) => (
+                  <CommandItem
+                    key={value === '' ? '__all__' : value}
+                    value={label}
+                    onSelect={() => {
+                      onChange(value);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 h-4 w-4',
+                        value === currentValue ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                    {label}
+                  </CommandItem>
+                ))}
               </CommandGroup>
             </CommandList>
           </Command>
