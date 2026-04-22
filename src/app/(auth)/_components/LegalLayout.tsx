@@ -256,7 +256,9 @@ export const LegalLayout = ({
                     <h3 className="mb-1 text-xl font-bold">{footerTitle}</h3>
                     <p className="text-sm text-white/80">{footerDescription}</p>
                   </div>
-                  <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">{footerButtons}</div>
+                  <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+                    {footerButtons}
+                  </div>
                 </div>
                 <Separator className="my-6 bg-white/20" />
                 <p className="text-center text-xs text-white/70">
