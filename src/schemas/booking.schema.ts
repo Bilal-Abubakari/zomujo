@@ -8,4 +8,5 @@ export const bookingSchema = z.object({
   reason: requiredStringSchema(),
   appointmentType: requiredStringSchema(),
   additionalInfo: requiredStringSchema(false),
+  isFollowUp: z.boolean(),
 });

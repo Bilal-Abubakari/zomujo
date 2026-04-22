@@ -91,8 +91,8 @@ export default function Home(): JSX.Element {
           <Pricing />
           <SolutionsOffered />
           <HowItWorks />
-          <Faq />
           <InterestedProvider />
+          <Faq />
         </>
       )}
       <Footer />

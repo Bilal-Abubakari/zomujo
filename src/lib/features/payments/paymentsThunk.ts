@@ -1,16 +1,19 @@
 import { Toast } from '@/hooks/use-toast';
 import axios, { axiosErrorHandler } from '@/lib/axios';
-import { generateSuccessToast } from '@/lib/utils';
+import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import {
   IBank,
+  ICashFlow,
   ICheckout,
   IRate,
   IPaymentDetails,
   ICreatePaymentDetails,
+  ITransaction,
+  ITransactionQueryParams,
   IWallet,
   IWithdrawRequest,
 } from '@/types/payment.interface';
-import { IResponse } from '@/types/shared.interface';
+import { IPagination, IResponse } from '@/types/shared.interface';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setError } from '@/lib/features/payments/paymentSlice';
 import { IInitializeAppointment } from '@/types/booking.interface';
@@ -85,7 +88,7 @@ export const setPaymentRate = createAsyncThunk(
       } = await axios.patch<IResponse<IRate>>('doctors/set-fee', rate);
       dispatch(
         updateExtra({
-          fee: rate,
+          fee: rate.amount,
         }),
       );
       return generateSuccessToast(message);
@@ -176,6 +179,32 @@ export const withdrawFunds = createAsyncThunk(
         data: { message },
       } = await axios.post<IResponse>('payments/withdraw', withdrawData);
       return generateSuccessToast(message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getTransactions = createAsyncThunk(
+  'payment/getTransactions',
+  async (query: ITransactionQueryParams): Promise<IPagination<ITransaction> | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<ITransaction>>>(
+        `payments/transactions?${getValidQueryString(query)}`,
+      );
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getCashFlow = createAsyncThunk(
+  'payment/getCashFlow',
+  async (): Promise<ICashFlow | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<ICashFlow>>('payments/cash-flow');
+      return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }

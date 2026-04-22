@@ -3,17 +3,20 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import React, { JSX } from 'react';
+
 interface ProfilePictureUploadProps {
   userProfilePicture: string | null;
   imageRef: React.RefObject<HTMLInputElement | null>;
   handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   resetImage: () => void;
+  isUploading?: boolean;
 }
 const ProfilePictureUpload = ({
   userProfilePicture,
   imageRef,
   handleImageChange,
   resetImage,
+  isUploading,
 }: ProfilePictureUploadProps): JSX.Element => (
   <section>
     <div>
@@ -26,14 +29,14 @@ const ProfilePictureUpload = ({
       <div>
         {userProfilePicture ? (
           <Image
-            className="h-[79px] w-[79px] rounded-full bg-gray-600 object-fill"
+            className="h-19.75 w-19.75 rounded-full bg-gray-600 object-fill"
             src={userProfilePicture}
             alt="Profile Picture"
             width={79}
             height={79}
           />
         ) : (
-          <div className="flex h-[79px] w-[79px] items-center justify-center rounded-full bg-gray-200">
+          <div className="flex h-19.75 w-19.75 items-center justify-center rounded-full bg-gray-200">
             <span className="text-gray-500">No Image</span>
           </div>
         )}
@@ -48,6 +51,7 @@ const ProfilePictureUpload = ({
         child={'Upload new profile'}
         variant={'outline'}
         className="bg-transparent"
+        isLoading={isUploading}
         onClick={() => imageRef.current?.click()}
       />
       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100">

@@ -13,10 +13,7 @@ const Avatar = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Root
     ref={ref}
-    className={cn(
-      'relative flex h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full',
-      className,
-    )}
+    className={cn('relative flex h-13 w-13 shrink-0 overflow-hidden rounded-full', className)}
     {...props}
   />
 ));
@@ -58,7 +55,12 @@ type AvatarCompProps = {
   className?: string;
 };
 
-function AvatarComp({ imageSrc, name, imageAlt, className }: AvatarCompProps): JSX.Element {
+function AvatarComp({
+  imageSrc,
+  name,
+  imageAlt,
+  className,
+}: Readonly<AvatarCompProps>): JSX.Element {
   const initials = useMemo(() => getInitials(name), [name]);
   return (
     <Avatar className={className}>
@@ -69,17 +71,29 @@ function AvatarComp({ imageSrc, name, imageAlt, className }: AvatarCompProps): J
 }
 
 type AvatarWithNameProps = {
-  firstName: string;
-  lastName: string;
-  imageSrc: string;
+  firstName: string | undefined;
+  lastName: string | undefined;
+  imageSrc: string | undefined;
+  email?: string;
+  contact?: string;
 };
 
-function AvatarWithName({ firstName, lastName, imageSrc }: AvatarWithNameProps): JSX.Element {
-  const name = `${firstName} ${lastName}`;
+function AvatarWithName({
+  firstName,
+  lastName,
+  imageSrc,
+  email,
+  contact,
+}: Readonly<AvatarWithNameProps>): JSX.Element {
+  const name = `${firstName ?? ''} ${lastName ?? ''}`.trim();
   return (
     <div className="flex items-center justify-start gap-2">
-      <AvatarComp imageSrc={imageSrc} name={name} className="h-7 w-7" />{' '}
-      {`${firstName} ${lastName}`}
+      {(name || imageSrc) && <AvatarComp imageSrc={imageSrc} name={name} className="h-7 w-7" />}
+      <div className="flex flex-col">
+        <span>{name || '—'}</span>
+        {email && <span className="text-xs text-gray-500">{email}</span>}
+        {contact && <span className="text-xs text-gray-500">{contact}</span>}
+      </div>
     </div>
   );
 }

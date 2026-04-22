@@ -51,7 +51,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
     () => (
       <Carousel>
         <CarouselContent className="m-auto w-full">
-          {requests.map((request) => (
+          {requests?.map((request) => (
             <CarouselItem className="w-full" key={request.id}>
               <AppointmentRequestCard
                 request={request}
@@ -115,7 +115,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
         isLoading={isLoading}
         description={
           <>
-            Are you sure you want to
+            Are you sure you want to{' '}
             <span
               className={cn(
                 'px-1',
@@ -123,29 +123,35 @@ const AppointmentRequestPanel = (): JSX.Element => {
               )}
             >
               {selectedRequest?.action}
-            </span>
-            <span className={'pr-1 font-semibold'}>
+            </span>{' '}
+            <span className="font-semibold">
               {selectedRequest?.request.patient.firstName}{' '}
               {selectedRequest?.request.patient.lastName}
-            </span>
+            </span>{' '}
             request?
           </>
         }
         acceptButtonTitle={selectedRequest?.action == 'accept' ? 'Yes, accept' : 'Yes decline'}
         rejectButtonTitle={'Cancel'}
         acceptCommand={() => acceptDeclineRequest(selectedRequest!.action)}
-        rejectCommand={() => setOpenModal && setOpenModal(false)}
+        rejectCommand={() => setOpenModal?.(false)}
       />
-      <div className="h-[calc(100vh-203px)] w-full overflow-y-scroll rounded-2xl border bg-gray-50 pt-6 max-md:h-[380px]">
+      <div className="h-[calc(100vh-203px)] w-full overflow-y-scroll rounded-2xl border bg-gray-50 pt-6 max-md:h-95">
         <div className="flex flex-row items-center justify-center gap-2 px-4">
           <p className="text-lg font-bold text-gray-900 md:text-xl">Appointment Requests</p>
           <Badge variant={'brown'}>{requests?.length}</Badge>
         </div>
         <hr className="mx-4 mt-4 border border-gray-200" />
 
-        {!isLoadingAppointments ? (
+        {isLoadingAppointments ? (
+          <div>
+            {Array.from({ length: 3 }).map((value, index) => (
+              <SkeletonAcceptDeclineRequestCard key={`${index}-${value}`} />
+            ))}
+          </div>
+        ) : (
           <>
-            {requests.length > 0 ? (
+            {requests?.length > 0 ? (
               <>
                 <div className="mx-4 my-2 hidden md:block">
                   {requests?.map((request) => (
@@ -160,7 +166,7 @@ const AppointmentRequestPanel = (): JSX.Element => {
                 <div className="mx-4 my-2 md:hidden">{suggestSmallScreen}</div>
               </>
             ) : (
-              <div className="flex h-[300px] flex-col items-center justify-center gap-3 px-4 text-center">
+              <div className="flex h-75 flex-col items-center justify-center gap-3 px-4 text-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
                   <Calendar className="h-8 w-8 text-gray-400" />
                 </div>
@@ -173,12 +179,6 @@ const AppointmentRequestPanel = (): JSX.Element => {
               </div>
             )}
           </>
-        ) : (
-          <div>
-            {Array.from({ length: 3 }).map((_, index) => (
-              <SkeletonAcceptDeclineRequestCard key={index} />
-            ))}
-          </div>
         )}
       </div>
     </>

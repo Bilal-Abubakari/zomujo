@@ -1,0 +1,43 @@
+import { useEffect, useState } from 'react';
+import { IDoctor } from '@/types/doctor.interface';
+
+export function useProfilePictureBase64(doctor: IDoctor | null): {
+  profilePictureBase64: string;
+  setProfilePictureBase64: (value: string) => void;
+  isImageLoading: boolean;
+} {
+  const [profilePictureBase64, setProfilePictureBase64] = useState<string>('');
+  const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const convertToBase64 = async (): Promise<void> => {
+      if (doctor?.profilePicture) {
+        setIsImageLoading(true);
+        try {
+          const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(doctor.profilePicture)}`;
+          const response = await fetch(proxyUrl);
+          if (!response.ok) {
+            setIsImageLoading(false);
+            return;
+          }
+          const blob = await response.blob();
+          const reader = new FileReader();
+          reader.onloadend = (): void => {
+            setProfilePictureBase64(reader.result as string);
+            setIsImageLoading(false);
+          };
+          reader.onerror = (): void => {
+            setIsImageLoading(false);
+          };
+          reader.readAsDataURL(blob);
+        } catch {
+          // silent fallback
+          setIsImageLoading(false);
+        }
+      }
+    };
+    void convertToBase64();
+  }, [doctor?.profilePicture]);
+
+  return { profilePictureBase64, setProfilePictureBase64, isImageLoading };
+}

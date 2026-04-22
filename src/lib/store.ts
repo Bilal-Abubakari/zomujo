@@ -10,13 +10,22 @@ import hospitalAppointmentsReducer from '@/lib/features/hospital-appointments/ho
 import analyticsReducer from '@/lib/features/analytics/analyticsSlice';
 import consultationReducer from '@/lib/features/appointments/consultation/consultationSlice';
 import connectivityReducer from '@/lib/features/connectivity/connectivitySlice';
+import dashboardReducer from '@/lib/features/dashboard/dashboardSlice';
+import invoicesReducer from '@/lib/features/invoices/invoicesSlice';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 const authPersistConfig = {
   key: 'user',
   storage,
-  whitelist: ['user', 'extra', 'loggedInAt', 'hideOnboardingModal'],
+  whitelist: [
+    'user',
+    'extra',
+    'loggedInAt',
+    'hideOnboardingModal',
+    'registrationFeePaid',
+    'registrationFeePaidAt',
+  ],
 };
 
 const rootReducer = combineReducers({
@@ -31,6 +40,8 @@ const rootReducer = combineReducers({
   analytics: analyticsReducer,
   consultation: consultationReducer,
   connectivity: connectivityReducer,
+  dashboard: dashboardReducer,
+  invoices: invoicesReducer,
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type

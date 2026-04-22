@@ -61,14 +61,22 @@ function BasicFields({
       <>
         <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <Input
-            labelName="First name"
+            labelName={
+              <>
+                First name <span className="text-red-500">*</span>
+              </>
+            }
             className="bg-transparent capitalize"
             placeholder="John"
             error={patientErrors.firstName?.message || ''}
             {...patientRegister('firstName')}
           />
           <Input
-            labelName="Last name"
+            labelName={
+              <>
+                Last name <span className="text-red-500">*</span>
+              </>
+            }
             className="bg-transparent"
             placeholder="Doe"
             error={patientErrors.lastName?.message || ''}
@@ -77,7 +85,11 @@ function BasicFields({
         </div>
         <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
           <Input
-            labelName="Phone Number"
+            labelName={
+              <>
+                Phone Number <span className="text-red-500">*</span>
+              </>
+            }
             className="bg-transparent"
             placeholder="0208880000"
             error={patientErrors.contact?.message || ''}
@@ -95,14 +107,22 @@ function BasicFields({
     <>
       <div className="flex-warp flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
         <Input
-          labelName="First name"
+          labelName={
+            <>
+              First name <span className="text-red-500">*</span>
+            </>
+          }
           className="bg-transparent capitalize"
           placeholder="John"
           error={doctorErrors.firstName?.message || ''}
           {...doctorRegister('firstName')}
         />
         <Input
-          labelName="Last name"
+          labelName={
+            <>
+              Last name <span className="text-red-500">*</span>
+            </>
+          }
           className="bg-transparent capitalize"
           placeholder="Doe"
           error={doctorErrors.lastName?.message || ''}
@@ -111,7 +131,11 @@ function BasicFields({
       </div>
       <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
         <Input
-          labelName="Phone Number"
+          labelName={
+            <>
+              Phone Number <span className="text-red-500">*</span>
+            </>
+          }
           className="bg-transparent"
           placeholder="0208880000"
           error={doctorErrors.contact?.message || ''}
@@ -150,33 +174,14 @@ const DoctorFields = ({
   handleMultiInputChange,
 }: DoctorFieldsProps): JSX.Element => (
   <>
-    {/*TODO: Removing education for now*/}
-    {/*<div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">*/}
-    {/*  <div className="w-full max-w-[384px]">*/}
-    {/*    <Input*/}
-    {/*      labelName="School attended"*/}
-    {/*      className="bg-transparent"*/}
-    {/*      placeholder="University of Ghana"*/}
-    {/*      error={errors.education?.school?.message || ''}*/}
-    {/*      type="text"*/}
-    {/*      {...register('education.school')}*/}
-    {/*    />*/}
-    {/*  </div>*/}
-    {/*  <div className="w-full max-w-[384px]">*/}
-    {/*    <Input*/}
-    {/*      labelName="Certificate acquired"*/}
-    {/*      className="bg-transparent"*/}
-    {/*      placeholder="Bachelor of Medicine and Bachelor of Surgery"*/}
-    {/*      error={errors.education?.degree?.message || ''}*/}
-    {/*      type="text"*/}
-    {/*      {...register('education.degree')}*/}
-    {/*    />*/}
-    {/*  </div>*/}
-    {/*</div>*/}
     <div className="mt-8 flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
       <div className="w-full max-w-[384px]">
         <MultiSelect
-          labelName="Specialization"
+          labelName={
+            <>
+              Specialization <span className="text-red-500">*</span>
+            </>
+          }
           options={specialties}
           defaultValue={watch('specializations')}
           placeholder="Select specializations"
@@ -191,7 +196,11 @@ const DoctorFields = ({
           ref={register('languages').ref}
           handleValueChange={(value) => handleMultiInputChange('languages', value)}
           errors={errors.languages}
-          label="Languages"
+          label={
+            <>
+              Languages <span className="text-red-500">*</span>
+            </>
+          }
           placeholder="English"
           defaultValues={watch('languages')}
         />
@@ -199,7 +208,12 @@ const DoctorFields = ({
     </div>
     <div className="mt-8 max-w-[384px] items-baseline">
       <Textarea
-        labelName=" About (This is what your patients will see)"
+        labelName={
+          <>
+            {' '}
+            About (This is what your patients will see) <span className="text-red-500">*</span>
+          </>
+        }
         className="w-full resize-none bg-transparent"
         error={errors.bio?.message || ''}
         {...register('bio')}
@@ -235,7 +249,12 @@ const DoctorPersonalDetailsForm = ({
   <form className="pb-20" onSubmit={onSubmit}>
     <BasicFields register={register} errors={errors}>
       <Input
-        labelName="Experience (In Years)"
+        labelName={
+          <>
+            {' '}
+            Experience (In Years) <span className="text-red-500">*</span>
+          </>
+        }
         className="bg-transparent"
         placeholder="5"
         error={errors.experience?.message || ''}

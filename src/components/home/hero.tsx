@@ -32,32 +32,34 @@ const Hero = (): JSX.Element => {
   return (
     <section
       ref={heroRef}
-      className={`relative h-[95vh] overflow-hidden text-white ${styles.heroBackground} ${styles.panoramic}`}
+      className={`relative h-[95vh] text-white ${styles.heroBackground} ${styles.panoramic}`}
     >
       <Header />
 
-      <div className={styles.gradientOverlay}></div>
-      <div className={styles.circle1}></div>
-      <div className={styles.circle2}></div>
-      <div className={styles.triangle}></div>
-      <div className={styles.arc1}></div>
-      <div className={styles.arc2}></div>
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className={styles.gradientOverlay}></div>
+        <div className={styles.circle1}></div>
+        <div className={styles.circle2}></div>
+        <div className={styles.triangle}></div>
+        <div className={styles.arc1}></div>
+        <div className={styles.arc2}></div>
+      </div>
       <div
-        className={`relative z-10 flex h-full flex-col items-center justify-center px-4 text-center ${styles.fadeIn}`}
+        className={`relative z-10 flex h-full flex-col items-center justify-center px-4 pb-12 text-center ${styles.fadeIn}`}
       >
-        <h1 className="t mt-48 mb-2 text-3xl font-extrabold text-white drop-shadow-lg sm:mt-0 sm:text-5xl md:text-6xl">
-          Connect with the right specialist for your needs{' '}
+        <h1 className="mt-48 mb-4 max-w-5xl text-3xl font-extrabold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)] sm:mt-0 sm:text-5xl md:text-6xl">
+          Connect with the right specialist for your needs
         </h1>
-        <div className="mb-2 flex min-h-[2.2rem] items-center justify-center text-lg font-bold md:text-xl">
-          <span className="animate-fadeSpeciality text-lg font-extrabold">
+        <div className="mb-4 flex min-h-[2.2rem] items-center justify-center text-lg font-bold md:text-xl">
+          <span className="animate-fadeSpeciality text-lg font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             {specialties[current].label}
           </span>
         </div>
-        <p className="mb-2 text-lg font-bold text-white drop-shadow-md md:text-xl">
-          Quality care made simple — find the right expert for you.{' '}
+        <p className="mb-8 max-w-2xl text-lg font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] md:text-2xl">
+          Quality care made simple — find the right expert for you.
         </p>
         <div className="items-left mt-8 flex w-full max-w-3xl flex-col space-y-4 rounded-lg bg-white/80 p-6 shadow-2xl backdrop-blur-md md:flex-col md:space-y-0 md:space-x-4">
-          <div className="w-full flex-grow">
+          <div className="w-full grow">
             <div className="flex flex-col gap-2 md:flex-row">
               <Combobox
                 onChange={(value) => setQueryParameters((prev) => ({ ...prev, specialty: value }))}
@@ -69,6 +71,7 @@ const Hero = (): JSX.Element => {
                 searchPlaceholder="Search for specialty..."
                 defaultMaxWidth={false}
                 wrapperClassName="text-left text-[#111111]"
+                showAllOption
               />
 
               <Input
@@ -85,25 +88,32 @@ const Hero = (): JSX.Element => {
               />
             </div>
             <p className="mt-2 text-left text-sm font-bold text-[#111111]">Max Price</p>
-            <Slider
-              value={[Number(queryParameters?.priceMax)]}
-              onValueChange={(value) =>
-                setQueryParameters((prev) => ({ ...prev, priceMax: String(value[0]) }))
-              }
-              min={MIN_AMOUNT}
-              max={MAX_AMOUNT}
-              step={10}
-              className="mt-4"
-            />
-            <div className="absolute mt-2 flex h-8 items-center justify-center rounded-full bg-gray-500 px-2.5">
-              <p className="text-sm font-medium text-black">
-                GHS {Number(queryParameters?.priceMax || MIN_AMOUNT).toLocaleString()}{' '}
-              </p>
+            <div className="relative">
+              <Slider
+                value={[Number(queryParameters?.priceMax)]}
+                onValueChange={(value) =>
+                  setQueryParameters((prev) => ({
+                    ...prev,
+                    priceMax: String(value[0]),
+                  }))
+                }
+                min={MIN_AMOUNT}
+                max={MAX_AMOUNT}
+                step={10}
+                className="mt-4"
+              />
+              <div className="mt-2 flex h-8 w-fit items-center justify-center rounded-full bg-gray-500 px-2.5">
+                <p className="text-sm font-medium text-black">
+                  {queryParameters?.priceMax
+                    ? `GHS ${Number(queryParameters.priceMax).toLocaleString()}`
+                    : 'Move the slider to filter by price'}
+                </p>
+              </div>
             </div>
           </div>
           <Button
             onClick={handleSearch}
-            className="bg-primary hover:bg-primary-dark mt-14 rounded-md p-6 font-bold text-white shadow-lg transition"
+            className="bg-primary hover:bg-primary-dark mt-4 rounded-md p-6 font-bold text-white shadow-lg transition"
             child={
               <>
                 <Search className="mr-2 h-5 w-5" />
@@ -113,11 +123,6 @@ const Hero = (): JSX.Element => {
           />
 
           <div className="mt-12 flex flex-wrap justify-center gap-4 text-sm font-medium text-black/80">
-            {/* TODO: Implement this when we have the insurance verified feature */}
-            {/* <div className="flex items-center">
-              <div className="mr-2 h-2 w-2 rounded-full bg-green-400"></div>
-              Insurance Verified
-            </div> */}
             <div className="flex items-center">
               <div className="mr-2 h-2 w-2 rounded-full bg-blue-400"></div>
               Same-Day Booking

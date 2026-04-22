@@ -10,6 +10,7 @@ import {
   ClipboardCheck,
   Target,
 } from 'lucide-react';
+import { IPostInvestigationData } from '@/types/appointment.interface';
 
 export interface HistoryNotesData {
   presentingComplaint: string;
@@ -118,5 +119,28 @@ export const parseInitialNotes = (initialNotes: string | null | undefined): Hist
   } catch {
     // If it's not JSON (old format), return default
     return DEFAULT_NOTES;
+  }
+};
+
+const DEFAULT_POST_DATA: IPostInvestigationData = {
+  historyOfPresentingComplaints: '',
+  assessmentImpression: '',
+  plan: '',
+  addendum: '',
+};
+
+export const parsePostInvestigationInitialNotes = (
+  initialNotes: string | null | undefined,
+): IPostInvestigationData => {
+  if (!initialNotes) {
+    return DEFAULT_POST_DATA;
+  }
+
+  try {
+    const parsed = JSON.parse(initialNotes);
+    return { ...DEFAULT_POST_DATA, ...parsed };
+  } catch {
+    // If it's not JSON (old format), return default
+    return DEFAULT_POST_DATA;
   }
 };

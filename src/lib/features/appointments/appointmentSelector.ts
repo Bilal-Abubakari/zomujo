@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
-import { RequestStatus } from '@/types/shared.enum';
+import { CONSULTATION_START_ALLOWED_STATUS } from '@/constants/consultation.constants';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const selectAppointments = ({ appointments }: RootState) => appointments;
@@ -16,19 +16,29 @@ export const selectIsLoading = createSelector(
   (appointments) => appointments.isLoading,
 );
 
-export const consultationStatus = createSelector(
+export const selectConsultationStatus = createSelector(
   selectAppointment,
   (appointment) => appointment?.status,
 );
 
-export const hasConsultationEnded = createSelector(
-  consultationStatus,
-  (status) => status === AppointmentStatus.Completed,
+export const selectCanStartConsultation = createSelector(
+  selectConsultationStatus,
+  (status) => status && CONSULTATION_START_ALLOWED_STATUS.includes(status),
 );
 
-export const isConsultationInProgress = createSelector(
-  consultationStatus,
+export const selectHasConsultationEnded = createSelector(
+  selectConsultationStatus,
+  (status) => status === AppointmentStatus.Completed || status === AppointmentStatus.Incomplete,
+);
+
+export const selectIsConsultationInProgress = createSelector(
+  selectConsultationStatus,
   (status) => status === AppointmentStatus.Progress,
+);
+
+export const selectIsConsultationInvestigatingProgress = createSelector(
+  selectConsultationStatus,
+  (status) => status === AppointmentStatus.InvestigatingProgress,
 );
 
 export const selectSymptoms = createSelector(
@@ -59,15 +69,11 @@ export const selectLabIds = createSelector(selectAppointmentLabs, (lab) =>
   lab?.data?.map((l) => l.id),
 );
 
-export const selectConductedLabs = createSelector(
-  selectAppointmentLabs,
-  (lab) => lab?.data?.filter((test) => !!test.fileUrl) || [],
+export const selectConductedLabs = createSelector(selectAppointmentLabs, (lab) =>
+  lab?.fileUrls && lab.fileUrls.length > 0 ? lab.data : [],
 );
 
-export const selectRequestedLabs = createSelector(
-  selectAppointmentLabs,
-  (lab) => lab?.data?.filter((test) => !test.fileUrl) || [],
-);
+export const selectRequestedLabs = createSelector(selectAppointmentLabs, (lab) => lab?.data || []);
 
 export const selectPrescriptions = createSelector(
   selectAppointment,
@@ -94,14 +100,6 @@ export const selectAppointmentRadiology = createSelector(
   (appointment) => appointment?.radiology,
 );
 
-export const selectRequestedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
-  radiology?.status === RequestStatus.Pending ? radiology : null,
-);
-
-export const selectConductedRadiology = createSelector(selectAppointmentRadiology, (radiology) =>
-  radiology?.tests?.some((test) => test.fileUrl) ? radiology : null,
-);
-
 export const selectIsConsultationAuthenticated = createSelector(
   selectAppointment,
   (appointment) => appointment?.isAuthenticated ?? false,
@@ -110,4 +108,19 @@ export const selectIsConsultationAuthenticated = createSelector(
 export const selectAppointmentDoctorId = createSelector(
   selectAppointment,
   (appointment) => appointment?.doctor?.id,
+);
+
+export const selectPostInvestigationData = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.ipData,
+);
+
+export const selectIsFollowUp = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.isFollowUp ?? false,
+);
+
+export const selectAppointmentLinkId = createSelector(
+  selectAppointment,
+  (appointment) => appointment?.appointmentLinkId ?? null,
 );

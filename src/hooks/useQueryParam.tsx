@@ -30,10 +30,19 @@ export enum RecordsTab {
   MyRecord = 'myRecord',
 }
 
+export enum InvoiceTab {
+  All = 'all',
+  Draft = 'draft',
+  Sent = 'sent',
+  Paid = 'paid',
+  Cancelled = 'cancelled',
+}
+
 export enum PaymentTab {
   Pricing = 'pricing',
   PaymentMethod = 'paymentMethod',
   Wallet = 'wallet',
+  RegistrationFee = 'registrationFee',
 }
 
 interface IQuery extends Pick<Required<IQueryParams>, 'specialty' | 'priceMax' | 'search'> {
@@ -43,6 +52,7 @@ interface IQuery extends Pick<Required<IQueryParams>, 'specialty' | 'priceMax' |
   [AppointmentDate.selectedDate]: string;
   appointmentView: AppointmentView;
   recordsTab: RecordsTab;
+  invoiceTab: InvoiceTab;
   appointmentId: string;
   q: string;
   doctorId: string;

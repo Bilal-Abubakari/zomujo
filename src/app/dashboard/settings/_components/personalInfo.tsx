@@ -8,8 +8,8 @@ import {
   nameArraySchema,
   nameSchema,
   phoneNumberSchema,
-  positiveNumberSchema,
   requiredStringSchema,
+  stringInputOptionalNumberSchema,
   textAreaSchema,
 } from '@/schemas/zod.schemas';
 import { DoctorPersonalInfo, IDoctor } from '@/types/doctor.interface';
@@ -18,6 +18,7 @@ import React, { JSX, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import useImageUpload from '@/hooks/useImageUpload';
+import { useProfilePictureUpload } from '@/hooks/useProfilePictureUpload';
 import { isEqual } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { PaymentTab } from '@/hooks/useQueryParam';
@@ -36,7 +37,7 @@ const PersonalDetailsSchema = z.object({
     .optional(),
   languages: nameArraySchema,
   bio: textAreaSchema,
-  experience: positiveNumberSchema.refine((value) => (value === 0 ? '' : value)),
+  experience: stringInputOptionalNumberSchema,
   specializations: z.array(nameSchema).max(3, 'You can select up to 3 specializations'),
   contact: phoneNumberSchema,
 });
@@ -51,7 +52,7 @@ const PersonalInfo = (): JSX.Element => {
     lastName: details?.lastName || '',
     languages: details?.languages || [],
     bio: details?.bio || '',
-    experience: details?.experience || 0,
+    experience: details?.experience,
     specializations: details?.specializations || [],
     contact: details?.contact || '',
     profilePicture: details?.profilePicture || '',
@@ -80,6 +81,8 @@ const PersonalInfo = (): JSX.Element => {
     setValue,
     defaultImageUrl: personalDetails?.profilePicture,
   });
+  const { handleProfilePictureChange, isUploading: isUploadingProfilePicture } =
+    useProfilePictureUpload({ handleImageChange });
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const currentFormData = watch();
@@ -131,8 +134,9 @@ const PersonalInfo = (): JSX.Element => {
       <ProfilePictureUpload
         userProfilePicture={userProfilePicture}
         imageRef={imageRef}
-        handleImageChange={handleImageChange}
+        handleImageChange={handleProfilePictureChange}
         resetImage={resetImage}
+        isUploading={isUploadingProfilePicture}
       />
       <hr className="my-7.5" />
       <PersonalDetailsForm

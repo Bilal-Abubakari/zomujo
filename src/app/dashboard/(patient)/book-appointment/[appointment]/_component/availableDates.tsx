@@ -23,6 +23,7 @@ const AvailableDates = ({
   watch,
   doctorId,
   isHospitalAppointment,
+  onNoSlotsFound,
 }: AvailabilityProps & { isHospitalAppointment?: boolean }): JSX.Element => {
   const date = watch('date');
   const selectedTime = watch('time');
@@ -77,6 +78,9 @@ const AvailableDates = ({
       const dates = rows.map(({ date }) => new Date(date));
 
       setCanBookDates(dates);
+      if (dates.length === 0) {
+        onNoSlotsFound?.();
+      }
       setIsLoadingAppointmentDates(false);
     }
 
@@ -194,20 +198,20 @@ const AvailableDates = ({
               <div className="flex flex-wrap gap-3">
                 {!!availableTimeSlots.length &&
                   availableTimeSlots.map(({ startTime, id }) => (
-                    <div
+                    <button
                       key={id}
+                      type="button"
                       className={cn(
                         'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
                         selectedTime === startTime && 'border-primary text-primary',
                       )}
-                      onKeyDown={() => handleSlotSelection(startTime, id)}
                       onClick={(event) => {
                         event.stopPropagation();
                         handleSlotSelection(startTime, id);
                       }}
                     >
                       {startTime}
-                    </div>
+                    </button>
                   ))}
                 {!availableTimeSlots.length && !isAvailableSlotLoading && (
                   <div className="text-red-500">
@@ -218,12 +222,12 @@ const AvailableDates = ({
               </div>
             </div>
           )}
-
+             
           {isAvailableSlotLoading && (
             <div className="flex gap-2">
-              {[...Array(5)].map((_, index) => (
+              {new Array(5).map((num, index) => (
                 <div
-                  key={index}
+                  key={`${index}-${num}`}
                   className={cn('h-8 w-16 animate-pulse rounded-sm border bg-gray-200')}
                 />
               ))}

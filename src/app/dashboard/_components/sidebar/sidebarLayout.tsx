@@ -12,11 +12,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { CollapsibleTrigger } from '@radix-ui/react-collapsible';
-import { ChevronDown, EllipsisVertical } from 'lucide-react';
+import { ChevronDown, EllipsisVertical, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -31,9 +30,15 @@ import { Logo } from '@/assets/images';
 import { cn } from '@/lib/utils';
 import { AvatarComp } from '@/components/ui/avatar';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectIsAnAdmin, selectUserName, selectUserRole } from '@/lib/features/auth/authSelector';
+import {
+  selectIsAnAdmin,
+  selectUserName,
+  selectUserProfilePicture,
+  selectUserRole,
+  selectUserId,
+} from '@/lib/features/auth/authSelector';
 import { Role, SidebarType } from '@/types/shared.enum';
-import { JSX } from 'react';
+import { JSX, useMemo } from 'react';
 import { ISidebar } from '@/types/sidebar.interface';
 import {
   ADMIN_SETTINGS_SIDEBAR,
@@ -48,6 +53,39 @@ import {
 } from '@/constants/sidebar.constant';
 import { logout } from '@/lib/features/auth/authThunk';
 import { useIsMobile } from '@/hooks/useMobile';
+
+/**
+ * Helper function to add doctor's "My Profile" link to sidebar data
+ */
+const getSidebarDataWithProfile = (
+  role: Role | undefined,
+  type: SidebarType | undefined,
+  userId: string | undefined,
+): ISidebar => {
+  const data = getSidebarByRole(role, type);
+  if (role === Role.Doctor && userId && !type) {
+    return {
+      ...data,
+      sidebarGroup: data.sidebarGroup.map((group) => {
+        if (group.groupTitle === 'MENU') {
+          return {
+            ...group,
+            menu: [
+              ...group.menu,
+              {
+                title: 'My Profile',
+                url: `/dashboard/doctor/${userId}`,
+                Icon: User,
+              },
+            ],
+          };
+        }
+        return group;
+      }),
+    };
+  }
+  return data;
+};
 
 type SideBarProps = {
   type?: SidebarType;
@@ -64,11 +102,18 @@ export const SidebarLayout = ({
   hideOnMobile = false,
 }: SideBarProps): JSX.Element => {
   const userName = useAppSelector(selectUserName);
+  const profileImage = useAppSelector(selectUserProfilePicture);
   const isAnAdmin = useAppSelector(selectIsAnAdmin);
   const role = useAppSelector(selectUserRole);
+  const userId = useAppSelector(selectUserId);
   const pathName = usePathname();
   const isMobile = useIsMobile(1024);
   const { setOpenMobile } = useSidebar();
+
+  const sidebarData = useMemo(
+    () => getSidebarDataWithProfile(role, type, userId),
+    [role, type, userId],
+  );
 
   const getRole = (): string => {
     switch (role) {
@@ -100,15 +145,14 @@ export const SidebarLayout = ({
   return (
     <Sidebar className={cn('flex h-screen flex-col', sidebarClassName)}>
       {!type && (
-        <SidebarHeader className="pt-3.5 pb-[10px]">
-          <SidebarTrigger
-            child={<Image src={Logo} alt="Fornix Link-logo" />}
-            className="h-14 w-14"
-          />
+        <SidebarHeader className="pt-3.5 pb-2.5">
+          <Link href="/">
+            <Image src={Logo} alt="Fornix Link-logo" className="h-14 w-14" />
+          </Link>
         </SidebarHeader>
       )}
       <SidebarContent className={sidebarContentClassName}>
-        {getSidebarByRole(role, type).sidebarGroup.map((category) => (
+        {sidebarData.sidebarGroup.map((category) => (
           <SidebarGroup key={category.groupTitle}>
             <SidebarGroupLabel>{category.groupTitle}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -136,7 +180,7 @@ export const SidebarLayout = ({
                                       title={title}
                                       isActive={
                                         pathName === url ||
-                                        !!(relatedUrl && pathName.includes(relatedUrl))
+                                        (!!relatedUrl && pathName.includes(relatedUrl))
                                       }
                                       className={'data-[active=true]/menu-action:before:opacity-0'}
                                     >
@@ -154,7 +198,7 @@ export const SidebarLayout = ({
                         <SidebarMenuButton
                           asChild
                           isActive={
-                            pathName === url || !!(relatedUrl && pathName.includes(relatedUrl))
+                            pathName === url || (!!relatedUrl && pathName.includes(relatedUrl))
                           }
                           title={title}
                           className={sidebarTabClassName}
@@ -172,12 +216,12 @@ export const SidebarLayout = ({
         ))}
       </SidebarContent>
       {!type && (
-        <SidebarFooter className="me:block hidden flex-shrink-0">
+        <SidebarFooter className="me:block hidden shrink-0">
           {!isAnAdmin && <ProfileCompletionCard />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton className="mt-4 py-10">
-                <AvatarComp name={userName} />
+                <AvatarComp name={userName} imageSrc={profileImage} imageAlt={userName} />
                 <div className="flex flex-col text-xs font-medium">
                   <span>{userName}</span>
                   <span className="text-badge rounded-lg py-1.5">{getRole()}</span>
@@ -198,7 +242,14 @@ export const Navbar = ({
 }: Pick<SideBarProps, 'type'>): JSX.Element => {
   const pathName = usePathname();
   const role = useAppSelector(selectUserRole);
-  const flattenedMenu = getSidebarByRole(role, type).sidebarGroup.flatMap((group) => group.menu);
+  const userId = useAppSelector(selectUserId);
+
+  const sidebarData = useMemo(
+    () => getSidebarDataWithProfile(role, type, userId),
+    [role, type, userId],
+  );
+
+  const flattenedMenu = sidebarData.sidebarGroup.flatMap((group) => group.menu);
 
   return (
     <>
@@ -237,20 +288,18 @@ const ProfileDropdownMenu = (): JSX.Element => {
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logout());
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   return (
-    <>
-      <DropdownMenuContent side="top" className="w-(--radix-popper-anchor-width)">
-        <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-          <span>Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => logoutHandler()}>
-          <span>Log out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </>
+    <DropdownMenuContent side="top" className="w-(--radix-popper-anchor-width)">
+      <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+        <span>Profile</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => logoutHandler()}>
+        <span>Log out</span>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
   );
 };
 

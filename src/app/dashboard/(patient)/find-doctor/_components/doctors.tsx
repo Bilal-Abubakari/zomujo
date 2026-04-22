@@ -16,8 +16,8 @@ import { ChevronUp, ListFilter, Search, SendHorizontal, UserRound } from 'lucide
 import Image from 'next/image';
 import React, {
   ChangeEvent,
-  FormEvent,
   JSX,
+  SyntheticEvent,
   useCallback,
   useEffect,
   useRef,
@@ -29,6 +29,7 @@ import { useQueryParam } from '@/hooks/useQueryParam';
 import { Suggested } from '@/app/dashboard/_components/patientHome/_component/suggested';
 import { Combobox } from '@/components/ui/select';
 import { useHybridScroll } from '@/hooks/useHybridScroll';
+import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
 
 const Doctors = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -40,20 +41,21 @@ const Doctors = (): JSX.Element => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { getQueryParam } = useQueryParam();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const previousFiltersRef = useRef<Record<string, string>>({});
-  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { scrollToTop } = useHybridScroll({
-    onScrollTopVisibilityChange: setShowScrollToTop,
-  });
-
-  const [filterInputs, setFilterInputs] = useState({
+  const initialFilters = {
     priceMin: '',
     priceMax: getQueryParam('priceMax') || '',
     experienceMin: '',
     experienceMax: '',
     rateMin: '',
     rateMax: '',
+  };
+  const previousFiltersRef = useRef<Record<string, string>>(initialFilters);
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { scrollToTop } = useHybridScroll({
+    onScrollTopVisibilityChange: setShowScrollToTop,
   });
+
+  const [filterInputs, setFilterInputs] = useState(initialFilters);
 
   const [queryParameters, setQueryParameters] = useState<IQueryParams<AcceptDeclineStatus>>({
     page: 1,
@@ -171,32 +173,38 @@ const Doctors = (): JSX.Element => {
     };
   }, [filterInputs]);
 
-  const canLoadMorePages = (): boolean => {
-    if (!queryParameters?.page || !paginationData) {
-      return false;
+  const canLoadMoreRef = useRef(false);
+
+  useEffect(() => {
+    canLoadMoreRef.current =
+      !isLoading && !!paginationData && (queryParameters.page ?? 0) < paginationData.totalPages;
+  }, [isLoading, paginationData, queryParameters.page]);
+
+  const observerCallback = useCallback((entries: IntersectionObserverEntry[]) => {
+    const target = entries[0];
+    if (target.isIntersecting && canLoadMoreRef.current) {
+      canLoadMoreRef.current = false;
+      setQueryParameters((prev) => ({
+        ...prev,
+        page: (prev.page ?? 0) + 1,
+      }));
     }
-    return queryParameters.page < paginationData.totalPages;
-  };
-
-  const observerCallback = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const target = entries[0];
-      const canLoadMore = target.isIntersecting && canLoadMorePages() && !isLoading;
-
-      if (canLoadMore) {
-        setQueryParameters((prev) => ({
-          ...prev,
-          page: (prev.page ?? 0) + 1,
-        }));
-      }
-    },
-    [paginationData, queryParameters, isLoading],
-  );
+  }, []);
 
   useEffect(() => {
     async function allDoctors(): Promise<void> {
       setIsLoading(true);
-      const { payload } = await dispatch(getAllDoctors(queryParameters));
+      const { payload } = await dispatch(
+        getAllDoctors({
+          ...queryParameters,
+          priceMax: queryParameters.priceMax
+            ? String(Number(queryParameters.priceMax) * PESEWAS_PER_CEDI)
+            : queryParameters.priceMax,
+          priceMin: queryParameters.priceMin
+            ? String(Number(queryParameters.priceMin) * PESEWAS_PER_CEDI)
+            : queryParameters.priceMin,
+        }),
+      );
 
       if (payload && showErrorToast(payload)) {
         toast(payload);
@@ -217,13 +225,13 @@ const Doctors = (): JSX.Element => {
       return;
     }
 
-    const observer = new IntersectionObserver(observerCallback, { threshold: 1.0 });
+    const observer = new IntersectionObserver(observerCallback, { threshold: 1 });
     observer.observe(observerRef.current);
 
     return (): void => observer.disconnect();
-  }, [observerRef.current]);
+  }, [observerCallback]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
+  function handleSubmit(event: SyntheticEvent, search?: string): void {
     event.preventDefault();
     setDoctors([]);
     setQueryParameters((prev) => ({
@@ -378,20 +386,16 @@ const Doctors = (): JSX.Element => {
         )}
       </div>
       <Suggested className="" childrenWrapperClassName="justify-center" showViewAll={false}>
-        {!isLoading &&
-          doctors.map((doctor) => (
-            <div className="cursor-pointer" key={doctor.id}>
-              <DoctorCard key={doctor.id} doctor={doctor} />
-            </div>
+        {doctors.map((doctor) => (
+          <div className="cursor-pointer" key={doctor.id}>
+            <DoctorCard key={doctor.id} doctor={doctor} />
+          </div>
+        ))}
+        {isLoading &&
+          Array.from({ length: queryParameters.page === 1 ? 8 : 4 }).map((value, index) => (
+            <SkeletonDoctorPatientCard key={`${index}-${value}`} />
           ))}
       </Suggested>
-      {isLoading && (
-        <Suggested className="" childrenWrapperClassName="justify-center" showViewAll={false}>
-          {Array.from({ length: 8 }).map((_, index) => (
-            <SkeletonDoctorPatientCard key={index} />
-          ))}
-        </Suggested>
-      )}
       {!isLoading && doctors.length === 0 && (
         <section>
           {

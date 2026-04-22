@@ -27,7 +27,8 @@ import {
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { useParams } from 'next/navigation';
 import { Toast, toast } from '@/hooks/use-toast';
-import { showErrorToast } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 import { selectDiagnoses } from '@/lib/features/appointments/appointmentSelector';
 import { LocalStorageManager } from '@/lib/localStorage';
 import { IDiagnosisOnlyRequest } from '@/types/consultation.interface';
@@ -54,6 +55,7 @@ const Diagnosis = ({
   setUpdateDiagnosis,
   goToNext,
 }: DiagnosisProps): JSX.Element => {
+  const { state, isMobile } = useSidebar();
   const [isLoading, setIsLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingSavedId, setEditingSavedId] = useState<string | null>(null);
@@ -170,7 +172,6 @@ const Diagnosis = ({
   };
 
   const editDiagnosis = (index: number): void => {
-    console.log('Does it work?', index);
     if (index < savedDiagnoses.length) {
       // Editing a saved diagnosis
       const diagnosis = savedDiagnoses[index];
@@ -182,7 +183,6 @@ const Diagnosis = ({
       setUpdateDiagnosis(true);
     } else {
       // Editing a local diagnosis
-      console.log('It works!');
       const localIndex = index - savedDiagnoses.length;
       const diagnosis = diagnoses[localIndex];
       setValue('name', diagnosis.name);
@@ -400,7 +400,14 @@ const Diagnosis = ({
 
       {addDiagnosisDrawer}
 
-      <div className="fixed bottom-0 left-0 flex w-full justify-end border-t border-gray-300 bg-white p-4 shadow-md">
+      <div
+        className={cn(
+          'fixed bottom-0 z-50 flex justify-end border-t border-gray-300 bg-white p-4 shadow-md',
+          !isMobile && state === 'expanded'
+            ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+            : 'left-0 w-full',
+        )}
+      >
         <Button
           onClick={() => onSubmit()}
           isLoading={isLoading}

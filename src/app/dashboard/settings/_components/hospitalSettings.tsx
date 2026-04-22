@@ -30,6 +30,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TooltipComp } from '@/components/ui/tooltip';
+import { ghcToPesewas, pesewasToGhc } from '@/lib/utils';
 
 const IMAGE_ITEM_TYPE = 'hospital-image';
 const MAX_GALLERY_IMAGES = 10;
@@ -176,7 +177,7 @@ function createDirtyOnlyResolver(
         (errors as Record<string, { message: string }>)[path] = { message: msg };
       }
     }
-    return { values: {} as HospitalFormValues, errors };
+    return { values, errors };
   };
 }
 
@@ -231,7 +232,8 @@ function getInitialFormValues(org: OrgSource): HospitalFormValues {
     image: logoImage?.url ?? null,
     specialties: org?.specialties ?? ['general practice'],
     supportedInsurance: org?.supportedInsurance ?? ['nhis'],
-    regularFee: org?.regularFee ?? 100,
+    regularFee:
+      org?.regularFee != null ? pesewasToGhc(Number(org.regularFee)) : '',
     description: (org as IHospitalDetail | undefined)?.description ?? '',
     organizationType: (org as IHospitalDetail | undefined)?.organizationType,
     mainPhone: (org as IHospitalDetail | undefined)?.mainPhone ?? '',
@@ -250,6 +252,7 @@ function getInitialFormValues(org: OrgSource): HospitalFormValues {
     fax: addr?.fax ?? '',
     gpsLink: (org as IHospital)?.gpsLink ?? '',
     images: galleryImages,
+    imageOrder: galleryImages,
   };
 }
 
@@ -264,7 +267,7 @@ const dummyOrg: OrgSource = {
   image: null,
   supportedInsurance: ['nhis'],
   specialties: ['general practice'],
-  regularFee: 100,
+  regularFee: 10_000,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -464,7 +467,6 @@ const HospitalSettings = (): JSX.Element => {
   const role = useAppSelector(selectUserRole);
   const org = getOrgFromExtra(extra, role ?? undefined);
   const initialOrg = org ?? dummyOrg;
-  const initialValues = getInitialFormValues(initialOrg);
 
   const dispatch = useAppDispatch();
   const dirtyFieldsRef = React.useRef<Partial<Record<keyof HospitalFormValues, boolean | object>>>(
@@ -484,11 +486,13 @@ const HospitalSettings = (): JSX.Element => {
       dirtyFieldsRef,
     ) as unknown as Resolver<HospitalFormValues>,
     mode: MODE.ON_TOUCH,
-    defaultValues: initialValues,
+    defaultValues: getInitialFormValues(initialOrg),
   });
   dirtyFieldsRef.current = dirtyFields;
 
-  // Fetch full hospital data (including images) when user opens settings
+  const hospitalLogo = watch('image');
+  const hospitalImages = watch('images') ?? [];
+
   useEffect(() => {
     const slug =
       role === Role.Hospital
@@ -516,9 +520,6 @@ const HospitalSettings = (): JSX.Element => {
     };
   }, [dispatch, role, extra, reset]);
 
-  const hospitalLogo = watch('image');
-  const hospitalImages = watch('images') ?? [];
-
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
     setValue('image', file ?? null, SET_VALUE_OPTS);
@@ -528,6 +529,8 @@ const HospitalSettings = (): JSX.Element => {
   const clearLogo = (): void => {
     setValue('image', null, SET_VALUE_OPTS);
   };
+
+  const [imageObjectUrls] = useState<Map<string, string>>(() => new Map());
 
   const getLogoUrl = (): string => {
     if (!hospitalLogo) {
@@ -563,8 +566,6 @@ const HospitalSettings = (): JSX.Element => {
     }
     event.target.value = '';
   };
-
-  const [imageObjectUrls] = useState<Map<string, string>>(new Map());
 
   const getImageUrl = (image: File | string, index: number): string => {
     if (typeof image === 'string') {
@@ -609,7 +610,6 @@ const HospitalSettings = (): JSX.Element => {
     reordered.splice(toIndex, 0, removed);
     setValue('images', reordered, SET_VALUE_OPTS);
 
-    // Track the order of existing image URLs (not new File uploads)
     const imageUrls = reordered.filter((img): img is string => typeof img === 'string');
     if (imageUrls.length > 0) {
       setValue('imageOrder', imageUrls, SET_VALUE_OPTS);
@@ -621,9 +621,8 @@ const HospitalSettings = (): JSX.Element => {
       imageObjectUrls.forEach((url) => URL.revokeObjectURL(url));
       imageObjectUrls.clear();
     };
-
     return cleanup;
-  }, []);
+  }, [imageObjectUrls]);
 
   const logoUrl = getLogoUrl();
 
@@ -633,7 +632,6 @@ const HospitalSettings = (): JSX.Element => {
       description: 'Please fix the highlighted errors before saving.',
       variant: 'destructive',
     });
-    // After re-render, scroll to first invalid field so the user sees which one failed
     setTimeout(() => {
       const firstInvalid = document.querySelector<HTMLElement>('[aria-invalid="true"]');
       firstInvalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -642,10 +640,10 @@ const HospitalSettings = (): JSX.Element => {
 
   const onSubmit = async (data: HospitalFormValues): Promise<void> => {
     setIsLoading(true);
-
-    // Build payload with only changed fields
     const payload = buildDirtyPayload(dirtyFields, data);
-
+    if (typeof payload.regularFee === 'number') {
+      payload.regularFee = ghcToPesewas(payload.regularFee);
+    }
     const result = await dispatch(
       updateHospitalDetails(payload as Parameters<typeof updateHospitalDetails>[0]),
     );
@@ -703,6 +701,7 @@ const HospitalSettings = (): JSX.Element => {
           <p className="text-gray-500">Update hospital details</p>
         </div>
         <hr className="my-7 gap-4" />
+        {/* Hospital logo (separate from gallery) */}
         <div>
           <p className="font-medium">Hospital Logo</p>
           <span className="text-sm text-gray-500">
@@ -814,8 +813,9 @@ const HospitalSettings = (): JSX.Element => {
           </DndProvider>
         </div>
       </section>
-      <hr className="my-[30px]" />
+      <hr className="my-7" />
       <form id="hospital-settings-form" onSubmit={handleSubmit(onSubmit, onInvalid)}>
+        {/* Basic Information */}
         <div className="mb-8">
           <h3 className="mb-4 text-lg font-semibold">Basic Information</h3>
           <div className="flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
@@ -823,7 +823,7 @@ const HospitalSettings = (): JSX.Element => {
               labelName="Name of Hospital"
               className="bg-transparent"
               placeholder={PLACEHOLDER_HOSPITAL_NAME}
-              error={errors.name?.message ?? ''}
+              error={errors?.name?.message ?? ''}
               {...register('name')}
             />
             <div className="w-full sm:w-auto">
@@ -833,129 +833,10 @@ const HospitalSettings = (): JSX.Element => {
                 options={organizationTypes}
                 label="Organization Type"
                 placeholder="Select organization type"
-                error={errors.organizationType?.message}
+                error={errors?.organizationType?.message}
                 ref={selectRef}
               />
             </div>
-          </div>
-          <div className="mt-4">
-            <Textarea
-              labelName="Description"
-              className="w-full resize-none bg-transparent"
-              placeholder="Enter hospital description"
-              error={errors.description?.message ?? ''}
-              {...register('description')}
-              rows={6}
-              maxLength={500}
-            />
-          </div>
-        </div>
-
-        <hr className="my-[30px]" />
-
-        <div className="mb-8">
-          <h3 className="mb-4 text-lg font-semibold">Contact Information</h3>
-          <div className="flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
-            <Input
-              labelName="Main Phone"
-              className="bg-transparent"
-              placeholder="Enter main phone number"
-              type="tel"
-              error={errors.mainPhone?.message ?? ''}
-              {...register('mainPhone')}
-            />
-            <Input
-              labelName="Main Email"
-              className="bg-transparent"
-              placeholder="Enter main email address"
-              type="email"
-              error={errors.mainEmail?.message ?? ''}
-              {...register('mainEmail')}
-            />
-          </div>
-          <div className="mt-4">
-            <Input
-              labelName="Website"
-              className="bg-transparent"
-              placeholder="https://example.com"
-              type="url"
-              error={errors.website?.message ?? ''}
-              {...register('website')}
-            />
-          </div>
-        </div>
-
-        <hr className="my-[30px]" />
-
-        <div className="mb-8">
-          <h3 className="mb-4 text-lg font-semibold">Location & Address</h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Input
-              labelName="Street Address"
-              className="bg-transparent"
-              placeholder="Enter street address"
-              error={errors.street?.message ?? ''}
-              {...register('street')}
-            />
-            <Input
-              labelName="City"
-              className="bg-transparent"
-              placeholder="Enter city"
-              error={errors.city?.message ?? ''}
-              {...register('city')}
-            />
-            <Input
-              labelName="State/Region"
-              className="bg-transparent"
-              placeholder="Enter state or region"
-              error={errors.state?.message ?? ''}
-              {...register('state')}
-            />
-            <Input
-              labelName="Postal Code"
-              className="bg-transparent"
-              placeholder="Enter postal code"
-              error={errors.postalCode?.message ?? ''}
-              {...register('postalCode')}
-            />
-            <Input
-              labelName="Country"
-              className="bg-transparent"
-              placeholder="Enter country"
-              error={errors.country?.message ?? ''}
-              {...register('country')}
-            />
-            <Input
-              labelName="Phone"
-              className="bg-transparent"
-              placeholder="Enter phone number"
-              type="tel"
-              error={errors.phone?.message ?? ''}
-              {...register('phone')}
-            />
-            <Input
-              labelName="Fax"
-              className="bg-transparent"
-              placeholder="Enter fax number"
-              type="tel"
-              error={errors.fax?.message ?? ''}
-              {...register('fax')}
-            />
-            <Input
-              labelName="GPS / Map Link"
-              className="bg-transparent"
-              placeholder="GA-123-4567 or https://maps.google.com/..."
-              error={errors.gpsLink?.message ?? ''}
-              {...register('gpsLink')}
-            />
-          </div>
-        </div>
-
-        <hr className="my-[30px]" />
-
-        <div className="mb-8">
-          <h3 className="mb-4 text-lg font-semibold">Services & Facilities</h3>
-          <div className="flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
             <MultiSelect
               labelName="Select Specialties"
               options={specialties}
@@ -965,6 +846,128 @@ const HospitalSettings = (): JSX.Element => {
               variant="inverted"
               animation={2}
             />
+          </div>
+          <div className="mt-4">
+            <Textarea
+              labelName="Description"
+              className="w-full resize-none bg-transparent"
+              placeholder="Enter hospital description"
+              error={errors?.description?.message ?? ''}
+              {...register('description')}
+              rows={6}
+              maxLength={500}
+            />
+          </div>
+        </div>
+
+        <hr className="my-7" />
+
+        {/* Contact Information */}
+        <div className="mb-8">
+          <h3 className="mb-4 text-lg font-semibold">Contact Information</h3>
+          <div className="flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
+            <Input
+              labelName="Main Phone"
+              className="bg-transparent"
+              placeholder="Enter main phone number"
+              type="tel"
+              error={errors?.mainPhone?.message ?? ''}
+              {...register('mainPhone')}
+            />
+            <Input
+              labelName="Main Email"
+              className="bg-transparent"
+              placeholder="Enter main email address"
+              type="email"
+              error={errors?.mainEmail?.message ?? ''}
+              {...register('mainEmail')}
+            />
+          </div>
+          <div className="mt-4">
+            <Input
+              labelName="Website"
+              className="bg-transparent"
+              placeholder="https://example.com"
+              type="url"
+              error={errors?.website?.message ?? ''}
+              {...register('website')}
+            />
+          </div>
+        </div>
+
+        <hr className="my-[30px]" />
+
+        {/* Location & Address */}
+        <div className="mb-8">
+          <h3 className="mb-4 text-lg font-semibold">Location & Address</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Input
+              labelName="Street Address"
+              className="bg-transparent"
+              placeholder="Enter street address"
+              error={errors?.street?.message ?? ''}
+              {...register('street')}
+            />
+            <Input
+              labelName="City"
+              className="bg-transparent"
+              placeholder="Enter city"
+              error={errors?.city?.message ?? ''}
+              {...register('city')}
+            />
+            <Input
+              labelName="State/Region"
+              className="bg-transparent"
+              placeholder="Enter state or region"
+              error={errors?.state?.message ?? ''}
+              {...register('state')}
+            />
+            <Input
+              labelName="Postal Code"
+              className="bg-transparent"
+              placeholder="Enter postal code"
+              error={errors?.postalCode?.message ?? ''}
+              {...register('postalCode')}
+            />
+            <Input
+              labelName="Country"
+              className="bg-transparent"
+              placeholder="Enter country"
+              error={errors?.country?.message ?? ''}
+              {...register('country')}
+            />
+            <Input
+              labelName="Phone"
+              className="bg-transparent"
+              placeholder="Enter phone number"
+              type="tel"
+              error={errors?.phone?.message ?? ''}
+              {...register('phone')}
+            />
+            <Input
+              labelName="Fax"
+              className="bg-transparent"
+              placeholder="Enter fax number"
+              type="tel"
+              error={errors?.fax?.message ?? ''}
+              {...register('fax')}
+            />
+            <Input
+              labelName="GPS / Map Link"
+              className="bg-transparent"
+              placeholder="GA-123-4567 or https://maps.google.com/..."
+              error={errors?.gpsLink?.message ?? ''}
+              {...register('gpsLink')}
+            />
+          </div>
+        </div>
+
+        <hr className="my-[30px]" />
+
+        {/* Services & Facilities section */}
+        <div className="mb-8">
+          <h3 className="mb-4 text-lg font-semibold">Services & Facilities</h3>
+          <div className="flex flex-wrap items-baseline gap-8 sm:flex-nowrap">
             <MultiSelect
               labelName="Select Supported Insurance"
               options={healthInsurances}
@@ -990,7 +993,7 @@ const HospitalSettings = (): JSX.Element => {
               className="bg-transparent"
               placeholder="Enter number of beds"
               type="number"
-              error={errors.bedCount?.message ?? ''}
+              error={errors?.bedCount?.message ?? ''}
               {...register('bedCount')}
             />
           </div>
@@ -1020,28 +1023,27 @@ const HospitalSettings = (): JSX.Element => {
           </div>
         </div>
 
-        <hr className="my-[30px]" />
+        <hr className="my-7" />
 
-        <div className="mb-8">
+        {/* Pricing */}
+        <div className="mb-8 max-w-md">
           <h3 className="mb-4 text-lg font-semibold">Pricing</h3>
-          <div className="max-w-md">
-            <Input
-              labelName="Consultation Fees (Starting Price)"
-              className="bg-transparent"
-              placeholder="Enter starting consultation fee"
-              type="number"
-              error={errors.regularFee?.message ?? ''}
-              {...register('regularFee')}
-            />
-          </div>
+          <Input
+            labelName="Consultation Fees (Starting Price)"
+            className="bg-transparent"
+            placeholder="Enter starting consultation fee"
+            type="number"
+            error={errors?.regularFee?.message ?? ''}
+            {...register('regularFee')}
+          />
         </div>
 
         <div ref={saveButtonRef}>
           <Button
             child="Save Changes"
-            className="me:mb-0 my-[15px] mb-24 ml-auto flex"
+            className="md:mb-0 my-3.75 mb-24 ml-auto flex"
             isLoading={isLoading}
-            disabled={!canSave}
+            disabled={!canSave || isLoading}
           />
         </div>
       </form>
@@ -1052,7 +1054,7 @@ const HospitalSettings = (): JSX.Element => {
             form="hospital-settings-form"
             child="Save Changes"
             isLoading={isLoading}
-            disabled={!canSave}
+            disabled={!canSave || isLoading}
             className="shadow-lg"
           />
         </div>

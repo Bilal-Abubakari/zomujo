@@ -19,34 +19,31 @@ const StatsCards = ({
 }: StatsCardsProps): JSX.Element =>
   isLoading ? (
     <>
-      {Array.from({ length: numberOfCards }).map((_, index) => (
-        <Skeleton key={index} className="h-40 w-[380px] grow bg-gray-300" />
+      {Array.from({ length: numberOfCards }).map((value, index) => (
+        <Skeleton key={`${value}-${index}`} className="h-40 w-95 grow bg-gray-300" />
       ))}
     </>
   ) : (
     <>
       {statsData?.map(({ title, trend, value, percentage }) => (
-        <Card
-          key={title}
-          className={cn(
-            'w-[380px] grow rounded-2xl transition-all duration-200',
-            onClick && 'cursor-pointer hover:scale-[1.02] hover:shadow-lg',
-          )}
-          onClick={onClick}
-        >
+        <Card key={title} className="w-95 grow rounded-2xl">
           <div className="flex flex-row justify-between p-5">
             <CardTitle className="text-grayscale-500 text-base">{title}</CardTitle>
-            <div>
-              <CardTitle
-                className={cn('text-sm', {
-                  'text-success-500': trend === 'up',
-                  'text-error-500': trend === 'down',
-                })}
-              >
-                {percentage}%
-              </CardTitle>
-              <CardDescription className="text-grayscale-500 text-xs">vs last week</CardDescription>
-            </div>
+            {percentage !== undefined && trend !== undefined && (
+              <div>
+                <CardTitle
+                  className={cn('text-sm', {
+                    'text-success-500': trend === 'up',
+                    'text-error-500': trend === 'down',
+                  })}
+                >
+                  {percentage}%
+                </CardTitle>
+                <CardDescription className="text-grayscale-500 text-xs">
+                  vs last week
+                </CardDescription>
+              </div>
+            )}
           </div>
           <CardContent>
             <span className="text-3xl font-bold">{value}</span>

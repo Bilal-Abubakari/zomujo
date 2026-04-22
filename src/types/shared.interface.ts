@@ -21,6 +21,8 @@ export interface IPagination<T> {
   nextPage: number | null;
   prevPage: number | null;
   totalPages: number;
+  isFirstPage: boolean;
+  isLastPage: boolean;
 }
 
 export type Month =
@@ -69,6 +71,11 @@ export interface IQueryParams<T = undefined> {
   oxygenSaturation?: string;
   respiratoryRate?: string;
   heartRate?: string;
+  amountMin?: string;
+  amountMax?: string;
+  from?: string;
+  to?: string;
+  type?: string;
 }
 
 export interface IAction<T = undefined> {

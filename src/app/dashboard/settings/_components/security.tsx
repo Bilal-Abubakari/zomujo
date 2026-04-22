@@ -9,11 +9,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { IUpdatePassword } from '@/types/auth.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { deleteAccount, updatePassword } from '@/lib/features/auth/authThunk';
+import { deleteAccount, logout, updatePassword } from '@/lib/features/auth/authThunk';
 import { toast } from '@/hooks/use-toast';
-import { Confirmation, ConfirmationProps } from '@/components/ui/dialog';
+import { showErrorToast } from '@/lib/utils';
+import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
 import { BRANDING } from '@/constants/branding.constant';
-import { selectIsOAuthOnly } from '@/lib/features/auth/authSelector';
+import { selectIsOAuthOnly, selectUserName } from '@/lib/features/auth/authSelector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Info } from 'lucide-react';
 
@@ -61,7 +62,10 @@ const SecurityInfo = (): JSX.Element => {
     open: false,
   });
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteNameInput, setDeleteNameInput] = useState('');
   const isOAuth = useAppSelector(selectIsOAuthOnly);
+  const userName = useAppSelector(selectUserName);
 
   async function onSubmit(userCredentials: IUpdatePassword): Promise<void> {
     setIsLoading(true);
@@ -78,6 +82,9 @@ const SecurityInfo = (): JSX.Element => {
     const { payload } = await dispatch(deleteAccount());
     if (payload) {
       toast(payload);
+    }
+    if (!showErrorToast(payload)) {
+      await dispatch(logout());
     }
     setIsConfirmationLoading(false);
   }
@@ -168,22 +175,8 @@ const SecurityInfo = (): JSX.Element => {
             child={'Delete account'}
             variant={'destructive'}
             onClick={() => {
-              setConfirmation((prev) => ({
-                ...prev,
-                open: true,
-                acceptCommand(): void {
-                  handleDeleteAccount();
-                },
-                acceptButtonTitle: 'Yes Delete Account',
-                description:
-                  'Are you sure you want to delete account, this action is Irreversible?',
-                rejectCommand(): void {
-                  setConfirmation((prev) => ({
-                    ...prev,
-                    open: false,
-                  }));
-                },
-              }));
+              setDeleteNameInput('');
+              setDeleteModalOpen(true);
             }}
           />
           <Button child={'Learn more'} variant={'outline'} />
@@ -199,6 +192,46 @@ const SecurityInfo = (): JSX.Element => {
           }))
         }
         isLoading={isConfirmationLoading}
+      />
+      <Modal
+        open={deleteModalOpen}
+        title="Delete account"
+        showClose={!isConfirmationLoading}
+        setState={() => setDeleteModalOpen(false)}
+        content={
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-gray-600">
+              This action is <span className="font-semibold text-red-500">irreversible</span>. To
+              confirm, type your full name{' '}
+              <span className="font-semibold text-gray-900">{userName}</span> below.
+            </p>
+            <Input
+              labelName="Full name"
+              wrapperClassName="max-w-none"
+              placeholder={userName}
+              value={deleteNameInput}
+              onChange={(e) => setDeleteNameInput(e.target.value)}
+            />
+            <div className="flex justify-end gap-4 pt-2">
+              <Button
+                child="Delete account"
+                variant="destructive"
+                disabled={deleteNameInput !== userName || isConfirmationLoading}
+                isLoading={isConfirmationLoading}
+                onClick={async () => {
+                  await handleDeleteAccount();
+                  setDeleteModalOpen(false);
+                }}
+              />
+              <Button
+                child="Cancel"
+                variant="outline"
+                disabled={isConfirmationLoading}
+                onClick={() => setDeleteModalOpen(false)}
+              />
+            </div>
+          </div>
+        }
       />
     </>
   );

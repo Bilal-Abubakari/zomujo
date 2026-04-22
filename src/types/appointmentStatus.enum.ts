@@ -6,4 +6,7 @@ export enum AppointmentStatus {
   Pending = 'pending',
   Cancelled = 'cancelled',
   Incomplete = 'incomplete',
+  Investigating = 'investigating',
+  InvestigatingScheduled = 'investigating_scheduled',
+  InvestigatingProgress = 'investigating_progress',
 }

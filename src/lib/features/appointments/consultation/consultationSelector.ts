@@ -14,7 +14,13 @@ export const selectCurrentRadiologyRequest = createSelector(
   ({ currentRadiologyRequest }) => currentRadiologyRequest,
 );
 
+export const selectInvestigationHistory = createSelector(
+  selectConsultation,
+  ({ investigationHistory }) => investigationHistory,
+);
+
 export const selectHasInvestigation = createSelector(
   selectCurrentRadiologyRequest,
-  (radiologyRequest) => !!radiologyRequest,
+  selectCurrentLabRequest,
+  (radiologyRequest, labRequest) => !!radiologyRequest || !!labRequest,
 );

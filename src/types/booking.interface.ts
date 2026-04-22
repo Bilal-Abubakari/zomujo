@@ -5,6 +5,7 @@ export interface IInitializeAppointment {
   slotId?: string;
   reason: string;
   additionalInfo: string;
+  isFollowUp: boolean;
 }
 
 export interface IBookingForm extends IInitializeAppointment {
@@ -23,4 +24,5 @@ export type AvailabilityProps = {
   isValid?: boolean;
   watch: UseFormWatch<IBookingForm>;
   errors?: FieldErrors<IBookingForm>;
+  onNoSlotsFound?: () => void;
 };

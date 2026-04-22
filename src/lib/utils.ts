@@ -4,6 +4,13 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { IQueryParams } from '@/types/shared.interface';
 import { CategoryType } from '@/types/labs.interface';
+import {
+  NOTIFICATION_DOWNLOAD_URL_REGEX,
+  NOTIFICATION_HREF_REGEX,
+  NOTIFICATION_URL_REGEX,
+  NOTIFICATION_WHITESPACE_REGEX,
+} from '@/constants/notification.constant';
+import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
 
 /**
  * Combines multiple class names into a single string
@@ -120,6 +127,59 @@ export const capitalize = (text: string): string =>
  * @param url
  */
 export const openExternalUrls = (url: string): Window | null => window.open(url, '_blank');
+
+export type ParsedNotificationMessage = {
+  text: string;
+  url?: string;
+};
+
+/**
+ * Removes html tags using a single-pass parser.
+ * This avoids regex backtracking risks on malicious input.
+ *
+ * @param value - The input string that may contain html tags.
+ * @returns The input text without html tags.
+ */
+const stripHtmlTags = (value: string): string => {
+  let sanitizedText = '';
+  let insideTag = false;
+
+  for (const character of value) {
+    if (character === '<') {
+      insideTag = true;
+      sanitizedText += ' ';
+      continue;
+    }
+    if (character === '>' && insideTag) {
+      insideTag = false;
+      continue;
+    }
+    if (!insideTag) {
+      sanitizedText += character;
+    }
+  }
+
+  return sanitizedText;
+};
+
+/**
+ * Parses notification messages that may contain html anchors and raw urls.
+ * Extracts the first available url and returns cleaned plain text for display.
+ *
+ * @param message - The raw notification message received from the API.
+ * @returns Normalized notification text and an optional extracted url.
+ */
+export const parseNotificationMessage = (message: string): ParsedNotificationMessage => {
+  const hrefMatch = NOTIFICATION_HREF_REGEX.exec(message);
+  const urlMatch = NOTIFICATION_URL_REGEX.exec(message);
+  const url = hrefMatch?.[1] || urlMatch?.[0];
+
+  const messageWithoutHtml = stripHtmlTags(message);
+  const messageWithoutDownloadUrl = messageWithoutHtml.replace(NOTIFICATION_DOWNLOAD_URL_REGEX, '');
+  const text = messageWithoutDownloadUrl.replace(NOTIFICATION_WHITESPACE_REGEX, ' ').trim();
+
+  return { text, url };
+};
 
 /**
  * Generates a valid query string from the given query parameters.
@@ -294,3 +354,48 @@ export function sliderPosition(value: number, type: 'amount' | 'sessionLength'):
  */
 export const getTestKey = (testName: string, categoryType: CategoryType): string =>
   `${testName} (${categoryType})`;
+
+/**
+ * Converts strings from PascalCase, camelCase, or snake_case to a sentence format.
+ * Optionally capitalizes the first letter.
+ *
+ * @param str - The string to convert.
+ * @param capitalize - Whether to capitalize the first letter of the sentence. Defaults to false.
+ * @returns The converted sentence string.
+ */
+export const caseToSentence = (str: string, capitalize: boolean = false): string => {
+  // Replace underscores with spaces for snake_case
+  let result = str.replaceAll('_', ' ');
+
+  // Insert spaces before uppercase letters for camelCase and PascalCase
+  result = result.replaceAll(/([a-z])([A-Z])/g, '$1 $2');
+
+  // Convert to lowercase
+  result = result.toLowerCase();
+
+  // Capitalize the first letter if requested
+  if (capitalize) {
+    result = result.charAt(0).toUpperCase() + result.slice(1);
+  }
+
+  return result;
+};
+
+/**
+ * Converts an amount in pesewas to Ghana Cedis.
+ * @param pesewas - The amount in pesewas.
+ */
+export const pesewasToGhc = (pesewas: number): number => pesewas / PESEWAS_PER_CEDI;
+
+/**
+ * Converts an amount in Ghana Cedis to pesewas.
+ * @param ghc - The amount in Ghana Cedis.
+ */
+export const ghcToPesewas = (ghc: number): number => Math.round(ghc * PESEWAS_PER_CEDI);
+
+export const buildInvoicePaymentCopyText = (
+  paymentUrl: string,
+  doctorFirstName: string,
+  doctorLastName: string,
+): string =>
+  `Hello,\nPlease find your payment link below for services provided by Dr. ${doctorFirstName} ${doctorLastName}.\nA confirmation and receipt will be generated once payment is completed.\n\n${paymentUrl}`;

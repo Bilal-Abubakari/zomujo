@@ -15,7 +15,8 @@ import {
 import { getDrugs } from '@/lib/features/records/recordsThunk';
 import { selectPrescriptions } from '@/lib/features/appointments/appointmentSelector';
 import { Toast, toast } from '@/hooks/use-toast';
-import { showErrorToast } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 import { AlertMessage } from '@/components/ui/alert';
 import { IPrescriptionRequest } from '@/types/consultation.interface';
 import {
@@ -68,6 +69,7 @@ const Prescription = ({
   updatePrescription,
   setUpdatePrescription,
 }: PrescriptionProps): JSX.Element => {
+  const { state, isMobile } = useSidebar();
   const dispatch = useAppDispatch();
   const params = useParams();
   const appointmentId = String(params.appointmentId);
@@ -76,6 +78,10 @@ const Prescription = ({
   const [isSavingAndGenerating, setIsSavingAndGenerating] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [prescriptionNotes, setPrescriptionNotes] = useState('');
 
   const [search, setSearch] = useState('');
   const [value] = useDebounce(search, 500);
@@ -165,12 +171,16 @@ const Prescription = ({
     setDeletingIndex(null);
   };
 
-  const handleSaveAndGenerate = async (): Promise<void> => {
+  const handleOpenNotesModal = (): void => {
     if (combinedPrescriptions.length === 0) {
       toast({ title: 'Please add prescriptions first.', variant: 'destructive' });
       return;
     }
+    setShowNotesModal(true);
+  };
 
+  const handleSaveAndGenerate = async (): Promise<void> => {
+    setShowNotesModal(false);
     setIsSavingAndGenerating(true);
 
     if (localPrescriptions.length > 0) {
@@ -199,16 +209,19 @@ const Prescription = ({
       await dispatch(getConsultationAppointment(appointmentId));
     }
 
-    const result = await dispatch(generatePrescription({ appointmentId, notes: '' })).unwrap();
+    const result = await dispatch(
+      generatePrescription({ appointmentId, notes: prescriptionNotes }),
+    ).unwrap();
 
     if (showErrorToast(result)) {
       setIsSavingAndGenerating(false);
       return;
     }
 
-    window.open(result as string, '_blank');
+    setPdfUrl(result as string);
+    setShowPdfPreview(true);
 
-    toast({ title: 'Prescription generated and opened successfully!', variant: 'default' });
+    toast({ title: 'Prescription generated successfully!', variant: 'default' });
 
     await dispatch(getConsultationAppointment(appointmentId));
 
@@ -304,10 +317,10 @@ const Prescription = ({
         <h3 className="text-lg font-bold">Prescriptions</h3>
         <div className="flex gap-2">
           <Button
-            onClick={handleSaveAndGenerate}
+            onClick={handleOpenNotesModal}
             isLoading={isSavingAndGenerating}
             disabled={isSavingAndGenerating || combinedPrescriptions.length === 0}
-            child="Save & Generate PDF"
+            child="Save & Send to Patient"
             variant="outline"
           />
           <Button onClick={() => setUpdatePrescription(true)} child="Add Prescription" />
@@ -346,6 +359,47 @@ const Prescription = ({
         </div>
       )}
 
+      <Modal
+        setState={setShowNotesModal}
+        open={showNotesModal}
+        content={
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900">Prescription Notes</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Add any additional notes to include in the prescription (optional).
+            </p>
+            <textarea
+              value={prescriptionNotes}
+              onChange={(e) => setPrescriptionNotes(e.target.value)}
+              placeholder="Enter notes here..."
+              rows={4}
+              className="focus:border-primary focus:ring-primary mt-4 w-full rounded-md border border-gray-300 p-3 text-sm focus:ring-1 focus:outline-none"
+            />
+            <div className="mt-6 flex justify-end gap-3">
+              <Button onClick={() => setShowNotesModal(false)} variant="outline" child="Cancel" />
+              <Button onClick={() => void handleSaveAndGenerate()} child="Save & Generate PDF" />
+            </div>
+          </div>
+        }
+        showClose={true}
+      />
+
+      <Modal
+        open={showPdfPreview}
+        className="h-full w-full max-w-7xl"
+        setState={setShowPdfPreview}
+        showClose={true}
+        content={
+          <div className="h-full w-full">
+            {pdfUrl ? (
+              <iframe title="Prescription PDF" src={pdfUrl} className="mt-5 h-full w-full" />
+            ) : (
+              <div className="flex h-full items-center justify-center">Loading PDF...</div>
+            )}
+          </div>
+        }
+      />
+
       {addPrescriptionDrawer}
 
       <Modal
@@ -376,7 +430,14 @@ const Prescription = ({
         showClose={true}
       />
 
-      <div className="fixed bottom-0 left-0 flex w-full justify-between gap-4 border-t border-gray-300 bg-white p-4 shadow-md">
+      <div
+        className={cn(
+          'fixed bottom-0 z-50 flex justify-between gap-4 border-t border-gray-300 bg-white p-4 shadow-md',
+          !isMobile && state === 'expanded'
+            ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+            : 'left-0 w-full',
+        )}
+      >
         <Button onClick={goToPrevious} variant="outline" child="Back to Investigation" />
         <Button onClick={handleNextWithWarning} child="Continue to Review" />
       </div>

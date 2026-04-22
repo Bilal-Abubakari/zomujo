@@ -1,12 +1,12 @@
 'use client';
 import Image from 'next/image';
-import React, { JSX } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { Logo } from '@/assets/images';
 import { cn } from '@/lib/utils';
 import PersonalDetails from '@/app/onboarding/_components/personalDetails';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import DoctorIdentification from '@/app/onboarding/_components/doctorIdentification';
 import DoctorPhotoUpload from '@/app/onboarding/_components/doctorPhotoUpload';
+import RegistrationFee from '@/app/onboarding/_components/registrationFee';
 import { AlertMessage } from '@/components/ui/alert';
 import {
   DropdownMenu,
@@ -15,26 +15,41 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AvatarComp } from '@/components/ui/avatar';
-import { selectUserName } from '@/lib/features/auth/authSelector';
+import {
+  selectDoctorMustCompleteOnboarding,
+  selectUserName,
+} from '@/lib/features/auth/authSelector';
 import { logout } from '@/lib/features/auth/authThunk';
+import { showOnboardingModal } from '@/lib/features/auth/authSlice';
 import { RoleProvider } from '@/app/dashboard/_components/providers/roleProvider';
 import { Role } from '@/types/shared.enum';
+import { useRouter } from 'next/navigation';
 
 const DoctorOnboarding = (): JSX.Element => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const currentStep = useAppSelector(({ authentication }) => authentication.currentStep);
   const errorMessage = useAppSelector(({ authentication }) => authentication.errorMessage);
   const userName = useAppSelector(selectUserName);
+  const mustCompleteOnboarding = useAppSelector(selectDoctorMustCompleteOnboarding);
+
+  useEffect(() => {
+    if (mustCompleteOnboarding) {
+      dispatch(showOnboardingModal());
+    } else {
+      router.replace('/dashboard');
+    }
+  }, [mustCompleteOnboarding, router, dispatch]);
 
   const logoutHandler = async (): Promise<void> => {
     await dispatch(logout());
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   const currentView = {
     1: <PersonalDetails />,
-    2: <DoctorIdentification />,
-    3: <DoctorPhotoUpload />,
+    2: <DoctorPhotoUpload />,
+    3: <RegistrationFee />,
   }[currentStep];
 
   return (
@@ -64,21 +79,19 @@ const DoctorOnboarding = (): JSX.Element => {
             </DropdownMenu>
           </div>
         </header>
-        <div className="mt-8 flex w-full max-w-[610px] flex-col gap-8 px-4 pb-8 sm:mt-12 sm:gap-10 sm:px-6 md:mt-16 md:gap-12 md:px-8 lg:mt-[70px] lg:px-0">
+        <div className="mt-8 flex w-full max-w-152.5 flex-col gap-8 px-4 pb-8 sm:mt-12 sm:gap-10 sm:px-6 md:mt-16 md:gap-12 md:px-8 lg:mt-17.5 lg:px-0">
           <div className="flex flex-col gap-3">
             <p className="text-sm leading-4 sm:text-base">Step {currentStep} of 3</p>
             <div className="flex flex-row items-center justify-between gap-4">
-              {Array(3)
-                .fill('')
-                .map((_, i) => (
-                  <div
-                    key={`progress-${i}`}
-                    className={cn(
-                      'h-1 w-full duration-150',
-                      currentStep >= i + 1 ? 'bg-primary' : 'bg-gray-200',
-                    )}
-                  />
-                ))}
+              {new Array(3).fill('').map((value, i) => (
+                <div
+                  key={`${value}-${i}`}
+                  className={cn(
+                    'h-1 w-full duration-150',
+                    currentStep >= i + 1 ? 'bg-primary' : 'bg-gray-200',
+                  )}
+                />
+              ))}
             </div>
           </div>
           {errorMessage && (

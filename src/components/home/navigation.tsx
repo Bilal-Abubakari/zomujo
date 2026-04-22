@@ -3,7 +3,7 @@ import { JSX } from 'react';
 import { useQueryParam } from '@/hooks/useQueryParam';
 import { cn } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { selectUser } from '@/lib/features/auth/authSelector';
+import { selectUser, selectUserProfilePicture } from '@/lib/features/auth/authSelector';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 export const Navigation = (): JSX.Element => {
   const { hasSearchParams } = useQueryParam();
   const user = useAppSelector(selectUser);
+  const profileImage = useAppSelector(selectUserProfilePicture);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -32,6 +33,7 @@ export const Navigation = (): JSX.Element => {
           <DropdownMenuTrigger asChild>
             <button className="h-10 w-10 overflow-hidden rounded-full">
               <AvatarComp
+                imageSrc={profileImage}
                 name={`${user.firstName} ${user.lastName}`}
                 className="h-10 w-10 text-black"
               />

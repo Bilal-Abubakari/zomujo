@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { AvatarWithName } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Confirmation, ConfirmationProps, Modal } from '@/components/ui/dialog';
@@ -18,8 +19,10 @@ import { ColumnDef } from '@tanstack/react-table';
 import {
   Binoculars,
   CalendarX,
+  Check,
   FileDown,
   FileUp,
+  Link2,
   ListFilter,
   MessageSquareX,
   Search,
@@ -29,8 +32,8 @@ import {
   SquareArrowOutUpRight,
   UserRoundPlus,
 } from 'lucide-react';
-import React, { FormEvent, JSX, useEffect, useState } from 'react';
-import DoctorDetails from '../../../_components/doctorDetails';
+import React, { JSX, SyntheticEvent, useEffect, useState } from 'react';
+import { DoctorProfile } from '@/components/doctor/DoctorProfile';
 import { Toast, toast } from '@/hooks/use-toast';
 import { downloadFileWithUrl, showErrorToast, capitalize } from '@/lib/utils';
 import { useSearch } from '@/hooks/useSearch';
@@ -59,11 +62,17 @@ const statusFilterOptions: ISelected[] = [
 ];
 
 const DoctorPanel = (): JSX.Element => {
+  const router = useRouter();
   const [openInvitationsPreview, setOpenInvitationsPreview] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<IDoctor>();
   const [openModal, setOpenModal] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
+  const [openDeclineModal, setOpenDeclineModal] = useState(false);
+  const [declineTargetId, setDeclineTargetId] = useState('');
+  const [declineReason, setDeclineReason] = useState('');
+  const [isDeclineLoading, setIsDeclineLoading] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const dispatch = useAppDispatch();
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
@@ -85,7 +94,8 @@ const DoctorPanel = (): JSX.Element => {
     {
       accessorKey: 'firstName',
       header: 'Name',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { firstName, lastName, profilePicture } = original;
         return (
           <AvatarWithName imageSrc={profilePicture} firstName={firstName} lastName={lastName} />
@@ -95,23 +105,28 @@ const DoctorPanel = (): JSX.Element => {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => <StatusBadge status={original.status} />,
+      cell: ({ row: { original } }): JSX.Element => <StatusBadge status={original.status} />, //NOSONAR
     },
     {
       accessorKey: 'contact',
       header: 'Contact',
     },
+    {
+      accessorKey: 'email',
+      header: 'Email',
+    },
 
     {
       accessorKey: 'gender',
       header: 'Gender',
-      cell: ({ row: { original } }): JSX.Element => <GenderBadge gender={original.gender} />,
+      cell: ({ row: { original } }): JSX.Element => <GenderBadge gender={original.gender} />, //NOSONAR
     },
 
     {
       id: 'actions',
       header: 'Action',
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { status, id, firstName } = original;
         const isPending = status === AcceptDeclineStatus.Pending;
         const isApproved = status === AcceptDeclineStatus.Accepted;
@@ -164,13 +179,11 @@ const DoctorPanel = (): JSX.Element => {
                   </>
                 ),
                 visible: isPending,
-                clickCommand: () =>
-                  handleConfirmationOpen(
-                    'Decline',
-                    `decline ${firstName}'s request`,
-                    id,
-                    declineDoctor,
-                  ),
+                clickCommand: (): void => {
+                  setDeclineTargetId(id);
+                  setDeclineReason('');
+                  setOpenDeclineModal(true);
+                },
               },
               {
                 title: (
@@ -204,12 +217,12 @@ const DoctorPanel = (): JSX.Element => {
   const { readCSV, result, setResult } = useCSVReader<IBaseUser>(processInviteDoctorRow, 'email');
 
   useEffect(() => {
-    if (!result.length) {
-      setOpenInvitationsPreview(false);
-    } else {
+    if (result.length) {
       if (!openInvitationsPreview) {
         setOpenInvitationsPreview(true);
       }
+    } else {
+      setOpenInvitationsPreview(false);
     }
   }, [result]);
 
@@ -228,6 +241,12 @@ const DoctorPanel = (): JSX.Element => {
     toast(payload as Toast);
   };
 
+  async function handleCopyDoctorLink(doctorId: string): Promise<void> {
+    await navigator.clipboard.writeText(`${globalThis.location.origin}/doctor/${doctorId}`);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  }
+
   function handleView(doctorId: string): void {
     const doctor = tableData.find(({ id }) => id === doctorId);
     if (doctor) {
@@ -236,7 +255,7 @@ const DoctorPanel = (): JSX.Element => {
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
+  function handleSubmit(event: SyntheticEvent, search?: string): void {
     event.preventDefault();
     setQueryParameters((prev) => ({
       ...prev,
@@ -244,6 +263,21 @@ const DoctorPanel = (): JSX.Element => {
       search: search ?? searchTerm,
     }));
   }
+
+  const handleDeclineSubmit = async (): Promise<void> => {
+    setIsDeclineLoading(true);
+    const { payload } = await dispatch(
+      declineDoctor({ id: declineTargetId, reason: declineReason }),
+    );
+    setIsDeclineLoading(false);
+    if (payload) {
+      toast(payload as Toast);
+    }
+    if (!showErrorToast(payload)) {
+      setOpenDeclineModal(false);
+      setQueryParameters((prev) => ({ ...prev, page: 1 }));
+    }
+  };
 
   const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
     useDropdownAction({
@@ -295,7 +329,7 @@ const DoctorPanel = (): JSX.Element => {
                 <Input
                   error=""
                   placeholder="Search Doctor"
-                  className="max-w-[333px] sm:w-[333px]"
+                  className="max-w-83.25 sm:w-83.25"
                   type="search"
                   leftIcon={<Search className="text-gray-500" size={20} />}
                   onChange={handleSearch}
@@ -382,7 +416,38 @@ const DoctorPanel = (): JSX.Element => {
 
       <Modal
         open={openModal}
-        content={<DoctorDetails doctorId={selectedDoctor?.id ?? ''} />}
+        content={
+          <div className="relative flex flex-col">
+            <DoctorProfile ctaLabel={null} doctorId={selectedDoctor?.id ?? ''} showContactInfo />
+            <div className="sticky right-0 bottom-0 left-0 z-20 flex justify-center gap-3 border-t bg-white p-4">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => handleCopyDoctorLink(selectedDoctor?.id ?? '')}
+                child={
+                  linkCopied ? (
+                    <>
+                      <Check size={16} /> Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Link2 size={16} /> Copy Link
+                    </>
+                  )
+                }
+              />
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  setOpenModal(false);
+                  router.push(`/doctor/${selectedDoctor?.id}`);
+                }}
+                child="View Full Profile & Share"
+              />
+            </div>
+          </div>
+        }
         className="max-h-screen max-w-screen overflow-y-scroll md:max-h-[90vh] md:max-w-[80vw]"
         setState={setOpenModal}
         showClose={true}
@@ -393,6 +458,42 @@ const DoctorPanel = (): JSX.Element => {
         showClose={true}
         setState={() => handleConfirmationClose()}
         isLoading={isConfirmationLoading}
+      />
+
+      <Modal
+        open={openDeclineModal}
+        setState={setOpenDeclineModal}
+        showClose={!isDeclineLoading}
+        title="Decline Doctor Request"
+        content={
+          <div>
+            <p className="mb-3 text-sm text-gray-600">
+              Please provide a reason for declining this request.
+            </p>
+            <textarea
+              className="focus:ring-primary w-full rounded-md border border-gray-300 p-3 text-sm focus:ring-2 focus:outline-none"
+              rows={4}
+              placeholder="Enter reason for declining..."
+              value={declineReason}
+              onChange={(e) => setDeclineReason(e.target.value)}
+              disabled={isDeclineLoading}
+            />
+            <div className="mt-4 flex justify-end gap-4">
+              <Button
+                child="Decline Request"
+                onClick={handleDeclineSubmit}
+                isLoading={isDeclineLoading}
+                disabled={!declineReason.trim()}
+              />
+              <Button
+                child="Cancel"
+                variant="destructive"
+                onClick={() => setOpenDeclineModal(false)}
+                disabled={isDeclineLoading}
+              />
+            </div>
+          </div>
+        }
       />
     </>
   );

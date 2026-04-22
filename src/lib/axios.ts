@@ -39,8 +39,12 @@ axios.interceptors.response.use(
         if (timeDifferenceChecker(JSON.parse(JSON.parse(loggedInAt)), 23.5)) {
           isHandlingSessionExpiry = true;
 
-          // Clear all persisted Redux state first
+          // Clear all persisted Redux state first, but preserve cookie consent
+          const cookieConsent = LocalStorageManager.getCookieConsent();
           LocalStorageManager.clear();
+          if (cookieConsent) {
+            LocalStorageManager.setCookieConsent(cookieConsent);
+          }
 
           // Now save current URL for redirect after login
           const currentPath = window.location.pathname + window.location.search;

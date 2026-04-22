@@ -2,50 +2,32 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UpcomingAppointments from '@/app/dashboard/appointment/_components/upcomingAppointments';
 import AppointmentRequests from '@/app/dashboard/appointment/_components/appointmentRequests';
-import { JSX, useEffect } from 'react';
+import { JSX } from 'react';
 import { AppointmentView, useQueryParam } from '@/hooks/useQueryParam';
 import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppSelector } from '@/lib/hooks';
+import { selectUserRole } from '@/lib/features/auth/authSelector';
 import { Role } from '@/types/shared.enum';
 
 const Appointment = (): JSX.Element => {
   const { updateQuery, getQueryParam } = useQueryParam();
-  const user = useAppSelector(selectUser);
-  const isAdminOrHospital =
-    user?.role === Role.Admin || user?.role === Role.Hospital || user?.role === Role.SuperAdmin;
+  const role = useAppSelector(selectUserRole);
 
-  useEffect(() => {
-    if (!isAdminOrHospital) {
-      updateQuery(
-        'appointmentView',
-        getQueryParam('appointmentView') === AppointmentView.Requests
-          ? AppointmentView.Requests
-          : AppointmentView.Upcoming,
-      );
-    }
-  }, [isAdminOrHospital]);
-
-  // For Admin/Hospital: Column layout with Requests
-  if (isAdminOrHospital) {
+  if (role === Role.SuperAdmin) {
     return (
-      <div className="flex flex-col gap-6">
-        <div>
-          <p className="text-xl font-bold">Appointments</p>
-        </div>
-        <div className="flex flex-col gap-4">
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <AppointmentRequests />
-          </div>
+      <div>
+        <p className="text-xl font-bold">Appointment</p>
+        <div className="mt-6">
+          <AppointmentRequests />
         </div>
       </div>
     );
   }
 
-  // For other roles: Keep existing tab layout
   return (
     <div>
       <div>
-        <Tabs value={getQueryParam('appointmentView')} className="mt-2">
+        <Tabs value={getQueryParam('appointmentView') || AppointmentView.Upcoming} className="mt-2">
           <div className="flex items-center">
             <p className="text-xl font-bold">Appointments</p>
             <div className="m-auto">
@@ -67,21 +49,29 @@ const Appointment = (): JSX.Element => {
               </TabsList>
             </div>
           </div>
-          {getQueryParam('appointmentView') === AppointmentView.Upcoming && (
+          {(getQueryParam('appointmentView') || AppointmentView.Upcoming) ===
+            AppointmentView.Upcoming && (
             <TabsContent
               className="mt-6"
               value={AppointmentView.Upcoming}
               forceMount={true}
-              hidden={getQueryParam('appointmentView') !== AppointmentView.Upcoming}
+              hidden={
+                (getQueryParam('appointmentView') || AppointmentView.Upcoming) !==
+                AppointmentView.Upcoming
+              }
             >
               <UpcomingAppointments />
             </TabsContent>
           )}
-          {getQueryParam('appointmentView') === AppointmentView.Requests && (
+          {(getQueryParam('appointmentView') || AppointmentView.Upcoming) ===
+            AppointmentView.Requests && (
             <TabsContent
               value={AppointmentView.Requests}
               forceMount={true}
-              hidden={getQueryParam('appointmentView') !== AppointmentView.Requests}
+              hidden={
+                (getQueryParam('appointmentView') || AppointmentView.Upcoming) !==
+                AppointmentView.Requests
+              }
               className="mt-6"
             >
               <AppointmentRequests />

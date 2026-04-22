@@ -16,6 +16,8 @@ import { provideFeedback, reportIssue } from '@/lib/features/support/supportThun
 import { toast } from '@/hooks/use-toast';
 import { selectUserId, selectUserName } from '@/lib/features/auth/authSelector';
 import { ToastStatus } from '@/types/shared.enum';
+import Link from 'next/link';
+import { Shield, FileText, ExternalLink } from 'lucide-react';
 
 export default function HelpSupport(): JSX.Element {
   const [activeTab, setActiveTab] = useState<'issue' | 'feedback'>('issue');
@@ -86,106 +88,151 @@ export default function HelpSupport(): JSX.Element {
     <div className="bg-gray-50">
       <h3 className="p-6 pb-0 text-left text-2xl font-semibold">Help & Support </h3>
       <div className="flex min-h-screen justify-center p-6">
-        <div className="mt-8 h-fit w-full max-w-3xl rounded-2xl bg-white p-8 shadow-md">
-          <div className="mb-6 flex space-x-4 border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab('issue')}
-              className={cn(
-                'rounded-t-md px-6 py-3 text-sm font-medium transition-colors',
-                activeTab === 'issue'
-                  ? 'border-b-2 border-gray-900 bg-white text-gray-900'
-                  : 'text-gray-500 hover:text-gray-800',
-              )}
-            >
-              Lodge an Issue
-            </button>
-            <button
-              onClick={() => setActiveTab('feedback')}
-              className={cn(
-                'rounded-t-md px-6 py-3 text-sm font-medium transition-colors',
-                activeTab === 'feedback'
-                  ? 'border-b-2 border-gray-900 bg-white text-gray-900'
-                  : 'text-gray-500 hover:text-gray-800',
-              )}
-            >
-              Drop Feedback
-            </button>
+        <div className="w-full max-w-3xl space-y-6">
+          <div className="mt-8 h-fit rounded-2xl bg-white p-8 shadow-md">
+            <div className="mb-6 flex space-x-4 border-b border-gray-200">
+              <button
+                onClick={() => setActiveTab('issue')}
+                className={cn(
+                  'rounded-t-md px-6 py-3 text-sm font-medium transition-colors',
+                  activeTab === 'issue'
+                    ? 'border-b-2 border-gray-900 bg-white text-gray-900'
+                    : 'text-gray-500 hover:text-gray-800',
+                )}
+              >
+                Lodge an Issue
+              </button>
+              <button
+                onClick={() => setActiveTab('feedback')}
+                className={cn(
+                  'rounded-t-md px-6 py-3 text-sm font-medium transition-colors',
+                  activeTab === 'feedback'
+                    ? 'border-b-2 border-gray-900 bg-white text-gray-900'
+                    : 'text-gray-500 hover:text-gray-800',
+                )}
+              >
+                Drop Feedback
+              </button>
+            </div>
+
+            {activeTab === 'issue' ? (
+              <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+                <div>
+                  <Textarea
+                    placeholder="Lodge issue"
+                    className="mt-2 h-36 resize-none"
+                    labelName="                   What issue are you experiencing?
+"
+                    error={errors.description?.message || ''}
+                    {...register('description')}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full sm:w-1/2"
+                    child={'Contact support'}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full sm:w-1/2"
+                    child={'Submit issue'}
+                    disabled={!isValid || isIssueLoading}
+                    isLoading={isIssueLoading}
+                  />
+                </div>
+              </form>
+            ) : (
+              <form className="space-y-5" onSubmit={feedbackHandleSubmit(onFeedbackSubmit)}>
+                <div>
+                  <SelectInput
+                    ref={feedbackRegister('type').ref}
+                    control={feedbackControl}
+                    options={feedbackTypeOptions}
+                    label="What kind of feedback is it?"
+                    error={feedbackErrors.type?.message}
+                    name="type"
+                    placeholder="Select option"
+                    className="mt-2 w-full max-w-none"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="comments" className="text-sm font-medium text-gray-700">
+                    Comment
+                  </label>
+                  <Textarea
+                    placeholder="Please describe in details ..."
+                    className="mt-2 h-36 resize-none"
+                    {...feedbackRegister('comment')}
+                    error={feedbackErrors.comment?.message || ''}
+                    id="comments"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full sm:w-1/2"
+                    child={'Contact support'}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full sm:w-1/2"
+                    child={'Submit Feedback'}
+                    disabled={!feedbackIsValid || isFeedbackLoading}
+                    isLoading={isFeedbackLoading}
+                  />
+                </div>
+              </form>
+            )}
           </div>
 
-          {activeTab === 'issue' ? (
-            <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-              <div>
-                <Textarea
-                  placeholder="Lodge issue"
-                  className="mt-2 h-36 resize-none"
-                  labelName="                   What issue are you experiencing?
-"
-                  error={errors.description?.message || ''}
-                  {...register('description')}
-                />
-              </div>
+          {/* Legal Resources */}
+          <div className="rounded-2xl bg-white p-6 shadow-md">
+            <h4 className="mb-4 text-base font-semibold text-gray-900">Legal & Policies</h4>
+            <p className="mb-4 text-sm text-gray-500">
+              Find answers about your rights, data usage, and our platform policies.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Link
+                href="/privacy-policy"
+                target="_blank"
+                className="group hover:border-primary/40 hover:bg-primary/5 flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 flex h-9 w-9 items-center justify-center rounded-lg">
+                    <Shield className="text-primary h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Privacy Policy</p>
+                    <p className="text-xs text-gray-500">How we handle your data</p>
+                  </div>
+                </div>
+                <ExternalLink className="group-hover:text-primary h-4 w-4 text-gray-400 transition-colors" />
+              </Link>
 
-              <div className="flex flex-col gap-3 pt-4 sm:flex-row">
-                <Button
-                  variant="outline"
-                  type="button"
-                  className="w-full sm:w-1/2"
-                  child={'Contact support'}
-                />
-                <Button
-                  type="submit"
-                  className="w-full sm:w-1/2"
-                  child={'Submit issue'}
-                  disabled={!isValid || isIssueLoading}
-                  isLoading={isIssueLoading}
-                />
-              </div>
-            </form>
-          ) : (
-            <form className="space-y-5" onSubmit={feedbackHandleSubmit(onFeedbackSubmit)}>
-              <div>
-                <SelectInput
-                  ref={feedbackRegister('type').ref}
-                  control={feedbackControl}
-                  options={feedbackTypeOptions}
-                  label="What kind of feedback is it?"
-                  error={feedbackErrors.type?.message}
-                  name="type"
-                  placeholder="Select option"
-                  className="mt-2 w-full max-w-none"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="comments" className="text-sm font-medium text-gray-700">
-                  Comment
-                </label>
-                <Textarea
-                  placeholder="Please describe in details ..."
-                  className="mt-2 h-36 resize-none"
-                  {...feedbackRegister('comment')}
-                  error={feedbackErrors.comment?.message || ''}
-                  id="comments"
-                />
-              </div>
-
-              <div className="flex flex-col gap-3 pt-4 sm:flex-row">
-                <Button
-                  variant="outline"
-                  type="button"
-                  className="w-full sm:w-1/2"
-                  child={'Contact support'}
-                />
-                <Button
-                  type="submit"
-                  className="w-full sm:w-1/2"
-                  child={'Submit Feedback'}
-                  disabled={!feedbackIsValid || isFeedbackLoading}
-                  isLoading={isFeedbackLoading}
-                />
-              </div>
-            </form>
-          )}
+              <Link
+                href="/terms-conditions"
+                target="_blank"
+                className="group hover:border-primary/40 hover:bg-primary/5 flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 flex h-9 w-9 items-center justify-center rounded-lg">
+                    <FileText className="text-primary h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Terms & Conditions</p>
+                    <p className="text-xs text-gray-500">Platform usage rules</p>
+                  </div>
+                </div>
+                <ExternalLink className="group-hover:text-primary h-4 w-4 text-gray-400 transition-colors" />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

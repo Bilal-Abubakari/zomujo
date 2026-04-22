@@ -4,7 +4,11 @@ import axios, { axiosErrorHandler } from '@/lib/axios';
 import { Toast } from '@/hooks/use-toast';
 import { generateSuccessToast, getValidQueryString } from '@/lib/utils';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
-import { IAppointment, IAppointmentDoctorId } from '@/types/appointment.interface';
+import {
+  IAppointment,
+  IAppointmentDoctorId,
+  IAppointmentLinkPayload,
+} from '@/types/appointment.interface';
 import {
   AppointmentDate,
   AppointmentSlots,
@@ -19,7 +23,7 @@ export const createAppointmentSlot = createAsyncThunk(
   'appointments/createSlot',
   async (pattern: ISlotPatternBase, { dispatch }): Promise<Toast> => {
     try {
-      const { data } = await axios.post<IResponse>(`appointments/slot-pattern`, pattern);
+      const { data } = await axios.post<IResponse>(`appointments/slot-patterns`, pattern);
       dispatch(updateExtra({ hasSlot: true }));
       return generateSuccessToast(data.message);
     } catch (error) {
@@ -120,7 +124,7 @@ export const deletePattern = createAsyncThunk(
   'appointments/deletePattern',
   async (id: string): Promise<Toast> => {
     try {
-      const { data } = await axios.delete<IResponse>(`appointments/slot-pattern/${id}`);
+      const { data } = await axios.delete<IResponse>(`appointments/slot-patterns/${id}`);
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
@@ -192,6 +196,18 @@ export const declineAppointment = createAsyncThunk(
   },
 );
 
+export const cancelAppointment = createAsyncThunk(
+  'appointment/cancelRequest',
+  async (id: string): Promise<Toast> => {
+    try {
+      const { data } = await axios.delete<IResponse>(`appointments/cancel/${id}`);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const assignAppointment = createAsyncThunk(
   'appointment/assignRequest',
   async (appointment: IAppointmentDoctorId): Promise<Toast> => {
@@ -221,6 +237,29 @@ export const reopenAppointment = createAsyncThunk(
   async (id: string): Promise<Toast> => {
     try {
       const { data } = await axios.patch<IResponse>(`appointments/reopen/${id}`);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+export const linkAppointment = createAsyncThunk(
+  'appointment/link',
+  async (payload: IAppointmentLinkPayload): Promise<Toast> => {
+    try {
+      const { data } = await axios.put<IResponse>(`appointments/link`, payload);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const unlinkAppointment = createAsyncThunk(
+  'appointment/unlink',
+  async (payload: IAppointmentLinkPayload): Promise<Toast> => {
+    try {
+      const { data } = await axios.put<IResponse>(`appointments/unlink`, payload);
       return generateSuccessToast(data.message);
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

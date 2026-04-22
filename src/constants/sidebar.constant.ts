@@ -16,10 +16,10 @@ import {
   ShieldCheck,
   Bell,
   CreditCard,
-  EarthLock,
   BetweenHorizontalStart,
   Smile,
   MessageSquare,
+  Receipt,
 } from 'lucide-react';
 import { getDynamicParamFromUrl } from '@/lib/utils';
 
@@ -59,18 +59,6 @@ export const PATIENT_SIDE_BAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/records`,
           Icon: Archive,
         },
-        // TODO: Not planned for MVP
-        // {
-        //   title: 'Favorite Doctors',
-        //   url: '#',
-        //   Icon: Heart,
-        //   phoneTitle: 'Favorite',
-        // },
-        // {
-        //   title: 'Message',
-        //   url: '#',
-        //   Icon: MessageCircleMore,
-        // },
       ],
     },
 
@@ -118,12 +106,13 @@ export const DOCTOR_SIDE_BAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/availability`,
           Icon: BetweenHorizontalStart,
         },
-        // TODO: Not planned for MVP
-        // {
-        //   title: 'Message',
-        //   url: '#',
-        //   Icon: MessageCircleMore,
-        // },
+        {
+          title: 'Invoices',
+          url: `${DASHBOARD_ROUTE}/invoices`,
+          Icon: Receipt,
+          phoneTitle: 'Invoices',
+          relatedUrl: `${DASHBOARD_ROUTE}/invoices`,
+        },
       ],
     },
 
@@ -192,7 +181,7 @@ export const ADMIN_SIDE_BAR: ISidebar = {
         },
         {
           title: 'Transactions',
-          url: '#',
+          url: `${DASHBOARD_ROUTE}/payment-history`,
           Icon: Banknote,
         },
         {
@@ -253,6 +242,11 @@ export const DOCTOR_SETTINGS_SIDEBAR: ISidebar = {
           title: 'Payment',
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/payment`,
           Icon: Banknote,
+        },
+        {
+          title: 'Transactions',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/transactions`,
+          Icon: ChartNoAxesCombined,
         },
         {
           title: 'Identification',
@@ -319,17 +313,10 @@ export const PATIENT_SETTINGS_SIDEBAR: ISidebar = {
           url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/notification`,
           Icon: Bell,
         },
-      ],
-    },
-
-    {
-      groupTitle: 'OTHER',
-      menu: [
         {
-          title: 'Privacy',
-          url: '#',
-          Icon: EarthLock,
-          phoneTitle: 'Help',
+          title: 'Transactions',
+          url: `${DASHBOARD_ROUTE}/${SETTINGS_ROUTE}/transactions`,
+          Icon: ChartNoAxesCombined,
         },
       ],
     },

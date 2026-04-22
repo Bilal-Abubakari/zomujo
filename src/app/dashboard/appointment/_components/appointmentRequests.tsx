@@ -10,9 +10,12 @@ import { useSearch } from '@/hooks/useSearch';
 import {
   acceptAppointment,
   assignAppointment,
+  cancelAppointment,
   declineAppointment,
   getAppointments,
+  rescheduleAppointment,
 } from '@/lib/features/appointments/appointmentsThunk';
+import { joinConsultation } from '@/lib/features/appointments/consultation/consultationThunk';
 import {
   acceptHospitalAppointment,
   assignDoctorToHospitalAppointment,
@@ -21,6 +24,7 @@ import {
 } from '@/lib/features/hospital-appointments/hospitalAppointmentsThunk';
 import { selectUser, selectOrganizationId } from '@/lib/features/auth/authSelector';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { showErrorToast } from '@/lib/utils';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { IAppointment } from '@/types/appointment.interface';
 import { IHospitalAppointment } from '@/types/hospital-appointment.interface';
@@ -31,14 +35,24 @@ import { ColumnDef } from '@tanstack/react-table';
 import {
   Ban,
   Calendar as CalendarIcon,
-  Eye,
+  CalendarClock,
+  FileText,
+  House,
   ListFilter,
+  Loader2,
+  Presentation,
   Search,
   SendHorizontal,
   Signature,
+  Video,
+  View,
+  Waypoints,
 } from 'lucide-react';
 import moment from 'moment';
-import React, { FormEvent, JSX, useMemo, useState } from 'react';
+import React, { JSX, SyntheticEvent, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { StatusBadge } from '@/components/ui/statusBadge';
 import { useFetchPaginatedData } from '@/hooks/useFetchPaginatedData';
 import { IDoctor } from '@/types/doctor.interface';
@@ -48,12 +62,36 @@ import { getAllDoctors } from '@/lib/features/doctors/doctorsThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { NotificationEvent } from '@/types/notification.interface';
 import useWebSocket from '@/hooks/useWebSocket';
+import { SlotSelectionModal } from '@/components/ui/slotSelectionModal';
+import { IBookingForm } from '@/types/booking.interface';
+import { AppointmentType } from '@/types/slots.interface';
+import { bookingSchema } from '@/schemas/booking.schema';
 import PatientDetailsDrawer from './PatientDetailsDrawer';
 
 type SelectedAppointment = {
   date: Date;
   appointmentId: string;
 };
+
+type RescheduleAppointment = {
+  appointmentId: string;
+  doctorId: string;
+  doctorName: string;
+  doctorProfilePicture: string;
+  specializations?: string[];
+  experience?: number;
+  noOfConsultations?: number;
+  consultationCount?: number;
+};
+
+function getAppointmentType(
+  original: IAppointment | IHospitalAppointment,
+): AppointmentType | undefined {
+  if ('type' in original && original.type) {
+    return original.type;
+  }
+  return original.slot?.type;
+}
 
 const AppointmentRequests = (): JSX.Element => {
   const { on } = useWebSocket();
@@ -66,7 +104,7 @@ const AppointmentRequests = (): JSX.Element => {
     open: false,
   });
   const [openModal, setOpenModal] = useState(false);
-  const [selectedAppointment] = useState<SelectedAppointment>({
+  const [selectedAppointment, setSelectedAppointment] = useState<SelectedAppointment>({
     date: new Date(),
     appointmentId: '',
   });
@@ -115,7 +153,11 @@ const AppointmentRequests = (): JSX.Element => {
     { value: '', label: 'All' },
     { value: AppointmentStatus.Pending, label: 'Pending' },
     { value: AppointmentStatus.Accepted, label: 'Accepted' },
+    { value: AppointmentStatus.Progress, label: 'In Progress' },
+    { value: AppointmentStatus.Completed, label: 'Completed' },
     { value: AppointmentStatus.Cancelled, label: 'Cancelled' },
+    { value: AppointmentStatus.Declined, label: 'Declined' },
+    { value: AppointmentStatus.Incomplete, label: 'Incomplete' },
   ];
   const dateSortOptions: ISelected[] = [
     { value: '', label: 'Default' },
@@ -123,36 +165,142 @@ const AppointmentRequests = (): JSX.Element => {
     { value: OrderDirection.Descending, label: 'Descending' },
   ];
   const [dateSortDirection, setDateSortDirection] = useState<string>('');
+  const [joiningAppointmentId, setJoiningAppointmentId] = useState<string | null>(null);
+  const [rescheduleAppointmentData, setRescheduleAppointmentData] =
+    useState<RescheduleAppointment | null>(null);
+  const [openRescheduleModal, setOpenRescheduleModal] = useState(false);
+  const [isRescheduling, setIsRescheduling] = useState(false);
 
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { register, setValue, watch, reset: resetBookingForm } = useForm<IBookingForm>({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: {
+      reason: 'Reschedule appointment',
+      appointmentType: 'doctor',
+      additionalInfo: '',
+      isFollowUp: false,
+      date: '',
+    },
+  });
+
+  const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
+    useDropdownAction({
+      setConfirmation,
+      setQueryParameters,
+    });
+
+  async function handleJoinMeeting(appointmentId: string): Promise<void> {
+    setJoiningAppointmentId(appointmentId);
+    const { payload } = await dispatch(joinConsultation(appointmentId));
+    if (payload && showErrorToast(payload)) {
+      toast(payload as Toast);
+      setJoiningAppointmentId(null);
+      return;
+    }
+    const meetingLink = payload as string;
+    if (meetingLink) {
+      window.open(meetingLink, '_blank', 'noopener,noreferrer');
+    }
+    setJoiningAppointmentId(null);
+  }
+
+  async function handleReschedule(): Promise<void> {
+    if (!rescheduleAppointmentData) {
+      return;
+    }
+    const slotId = watch('slotId');
+    if (!slotId) {
+      return;
+    }
+    setIsRescheduling(true);
+    const { payload } = await dispatch(
+      rescheduleAppointment({
+        slotId,
+        appointmentId: rescheduleAppointmentData.appointmentId,
+      }),
+    );
+    if (payload && showErrorToast(payload)) {
+      toast(payload as Toast);
+      setIsRescheduling(false);
+      return;
+    }
+    toast(payload as Toast);
+    setIsRescheduling(false);
+    setOpenRescheduleModal(false);
+    setRescheduleAppointmentData(null);
+    resetBookingForm();
+    void refetch();
+  }
+
+  const isSuperAdmin = user?.role === Role.SuperAdmin;
   const columns: ColumnDef<IAppointment | IHospitalAppointment, unknown>[] = [
     {
       accessorKey: 'patient',
-      header: () => (
+      // prettier-ignore
+      header: () => ( //NOSONAR
         <div className="flex cursor-pointer whitespace-nowrap">
-          {user?.role === Role.Doctor || user?.role === Role.Hospital
+          {user?.role === Role.Doctor || user?.role === Role.Hospital || isSuperAdmin
             ? 'Patient Name'
             : 'Doctor Name'}
         </div>
       ),
-      cell: ({ row: { original } }): JSX.Element => {
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
         const { doctor, patient } = original;
         const isDoctor = user?.role === Role.Doctor;
         const isHospital = user?.role === Role.Hospital;
-        const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin;
+        const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin || isSuperAdmin;
+        // Determine which entity to show as "person"
+        const person =
+          isDoctor || isAdmin || isHospital
+            ? patient
+            : doctor;
+        // Show all possibly available union data (email/contact for admin & superadmin)
         return (
           <AvatarWithName
-            imageSrc={
-              (isDoctor || isAdmin || isHospital
-                ? patient?.profilePicture
-                : doctor?.profilePicture) ?? ''
-            }
-            firstName={
-              (isDoctor || isAdmin || isHospital ? patient?.firstName : doctor?.firstName) ?? ''
-            }
-            lastName={
-              (isDoctor || isAdmin || isHospital ? patient?.lastName : doctor?.lastName) ?? ''
-            }
+            imageSrc={person?.profilePicture ?? ''}
+            firstName={person?.firstName ?? ''}
+            lastName={person?.lastName ?? ''}
+            email={isAdmin ? person?.email : undefined}
+            contact={isAdmin ? person?.contact : undefined}
           />
+        );
+      },
+    },
+    ...(isSuperAdmin
+      ? [
+          {
+            accessorKey: 'doctor',
+            header: 'Doctor Name',
+            // prettier-ignore
+            cell: ({ row: { original } }): JSX.Element => ( //NOSONAR
+              <AvatarWithName
+                imageSrc={original.doctor?.profilePicture}
+                firstName={original.doctor?.firstName}
+                lastName={original.doctor?.lastName}
+                email={original.doctor?.email}
+                contact={original.doctor?.contact}
+              />
+            ),
+          } satisfies ColumnDef<IAppointment | IHospitalAppointment>,
+        ]
+      : []),
+    {
+      accessorKey: 'type',
+      header: 'Type',
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
+        const apptType = getAppointmentType(original);
+        const virtual = apptType === AppointmentType.Virtual;
+        return virtual ? (
+          <div className="flex items-center gap-2">
+            <Presentation size={16} /> Virtual
+          </div>
+        ) : (
+          <div>
+            <House size={16} /> Visit
+          </div>
         );
       },
     },
@@ -177,7 +325,8 @@ const AppointmentRequests = (): JSX.Element => {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row: { original } }): JSX.Element => (
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => ( //NOSONAR
         <StatusBadge
           status={original.status}
           approvedTitle="Accepted"
@@ -188,19 +337,20 @@ const AppointmentRequests = (): JSX.Element => {
     {
       id: 'actions',
       header: 'Action',
-      cell: ({ row: { original } }): JSX.Element => {
-        const { status, patient, doctor, id } = original;
+      // prettier-ignore
+      cell: ({ row: { original } }): JSX.Element => { //NOSONAR
+        const { status, patient, doctor, id, createdAt } = original;
         const isPending = status === AppointmentStatus.Pending;
         const isDone = status === AppointmentStatus.Completed;
         const isCancelled = status === AppointmentStatus.Cancelled;
+        const isInProgress = status === AppointmentStatus.Progress;
+        const apptType = getAppointmentType(original);
+        const isVirtual = apptType === AppointmentType.Virtual;
         const getName = (): string => {
           if (user?.role === Role.Patient) {
-            return `${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}`.trim() || '—';
+            return `${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}`.trim();
           }
-          if (user?.role === Role.Hospital) {
-            return `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim() || '—';
-          }
-          return `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim() || '—';
+          return `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`.trim();
         };
         return (
           <ActionsDropdownMenus
@@ -225,34 +375,120 @@ const AppointmentRequests = (): JSX.Element => {
               {
                 title: (
                   <>
-                    <Ban /> Cancel
+                    <Ban />{' '}
+                    {user?.role === Role.Doctor || user?.role === Role.Hospital
+                      ? 'Decline'
+                      : 'Cancel'}
                   </>
                 ),
                 clickCommand: () =>
-                  handleConfirmationOpen(
-                    'Decline',
-                    `decline ${getName()}'s appointment request`,
-                    id,
-                    isHospital ? declineHospitalAppointment : declineAppointment,
-                    'Yes, decline',
-                    'Cancel',
-                  ),
+                  user?.role === Role.Doctor
+                    ? handleConfirmationOpen(
+                        'Decline',
+                        `decline ${getName()}'s appointment request`,
+                        id,
+                        declineAppointment,
+                        'Yes, decline',
+                        'Cancel',
+                      )
+                    : user?.role === Role.Hospital
+                      ? handleConfirmationOpen(
+                          'Decline',
+                          `decline ${getName()}'s appointment request`,
+                          id,
+                          declineHospitalAppointment,
+                          'Yes, decline',
+                          'Cancel',
+                        )
+                      : handleConfirmationOpen(
+                          'Cancel',
+                          `cancel your appointment with ${getName()}`,
+                          id,
+                          cancelAppointment,
+                          'Yes, cancel',
+                          'No, keep it',
+                        ),
                 visible: !isDone && !isCancelled,
               },
               {
                 title: (
                   <>
-                    <Eye /> View Details
+                    <FileText /> View Details
                   </>
                 ),
                 clickCommand: (): void => {
                   setSelectedAppointmentForDetails(original);
                   setIsDrawerOpen(true);
                 },
-                visible:
-                  user?.role === Role.Admin ||
-                  user?.role === Role.SuperAdmin ||
-                  user?.role === Role.Hospital,
+                visible: !isDone && !isCancelled,
+              },
+              {
+                title: (
+                  <>
+                    <CalendarClock /> Reschedule
+                  </>
+                ),
+                clickCommand: (): void => {
+                  if (!doctor) {
+                    return;
+                  }
+                  setRescheduleAppointmentData({
+                    appointmentId: id,
+                    doctorId: doctor.id,
+                    doctorName: `${doctor.firstName} ${doctor.lastName}`,
+                    doctorProfilePicture: doctor.profilePicture,
+                    specializations: doctor.specializations,
+                    experience: doctor.experience,
+                    noOfConsultations: doctor.noOfConsultations,
+                    consultationCount: doctor.consultationCount,
+                  });
+                  setOpenRescheduleModal(true);
+                  resetBookingForm();
+                },
+                visible: !isDone && !isCancelled && !isInProgress && Boolean(doctor?.id),
+              },
+              {
+                title: (
+                  <>
+                    {joiningAppointmentId === id ? <Loader2 className="animate-spin" /> : <Video />}{' '}
+                    {joiningAppointmentId === id ? 'Joining...' : 'Join Meeting'}
+                  </>
+                ),
+                clickCommand: (): void => {
+                  if (!joiningAppointmentId) {
+                    void handleJoinMeeting(id);
+                  }
+                },
+                visible: !isDone && !isCancelled && isVirtual,
+              },
+              {
+                title: (
+                  <>
+                    <View /> View Consultation
+                  </>
+                ),
+                clickCommand: (): void => {
+                  if (user?.role === Role.Doctor) {
+                    router.push(`/dashboard/patients/${patient?.id}?appointmentId=${id}`);
+                  } else {
+                    router.push(`/dashboard/consultation-patient/${id}`);
+                  }
+                },
+              },
+              {
+                title: (
+                  <>
+                    <Waypoints /> Assign to a Doctor
+                  </>
+                ),
+                clickCommand: (): void => {
+                  setOpenModal(true);
+                  setSelectedAppointment({
+                    date: new Date(createdAt),
+                    appointmentId: id,
+                  });
+                },
+                visible: user?.role === Role.Admin || user?.role === Role.SuperAdmin || user?.role === Role.Hospital,
               },
             ]}
           />
@@ -262,11 +498,6 @@ const AppointmentRequests = (): JSX.Element => {
     },
   ];
 
-  const { isConfirmationLoading, handleConfirmationOpen, handleConfirmationClose } =
-    useDropdownAction({
-      setConfirmation,
-      setQueryParameters,
-    });
   const { searchTerm, handleSearch } = useSearch(handleSubmit);
 
   const displayAppointments = useMemo(() => {
@@ -283,7 +514,7 @@ const AppointmentRequests = (): JSX.Element => {
   }, [tableData, dateSortDirection]);
   const displayPaginationData = paginationData;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>, search?: string): void {
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement>, search?: string): void {
     event.preventDefault();
     setQueryParameters((prev) => ({
       ...prev,
@@ -331,7 +562,7 @@ const AppointmentRequests = (): JSX.Element => {
           <Input
             error=""
             placeholder="Search by patient"
-            className="max-w-[333px] sm:w-[333px]"
+            className="max-w-83.25 sm:w-83.25"
             type="search"
             leftIcon={<Search className="cursor-pointer text-gray-500" size={20} />}
             onChange={handleSearch}
@@ -365,21 +596,21 @@ const AppointmentRequests = (): JSX.Element => {
             <Input
               error=""
               type="date"
-              className="w-[150px]"
+              className="w-37.5"
               placeholder="Start Date"
               value={startDate ? moment(startDate).format('YYYY-MM-DD') : ''}
               leftIcon={<CalendarIcon size={16} />}
               onChange={(e) => handleDateChange('start', e.target.value)}
             />
-            {/*Will activate maybe later*/}
-            {/*<Input*/}
-            {/*  error=""*/}
-            {/*  type="date"*/}
-            {/*  className="w-[150px]"*/}
-            {/*  value={endDate ? moment(endDate).format('YYYY-MM-DD') : ''}*/}
-            {/*  leftIcon={<CalendarIcon size={16} />}*/}
-            {/*  onChange={(e) => handleDateChange('end', e.target.value)}*/}
-            {/*/>*/}
+            <Input
+              error=""
+              type="date"
+              className="w-37.5"
+              placeholder="End Date"
+              value={endDate ? moment(endDate).format('YYYY-MM-DD') : ''}
+              leftIcon={<CalendarIcon size={16} />}
+              onChange={(e) => handleDateChange('end', e.target.value)}
+            />
             {(startDate || endDate) && (
               <Button variant="ghost" child="Clear" onClick={clearDates} />
             )}
@@ -428,6 +659,30 @@ const AppointmentRequests = (): JSX.Element => {
           void refetch();
         }}
       />
+      {rescheduleAppointmentData && (
+        <SlotSelectionModal
+          open={openRescheduleModal}
+          onCloseAction={() => {
+            setOpenRescheduleModal(false);
+            setRescheduleAppointmentData(null);
+            resetBookingForm();
+          }}
+          onConfirmAction={handleReschedule}
+          isLoading={isRescheduling}
+          doctorId={rescheduleAppointmentData.doctorId}
+          doctorName={rescheduleAppointmentData.doctorName}
+          doctorProfilePicture={rescheduleAppointmentData.doctorProfilePicture}
+          specializations={rescheduleAppointmentData.specializations}
+          experience={rescheduleAppointmentData.experience}
+          noOfConsultations={rescheduleAppointmentData.noOfConsultations}
+          consultationCount={rescheduleAppointmentData.consultationCount}
+          registerAction={register}
+          setValueAction={setValue}
+          watch={watch}
+          title="Reschedule Appointment"
+          confirmButtonText="Reschedule"
+        />
+      )}
     </div>
   );
 };
@@ -476,8 +731,19 @@ const AvailableDoctors = ({
   return (
     <div>
       <p className="font-medium"> Available Doctors</p>
-      {!isLoading ? (
-        <div className="mt-2 max-h-[300px] overflow-y-auto">
+      {isLoading ? (
+        <div className="mt-4">
+          {Array.from({ length: 5 }).map((value, index) => (
+            <div key={`${index}-${value}`} className="flex animate-pulse items-center space-x-4">
+              <div className="flex flex-row gap-4 space-y-2">
+                <div className="h-4 w-32 rounded bg-gray-300" />
+                <div className="h-4 w-48 rounded bg-gray-300" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-2 max-h-75 overflow-y-auto">
           <RadioGroup>
             {tableData.map(({ firstName, lastName, id }) => (
               <div className="mt-2 flex items-center space-x-2" key={id}>
@@ -488,17 +754,6 @@ const AvailableDoctors = ({
               </div>
             ))}
           </RadioGroup>
-        </div>
-      ) : (
-        <div className="mt-4">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="flex animate-pulse items-center space-x-4">
-              <div className="flex flex-row gap-4 space-y-2">
-                <div className="h-4 w-32 rounded bg-gray-300" />
-                <div className="h-4 w-48 rounded bg-gray-300" />
-              </div>
-            </div>
-          ))}
         </div>
       )}
       {!isLoading && !tableData.length && <div>Sorry, no doctors available at the moment.</div>}

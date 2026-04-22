@@ -35,7 +35,6 @@ export const useHybridScroll = ({
 
     const handleScroll = (): void => {
       const scrollY = getScrollY();
-      console.log('Scroll here', scrollY);
 
       onScrollTopVisibilityChange?.(scrollY > showScrollTopAfter);
 

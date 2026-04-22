@@ -3,6 +3,7 @@ export enum RadiologySection {
   UltrasoundScans = 'Ultrasound Scans',
   SpecializedImaging = 'Specialized Imaging',
   InterventionalRadiology = 'Interventional Radiology',
+  OtherInvestigations = 'Other Investigations',
 }
 
 export enum PlainRadiologyCategory {
@@ -16,6 +17,7 @@ export enum PlainRadiologyCategory {
 }
 
 export enum UltrasoundScansCategory {
+  ChestUltrasound = 'Chest Ultrasound',
   AbdominalUltrasound = 'Abdominal Ultrasound',
   PelvicUltrasound = 'Pelvic Ultrasound',
   ObstetricUltrasound = 'Obstetric Ultrasound',
@@ -40,4 +42,8 @@ export enum InterventionalRadiologyCategory {
   Drainage = 'Drainage Procedures',
   Angiography = 'Angiography',
   Others = 'Others',
+}
+
+export enum OtherInvestigationsCategory {
+  Electrodiagnostic = 'Electrodiagnostic',
 }

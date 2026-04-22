@@ -8,11 +8,14 @@ import { Modal } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAppSelector } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectDoctorSignature } from '@/lib/features/doctors/doctorsSelector';
 import { Button } from '@/components/ui/button';
 import Signature from '@/components/signature/signature';
 import { selectHasInvestigation } from '@/lib/features/appointments/consultation/consultationSelector';
+import { setInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSlice';
+import { cn } from '@/lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 
 const Investigation = ({
   goToNext,
@@ -21,6 +24,8 @@ const Investigation = ({
   goToNext: () => void;
   goToPrevious: () => void;
 }): JSX.Element => {
+  const { state, isMobile } = useSidebar();
+  const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<'labs' | 'radiology'>('labs');
   const [openAddSignature, setOpenAddSignature] = useState(false);
   const [addSignature, setAddSignature] = useState(false);
@@ -54,6 +59,10 @@ const Investigation = ({
       setAddSignature(false);
     }
   }, [openAddSignature]);
+
+  useEffect(() => {
+    dispatch(setInvestigationHistory(''));
+  }, []);
 
   useEffect(() => {
     // Show signature alert if no signature exists
@@ -110,24 +119,24 @@ const Investigation = ({
       />
 
       <div className="investigation-container">
-        {/*<div className="mb-6">*/}
-        {/*  <h1 className="text-2xl font-bold">Investigation</h1>*/}
-        {/*  <p className="mt-1 text-sm text-gray-600">*/}
-        {/*    Request laboratory tests and radiology investigations for the patient*/}
-        {/*  </p>*/}
-        {/*</div>*/}
         {hasInvestigation && (
-          <Alert id="signature-alert" variant="info" className="my-4 border-amber-500 bg-amber-50">
-            <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="flex items-center justify-between">
-              <span className="text-amber-800">
-                {hasSignature
-                  ? 'You can edit your digital signature if needed.'
-                  : 'Lab requests require your digital signature before proceeding.'}
-              </span>
+          <Alert
+            id="signature-alert"
+            variant="info"
+            className="mb-1 border-amber-500 bg-amber-50 p-2"
+          >
+            <AlertDescription className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1">
+                <AlertCircle className="h-3 w-3 text-amber-600" />
+                <span className="text-amber-800">
+                  {hasSignature
+                    ? 'You can edit your digital signature if needed.'
+                    : 'Lab requests require your digital signature before proceeding.'}
+                </span>
+              </div>
               <button
                 onClick={() => setOpenAddSignature(true)}
-                className="ml-4 text-sm font-semibold text-amber-700 underline hover:text-amber-900"
+                className="ml-4 font-semibold text-amber-700 underline hover:text-amber-900"
               >
                 {hasSignature ? 'Edit signature' : 'Add now'}
               </button>
@@ -140,14 +149,14 @@ const Investigation = ({
           onValueChange={(value) => setActiveTab(value as 'labs' | 'radiology')}
           className="w-full"
         >
-          <TabsList className="mb-3 grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="labs" className="flex items-center gap-2">
+          <TabsList className="mb-2 grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="labs" className="flex cursor-pointer items-center gap-2">
               <TestTube2 className="h-4 w-4" />
               <span>Laboratory Tests</span>
             </TabsTrigger>
-            <TabsTrigger value="radiology" className="flex items-center gap-2">
+            <TabsTrigger value="radiology" className="flex cursor-pointer items-center gap-2">
               <Microscope className="h-4 w-4" />
-              <span>Radiology</span>
+              <span>Radiology & Others</span>
             </TabsTrigger>
           </TabsList>
 
@@ -160,7 +169,7 @@ const Investigation = ({
           </TabsContent>
         </Tabs>
         {hasInvestigation && (
-          <div className="fixed right-4 bottom-16 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
+          <div className="fixed right-4 bottom-14 z-100 flex items-center space-x-2 rounded-lg border bg-white p-4 shadow-lg">
             <Label htmlFor="signature-labs">
               {hasSignature ? 'Edit digital Signature' : 'Add digital Signature'}
             </Label>
@@ -171,7 +180,14 @@ const Investigation = ({
             />
           </div>
         )}
-        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-between border-t border-gray-300 bg-white p-4 shadow-md">
+        <div
+          className={cn(
+            'fixed bottom-0 z-50 flex justify-between border-t border-gray-300 bg-white px-4 py-2 shadow-md',
+            !isMobile && state === 'expanded'
+              ? 'left-(--sidebar-width) w-[calc(100%-var(--sidebar-width))]'
+              : 'left-0 w-full',
+          )}
+        >
           <Button onClick={goToPrevious} variant="outline" child="Back to History" />
           <Button onClick={handleSubmitAndGoToExamination} child="Continue to Prescription" />
         </div>

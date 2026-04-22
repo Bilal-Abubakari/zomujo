@@ -4,6 +4,10 @@ import Image from 'next/image';
 import { Logo, ForgotPasswordSlide } from '@/assets/images';
 import ForgetPasswordForm from '../_components/forgetPasswordForm';
 import { JSX } from 'react';
+import type { Metadata } from 'next';
+import { NOINDEX } from '@/lib/seo';
+
+export const metadata: Metadata = NOINDEX;
 
 const ForgetPassword = (): JSX.Element => (
   <AuthenticationFrame

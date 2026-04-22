@@ -39,11 +39,6 @@ export const selectIsOAuthLoading = createSelector(
   ({ isOAuthLoading }) => isOAuthLoading,
 );
 
-export const selectUserName = createSelector(
-  selectAuthentication,
-  ({ user }) => `${user?.firstName} ${user?.lastName}`,
-);
-
 export const selectUserFirstName = createSelector(
   selectAuthentication,
   ({ user }) => user?.firstName,
@@ -67,12 +62,18 @@ export const selectThunkState = createSelector(
 
 export const selectExtra = createSelector(selectAuthentication, ({ extra }) => extra);
 
+export const selectUserName = createSelector(
+  selectExtra,
+  selectUser,
+  (extra, user) => `${extra?.firstName ?? user?.firstName} ${extra?.lastName ?? user?.lastName}`,
+);
+
 export const selectUserId = createSelector(selectAuthentication, ({ user }) => user?.id);
 
 export const selectPatientMustUpdateMandatoryInfo = createSelector(
   selectIsPatient,
   selectExtra,
-  (isPatient, extra) => isPatient && (!extra?.dob || !extra?.gender),
+  (isPatient, extra) => isPatient && (!extra?.dob || !extra?.gender || !extra?.contact),
 );
 
 export const selectDoctorMustCompleteOnboarding = createSelector(
@@ -95,6 +96,16 @@ export const selectDoctorStatus = createSelector(selectIsDoctor, selectExtra, (i
 export const selectHideOnboardingModal = createSelector(
   selectAuthentication,
   ({ hideOnboardingModal }) => hideOnboardingModal,
+);
+
+export const selectRegistrationFeePaid = createSelector(
+  selectAuthentication,
+  ({ registrationFeePaid }) => registrationFeePaid,
+);
+
+export const selectRegistrationFeePaidAt = createSelector(
+  selectAuthentication,
+  ({ registrationFeePaidAt }) => registrationFeePaidAt,
 );
 
 export const selectShouldShowDoctorOnboardingModal = createSelector(

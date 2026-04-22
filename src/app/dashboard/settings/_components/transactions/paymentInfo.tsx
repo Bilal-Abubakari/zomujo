@@ -101,7 +101,7 @@ const PaymentInfo = (): JSX.Element => {
         )}
 
         {!isLoading && (
-          <div
+          <button
             className="flex h-34.75 w-34.75 cursor-pointer items-center justify-center rounded-[7.32px] border border-dashed text-gray-500"
             onClick={() => {
               setSelectedPayment(null);
@@ -109,7 +109,7 @@ const PaymentInfo = (): JSX.Element => {
             }}
           >
             <Plus />
-          </div>
+          </button>
         )}
       </div>
       {isModalOpen && (

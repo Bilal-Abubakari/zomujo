@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios, { axiosErrorHandler } from '@/lib/axios';
+import { LocalStorageManager } from '@/lib/localStorage';
 import {
   resetAuthentication,
   setErrorMessage,
@@ -8,7 +9,6 @@ import {
   updateStatus,
 } from '@/lib/features/auth/authSlice';
 import {
-  DoctorOnboarding,
   IDoctorPhotoUpload,
   ILogin,
   ILoginResponse,
@@ -45,19 +45,20 @@ export const login = createAsyncThunk(
   },
 );
 
-export const doctorOnboarding = createAsyncThunk(
+type DoctorOnboardingArg = IDoctorPhotoUpload & { onUploadProgress?: (percent: number) => void };
+
+export const doctorOnboarding = createAsyncThunk<boolean | undefined, DoctorOnboardingArg>(
   'authentication/doctorOnboarding',
-  async (doctorPhotoUpload: IDoctorPhotoUpload, { dispatch, getState }) => {
+  async ({ onUploadProgress, ...doctorPhotoUpload }, { dispatch, getState }) => {
     const {
-      authentication: { doctorIdentification, doctorPersonalDetails },
+      authentication: { doctorPersonalDetails },
     } = getState() as RootState;
-    if (!doctorPersonalDetails || !doctorIdentification) {
+    if (!doctorPersonalDetails) {
       return;
     }
 
-    const doctorDetails: DoctorOnboarding = {
+    const doctorDetails = {
       ...doctorPersonalDetails,
-      ...doctorIdentification,
       ...doctorPhotoUpload,
     };
     try {
@@ -68,6 +69,14 @@ export const doctorOnboarding = createAsyncThunk(
           headers: {
             'Content-Type': 'multipart/form-data',
           },
+          onUploadProgress: onUploadProgress
+            ? (progressEvent): void => {
+                const percent = progressEvent.total
+                  ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                  : 0;
+                onUploadProgress(percent);
+              }
+            : undefined,
         },
       );
       dispatch(updateExtra(data.data));
@@ -250,7 +259,11 @@ export const logout = createAsyncThunk(
   async (_, { dispatch }): Promise<void> => {
     const cleanUp = (): void => {
       dispatch(resetAuthentication());
-      window.localStorage.clear();
+      const cookieConsent = LocalStorageManager.getCookieConsent();
+      globalThis.localStorage.clear();
+      if (cookieConsent) {
+        LocalStorageManager.setCookieConsent(cookieConsent);
+      }
     };
     try {
       await axios.delete(`${authPath}logout`);
@@ -290,7 +303,9 @@ export const initiateGoogleOAuth = createAsyncThunk(
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const path = `/${authPath}oauth`;
 
-      window.location.href = queryString ? `${baseUrl}${path}?${queryString}` : `${baseUrl}${path}`;
+      globalThis.location.href = queryString
+        ? `${baseUrl}${path}?${queryString}`
+        : `${baseUrl}${path}`;
       return true;
     } catch (error) {
       console.error('OAuth initiation error:', error);
@@ -338,6 +353,31 @@ export const handleOAuthCallback = createAsyncThunk(
         message: axiosErrorHandler(error) as string,
         success: false,
       };
+    }
+  },
+);
+
+export const updateProfilePicture = createAsyncThunk(
+  'authentication/profile-picture',
+  async (profilePicture: File, { dispatch }) => {
+    try {
+      const { data } = await axios.patch<IResponse<string>>(
+        `${authPath}profile-picture`,
+        { profilePicture },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      dispatch(
+        updateExtra({
+          profilePicture: data.data,
+        }),
+      );
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
     }
   },
 );

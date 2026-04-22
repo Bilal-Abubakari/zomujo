@@ -26,6 +26,7 @@ const ViewPatterns = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [slotPatterns, setSlotPatterns] = useState<ISlotPattern[]>([]);
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
   const [confirmation, setConfirmation] = useState<ConfirmationProps>({
     acceptCommand: () => {},
     rejectCommand: () => {},
@@ -168,6 +169,8 @@ const ViewPatterns = (): JSX.Element => {
             manualPagination={false}
             isLoading={isLoading}
             paginationData={paginationData}
+            page={currentPage}
+            userPaginationChange={({ pageIndex }) => setCurrentPage(pageIndex + 1)}
           />
         </div>
       </div>

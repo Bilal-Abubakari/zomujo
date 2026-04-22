@@ -1,4 +1,4 @@
-import React, { ChangeEvent, JSX, Ref, useState } from 'react';
+import React, { ChangeEvent, JSX, KeyboardEvent, Ref, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -7,7 +7,7 @@ import { FieldError, Merge } from 'react-hook-form';
 import { cn } from '@/lib/utils';
 
 type MultiInputProps = {
-  label?: string;
+  label?: string | React.ReactNode;
   name?: string;
   errors?: Merge<FieldError, (FieldError | undefined)[]>;
   placeholder?: string;
@@ -79,6 +79,12 @@ const MultiInputField = ({
         <Input
           value={inputValue}
           onChange={(event: ChangeEvent<HTMLInputElement>) => setInputValue(event.target.value)}
+          onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              handleAddValue();
+            }
+          }}
           placeholder={placeholder}
           className="bg-transparent"
           id={name}
@@ -87,12 +93,13 @@ const MultiInputField = ({
         />
         <Button onClick={handleAddValue} child={'Add'} type="button" />
       </div>
+      <p className="text-xs text-gray-400">Type a language and press Enter or click Add</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {values.map((item: string, index: number) => {
           const hasError = errorDetails?.position === index;
           return (
             <div
-              key={index}
+              key={`${index}-${item}`}
               className={cn(
                 'flex items-center rounded-full px-3 py-1 text-sm shadow-sm',
                 hasError ? 'border border-red-300 bg-red-50' : 'bg-gray-100',

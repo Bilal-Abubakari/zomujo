@@ -24,11 +24,7 @@ const UpcomingAppointmentCard = dynamic(
   () => import('@/app/dashboard/_components/patientHome/_component/upcomingAppointments'),
   { loading: () => <LoadingCard />, ssr: false },
 );
-// TODO: Telemedicine limitation - vitals measurement not supported yet. PatientVitalsCard disabled until remote vitals integration.
-// const PatientVitalsCard = dynamic(
-//   () => import('@/app/dashboard/_components/patient/patientVitalsCard'),
-//   { loading: () => <LoadingCard />, ssr: false },
-// );
+
 const DoctorCard = dynamic(() => import('@/app/dashboard/(patient)/_components/doctorCard'), {
   loading: () => <LoadingCard />,
   ssr: false,
@@ -111,8 +107,6 @@ const PatientHome = (): JSX.Element => {
     () => (
       <div className="space-y-6">
         <UpcomingAppointmentCard />
-        {/* TODO: Re-enable <PatientVitalsCard /> when remote vitals collection becomes available */}
-        {/* <PatientVitalsCard /> */}
       </div>
     ),
     [],
@@ -163,16 +157,16 @@ const PatientHome = (): JSX.Element => {
   }, [dispatch, extra]);
 
   return (
-    <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-20 max-me:pt-4 w-full border px-4 md:px-6">
+    <div className="border-grayscale-100 bg-grayscale-10 max-me:pb-20 max-me:pt-4 w-full border px-4 xl:px-6">
       <AvatarGreetings />
-      <div className="mt-6.75 w-full gap-6 md:flex">
+      <div className="mt-6.75 w-full gap-6 xl:flex">
         <div className="grow space-y-12">
           <SearchDoctorsCard />
-          <div className="flex w-full items-center justify-center md:hidden">
-            <Tabs defaultValue="home" className="w-full text-center text-sm md:hidden">
+          <div className="flex w-full items-center justify-center xl:hidden">
+            <Tabs defaultValue="home" className="w-full text-center text-sm xl:hidden">
               <TabsList>
                 <TabsTrigger value="home">Home</TabsTrigger>
-                <TabsTrigger value="upcomingAppointments">Upcoming Appointments 2</TabsTrigger>
+                <TabsTrigger value="upcomingAppointments">Upcoming Appointments</TabsTrigger>
               </TabsList>
               <TabsContent className="mt-6" value="home">
                 {suggestSmallerScreen}
@@ -182,9 +176,9 @@ const PatientHome = (): JSX.Element => {
               </TabsContent>
             </Tabs>
           </div>
-          <div className="max-md:hidden">{suggest}</div>
+          <div className="max-xl:hidden">{suggest}</div>
         </div>
-        <div className="max-md:hidden">{upcomingAppointments}</div>
+        <div className="max-xl:hidden">{upcomingAppointments}</div>
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
 'use client';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect, useRef, useState } from 'react';
 import DateSelector from './dateSelector';
 import AppointmentCalendar from './appointmentCalendar';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
 import { AppointmentStatus } from '@/types/appointmentStatus.enum';
 import { OrderDirection, Role } from '@/types/shared.enum';
-import { cn, showErrorToast } from '@/lib/utils';
+import { capitalize, cn, showErrorToast } from '@/lib/utils';
 import { IPagination, IQueryParams } from '@/types/shared.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectOrganizationId, selectUser } from '@/lib/features/auth/authSelector';
@@ -35,6 +35,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const { getQueryParam } = useQueryParam();
   const selectedDateParam = getQueryParam(AppointmentDate.selectedDate);
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   const newToday = moment();
   const startOfWeek = newToday.clone().startOf('isoWeek');
@@ -111,7 +112,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
   }, [selectedDate]);
 
   const todayAppointments = upcomingAppointment.filter((appointment) => {
-    const appointmentDate = moment(appointment.startTime);
+    const appointmentDate = moment(appointment.slot.date);
     return appointmentDate.isSame(selectedDate, 'day');
   });
 
@@ -125,12 +126,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
       {loading && <LoadingOverlay />}
       <div className="relative flex flex-col gap-8 border-b border-gray-200 p-6">
         <div className="flex flex-row items-center gap-2.5">
-          <p className="truncate text-2xl font-bold">Today&apos;s Appointments</p>
-          {(user?.role === Role.Doctor || user?.role === Role.Hospital) && (
-            <Badge variant={'brown'}>
-              {todayAppointments.length} <span className="ml-1 hidden sm:block">appointments</span>
-            </Badge>
-          )}
+          <p className="truncate text-2xl font-bold">Appointments</p>
         </div>
         <div className="flex flex-row items-center justify-between">
           <DateSelector
@@ -138,6 +134,11 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
             onIncrement={() => setSelectedDate(moment(selectedDate).add(1, 'day').toDate())}
             date={selectedDate}
           />
+          {user?.role === Role.Doctor || user?.role === Role.Hospital && (
+            <Badge variant={'brown'}>
+              {todayAppointments.length} <span className="ml-1 hidden sm:block">appointments</span>
+            </Badge>
+          )}
           <div className="flex h-8 items-center justify-center rounded-lg border bg-white px-3 text-center text-sm">
             Week
           </div>
@@ -152,6 +153,7 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
         className="h-[calc(100vh-356px)]"
         appointments={upcomingAppointment}
         selectedDate={selectedDate}
+        calendarRef={calendarRef}
       />
     </div>
   );
@@ -166,14 +168,15 @@ const statusStyles: Record<AppointmentStatus, string> = {
   [AppointmentStatus.Incomplete]: 'text-red-500',
   [AppointmentStatus.Completed]: 'text-green-400',
   [AppointmentStatus.Progress]: 'text-yellow-400',
+  [AppointmentStatus.Investigating]: 'text-[#93C4F0]',
+  [AppointmentStatus.InvestigatingScheduled]: 'text-[#93C4F0]',
+  [AppointmentStatus.InvestigatingProgress]: 'text-yellow-400',
   [AppointmentStatus.Cancelled]: 'text-red-400',
 };
 
 const StatusBadge: React.FC<StatusProps> = ({ status }) => (
   <div className={`flex items-center gap-2 ${statusStyles[status]}`}>
     <span className="h-2 w-2 rounded-full bg-current" />
-    <span className="text-sm font-medium">
-      {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
-    </span>
+    <span className="text-sm font-medium">{capitalize(status)}</span>
   </div>
 );

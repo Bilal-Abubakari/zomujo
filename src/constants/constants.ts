@@ -1,25 +1,25 @@
 import { SelectOption } from '@/components/ui/select';
 import {
   AcceptDeclineStatus,
-  BloodGroup,
   ConditionStatus,
-  Denomination,
   DurationType,
   Gender,
   MaritalStatus,
+  TransactionStatus,
+  TransactionType,
 } from '@/types/shared.enum';
 import { ISelected } from '@/components/ui/dropdown-menu';
 import { capitalize } from '@/lib/utils';
 
 export const MODE = {
   ON_TOUCH: 'onTouched',
+  ON_CHANGE: 'onChange',
 } as const;
 
 export const DAYS_IN_WEEK = 7;
 export const MINUTES_IN_HOUR = 60;
 export const MILLISECONDS_IN_SECOND = 1000;
 export const SECONDS_IN_MINUTE = 60;
-export const PIXELS_PER_HOUR = 60;
 export const TWELVE_HOUR_SYSTEM = 12;
 export const METERS_TO_KM_FACTOR = 1000;
 export const MAX_RADIUS_IN_KM = 30;
@@ -35,7 +35,7 @@ export const DAYS_OF_WEEK = [
   'Saturday',
   'Sunday',
 ] as const;
-export const unMatchingPasswords = 'Passwords do not match';
+export const unMatchingPasswords = 'Passwords do not match'; //NOSONAR
 
 export const selectGenderOptions = [
   { label: 'Male', value: Gender.Male },
@@ -128,6 +128,7 @@ export const specialties = [
   { value: 'public-health', label: 'Public Health' },
   { value: 'obstetrics', label: 'Obstetrics' },
   { value: 'neonatology', label: 'Neonatology' },
+  { value: 'dentistry', label: 'Dentistry' },
 ];
 
 export const healthInsurances = [
@@ -155,23 +156,6 @@ export const maritalOptions = [
   { value: MaritalStatus.Married, label: 'Married' },
   { value: MaritalStatus.Divorced, label: 'Divorced' },
   { value: MaritalStatus.Widowed, label: 'Widowed' },
-];
-
-export const denominationOptions = [
-  { value: Denomination.Muslim, label: 'Muslim' },
-  { value: Denomination.Christian, label: 'Christian' },
-  { value: Denomination.Other, label: 'Other' },
-];
-
-export const bloodGroupOptions = [
-  { value: BloodGroup.APositive, label: 'APositive' },
-  { value: BloodGroup.ANegative, label: 'ANegative' },
-  { value: BloodGroup.BPositive, label: 'BPositive' },
-  { value: BloodGroup.BNegative, label: 'BNegative' },
-  { value: BloodGroup.ABPositive, label: 'ABPositive' },
-  { value: BloodGroup.ABNegative, label: 'ABNegative' },
-  { value: BloodGroup.OPositive, label: 'OPositive' },
-  { value: BloodGroup.ONegative, label: 'ONegative' },
 ];
 
 export const familyRelations = [
@@ -286,4 +270,24 @@ export const doseRegimenOptions = [
   { value: 'Every 6 hours', label: 'Every 6 hours' },
   { value: 'Every 8 hours', label: 'Every 8 hours' },
   { value: 'Every 12 hours', label: 'Every 12 hours' },
+];
+
+export const transactionStatusOptions: ISelected[] = [
+  { value: '', label: 'All Statuses' },
+  { value: TransactionStatus.Pending, label: 'Pending' },
+  { value: TransactionStatus.Success, label: 'Success' },
+  { value: TransactionStatus.Failed, label: 'Failed' },
+  { value: TransactionStatus.Reversed, label: 'Reversed' },
+];
+
+export const transactionTypeOptions: ISelected[] = [
+  { value: '', label: 'All Types' },
+  { value: TransactionType.PatientCharge, label: 'Patient Charge' },
+  { value: TransactionType.PlatformShare, label: 'Platform Share' },
+  { value: TransactionType.DoctorShare, label: 'Doctor Share' },
+  { value: TransactionType.TaxCollected, label: 'Tax Collected' },
+  { value: TransactionType.PaystackFee, label: 'Paystack Fee' },
+  { value: TransactionType.Refund, label: 'Refund' },
+  { value: TransactionType.Withdrawal, label: 'Withdrawal' },
+  { value: TransactionType.Payout, label: 'Payout' },
 ];

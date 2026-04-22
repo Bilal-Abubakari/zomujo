@@ -6,13 +6,17 @@ import PaymentInfo from '../_components/transactions/paymentInfo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Wallet from '../_components/transactions/wallet';
 import Pricing from '../_components/transactions/pricing';
+import RegistrationFeeSettings from '../_components/transactions/registrationFeeSettings';
 import { PaymentTab } from '@/hooks/useQueryParam';
+import { useAppSelector } from '@/lib/hooks';
+import { selectIsDoctor } from '@/lib/features/auth/authSelector';
 
 const Payment = (): JSX.Element => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const tab = searchParams.get('tab') as PaymentTab | null;
+  const isDoctor = useAppSelector(selectIsDoctor);
 
   const validTabs = Object.values(PaymentTab);
   const activeTab = useMemo(
@@ -44,6 +48,11 @@ const Payment = (): JSX.Element => {
           <TabsTrigger value={PaymentTab.Pricing} className="rounded-2xl">
             Pricing
           </TabsTrigger>
+          {isDoctor && (
+            <TabsTrigger value={PaymentTab.RegistrationFee} className="rounded-2xl">
+              Registration Fee
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent className="mt-6" value={PaymentTab.PaymentMethod}>
@@ -55,6 +64,11 @@ const Payment = (): JSX.Element => {
         <TabsContent className="mt-6" value={PaymentTab.Pricing}>
           <Pricing />
         </TabsContent>
+        {isDoctor && (
+          <TabsContent className="mt-6" value={PaymentTab.RegistrationFee}>
+            <RegistrationFeeSettings />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

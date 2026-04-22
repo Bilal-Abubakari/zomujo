@@ -23,6 +23,8 @@ import {
 } from '@/lib/features/appointments/consultation/consultationThunk';
 import { Toast, toast } from '@/hooks/use-toast';
 import { selectRecordId } from '@/lib/features/patients/patientsSelector';
+import { selectInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSelector';
+import { setInvestigationHistory } from '@/lib/features/appointments/consultation/consultationSlice';
 import { useParams } from 'next/navigation';
 import { selectRequestedLabs } from '@/lib/features/appointments/appointmentSelector';
 import LabCategorySection from '@/app/dashboard/(doctor)/consultation/_components/LabCategorySection';
@@ -44,6 +46,7 @@ import { LabsForm, labsSchema } from '@/schemas/labs.schema';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { useDebounce } from 'use-debounce';
 
 type LabFormData = LabsForm;
 
@@ -57,20 +60,31 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   }>({
     selectedTests: new Map(),
   });
+  const sharedHistory = useAppSelector(selectInvestigationHistory);
   const [searchQuery, setSearchQuery] = useState('');
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<LabFormData>({
     resolver: zodResolver(labsSchema),
     mode: MODE.ON_TOUCH,
+    defaultValues: {
+      history: sharedHistory || '',
+    },
   });
   const dispatch = useAppDispatch();
-  const requestedAppointmentLabs = useAppSelector(
-    selectRequestedLabs,
-  ) as unknown as ILaboratoryRequest[];
+
+  const history = watch('history');
+  const [debouncedHistory] = useDebounce(history, 500);
+
+  useEffect(() => {
+    dispatch(setInvestigationHistory(debouncedHistory || ''));
+  }, [debouncedHistory, dispatch]);
+
+  const requestedAppointmentLabs = useAppSelector(selectRequestedLabs);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -80,7 +94,6 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Use shared hooks
   const filteredLabs = useInvestigationFilter(labs, searchQuery);
   const pdfPreview = usePdfPreview();
 
@@ -105,24 +118,29 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       toast(response as Toast);
       return;
     }
-    const lab = (response as ILab[])[0];
-    setValue('labs', lab.data, { shouldValidate: true });
-    setValue('history', lab.history, { shouldValidate: true });
-    setValue('instructions', lab.instructions, { shouldValidate: true });
+    const lab = (response as ILab[])?.[0];
+    if (lab) {
+      setValue('labs', lab.data, { shouldValidate: true });
+      setValue('history', lab.history, { shouldValidate: true });
+      setValue('instructions', lab.instructions, { shouldValidate: true });
+      if (lab.history) {
+        dispatch(setInvestigationHistory(lab.history));
+      }
+    }
   };
 
   const fetchPdf = async (): Promise<void> => {
     setIsLoadingPdf(true);
-    const result = await dispatch(downloadLabRequestPdf(String(params.appointmentId)));
+    const result = await dispatch(downloadLabRequestPdf(String(params.appointmentId))).unwrap();
     setIsLoadingPdf(false);
-    if (result.payload instanceof Blob) {
+    if (result instanceof Blob) {
       // Clean up old PDF URL before creating new one
       pdfPreview.cleanup(pdfUrl);
-      const url = pdfPreview.createUrl(result.payload);
+      const url = pdfPreview.createUrl(result);
       setPdfUrl(url);
       setShowPreview(true);
     } else {
-      toast(result.payload as Toast);
+      toast(result);
     }
   };
 
@@ -187,12 +205,20 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
     setHasUnsavedChanges(false);
   };
 
-  const buildLabsArray = (): Pick<ILaboratoryRequest, 'categoryType' | 'category' | 'testName'>[] =>
-    Array.from(state.selectedTests.values()).map(({ testName, category, categoryType }) => ({
-      testName,
-      category,
-      categoryType,
-    }));
+  const buildLabsArray = (
+    newSelectedTests?: SelectedTests,
+  ): Pick<ILaboratoryRequest, 'categoryType' | 'category' | 'testName'>[] =>
+    Array.from((newSelectedTests ?? state.selectedTests).values()).map(
+      ({ testName, category, categoryType }) => ({
+        testName,
+        category,
+        categoryType,
+      }),
+    );
+
+  const setLabsAction = (newSelectedTests?: SelectedTests): void => {
+    setValue('labs', buildLabsArray(newSelectedTests), { shouldValidate: true, shouldTouch: true });
+  };
 
   const toggleTestSelection = (
     testName: string,
@@ -207,9 +233,9 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       } else {
         newSelectedTests.set(key, { testName, category, categoryType });
       }
+      setLabsAction(newSelectedTests);
       return { selectedTests: newSelectedTests };
     });
-    setValue('labs', buildLabsArray(), { shouldValidate: true });
     setHasUnsavedChanges(true);
   };
 
@@ -233,9 +259,9 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
           newSelectedTests.delete(key);
         }
       });
+      setLabsAction(newSelectedTests);
       return { selectedTests: newSelectedTests };
     });
-    setValue('labs', buildLabsArray(), { shouldValidate: true });
     setHasUnsavedChanges(true);
   };
 
@@ -253,6 +279,7 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
       setState({
         selectedTests: prevTests,
       });
+      setLabsAction(prevTests);
       setHasUnsavedChanges(false);
     }
   }, [requestedAppointmentLabs]);
@@ -292,15 +319,12 @@ const Labs = React.forwardRef<LabsRef>((_, ref): JSX.Element => {
         getSelectedTestNames={() => Array.from(state.selectedTests.keys())}
         isLoading={isLoading}
         renderContent={() => (
-          <form
-            onSubmit={handleSubmit(handleSaveLabs)}
-            className="max-h-125 space-y-6 overflow-y-auto"
-          >
-            <div className="mb-40 space-y-6">
+          <form onSubmit={handleSubmit(handleSaveLabs)} className="space-y-6">
+            <div className="mb-20 space-y-2">
               <div>
-                <Label>Clinical History</Label>
+                <Label>Relevant Clinical Information</Label>
                 <Textarea
-                  placeholder="Relevant clinical history..."
+                  placeholder="Relevant clinical information..."
                   {...register('history')}
                   className={errors.history ? 'border-red-500' : ''}
                 />

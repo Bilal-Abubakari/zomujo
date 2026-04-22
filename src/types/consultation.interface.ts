@@ -5,6 +5,7 @@ import { ILab } from '@/types/labs.interface';
 import { ISlot } from '@/types/slots.interface';
 import { IRadiology } from '@/types/radiology.interface';
 import { IDoctor } from './doctor.interface';
+import { AppointmentStatus } from './appointmentStatus.enum';
 
 interface IName {
   name: string;
@@ -38,7 +39,7 @@ export type IPatientSymptomMap = {
 
 export interface IConsultationDetails {
   id: string;
-  status: ConsultationStatus;
+  status: ConsultationStatus | AppointmentStatus;
   doctor: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
   patient: Pick<IExtraBase, 'id' | 'firstName' | 'lastName' | 'profilePicture'>;
   prescriptionUrl: string;
@@ -49,7 +50,8 @@ export interface IConsultationDetails {
   radiology: IRadiology | null;
   diagnosis: IDiagnosis[];
   prescriptions: IPrescription[];
-  referrals: IReferral[] | null;
+  referralData: IExternalReferralRequest | null;
+  referral: IInternalReferralResponse | null;
   slot: ISlot;
 }
 
@@ -95,16 +97,6 @@ export enum ConsultationStatus {
   Cancelled = 'cancelled',
 }
 
-export interface ConsultationStatusRequest {
-  status: ConsultationStatus;
-  appointmentId: string;
-}
-
-export interface IConsultationAuthRequest {
-  appointmentId: string;
-  code: string;
-}
-
 export type ReferralType = 'internal' | 'external';
 
 export interface IReferral {
@@ -131,4 +123,16 @@ export interface IInternalReferralRequest {
   patientId: string;
   referredDoctorId: string;
   letter: string;
+  appointmentId: string;
+}
+
+export type IExternalReferralRequest = Pick<
+  IReferral,
+  'doctorName' | 'facility' | 'email' | 'notes'
+> & {
+  appointmentId: string;
+};
+
+export interface IInternalReferralResponse extends IInternalReferralRequest {
+  status: 'pending';
 }

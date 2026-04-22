@@ -12,7 +12,8 @@ export interface IDoctor extends IExtraBase {
   qualifications: string[];
   specializations: string[];
   schoolsAttended: string[];
-  experience: number;
+  experience?: number;
+  consultationCount: number;
   education?: {
     school: string;
     degree: string;
@@ -35,10 +36,7 @@ export interface IDoctor extends IExtraBase {
   signaturePath: string;
   noOfConsultations?: number;
   ratings: number;
-  fee?: {
-    lengthOfSession: string;
-    amount: number;
-  };
+  fee?: number;
   hasDefaultPayment: boolean;
   hasSlot: boolean;
 }

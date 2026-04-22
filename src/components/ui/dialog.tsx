@@ -55,7 +55,7 @@ const DialogContent = React.forwardRef<
       {children}
       {showClose && (
         <DialogPrimitive.Close
-          className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 z-50 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+          className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 z-50 cursor-pointer rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
           onClick={(e) => {
             e.stopPropagation();
             if (setState) {
@@ -63,7 +63,7 @@ const DialogContent = React.forwardRef<
             }
           }}
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 hover:text-red-500" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       )}
@@ -182,9 +182,7 @@ const Modal = ({
       )}
       {(headerChild || title || description) && (
         <DialogHeader>
-          {headerChild ? (
-            headerChild
-          ) : (
+          {headerChild || (
             <>
               {title && <DialogTitle>{title}</DialogTitle>}
               {description && <DialogDescription>{description}</DialogDescription>}
@@ -225,16 +223,15 @@ const Confirmation = ({
     open={open}
     content={
       <div>
-        {title && <DialogTitle>{title}</DialogTitle>}
         <p>{description}</p>
         <div className="flex justify-end gap-4 pt-4">
           <Button
             onClick={acceptCommand}
-            child={acceptButtonTitle ? acceptButtonTitle : 'Yes, Accept'}
+            child={acceptButtonTitle || 'Yes, Accept'}
             isLoading={isLoading}
           />
           <Button
-            child={rejectButtonTitle ? rejectButtonTitle : 'No, Decline'}
+            child={rejectButtonTitle || 'No, Decline'}
             variant={'destructive'}
             onClick={rejectCommand}
             disabled={isLoading}
