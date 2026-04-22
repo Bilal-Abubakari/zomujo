@@ -72,7 +72,7 @@ const TermsAndCondition = (): JSX.Element => (
         />
         <Button
           variant="outline"
-          className="hover:text-primary border-white text-white hover:bg-white"
+          className="border-white bg-transparent text-white hover:bg-white"
           child={
             <a href="/privacy-policy" className="flex items-center gap-2">
               <Shield className="h-4 w-4" /> Privacy Policy

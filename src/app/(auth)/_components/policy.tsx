@@ -88,7 +88,7 @@ const Policy = (): JSX.Element => (
         />
         <Button
           variant="outline"
-          className="hover:text-primary border-white text-white hover:bg-white"
+          className="border-white bg-transparent text-white hover:bg-white"
           child={
             <a href={`tel:${BRANDING.CONTACT_PHONE}`} className="flex items-center gap-2">
               <Phone className="h-4 w-4" /> Call Us
@@ -984,10 +984,13 @@ const Policy = (): JSX.Element => (
         <div className="mt-3 space-y-2">
           <a
             href={`mailto:${BRANDING.DPO_EMAIL}`}
-            className="text-primary flex items-center gap-2 text-sm font-medium hover:underline"
+            className="text-primary inline-flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium hover:underline"
           >
-            <Mail className="h-4 w-4" />
-            <strong>Official DPO Corridor:</strong>&nbsp;{BRANDING.DPO_EMAIL}
+            <span className="flex items-center gap-2">
+              <Mail className="h-4 w-4 shrink-0" />
+              <strong>Official DPO Corridor:</strong>
+            </span>
+            <span className="break-all">{BRANDING.DPO_EMAIL}</span>
           </a>
           <div className="flex items-start gap-2 text-sm">
             <Building2 className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />

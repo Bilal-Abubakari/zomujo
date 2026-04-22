@@ -140,7 +140,9 @@ export const LegalLayout = ({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => router.back()}
+                onClick={() =>
+                  globalThis.history.length > 1 ? router.back() : router.push('/sign-up')
+                }
                 className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -231,13 +233,13 @@ export const LegalLayout = ({
                 <FileText className="text-primary h-4 w-4" /> Table of Contents
               </summary>
               <nav className="mt-3 grid grid-cols-1 gap-1 sm:grid-cols-2">
-                {sections.map(({ id, title, number: sectionNum }) => (
+                {sections.map(({ id, title }) => (
                   <button
                     key={id}
                     onClick={() => scrollToSection(id)}
                     className="text-muted-foreground hover:text-primary block w-full py-1 text-left text-sm transition-colors"
                   >
-                    {sectionNum}. {title}
+                    {title}
                   </button>
                 ))}
               </nav>
@@ -248,13 +250,15 @@ export const LegalLayout = ({
             {children}
 
             <Card className="bg-primary overflow-hidden text-white">
-              <CardContent className="p-8">
-                <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+              <CardContent className="p-5 sm:p-8">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div>
                     <h3 className="mb-1 text-xl font-bold">{footerTitle}</h3>
                     <p className="text-sm text-white/80">{footerDescription}</p>
                   </div>
-                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row">{footerButtons}</div>
+                  <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+                    {footerButtons}
+                  </div>
                 </div>
                 <Separator className="my-6 bg-white/20" />
                 <p className="text-center text-xs text-white/70">
