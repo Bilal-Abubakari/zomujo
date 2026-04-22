@@ -32,18 +32,20 @@ const Hero = (): JSX.Element => {
   return (
     <section
       ref={heroRef}
-      className={`relative h-[95vh] overflow-hidden text-white ${styles.heroBackground} ${styles.panoramic}`}
+      className={`relative h-[95vh] text-white ${styles.heroBackground} ${styles.panoramic}`}
     >
       <Header />
 
-      <div className={styles.gradientOverlay}></div>
-      <div className={styles.circle1}></div>
-      <div className={styles.circle2}></div>
-      <div className={styles.triangle}></div>
-      <div className={styles.arc1}></div>
-      <div className={styles.arc2}></div>
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className={styles.gradientOverlay}></div>
+        <div className={styles.circle1}></div>
+        <div className={styles.circle2}></div>
+        <div className={styles.triangle}></div>
+        <div className={styles.arc1}></div>
+        <div className={styles.arc2}></div>
+      </div>
       <div
-        className={`relative z-10 flex h-full flex-col items-center justify-center px-4 text-center ${styles.fadeIn}`}
+        className={`relative z-10 flex h-full flex-col items-center justify-center px-4 pb-12 text-center ${styles.fadeIn}`}
       >
         <h1 className="mt-48 mb-4 max-w-5xl text-3xl font-extrabold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)] sm:mt-0 sm:text-5xl md:text-6xl">
           Connect with the right specialist for your needs
@@ -69,6 +71,7 @@ const Hero = (): JSX.Element => {
                 searchPlaceholder="Search for specialty..."
                 defaultMaxWidth={false}
                 wrapperClassName="text-left text-[#111111]"
+                showAllOption
               />
 
               <Input
@@ -85,30 +88,32 @@ const Hero = (): JSX.Element => {
               />
             </div>
             <p className="mt-2 text-left text-sm font-bold text-[#111111]">Max Price</p>
-            <Slider
-              value={[Number(queryParameters?.priceMax)]}
-              onValueChange={(value) =>
-                setQueryParameters((prev) => ({
-                  ...prev,
-                  priceMax: String(value[0]),
-                }))
-              }
-              min={MIN_AMOUNT}
-              max={MAX_AMOUNT}
-              step={10}
-              className="mt-4"
-            />
-            <div className="absolute mt-2 flex h-8 items-center justify-center rounded-full bg-gray-500 px-2.5">
-              <p className="text-sm font-medium text-black">
-                {queryParameters?.priceMax
-                  ? `GHS ${Number(queryParameters.priceMax).toLocaleString()}`
-                  : 'Move the slider to filter by price'}
-              </p>
+            <div className="relative">
+              <Slider
+                value={[Number(queryParameters?.priceMax)]}
+                onValueChange={(value) =>
+                  setQueryParameters((prev) => ({
+                    ...prev,
+                    priceMax: String(value[0]),
+                  }))
+                }
+                min={MIN_AMOUNT}
+                max={MAX_AMOUNT}
+                step={10}
+                className="mt-4"
+              />
+              <div className="mt-2 flex h-8 w-fit items-center justify-center rounded-full bg-gray-500 px-2.5">
+                <p className="text-sm font-medium text-black">
+                  {queryParameters?.priceMax
+                    ? `GHS ${Number(queryParameters.priceMax).toLocaleString()}`
+                    : 'Move the slider to filter by price'}
+                </p>
+              </div>
             </div>
           </div>
           <Button
             onClick={handleSearch}
-            className="bg-primary hover:bg-primary-dark mt-14 rounded-md p-6 font-bold text-white shadow-lg transition"
+            className="bg-primary hover:bg-primary-dark mt-4 rounded-md p-6 font-bold text-white shadow-lg transition"
             child={
               <>
                 <Search className="mr-2 h-5 w-5" />

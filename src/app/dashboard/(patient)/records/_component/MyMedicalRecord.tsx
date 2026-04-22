@@ -18,7 +18,7 @@ import {
   FileText,
 } from 'lucide-react';
 import moment from 'moment';
-import { showErrorToast } from '@/lib/utils';
+import { capitalize, showErrorToast } from '@/lib/utils';
 import { Toast, useToast } from '@/hooks/use-toast';
 import { getPatientMedicalHistory } from '@/lib/features/patients/patientsThunk';
 import { IPatientMedicalHistory } from '@/types/patient.interface';
@@ -102,7 +102,7 @@ const MyMedicalRecord = (): JSX.Element => {
             {patientWithRecord.gender && (
               <div>
                 <p className="text-sm text-gray-500">Gender</p>
-                <p className="font-medium">{patientWithRecord.gender}</p>
+                <p className="font-medium">{capitalize(patientWithRecord.gender)}</p>
               </div>
             )}
             {patientWithRecord.dob && (
