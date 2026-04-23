@@ -61,7 +61,7 @@ export default function QRCard({
   url,
 }: Readonly<QRCardProps>): JSX.Element {
   return (
-    <div className="fixed top-0 -left-2499.75 overflow-hidden">
+    <div data-qr-card-wrapper="true" style={{ position: 'fixed', top: 0, left: '-9999px', overflow: 'hidden' }}>
       <div
         ref={cardRef}
         data-card-ref="true"
