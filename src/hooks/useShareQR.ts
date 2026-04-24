@@ -128,6 +128,9 @@ export function useShareQR(
 
     await waitForImageLoading(isImageLoading);
 
+    const wrapper = profileCardRef.current.parentElement;
+    const restore = await bringOnScreen(wrapper);
+
     try {
       const canvas = await html2canvas(profileCardRef.current, {
         useCORS: true,
@@ -178,6 +181,8 @@ export function useShareQR(
         description: 'Could not generate the profile image. Please try again.',
         variant: 'destructive',
       });
+    } finally {
+      restore();
     }
   };
 
