@@ -106,13 +106,8 @@ export function useShareQR(
   downloadQRCode: () => Promise<void>;
   downloadProfileCard: () => Promise<void>;
 } {
-  const {
-    profilePictureBase64,
-    isImageLoading,
-    doctorName,
-    profileCardRef,
-    profilePictureUrl,
-  } = options;
+  const { profilePictureBase64, isImageLoading, doctorName, profileCardRef, profilePictureUrl } =
+    options;
 
   const copyToClipboard = async (): Promise<void> => {
     await navigator.clipboard.writeText(url);
