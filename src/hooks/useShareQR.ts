@@ -70,20 +70,72 @@ async function decodeImage(dataUrl: string): Promise<HTMLImageElement | null> {
  * Temporarily moves a wrapper element on-screen so the browser fully lays out
  * its contents before html2canvas captures them. Off-screen elements (left: -9999px)
  * are skipped by the browser's rendering pipeline, causing distorted text and borders.
- * Returns a cleanup function that restores the original position.
+ *
+ * While the wrapper is briefly on-screen, we cover the page with a full-viewport
+ * scrim showing a "Generating…" message so the user never sees the raw card flash
+ * by. html2canvas captures only the element passed to it, so the scrim is never
+ * included in the output.
+ *
+ * Returns a cleanup function that restores the original position and removes the scrim.
  */
 async function bringOnScreen(wrapper: HTMLElement | null): Promise<() => void> {
   if (!wrapper) {
     return () => {};
   }
+
+  const scrim = document.createElement('div');
+  scrim.dataset.shareQrScrim = 'true';
+  scrim.style.cssText = [
+    'position: fixed',
+    'inset: 0',
+    'z-index: 2147483647',
+    'background: rgba(15, 23, 42, 0.55)',
+    'backdrop-filter: blur(4px)',
+    '-webkit-backdrop-filter: blur(4px)',
+    'display: flex',
+    'align-items: center',
+    'justify-content: center',
+    'pointer-events: auto',
+    'cursor: progress',
+    'font-family: system-ui, sans-serif',
+    'color: #ffffff',
+    'font-size: 14px',
+    'font-weight: 500',
+    'letter-spacing: 0.02em',
+    'transition: opacity 120ms ease-out',
+    'opacity: 0',
+  ].join(';');
+  scrim.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <div style="
+        width:36px;height:36px;border-radius:50%;
+        border:3px solid rgba(255,255,255,0.25);
+        border-top-color:#ffffff;
+        animation:fnx-share-spin 0.8s linear infinite;
+      "></div>
+      <span>Generating image…</span>
+    </div>
+    <style>@keyframes fnx-share-spin{to{transform:rotate(360deg)}}</style>
+  `;
+  document.body.appendChild(scrim);
+  // Fade the scrim in on the next frame
+  requestAnimationFrame(() => {
+    scrim.style.opacity = '1';
+  });
+
   const original = wrapper.style.left;
   wrapper.style.left = '0';
-  // Wait one frame for the browser to re-layout and paint
+  // Wait two frames for the browser to re-layout and paint the wrapper
+  // (and for the scrim to fade in over it)
   await new Promise<void>((resolve) =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
   );
+
   return () => {
     wrapper.style.left = original;
+    // Fade out, then remove
+    scrim.style.opacity = '0';
+    setTimeout(() => scrim.remove(), 150);
   };
 }
 
