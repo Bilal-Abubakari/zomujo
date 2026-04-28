@@ -13,6 +13,8 @@ const emptyLab: ILab = {
   data: [],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
+  fileUrls: [],
+  post: [],
 };
 
 export const ENABLE_DUMMY_APPOINTMENTS = process.env.NODE_ENV !== 'production';
@@ -329,4 +331,6 @@ export const DUMMY_HOSPITAL_APPOINTMENTS_PAGINATION: PaginationData = {
   nextPage: null,
   prevPage: null,
   totalPages: 1,
+  isFirstPage: true,
+  isLastPage: true,
 };
