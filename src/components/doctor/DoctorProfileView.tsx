@@ -14,6 +14,7 @@ import { BRANDING } from '@/constants/branding.constant';
 import { selectIsDoctor, selectIsPatient, selectUser } from '@/lib/features/auth/authSelector';
 import ShareQRSection from '@/components/doctor/ShareQRSection';
 import QRCard from '@/components/doctor/QRCard';
+import ProfileCard from '@/components/doctor/ProfileCard';
 import { useProfilePictureBase64 } from '@/hooks/useProfilePictureBase64';
 import { useShareQR } from '@/hooks/useShareQR';
 import { DoctorProfile } from '@/components/doctor/DoctorProfile';
@@ -35,15 +36,20 @@ export default function DoctorProfileView({
   const [isLoading, setIsLoading] = useState(true);
   const [url, setUrl] = useState('');
   const cardRef = useRef<HTMLDivElement>(null);
+  const profileCardRef = useRef<HTMLDivElement>(null);
 
   const { profilePictureBase64, isImageLoading } = useProfilePictureBase64(doctor);
-  const { copyToClipboard, shareOnSocial, downloadQRCode } = useShareQR(
+  const { copyToClipboard, shareOnSocial, downloadQRCode, downloadProfileCard } = useShareQR(
     url,
     cardRef,
     doctorId,
-    profilePictureBase64,
-    isImageLoading,
-    doctor ? `${doctor.firstName} ${doctor.lastName}` : undefined,
+    {
+      profilePictureBase64,
+      isImageLoading,
+      doctorName: doctor ? `${doctor.firstName} ${doctor.lastName}` : undefined,
+      profileCardRef,
+      profilePictureUrl: doctor?.profilePicture,
+    },
   );
 
   useEffect(() => {
@@ -176,6 +182,7 @@ export default function DoctorProfileView({
           copyToClipboard={copyToClipboard}
           shareOnSocial={shareOnSocial}
           downloadQRCode={downloadQRCode}
+          downloadProfileCard={downloadProfileCard}
         />
       </main>
 
@@ -199,6 +206,15 @@ export default function DoctorProfileView({
         profilePictureBase64={profilePictureBase64}
         url={url}
         fullName={fullName}
+      />
+
+      {/* ── Hidden profile card for social media download ────── */}
+      <ProfileCard
+        cardRef={profileCardRef}
+        doctor={doctor}
+        profilePictureBase64={profilePictureBase64}
+        fullName={fullName}
+        url={url}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import React, { JSX } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Copy, Share2, Download, ExternalLink } from 'lucide-react';
+import { Copy, Share2, Download, ExternalLink, ImageDown } from 'lucide-react';
 import QRCode from 'react-qr-code';
 
 // SVG Icons for social media
@@ -57,6 +57,7 @@ interface ShareQRSectionProps {
   copyToClipboard: () => Promise<void>;
   shareOnSocial: (platform: string) => void;
   downloadQRCode: () => Promise<void>;
+  downloadProfileCard: () => Promise<void>;
 }
 
 export default function ShareQRSection({
@@ -64,6 +65,7 @@ export default function ShareQRSection({
   copyToClipboard,
   shareOnSocial,
   downloadQRCode,
+  downloadProfileCard,
 }: Readonly<ShareQRSectionProps>): JSX.Element {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -121,6 +123,20 @@ export default function ShareQRSection({
                 child={<LinkedInIcon />}
               />
             </div>
+          </div>
+          <Separator />
+          <div>
+            <p className="mb-3 text-sm font-medium text-gray-700">Download Profile Image</p>
+            <Button
+              variant="outline"
+              onClick={() => void downloadProfileCard()}
+              className="w-full"
+              child={
+                <span className="flex items-center">
+                  <ImageDown className="mr-2 h-4 w-4" /> Download for Social Media
+                </span>
+              }
+            />
           </div>
         </CardContent>
       </Card>

@@ -29,10 +29,9 @@ export const nameSchema = z
   .regex(/^[A-Za-z\s-]+$/, 'Field should only contain alphabets');
 
 export const nameArraySchema = z.array(nameSchema).min(1, 'Must have at least one entry');
-export const mdcNumberSchema = requiredStringSchema().regex(
-  /^MDC\/(RN|PN)\/\d{5}$/,
-  'Invalid MDC Registration Number',
-);
+export const mdcNumberSchema = requiredStringSchema()
+  .trim()
+  .regex(/^MDC\/(RN|PN)\/\d{5}$/, 'Invalid MDC Registration Number');
 
 export const phoneNumberSchema = requiredStringSchema().regex(/^\d{10}$/, 'Invalid phone number');
 
@@ -54,7 +53,7 @@ export const positiveNumberSchema = z.coerce
 
 export const stringInputOptionalNumberSchema = z
   .preprocess(
-    (val) => (val === null || String(val) === '' ? undefined : Number(val)),
+    (val) => (val === null || (val as string) === '' ? undefined : Number(val)),
     z.number().positive().optional(),
   )
   .optional() as ZodOptional<
