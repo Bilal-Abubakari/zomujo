@@ -11,14 +11,15 @@ import PatientInfo from './patientInfo';
 const SettingsHome = (): JSX.Element => {
   const role = useAppSelector(selectUserRole);
 
-  const home: Record<Role, JSX.Element> = {
+  const home: Partial<Record<Role, JSX.Element>> = {
     [Role.Doctor]: <PersonalInfo />,
     [Role.Patient]: <PatientInfo />,
     [Role.Admin]: <HospitalSettings />,
+    [Role.Hospital]: <HospitalSettings />,
     [Role.SuperAdmin]: <>Yet to be implemented</>,
   };
 
-  return <>{home[role!]}</>;
+  return <>{(role && home[role]) ?? null}</>;
 };
 
 export default SettingsHome;

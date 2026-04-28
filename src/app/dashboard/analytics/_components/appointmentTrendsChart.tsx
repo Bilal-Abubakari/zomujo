@@ -1,0 +1,138 @@
+'use client';
+
+import { JSX } from 'react';
+import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
+import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { IAnalyticsTrend } from '@/types/analytics.interface';
+import moment from 'moment';
+
+interface AppointmentTrendsChartProps {
+  data: IAnalyticsTrend[];
+  isLoading?: boolean;
+}
+
+const chartConfig = {
+  appointments: {
+    label: 'Appointments',
+    color: 'hsl(var(--chart-1))',
+  },
+} satisfies ChartConfig;
+
+function formatTooltipValue(value: unknown): string {
+  if (value == null) {
+    return '';
+  }
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    return String(value);
+  }
+  if (typeof value === 'symbol' || typeof value === 'function') {
+    return String(value);
+  }
+  return '';
+}
+
+interface ChartTooltipContentProps {
+  active?: boolean;
+  payload?: unknown;
+}
+
+const AppointmentChartTooltip = ({
+  active,
+  payload,
+}: ChartTooltipContentProps): JSX.Element | null => {
+  const items = payload as Array<{ value?: unknown; payload?: { fullDate?: string } }> | undefined;
+  if (!active || !items?.length) {
+    return null;
+  }
+  const first = items[0];
+  const displayValue = formatTooltipValue(first?.value);
+  const fullDate = first?.payload?.fullDate;
+  return (
+    <div className="bg-background rounded-lg border p-2 shadow-sm">
+      <div className="grid gap-2">
+        <div className="flex flex-col">
+          <span className="text-muted-foreground text-[0.70rem] uppercase">Appointments</span>
+          <span className="text-muted-foreground font-bold">{displayValue}</span>
+          {fullDate && <span className="text-muted-foreground text-[0.70rem]">{fullDate}</span>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AppointmentTrendsChart = ({ data, isLoading }: AppointmentTrendsChartProps): JSX.Element => {
+  // Format data for chart
+  const chartData = data.map((item) => ({
+    date: moment(item.date).format('MMM DD'),
+    value: item.total,
+    fullDate: moment(item.date).format('LL'),
+  }));
+
+  if (isLoading || !chartData.length) {
+    return (
+      <Card className="rounded-2xl">
+        <CardTitle className="text-grayscale-500 p-8 text-base font-medium">
+          Appointment Trends
+        </CardTitle>
+        <CardContent className="flex h-[300px] items-center justify-center">
+          <p className="text-grayscale-500">Loading chart data...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="rounded-2xl">
+      <CardTitle className="text-grayscale-500 p-8 text-base font-medium">
+        Appointment Trends
+      </CardTitle>
+      <CardContent className="max-md:p-1">
+        <ChartContainer config={chartConfig}>
+          <AreaChart accessibilityLayer data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => value}
+            />
+            <YAxis
+              dataKey="value"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={String}
+            />
+            <ChartTooltip cursor={false} content={AppointmentChartTooltip} />
+            <Area
+              dataKey="value"
+              type="linear"
+              fill="#FF8B371D"
+              fillOpacity={0.4}
+              stroke="#FF891C"
+              strokeWidth={2}
+            />
+          </AreaChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter className="items-start gap-8 p-8">
+        <div className="flex flex-col">
+          <span className="text-2xl font-bold text-black">
+            {chartData.reduce((sum, item) => sum + item.value, 0)}
+          </span>
+          <span className="text-grayscale-500 text-xs 2xl:text-sm">Total Appointments</span>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+};
+
+export default AppointmentTrendsChart;

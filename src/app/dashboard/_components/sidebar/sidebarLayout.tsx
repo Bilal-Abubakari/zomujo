@@ -48,6 +48,8 @@ import {
   PATIENT_RECORD_SIDEBAR,
   PATIENT_SETTINGS_SIDEBAR,
   PATIENT_SIDE_BAR,
+  HOSPITAL_SIDE_BAR,
+  HOSPITAL_SETTINGS_SIDEBAR,
 } from '@/constants/sidebar.constant';
 import { logout } from '@/lib/features/auth/authThunk';
 import { useIsMobile } from '@/hooks/useMobile';
@@ -123,6 +125,8 @@ export const SidebarLayout = ({
         return 'Doctor';
       case Role.Patient:
         return 'Patient';
+      case Role.Hospital:
+        return 'Hospital';
       default:
         return '';
     }
@@ -299,7 +303,7 @@ const ProfileDropdownMenu = (): JSX.Element => {
   );
 };
 
-const getSidebarByRole = (role?: Role, type?: SidebarType): ISidebar => {
+export const getSidebarByRole = (role?: Role, type?: SidebarType): ISidebar => {
   if (type === SidebarType.Settings) {
     switch (role) {
       case Role.Admin:
@@ -307,6 +311,8 @@ const getSidebarByRole = (role?: Role, type?: SidebarType): ISidebar => {
         return ADMIN_SETTINGS_SIDEBAR;
       case Role.Doctor:
         return DOCTOR_SETTINGS_SIDEBAR;
+      case Role.Hospital:
+        return HOSPITAL_SETTINGS_SIDEBAR;
       default:
         return PATIENT_SETTINGS_SIDEBAR;
     }
@@ -319,6 +325,8 @@ const getSidebarByRole = (role?: Role, type?: SidebarType): ISidebar => {
         return ADMIN_SIDE_BAR;
       case Role.Doctor:
         return DOCTOR_SIDE_BAR;
+      case Role.Hospital:
+        return HOSPITAL_SIDE_BAR;
       default:
         return PATIENT_SIDE_BAR;
     }

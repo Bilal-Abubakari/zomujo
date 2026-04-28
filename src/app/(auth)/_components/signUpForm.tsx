@@ -9,14 +9,18 @@ import { z } from 'zod';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { AlertMessage } from '@/components/ui/alert';
-import { IOrganizationRequest, IUserSignUp } from '@/types/auth.interface';
+import { IOrganizationRequest, IUserSignUp, IHospitalSignUp } from '@/types/auth.interface';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { requestOrganization, signUp, initiateGoogleOAuth } from '@/lib/features/auth/authThunk';
+import {
+  requestOrganization,
+  signUp,
+  initiateGoogleOAuth,
+  hospitalSignUp,
+} from '@/lib/features/auth/authThunk';
 import { selectThunkState } from '@/lib/features/auth/authSelector';
 import { Role } from '@/types/shared.enum';
 import { ImageVariant, Modal } from '@/components/ui/dialog';
-import Location from '@/components/location/location';
-import { Option } from 'react-google-places-autocomplete/build/types';
+import Location, { Option } from '@/components/location/location';
 import { ISelected } from '@/components/ui/dropdown-menu';
 import UserSignUp, { UserSignUpMethods } from '@/app/(auth)/_components/userSignUp';
 import GoogleOAuthButton from '@/components/ui/googleOAuthButton';
@@ -30,6 +34,7 @@ const roleOptions: ISelected[] = [
     value: Role.Patient,
   },
   { label: 'Doctor', value: Role.Doctor },
+  { label: 'Hospital', value: Role.Hospital },
 ];
 
 export type SignUpFormProps = {
@@ -49,6 +54,23 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     gpsLink: requiredStringSchema(),
   });
 
+  const hospitalSignUpSchema = z
+    .object({
+      email: emailSchema,
+      password: z.string().min(8, 'Password must be at least 8 characters'),
+      confirmPassword: z.string(),
+      hospitalName: nameSchema,
+      location: requiredStringSchema(),
+      long: z.number(),
+      lat: z.number(),
+      gpsLink: requiredStringSchema(),
+      phone: z.string().optional(),
+    })
+    .refine(({ password, confirmPassword }) => password === confirmPassword, {
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    });
+
   const searchParams = useSearchParams();
   const roleParam = searchParams.get('role');
 
@@ -64,7 +86,20 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     mode: MODE.ON_TOUCH,
   });
 
+  const {
+    register: registerHospital,
+    handleSubmit: handleSubmitHospital,
+    watch: watchHospital,
+    setValue: setValueHospital,
+    trigger: triggerHospital,
+    formState: { errors: errorsHospital, isValid: isValidHospital },
+  } = useForm<IHospitalSignUp>({
+    resolver: zodResolver(hospitalSignUpSchema),
+    mode: MODE.ON_TOUCH,
+  });
+
   const location = watch('location');
+  const hospitalLocation = watchHospital('location');
 
   const dispatch = useAppDispatch();
   const [role, setRole] = useState<Role>(Role.Patient);
@@ -80,7 +115,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
         name: capitalize(userCredentials.name.trim()),
       };
       payload = await dispatch(requestOrganization(formattedCredentials)).unwrap();
-    } else if (role !== Role.Admin && 'firstName' in userCredentials) {
+    } else if (role !== Role.Admin && role !== Role.Hospital && 'firstName' in userCredentials) {
       payload = await dispatch(signUp({ ...userCredentials, role, doctorId, slotId })).unwrap();
     } else {
       return;
@@ -94,27 +129,53 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     setOpenModal(true);
   };
 
+  const onHospitalSubmit = async (hospitalCredentials: IHospitalSignUp): Promise<void> => {
+    setSuccessMessage('');
+    const formattedCredentials = {
+      ...hospitalCredentials,
+      hospitalName: capitalize(hospitalCredentials.hospitalName.trim()),
+    };
+    const { payload } = await dispatch(hospitalSignUp(formattedCredentials));
+    if (payload) {
+      // Hospital sign-up logs in automatically, redirect to dashboard
+      globalThis.location.href = '/dashboard';
+      return;
+    }
+    setOpenModal(true);
+  };
+
   const [openModal, setOpenModal] = useState(false);
+
+  // Dummy GPS coordinates for different locations
+  const DUMMY_COORDINATES: Record<string, { lat: number; lng: number; url: string }> = {
+    '1': { lat: 5.6037, lng: -0.187, url: 'https://maps.google.com/?q=Liberation+Road+Accra' },
+    '2': { lat: 5.5558, lng: -0.1969, url: 'https://maps.google.com/?q=Osu+Accra' },
+    '3': { lat: 5.6698, lng: -0.0166, url: 'https://maps.google.com/?q=Tema+Ghana' },
+    '4': { lat: 6.6885, lng: -1.6244, url: 'https://maps.google.com/?q=Kumasi+Ghana' },
+    '5': { lat: 4.8845, lng: -1.7554, url: 'https://maps.google.com/?q=Takoradi+Ghana' },
+  };
+
   const handleLocationValue = ({ value }: Option): void => {
-    const service = new google.maps.places.PlacesService(document.createElement('div'));
     const placeId = value.place_id;
+    const coords = DUMMY_COORDINATES[placeId] || DUMMY_COORDINATES['1'];
 
-    service.getDetails({ placeId }, (place, status) => {
-      if (status !== 'OK' || !place?.geometry?.location) {
-        return;
-      }
+    setValue('lat', coords.lat);
+    setValue('long', coords.lng);
+    setValue('gpsLink', coords.url);
+    setValue('location', value.description, {
+      shouldValidate: true,
+    });
+  };
 
-      const {
-        geometry: { location },
-        url,
-      } = place;
+  const handleHospitalLocationValue = ({ value }: Option): void => {
+    const placeId = value.place_id;
+    const coords = DUMMY_COORDINATES[placeId] || DUMMY_COORDINATES['1'];
 
-      setValue('lat', location.lat());
-      setValue('long', location.lng());
-      setValue('gpsLink', url ?? '');
-      setValue('location', value.description, {
-        shouldValidate: true,
-      });
+    setValueHospital('lat', coords.lat);
+    setValueHospital('long', coords.lng);
+    setValueHospital('gpsLink', coords.url);
+    setValueHospital('location', value.description, {
+      shouldValidate: true,
     });
   };
 
@@ -133,6 +194,8 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
         return 'Provide healthcare services and manage patients';
       case Role.Admin:
         return 'Manage your healthcare organization';
+      case Role.Hospital:
+        return 'Manage hospital operations and view appointments';
       default:
         return '';
     }
@@ -209,7 +272,7 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
           </div>
         </div>
       )}
-      {role !== Role.Admin && (
+      {role !== Role.Admin && role !== Role.Hospital && (
         <>
           <GoogleOAuthButton
             onClick={handleGoogleSignUp}
@@ -229,6 +292,80 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
             hasBookingInfo={hasBookingInfo}
           />
         </>
+      )}
+      {role === Role.Hospital && (
+        <form onSubmit={handleSubmitHospital(onHospitalSubmit)} className="mt-8 space-y-6">
+          <div className="space-y-4">
+            <Input
+              labelName="Email"
+              error={errorsHospital.email?.message}
+              placeholder="admin@hospital.com"
+              {...registerHospital('email')}
+            />
+            <Input
+              labelName="Password"
+              error={errorsHospital.password?.message}
+              placeholder="••••••••"
+              type="password"
+              {...registerHospital('password')}
+            />
+            <Input
+              labelName="Confirm Password"
+              error={errorsHospital.confirmPassword?.message}
+              placeholder="••••••••"
+              type="password"
+              {...registerHospital('confirmPassword')}
+            />
+            <Input
+              labelName="Hospital Name"
+              error={errorsHospital.hospitalName?.message}
+              placeholder={PLACEHOLDER_HOSPITAL_NAME}
+              {...registerHospital('hospitalName')}
+            />
+            <Location
+              placeHolder="Liberation Road, Accra"
+              error={errorsHospital.location?.message || ''}
+              value={hospitalLocation || ''}
+              onChange={(value) => {
+                setValueHospital('location', value, { shouldValidate: true });
+                // Set default coordinates if not already set (when typing directly)
+                const currentLat = watchHospital('lat');
+                const currentLong = watchHospital('long');
+                const currentGpsLink = watchHospital('gpsLink');
+                if (currentLat === undefined || currentLong === undefined || !currentGpsLink) {
+                  // Use default coordinates from first location
+                  const defaultCoords = DUMMY_COORDINATES['1'];
+                  setValueHospital('lat', defaultCoords.lat, { shouldValidate: true });
+                  setValueHospital('long', defaultCoords.lng, { shouldValidate: true });
+                  setValueHospital('gpsLink', defaultCoords.url, { shouldValidate: true });
+                  // Trigger validation for all location-related fields
+                  setTimeout(() => {
+                    triggerHospital(['location', 'lat', 'long', 'gpsLink']);
+                  }, 0);
+                }
+              }}
+              handleLocationValue={handleHospitalLocationValue}
+              onBlur={() => {
+                if (!hospitalLocation) {
+                  setValueHospital('location', '', { shouldTouch: true, shouldValidate: true });
+                }
+              }}
+            />
+            <Input
+              labelName="Phone (Optional)"
+              error={errorsHospital.phone?.message}
+              placeholder="+233 24 123 4567"
+              {...registerHospital('phone')}
+            />
+          </div>
+          <Button
+            type="submit"
+            className="mt-4 w-full"
+            child="Create Hospital Account"
+            disabled={!isValidHospital || isLoading}
+            isLoading={isLoading}
+          />
+        </form>
       )}
       {role === Role.Admin && (
         <>
@@ -250,10 +387,16 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
             <Location
               placeHolder="Liberation Road, Accra"
               error={errors.location?.message || ''}
+              value={location || ''}
+              onChange={(value) => {
+                setValue('location', value, { shouldValidate: true });
+              }}
               handleLocationValue={handleLocationValue}
-              onBlur={() =>
-                !location && setValue('location', '', { shouldTouch: true, shouldValidate: true })
-              }
+              onBlur={() => {
+                if (!location) {
+                  setValue('location', '', { shouldTouch: true, shouldValidate: true });
+                }
+              }}
             />
             <Input
               labelName="Email"

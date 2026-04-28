@@ -10,7 +10,6 @@ import {
   CheckCircle,
   Shield,
   CircleDollarSign,
-  ExternalLink,
   CalendarCheck,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -30,7 +29,6 @@ const HospitalPreview = (hospital: IHospital): JSX.Element => {
     email,
     specialties,
     distance,
-    gpsLink,
     supportedInsurance,
     regularFee,
     image,
@@ -125,11 +123,15 @@ const HospitalPreview = (hospital: IHospital): JSX.Element => {
           </div>
           <div className="flex gap-4">
             <Button
-              onClick={() => openExternalUrls(gpsLink)}
+              onClick={() =>
+                router.push(
+                  `/dashboard/book-appointment/${id}?appointmentType=${MedicalAppointmentType.Hospital}`,
+                )
+              }
               child={
                 <>
-                  <ExternalLink size={14} />
-                  Open in Maps
+                  <CalendarCheck size={14} />
+                  Book Appointment
                 </>
               }
             />

@@ -4,6 +4,7 @@ import UpcomingAppointments from '@/app/dashboard/appointment/_components/upcomi
 import AppointmentRequests from '@/app/dashboard/appointment/_components/appointmentRequests';
 import { JSX } from 'react';
 import { AppointmentView, useQueryParam } from '@/hooks/useQueryParam';
+import { selectUser } from '@/lib/features/auth/authSelector';
 import { useAppSelector } from '@/lib/hooks';
 import { selectUserRole } from '@/lib/features/auth/authSelector';
 import { Role } from '@/types/shared.enum';
@@ -28,7 +29,7 @@ const Appointment = (): JSX.Element => {
       <div>
         <Tabs value={getQueryParam('appointmentView') || AppointmentView.Upcoming} className="mt-2">
           <div className="flex items-center">
-            <p className="text-xl font-bold">Appointment</p>
+            <p className="text-xl font-bold">Appointments</p>
             <div className="m-auto">
               <TabsList>
                 <TabsTrigger
@@ -43,7 +44,7 @@ const Appointment = (): JSX.Element => {
                   className="rounded-2xl"
                   onClick={() => updateQuery('appointmentView', AppointmentView.Requests)}
                 >
-                  Requests
+                  Appointment Requests
                 </TabsTrigger>
               </TabsList>
             </div>

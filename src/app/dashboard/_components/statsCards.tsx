@@ -8,9 +8,15 @@ export type StatsCardsProps = {
   statsData: IStatsCard[];
   numberOfCards?: number;
   isLoading?: boolean;
+  onClick?: () => void;
 };
 
-const StatsCards = ({ statsData, numberOfCards = 3, isLoading }: StatsCardsProps): JSX.Element =>
+const StatsCards = ({
+  statsData,
+  numberOfCards = 3,
+  isLoading,
+  onClick,
+}: StatsCardsProps): JSX.Element =>
   isLoading ? (
     <>
       {Array.from({ length: numberOfCards }).map((value, index) => (

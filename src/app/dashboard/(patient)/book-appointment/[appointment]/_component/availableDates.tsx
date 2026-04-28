@@ -22,8 +22,9 @@ const AvailableDates = ({
   setValue,
   watch,
   doctorId,
+  isHospitalAppointment,
   onNoSlotsFound,
-}: AvailabilityProps): JSX.Element => {
+}: AvailabilityProps & { isHospitalAppointment?: boolean }): JSX.Element => {
   const date = watch('date');
   const selectedTime = watch('time');
   const dispatch = useAppDispatch();
@@ -39,6 +40,20 @@ const AvailableDates = ({
   const timeSlotsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // For hospital appointments, allow any future date (no slot restrictions)
+    if (isHospitalAppointment) {
+      // Generate available dates for the next 3 months
+      const dates: Date[] = [];
+      const today = new Date();
+      for (let i = 0; i < 90; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        dates.push(date);
+      }
+      setCanBookDates(dates);
+      return;
+    }
+
     async function slotsAvailable(): Promise<void> {
       setIsLoadingAppointmentDates(true);
       const lastDateOfTheMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
@@ -70,9 +85,14 @@ const AvailableDates = ({
     }
 
     void slotsAvailable();
-  }, [currentDate]);
+  }, [currentDate, isHospitalAppointment]);
 
   useEffect(() => {
+    // Skip slot fetching for hospital appointments (they don't use slots)
+    if (isHospitalAppointment) {
+      return;
+    }
+
     async function slotsAvailable(): Promise<void> {
       setAvailableTimeSlots([]);
       setIsAvailableSlotLoading(true);
@@ -103,7 +123,7 @@ const AvailableDates = ({
     }
 
     void slotsAvailable();
-  }, [date]);
+  }, [date, isHospitalAppointment]);
 
   // Scroll to time slots when they're loaded after date selection
   useEffect(() => {
@@ -167,40 +187,42 @@ const AvailableDates = ({
             />
           </div>
 
-          <div ref={timeSlotsRef}>
-            <p className="mt-5 mb-2 font-medium">Available time (Africa/Accra - GMT (+00:00))</p>
-            {!!availableTimeSlots.length && (
-              <small className="m-auto text-center text-red-500">
-                *Each session is 45 minutes{' '}
-              </small>
-            )}
-            <div className="flex flex-wrap gap-3">
-              {!!availableTimeSlots.length &&
-                availableTimeSlots.map(({ startTime, id }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className={cn(
-                      'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
-                      selectedTime === startTime && 'border-primary text-primary',
-                    )}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleSlotSelection(startTime, id);
-                    }}
-                  >
-                    {startTime}
-                  </button>
-                ))}
-              {!availableTimeSlots.length && !isAvailableSlotLoading && (
-                <div className="text-red-500">
-                  {' '}
-                  Sorry, no available slot for the selected date 😕{' '}
-                </div>
+          {!isHospitalAppointment && (
+            <div ref={timeSlotsRef}>
+              <p className="mt-5 mb-2 font-medium">Available time (Africa/Accra - GMT (+00:00))</p>
+              {!!availableTimeSlots.length && (
+                <small className="m-auto text-center text-red-500">
+                  *Each session is 45 minutes{' '}
+                </small>
               )}
+              <div className="flex flex-wrap gap-3">
+                {!!availableTimeSlots.length &&
+                  availableTimeSlots.map(({ startTime, id }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      className={cn(
+                        'w-max cursor-pointer rounded-sm border p-1 font-medium text-gray-500',
+                        selectedTime === startTime && 'border-primary text-primary',
+                      )}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleSlotSelection(startTime, id);
+                      }}
+                    >
+                      {startTime}
+                    </button>
+                  ))}
+                {!availableTimeSlots.length && !isAvailableSlotLoading && (
+                  <div className="text-red-500">
+                    {' '}
+                    Sorry, no available slot for the selected date 😕{' '}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-
+          )}
+             
           {isAvailableSlotLoading && (
             <div className="flex gap-2">
               {new Array(5).map((num, index) => (

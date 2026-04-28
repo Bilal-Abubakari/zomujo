@@ -38,6 +38,7 @@ export interface IUser extends IBaseUser {
   role: Role;
   createdAt: Date;
   isOAuthOnly: boolean;
+  contact?: string;
 }
 
 export interface IUserSignUp extends IBaseUser {
@@ -57,6 +58,18 @@ export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {
   lat: number;
   long: number;
   gpsLink: string;
+}
+
+export interface IHospitalSignUp {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  hospitalName: string;
+  location: string;
+  lat: number;
+  long: number;
+  gpsLink: string;
+  phone?: string;
 }
 
 export interface ILogin extends IAuthBooking {

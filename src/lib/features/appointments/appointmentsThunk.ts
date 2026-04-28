@@ -232,6 +232,17 @@ export const rescheduleAppointment = createAsyncThunk(
   },
 );
 
+export const reopenAppointment = createAsyncThunk(
+  'appointment/reopen',
+  async (id: string): Promise<Toast> => {
+    try {
+      const { data } = await axios.patch<IResponse>(`appointments/reopen/${id}`);
+      return generateSuccessToast(data.message);
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
 export const linkAppointment = createAsyncThunk(
   'appointment/link',
   async (payload: IAppointmentLinkPayload): Promise<Toast> => {
