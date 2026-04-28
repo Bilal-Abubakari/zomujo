@@ -43,10 +43,13 @@ export default function DoctorProfileView({
     url,
     cardRef,
     doctorId,
-    profilePictureBase64,
-    isImageLoading,
-    doctor ? `${doctor.firstName} ${doctor.lastName}` : undefined,
-    profileCardRef,
+    {
+      profilePictureBase64,
+      isImageLoading,
+      doctorName: doctor ? `${doctor.firstName} ${doctor.lastName}` : undefined,
+      profileCardRef,
+      profilePictureUrl: doctor?.profilePicture,
+    },
   );
 
   useEffect(() => {
