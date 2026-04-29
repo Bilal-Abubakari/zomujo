@@ -77,8 +77,17 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
     id: 'totalAmount',
     header: 'Amount',
     cell: ({ row }): JSX.Element => {
-      const { totalAmount, subtotal, tax, paystackFee, netAmount, platformShare, doctorShare, doctorNet, currency } =
-        row.original;
+      const {
+        totalAmount,
+        subtotal,
+        tax,
+        paystackFee,
+        netAmount,
+        platformShare,
+        doctorShare,
+        doctorNet,
+        currency,
+      } = row.original;
       return (
         <Popover>
           <PopoverTrigger className="flex items-center gap-1 font-semibold hover:text-gray-700">
@@ -117,7 +126,6 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
   {
     id: 'date',
     header: 'Date',
-    cell: ({ row }): string =>
-      getFormattedDate(row.original.paidAt ?? row.original.createdAt),
+    cell: ({ row }): string => getFormattedDate(row.original.paidAt ?? row.original.createdAt),
   },
 ];
