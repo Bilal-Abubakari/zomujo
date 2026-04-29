@@ -5,6 +5,8 @@ import { AvatarWithName } from '@/components/ui/avatar';
 import { getFormattedDate } from '@/lib/date';
 import { PESEWAS_PER_CEDI } from '@/constants/payment.constants';
 import { capitalize } from '@/lib/utils';
+import { TooltipComp } from '@/components/ui/tooltip';
+import { Info } from 'lucide-react';
 import TransactionStatusBadge from './transactionStatusBadge';
 
 const formatAmount = (amount: number, currency: string): string => {
@@ -63,9 +65,19 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   {
     accessorKey: 'type',
     header: 'Type',
-    cell: ({ row }): JSX.Element => (
-      <span className="text-sm">{formatType(row.getValue('type'))}</span>
-    ),
+    cell: ({ row }): JSX.Element => {
+      const description = row.original.description;
+      return (
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm">{formatType(row.getValue('type'))}</span>
+          {description && (
+            <TooltipComp tip={description}>
+              <Info className="h-3.5 w-3.5 shrink-0 cursor-pointer text-gray-400" />
+            </TooltipComp>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'amount',

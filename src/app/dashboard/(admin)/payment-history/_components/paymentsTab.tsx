@@ -5,44 +5,43 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { OptionsMenu } from '@/components/ui/dropdown-menu';
 import { TableData, PaginationData } from '@/components/ui/table';
-import { Search, SendHorizontal, ListFilter, Tag, SlidersHorizontal } from 'lucide-react';
-import { TransactionStatus, OrderDirection } from '@/types/shared.enum';
-import { ITransaction, ITransactionQueryParams } from '@/types/payment.interface';
+import { Search, SendHorizontal, ListFilter, Radio, SlidersHorizontal } from 'lucide-react';
+import { OrderDirection, PaymentChannel, PaymentStatus } from '@/types/shared.enum';
+import { IPayment, IPaymentQueryParams } from '@/types/payment.interface';
 import { useAppDispatch } from '@/lib/hooks';
 import { IPagination } from '@/types/shared.interface';
-
 import { showErrorToast } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { useSearch } from '@/hooks/useSearch';
-import { getTransactions } from '@/lib/features/payments/paymentsThunk';
-import { transactionStatusOptions, transactionTypeOptions } from '@/constants/constants';
-import { transactionColumns } from './transactionColumns';
+import { getPayments } from '@/lib/features/payments/paymentsThunk';
+import { paymentChannelOptions, paymentStatusOptions } from '@/constants/constants';
+import { paymentColumns } from './paymentColumns';
 
-const DEFAULT_QUERY: ITransactionQueryParams = {
+const DEFAULT_QUERY: IPaymentQueryParams = {
   page: 1,
   pageSize: 10,
   orderDirection: OrderDirection.Descending,
   orderBy: 'createdAt',
-  status: '' as TransactionStatus | '',
+  status: '' as PaymentStatus | '',
+  channel: '' as PaymentChannel | '',
   search: '',
-  type: '',
   amountMin: '',
   amountMax: '',
   from: '',
   to: '',
 };
 
-const TransactionsTab = (): JSX.Element => {
+const PaymentsTab = (): JSX.Element => {
   const dispatch = useAppDispatch();
-  const [tableData, setTableData] = useState<ITransaction[]>([]);
+  const [tableData, setTableData] = useState<IPayment[]>([]);
   const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
-  const [query, setQuery] = useState<ITransactionQueryParams>(DEFAULT_QUERY);
+  const [query, setQuery] = useState<IPaymentQueryParams>(DEFAULT_QUERY);
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
       setIsLoading(true);
-      const { payload } = await dispatch(getTransactions(query));
+      const { payload } = await dispatch(getPayments(query));
       setIsLoading(false);
 
       if (payload && showErrorToast(payload)) {
@@ -50,7 +49,7 @@ const TransactionsTab = (): JSX.Element => {
         return;
       }
 
-      const { rows, ...pagination } = payload as IPagination<ITransaction>;
+      const { rows, ...pagination } = payload as IPagination<IPayment>;
       setTableData(rows);
       setPaginationData(pagination);
     };
@@ -58,7 +57,7 @@ const TransactionsTab = (): JSX.Element => {
     void fetchData();
   }, [query, dispatch]);
 
-  const updateQuery = (updates: Partial<ITransactionQueryParams>): void => {
+  const updateQuery = (updates: Partial<IPaymentQueryParams>): void => {
     setQuery((prev) => ({ ...prev, page: 1, ...updates }));
   };
 
@@ -73,10 +72,10 @@ const TransactionsTab = (): JSX.Element => {
     <div className="rounded-lg bg-white shadow-sm">
       <div className="p-6">
         <div className="mb-5">
-          <h2 className="text-lg font-semibold text-gray-800">Internal Transactions</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Patient Payments</h2>
           <p className="text-sm text-gray-500">
-            Every financial movement generated from a patient payment — including doctor earnings,
-            platform fees, taxes, refunds, and payouts.
+            All payments received from patients — the initial charge before it is split into
+            platform fees, doctor earnings, and taxes.
           </p>
         </div>
 
@@ -86,7 +85,7 @@ const TransactionsTab = (): JSX.Element => {
           <form className="flex" onSubmit={handleSubmit}>
             <Input
               error=""
-              placeholder="Search by reference..."
+              placeholder="Search by reference or patient..."
               className="sm:w-70"
               type="search"
               leftIcon={<Search className="text-gray-500" size={18} />}
@@ -97,21 +96,21 @@ const TransactionsTab = (): JSX.Element => {
 
           {/* Status filter */}
           <OptionsMenu
-            options={transactionStatusOptions}
+            options={paymentStatusOptions}
             Icon={ListFilter}
             menuTrigger="Status"
-            selected={query.status}
-            setSelected={(value) => updateQuery({ status: value as TransactionStatus | '' })}
+            selected={query.status ?? ''}
+            setSelected={(value) => updateQuery({ status: value as PaymentStatus | '' })}
             className="h-10 cursor-pointer bg-gray-50"
           />
 
-          {/* Type filter */}
+          {/* Channel filter */}
           <OptionsMenu
-            options={transactionTypeOptions}
-            Icon={Tag}
-            menuTrigger="Type"
-            selected={query.type ?? ''}
-            setSelected={(value) => updateQuery({ type: value })}
+            options={paymentChannelOptions}
+            Icon={Radio}
+            menuTrigger="Channel"
+            selected={query.channel ?? ''}
+            setSelected={(value) => updateQuery({ channel: value as PaymentChannel | '' })}
             className="h-10 cursor-pointer bg-gray-50"
           />
 
@@ -168,7 +167,7 @@ const TransactionsTab = (): JSX.Element => {
 
         {/* Table */}
         <TableData
-          columns={transactionColumns}
+          columns={paymentColumns}
           data={tableData}
           page={query.page}
           userPaginationChange={({ pageIndex }) =>
@@ -182,4 +181,4 @@ const TransactionsTab = (): JSX.Element => {
   );
 };
 
-export default TransactionsTab;
+export default PaymentsTab;

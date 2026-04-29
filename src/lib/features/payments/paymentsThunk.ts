@@ -6,8 +6,10 @@ import {
   ICashFlow,
   ICheckout,
   IRate,
+  IPayment,
   IPaymentDetails,
   ICreatePaymentDetails,
+  IPaymentQueryParams,
   ITransaction,
   ITransactionQueryParams,
   IWallet,
@@ -191,6 +193,20 @@ export const getTransactions = createAsyncThunk(
     try {
       const { data } = await axios.get<IResponse<IPagination<ITransaction>>>(
         `payments/transactions?${getValidQueryString(query)}`,
+      );
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getPayments = createAsyncThunk(
+  'payment/getPayments',
+  async (query: IPaymentQueryParams): Promise<IPagination<IPayment> | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<IPayment>>>(
+        `payments?${getValidQueryString(query)}`,
       );
       return data.data;
     } catch (error) {
