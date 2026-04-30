@@ -499,11 +499,11 @@ const RecentPaymentsContent = ({
                   {'GHC'} {pesewasToGhc(amount).toLocaleString()}
                 </td>
                 <td className="text-grayscale-500 px-6 py-4 capitalize">
-                  {channel.replace(/_/g, ' ')}
+                  {channel.replaceAll('_', ' ')}
                 </td>
                 <td className="px-6 py-4">
                   <Badge variant={getPaymentBadgeVariant(status)} className="capitalize">
-                    {status.replace(/_/g, ' ')}
+                    {status.replaceAll('_', ' ')}
                   </Badge>
                 </td>
                 <td className="text-grayscale-500 px-6 py-4">

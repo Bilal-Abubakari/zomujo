@@ -23,6 +23,7 @@ import { PaymentTab } from '@/hooks/useQueryParam';
 import { ScrollContext } from '@/context/scroll-context';
 import OnboardingModalContent from '@/app/dashboard/_components/onboardingModalContent';
 import './layout.css';
+import PendingPaymentBanner from '@/components/payment/PendingPaymentBanner';
 
 export default function Layout({
   children,
@@ -143,6 +144,7 @@ export default function Layout({
       </DashboardProvider>
       <NotificationActions />
       <ReviewModal />
+      <PendingPaymentBanner />
     </ScrollContext.Provider>
   );
 }
