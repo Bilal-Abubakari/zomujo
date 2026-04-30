@@ -245,13 +245,10 @@ export const retryPayment = createAsyncThunk(
   'payment/retryPayment',
   async (ref: string): Promise<IRetryPaymentResponse | Toast> => {
     try {
-      const { data } = await axios.post<IResponse<IRetryPaymentResponse>>(
-        `payments/retry/${ref}`,
-      );
+      const { data } = await axios.post<IResponse<IRetryPaymentResponse>>(`payments/retry/${ref}`);
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
     }
   },
 );
-

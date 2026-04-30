@@ -166,4 +166,3 @@ export interface IRetryPaymentResponse extends ICheckout {
   expiresAt: string;
   secondsLeft: number;
 }
-
