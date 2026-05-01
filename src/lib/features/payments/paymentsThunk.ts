@@ -10,6 +10,8 @@ import {
   IPaymentDetails,
   ICreatePaymentDetails,
   IPaymentQueryParams,
+  IPendingPayment,
+  IRetryPaymentResponse,
   ITransaction,
   ITransactionQueryParams,
   IWallet,
@@ -220,6 +222,30 @@ export const getCashFlow = createAsyncThunk(
   async (): Promise<ICashFlow | Toast> => {
     try {
       const { data } = await axios.get<IResponse<ICashFlow>>('payments/cash-flow');
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getPendingPayments = createAsyncThunk(
+  'payment/getPendingPayments',
+  async (): Promise<IPendingPayment[] | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IPendingPayment[]>>('payments/pending');
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const retryPayment = createAsyncThunk(
+  'payment/retryPayment',
+  async (ref: string): Promise<IRetryPaymentResponse | Toast> => {
+    try {
+      const { data } = await axios.post<IResponse<IRetryPaymentResponse>>(`payments/retry/${ref}`);
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

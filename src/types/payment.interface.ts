@@ -128,3 +128,41 @@ export interface ICheckout {
   authorization_url: string;
   access_code: string;
 }
+
+export interface IPendingPaymentSlot {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface IPendingPaymentDoctor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profilePicture: string | null;
+}
+
+export interface IPendingPayment {
+  reference: string;
+  status: 'pending' | 'failed';
+  totalAmount: number;
+  subtotal: number;
+  tax: number;
+  currency: 'GHS';
+  createdAt: string;
+  expiresAt: string;
+  secondsLeft: number;
+  canRetry: boolean;
+  slot: IPendingPaymentSlot | null;
+  doctor: IPendingPaymentDoctor | null;
+  reason: string | null;
+  additionalInfo: string | null;
+  isFollowUp: boolean;
+}
+
+export interface IRetryPaymentResponse extends ICheckout {
+  reference: string;
+  expiresAt: string;
+  secondsLeft: number;
+}
