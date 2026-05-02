@@ -83,6 +83,17 @@ async function bringOnScreen(wrapper: HTMLElement | null): Promise<() => void> {
     return () => {};
   }
 
+  // Remove any orphaned scrims from a previous call (e.g. rapid double-clicks)
+  document.querySelectorAll('[data-share-qr-scrim="true"]').forEach((el) => el.remove());
+
+  // Store the true off-screen position only once so that concurrent calls
+  // (double-click) always restore to the real original, not a stale '0'.
+  const ORIG_KEY = 'shareQrOrigLeft';
+  if (!('shareQrOrigLeft' in wrapper.dataset)) {
+    wrapper.dataset[ORIG_KEY] = wrapper.style.left;
+  }
+  const trueOriginal = wrapper.dataset[ORIG_KEY]!;
+
   const scrim = document.createElement('div');
   scrim.dataset.shareQrScrim = 'true';
   scrim.style.cssText = [
@@ -123,7 +134,6 @@ async function bringOnScreen(wrapper: HTMLElement | null): Promise<() => void> {
     scrim.style.opacity = '1';
   });
 
-  const original = wrapper.style.left;
   wrapper.style.left = '0';
   // Wait two frames for the browser to re-layout and paint the wrapper
   // (and for the scrim to fade in over it)
@@ -132,7 +142,8 @@ async function bringOnScreen(wrapper: HTMLElement | null): Promise<() => void> {
   );
 
   return () => {
-    wrapper.style.left = original;
+    wrapper.style.left = trueOriginal;
+    delete wrapper.dataset[ORIG_KEY];
     // Fade out, then remove
     scrim.style.opacity = '0';
     setTimeout(() => scrim.remove(), 150);
@@ -150,7 +161,6 @@ interface ShareQROptions {
 export function useShareQR(
   url: string,
   cardRef: RefObject<HTMLDivElement | null>,
-  doctorId: string,
   options: ShareQROptions = {},
 ): {
   copyToClipboard: () => Promise<void>;

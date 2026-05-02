@@ -42,7 +42,6 @@ export default function DoctorProfileView({
   const { copyToClipboard, shareOnSocial, downloadQRCode, downloadProfileCard } = useShareQR(
     url,
     cardRef,
-    doctorId,
     {
       profilePictureBase64,
       isImageLoading,
