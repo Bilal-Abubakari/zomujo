@@ -6,8 +6,12 @@ import {
   ICashFlow,
   ICheckout,
   IRate,
+  IPayment,
   IPaymentDetails,
   ICreatePaymentDetails,
+  IPaymentQueryParams,
+  IPendingPayment,
+  IRetryPaymentResponse,
   ITransaction,
   ITransactionQueryParams,
   IWallet,
@@ -199,11 +203,49 @@ export const getTransactions = createAsyncThunk(
   },
 );
 
+export const getPayments = createAsyncThunk(
+  'payment/getPayments',
+  async (query: IPaymentQueryParams): Promise<IPagination<IPayment> | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IPagination<IPayment>>>(
+        `payments?${getValidQueryString(query)}`,
+      );
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
 export const getCashFlow = createAsyncThunk(
   'payment/getCashFlow',
   async (): Promise<ICashFlow | Toast> => {
     try {
       const { data } = await axios.get<IResponse<ICashFlow>>('payments/cash-flow');
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getPendingPayments = createAsyncThunk(
+  'payment/getPendingPayments',
+  async (): Promise<IPendingPayment[] | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IPendingPayment[]>>('payments/pending');
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const retryPayment = createAsyncThunk(
+  'payment/retryPayment',
+  async (ref: string): Promise<IRetryPaymentResponse | Toast> => {
+    try {
+      const { data } = await axios.post<IResponse<IRetryPaymentResponse>>(`payments/retry/${ref}`);
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;
