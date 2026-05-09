@@ -179,7 +179,7 @@ const DoctorFields = ({
         <MultiSelect
           labelName={
             <>
-              Specialization <span className="text-red-500">*</span>
+              Specialty(ies) <span className="text-red-500">*</span>
             </>
           }
           options={specialties}

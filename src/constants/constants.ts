@@ -5,6 +5,8 @@ import {
   DurationType,
   Gender,
   MaritalStatus,
+  PaymentChannel,
+  PaymentStatus,
   TransactionStatus,
   TransactionType,
 } from '@/types/shared.enum';
@@ -244,6 +246,24 @@ export const doseRegimenOptions = [
   { value: 'Every 6 hours', label: 'Every 6 hours' },
   { value: 'Every 8 hours', label: 'Every 8 hours' },
   { value: 'Every 12 hours', label: 'Every 12 hours' },
+];
+
+export const paymentStatusOptions: ISelected[] = [
+  { value: '', label: 'All Statuses' },
+  { value: PaymentStatus.Pending, label: 'Pending' },
+  { value: PaymentStatus.Success, label: 'Success' },
+  { value: PaymentStatus.Failed, label: 'Failed' },
+  { value: PaymentStatus.Abandoned, label: 'Abandoned' },
+  { value: PaymentStatus.Refunded, label: 'Refunded' },
+  { value: PaymentStatus.PartialRefund, label: 'Partial Refund' },
+];
+
+export const paymentChannelOptions: ISelected[] = [
+  { value: '', label: 'All Channels' },
+  { value: PaymentChannel.MobileMoney, label: 'Mobile Money' },
+  { value: PaymentChannel.Card, label: 'Card' },
+  { value: PaymentChannel.Ghipss, label: 'GHIPSS' },
+  { value: PaymentChannel.BankTransfer, label: 'Bank Transfer' },
 ];
 
 export const transactionStatusOptions: ISelected[] = [

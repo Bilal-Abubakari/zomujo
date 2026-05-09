@@ -5,6 +5,7 @@ import axios, { axiosErrorHandler } from '@/lib/axios';
 import {
   IPaymentStats,
   IRecentTransaction,
+  IRecentPayment,
   IUserStats,
   IActiveUsers,
   IAppointmentStat,
@@ -29,6 +30,18 @@ export const getRecentTransactions = createAsyncThunk(
       const { data } = await axios.get<IResponse<IRecentTransaction[]>>(
         'dashboard/recent-transactions',
       );
+      return data.data;
+    } catch (error) {
+      return axiosErrorHandler(error, true) as Toast;
+    }
+  },
+);
+
+export const getRecentPayments = createAsyncThunk(
+  'dashboard/recentPayments',
+  async (): Promise<IRecentPayment[] | Toast> => {
+    try {
+      const { data } = await axios.get<IResponse<IRecentPayment[]>>('dashboard/recent-payments');
       return data.data;
     } catch (error) {
       return axiosErrorHandler(error, true) as Toast;

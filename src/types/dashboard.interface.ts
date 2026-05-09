@@ -1,3 +1,11 @@
+import {
+  PaymentChannel,
+  PaymentStatus,
+  TransactionStatus,
+  TransactionType,
+} from '@/types/shared.enum';
+import { ITransactionUser } from '@/types/payment.interface';
+
 export interface IPaymentStats {
   totalRevenue: number;
   platformRevenue: number;
@@ -7,19 +15,35 @@ export interface IPaymentStats {
   refundsCount: number;
 }
 
-export interface IRecentTransactionPatient {
-  fullName: string;
-  email: string;
-}
-
 export interface IRecentTransaction {
   id: string;
-  reference: string;
+  type: TransactionType;
   amount: number;
-  status: string;
-  channel: string;
+  currency: string;
+  reference: string;
+  status: TransactionStatus;
+  description: string | null;
   createdAt: string;
-  patient: IRecentTransactionPatient;
+}
+
+export interface IRecentPayment {
+  id: string;
+  reference: string;
+  subtotal: number;
+  tax: number;
+  amount: number;
+  paystackFee: number;
+  netAmount: number;
+  platformShare: number;
+  doctorShare: number;
+  doctorNet: number;
+  currency: string;
+  channel: PaymentChannel;
+  status: PaymentStatus;
+  paidAt: string | null;
+  createdAt: string;
+  patient: ITransactionUser | null;
+  doctor: ITransactionUser | null;
 }
 
 export interface IUserStats {

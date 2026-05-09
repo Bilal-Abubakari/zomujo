@@ -1,7 +1,7 @@
 import { RootState } from '@/lib/store';
 import { createSelector } from '@reduxjs/toolkit';
 import { SelectOption } from '@/components/ui/select';
-import { IBank } from '@/types/payment.interface';
+import { IBank, IPendingPayment } from '@/types/payment.interface';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const selectPayments = ({ payments }: RootState) => payments;
@@ -27,6 +27,21 @@ export const selectMobileMoneyOptions = createSelector(selectMobileMoneyAccounts
       value: code,
     }),
   ),
+);
+
+export const selectPendingPayments = createSelector(
+  selectPayments,
+  ({ pendingPayments }) => pendingPayments,
+);
+
+export const selectIsLoadingPendingPayments = createSelector(
+  selectPayments,
+  ({ isLoadingPendingPayments }) => isLoadingPendingPayments,
+);
+
+export const selectMostRecentPendingPayment = createSelector(
+  selectPendingPayments,
+  (pendingPayments): IPendingPayment | undefined => pendingPayments[0],
 );
 
 const deduplicateByCode = (banks: IBank[]): IBank[] => {

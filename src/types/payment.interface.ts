@@ -1,5 +1,5 @@
 import { IQueryParams } from '@/types/shared.interface';
-import { TransactionStatus } from '@/types/shared.enum';
+import { PaymentChannel, PaymentStatus, TransactionStatus } from '@/types/shared.enum';
 
 type PaymentType = 'mobile_money' | 'ghipss';
 
@@ -7,6 +7,7 @@ export interface ITransactionUser {
   id: string;
   firstName: string;
   lastName: string;
+  fullName: string;
   profilePicture: string;
 }
 
@@ -17,6 +18,7 @@ export interface ITransaction {
   amount: number;
   currency: string;
   reference: string;
+  description: string | null;
   createdAt: string;
   updatedAt: string;
   doctor: ITransactionUser | null;
@@ -30,6 +32,37 @@ export interface ICashFlow {
   tax: number;
   fees: number;
   platform: number;
+}
+
+export interface IPayment {
+  id: string;
+  reference: string;
+  subtotal: number;
+  tax: number;
+  totalAmount: number;
+  paystackFee: number;
+  netAmount: number;
+  platformShare: number;
+  doctorShare: number;
+  doctorNet: number;
+  currency: string;
+  channel: PaymentChannel;
+  status: PaymentStatus;
+  patientId: string | null;
+  authorizationCode: string;
+  paidAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  patient: ITransactionUser | null;
+  doctor: ITransactionUser | null;
+}
+
+export interface IPaymentQueryParams extends IQueryParams<PaymentStatus | ''> {
+  channel?: PaymentChannel | '';
+  amountMin?: string;
+  amountMax?: string;
+  from?: string;
+  to?: string;
 }
 
 export interface ITransactionQueryParams extends IQueryParams<TransactionStatus | ''> {
@@ -94,4 +127,42 @@ export interface IBank {
 export interface ICheckout {
   authorization_url: string;
   access_code: string;
+}
+
+export interface IPendingPaymentSlot {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface IPendingPaymentDoctor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profilePicture: string | null;
+}
+
+export interface IPendingPayment {
+  reference: string;
+  status: 'pending' | 'failed';
+  totalAmount: number;
+  subtotal: number;
+  tax: number;
+  currency: 'GHS';
+  createdAt: string;
+  expiresAt: string;
+  secondsLeft: number;
+  canRetry: boolean;
+  slot: IPendingPaymentSlot | null;
+  doctor: IPendingPaymentDoctor | null;
+  reason: string | null;
+  additionalInfo: string | null;
+  isFollowUp: boolean;
+}
+
+export interface IRetryPaymentResponse extends ICheckout {
+  reference: string;
+  expiresAt: string;
+  secondsLeft: number;
 }

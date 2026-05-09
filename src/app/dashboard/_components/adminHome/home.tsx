@@ -13,6 +13,8 @@ import { JSX, ReactNode, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { TooltipComp } from '@/components/ui/tooltip';
+import { Info } from 'lucide-react';
 import { StatsCards } from '@/app/dashboard/_components/statsCards';
 import { IStatsCard } from '@/types/stats.interface';
 import { cn, pesewasToGhc } from '@/lib/utils';
@@ -20,6 +22,7 @@ import moment from 'moment';
 import {
   getPaymentStats,
   getRecentTransactions,
+  getRecentPayments,
   getUserStats,
   getActiveUsers,
   getAppointmentStat,
@@ -27,6 +30,7 @@ import {
 import {
   selectPaymentStats,
   selectRecentTransactions,
+  selectRecentPayments,
   selectUserStats,
   selectActiveUsers,
   selectAppointmentStat,
@@ -35,9 +39,10 @@ import {
   selectIsLoadingAppointmentStat,
   selectIsLoadingPaymentStats,
   selectIsLoadingRecentTransactions,
+  selectIsLoadingRecentPayments,
 } from '@/lib/features/dashboard/dashboardSelector';
 import { IChartDataPoint } from '@/types/dashboard.interface';
-import { TransactionStatus } from '@/types/shared.enum';
+import { PaymentStatus, TransactionStatus } from '@/types/shared.enum';
 
 const activeUsersChartConfig = {
   value: {
@@ -68,6 +73,21 @@ const getTransactionBadgeVariant = (
   return 'gray';
 };
 
+const getPaymentBadgeVariant = (
+  status: PaymentStatus,
+): 'default' | 'destructive' | 'brown' | 'gray' => {
+  if (status === PaymentStatus.Success) {
+    return 'default';
+  }
+  if (status === PaymentStatus.Pending) {
+    return 'brown';
+  }
+  if (status === PaymentStatus.Failed || status === PaymentStatus.Abandoned) {
+    return 'destructive';
+  }
+  return 'gray';
+};
+
 const AdminHome = (): JSX.Element => {
   const dispatch = useAppDispatch();
 
@@ -76,12 +96,14 @@ const AdminHome = (): JSX.Element => {
   const appointmentStat = useAppSelector(selectAppointmentStat);
   const paymentStats = useAppSelector(selectPaymentStats);
   const recentTransactions = useAppSelector(selectRecentTransactions);
+  const recentPayments = useAppSelector(selectRecentPayments);
 
   const isLoadingUserStats = useAppSelector(selectIsLoadingUserStats);
   const isLoadingActiveUsers = useAppSelector(selectIsLoadingActiveUsers);
   const isLoadingAppointmentStat = useAppSelector(selectIsLoadingAppointmentStat);
   const isLoadingPaymentStats = useAppSelector(selectIsLoadingPaymentStats);
   const isLoadingRecentTransactions = useAppSelector(selectIsLoadingRecentTransactions);
+  const isLoadingRecentPayments = useAppSelector(selectIsLoadingRecentPayments);
 
   useEffect(() => {
     void dispatch(getUserStats());
@@ -89,6 +111,7 @@ const AdminHome = (): JSX.Element => {
     void dispatch(getAppointmentStat());
     void dispatch(getPaymentStats());
     void dispatch(getRecentTransactions());
+    void dispatch(getRecentPayments());
   }, [dispatch]);
 
   const userStatsCards: IStatsCard[] = userStats
@@ -275,9 +298,25 @@ const AdminHome = (): JSX.Element => {
         )}
       </div>
 
+      {/* Recent Payments Section */}
+      <div className="mt-8">
+        <h2 className="mb-1 text-xl font-bold">Recent Payments</h2>
+        <p className="text-grayscale-500 mb-4 text-sm">
+          The 10 most recent payments received from patients, showing the total amount charged,
+          payment channel, and current status.
+        </p>
+        <Card className="rounded-2xl">
+          <RecentPaymentsContent isLoading={isLoadingRecentPayments} payments={recentPayments} />
+        </Card>
+      </div>
+
       {/* Recent Transactions Section */}
       <div className="mt-8">
-        <h2 className="mb-4 text-xl font-bold">Recent Transactions</h2>
+        <h2 className="mb-1 text-xl font-bold">Recent Transactions</h2>
+        <p className="text-grayscale-500 mb-4 text-sm">
+          The 10 most recent internal transactions generated from patient payments, including
+          platform fees, doctor shares, taxes, and payouts.
+        </p>
         <Card className="rounded-2xl">
           <RecentTransactionsContent
             isLoading={isLoadingRecentTransactions}
@@ -364,6 +403,78 @@ const RecentTransactionsContent = ({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
+            <th className="text-grayscale-500 px-6 py-4 text-left font-medium">Type</th>
+            <th className="text-grayscale-500 px-6 py-4 text-left font-medium">Reference</th>
+            <th className="text-grayscale-500 px-6 py-4 text-left font-medium">Amount</th>
+            <th className="text-grayscale-500 px-6 py-4 text-left font-medium">Status</th>
+            <th className="text-grayscale-500 px-6 py-4 text-left font-medium">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map(
+            ({ id, type, reference, amount, currency, description, status, createdAt }) => (
+              <tr key={id} className="border-b transition-colors last:border-0 hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-1.5 capitalize">
+                    {type.replaceAll('_', ' ')}
+                    {description && (
+                      <TooltipComp tip={description}>
+                        <Info className="text-grayscale-400 h-3.5 w-3.5 shrink-0 cursor-pointer" />
+                      </TooltipComp>
+                    )}
+                  </div>
+                </td>
+                <td className="text-grayscale-500 px-6 py-4 font-mono text-xs">{reference}</td>
+                <td className="px-6 py-4 font-semibold">
+                  {currency} {pesewasToGhc(amount).toLocaleString()}
+                </td>
+                <td className="px-6 py-4">
+                  <Badge variant={getTransactionBadgeVariant(status)} className="capitalize">
+                    {status}
+                  </Badge>
+                </td>
+                <td className="text-grayscale-500 px-6 py-4">{getFormattedDate(createdAt)}</td>
+              </tr>
+            ),
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+type RecentPaymentsContentProps = {
+  isLoading: boolean;
+  payments: ReturnType<typeof selectRecentPayments>;
+};
+
+const RecentPaymentsContent = ({
+  isLoading,
+  payments,
+}: RecentPaymentsContentProps): JSX.Element => {
+  if (isLoading) {
+    return (
+      <div className="space-y-3 p-6">
+        {Array.from({ length: 5 }).map((value, i) => (
+          <Skeleton key={`${i}-${value}`} className="h-12 w-full bg-gray-300" />
+        ))}
+      </div>
+    );
+  }
+
+  if (payments.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 text-center">
+        <span className="text-grayscale-400 text-sm">No recent payments found</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b">
             <th className="text-grayscale-500 px-6 py-4 text-left font-medium">Patient</th>
             <th className="text-grayscale-500 px-6 py-4 text-left font-medium">Reference</th>
             <th className="text-grayscale-500 px-6 py-4 text-left font-medium">Amount</th>
@@ -373,27 +484,34 @@ const RecentTransactionsContent = ({
           </tr>
         </thead>
         <tbody>
-          {transactions.map(({ id, reference, amount, status, channel, createdAt, patient }) => (
-            <tr key={id} className="border-b transition-colors last:border-0 hover:bg-gray-50">
-              <td className="px-6 py-4">
-                <div className="flex flex-col">
-                  <span className="font-medium">{patient?.fullName ?? '—'}</span>
-                  <span className="text-grayscale-400 text-xs">{patient?.email ?? ''}</span>
-                </div>
-              </td>
-              <td className="text-grayscale-500 px-6 py-4 font-mono text-xs">{reference}</td>
-              <td className="px-6 py-4 font-semibold">
-                GH₵ {pesewasToGhc(amount).toLocaleString()}
-              </td>
-              <td className="text-grayscale-500 px-6 py-4 capitalize">{channel}</td>
-              <td className="px-6 py-4">
-                <Badge variant={getTransactionBadgeVariant(status)} className="capitalize">
-                  {status}
-                </Badge>
-              </td>
-              <td className="text-grayscale-500 px-6 py-4">{getFormattedDate(createdAt)}</td>
-            </tr>
-          ))}
+          {payments.map(
+            ({ id, reference, amount, status, channel, paidAt, createdAt, patient }) => (
+              <tr key={id} className="border-b transition-colors last:border-0 hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  {patient ? (
+                    <span className="font-medium">{patient.fullName}</span>
+                  ) : (
+                    <span className="text-grayscale-400">—</span>
+                  )}
+                </td>
+                <td className="text-grayscale-500 px-6 py-4 font-mono text-xs">{reference}</td>
+                <td className="px-6 py-4 font-semibold">
+                  {'GHC'} {pesewasToGhc(amount).toLocaleString()}
+                </td>
+                <td className="text-grayscale-500 px-6 py-4 capitalize">
+                  {channel.replaceAll('_', ' ')}
+                </td>
+                <td className="px-6 py-4">
+                  <Badge variant={getPaymentBadgeVariant(status)} className="capitalize">
+                    {status.replaceAll('_', ' ')}
+                  </Badge>
+                </td>
+                <td className="text-grayscale-500 px-6 py-4">
+                  {getFormattedDate(paidAt ?? createdAt)}
+                </td>
+              </tr>
+            ),
+          )}
         </tbody>
       </table>
     </div>

@@ -33,6 +33,16 @@ export const selectIsLoadingRecentTransactions = createSelector(
   ({ isLoadingRecentTransactions }) => isLoadingRecentTransactions,
 );
 
+export const selectRecentPayments = createSelector(
+  selectDashboard,
+  ({ recentPayments }) => recentPayments,
+);
+
+export const selectIsLoadingRecentPayments = createSelector(
+  selectDashboard,
+  ({ isLoadingRecentPayments }) => isLoadingRecentPayments,
+);
+
 export const selectIsLoadingUserStats = createSelector(
   selectDashboard,
   ({ isLoadingUserStats }) => isLoadingUserStats,

@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import {
   IPaymentStats,
   IRecentTransaction,
+  IRecentPayment,
   IUserStats,
   IActiveUsers,
   IAppointmentStat,
@@ -10,6 +11,7 @@ import { showErrorToast } from '@/lib/utils';
 import {
   getPaymentStats,
   getRecentTransactions,
+  getRecentPayments,
   getUserStats,
   getActiveUsers,
   getAppointmentStat,
@@ -18,11 +20,13 @@ import {
 interface DashboardState {
   paymentStats: IPaymentStats | null;
   recentTransactions: IRecentTransaction[];
+  recentPayments: IRecentPayment[];
   userStats: IUserStats | null;
   activeUsers: IActiveUsers | null;
   appointmentStat: IAppointmentStat | null;
   isLoadingPaymentStats: boolean;
   isLoadingRecentTransactions: boolean;
+  isLoadingRecentPayments: boolean;
   isLoadingUserStats: boolean;
   isLoadingActiveUsers: boolean;
   isLoadingAppointmentStat: boolean;
@@ -31,11 +35,13 @@ interface DashboardState {
 const initialState: DashboardState = {
   paymentStats: null,
   recentTransactions: [],
+  recentPayments: [],
   userStats: null,
   activeUsers: null,
   appointmentStat: null,
   isLoadingPaymentStats: false,
   isLoadingRecentTransactions: false,
+  isLoadingRecentPayments: false,
   isLoadingUserStats: false,
   isLoadingActiveUsers: false,
   isLoadingAppointmentStat: false,
@@ -71,6 +77,19 @@ const dashboardSlice = createSlice({
       })
       .addCase(getRecentTransactions.rejected, (state) => {
         state.isLoadingRecentTransactions = false;
+      })
+
+      .addCase(getRecentPayments.pending, (state) => {
+        state.isLoadingRecentPayments = true;
+      })
+      .addCase(getRecentPayments.fulfilled, (state, { payload }) => {
+        state.isLoadingRecentPayments = false;
+        if (!showErrorToast(payload)) {
+          state.recentPayments = payload as IRecentPayment[];
+        }
+      })
+      .addCase(getRecentPayments.rejected, (state) => {
+        state.isLoadingRecentPayments = false;
       })
 
       .addCase(getUserStats.pending, (state) => {

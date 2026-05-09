@@ -96,6 +96,22 @@ export enum DurationType {
   Months = 'months',
 }
 
+export enum PaymentStatus {
+  Pending = 'pending',
+  Success = 'success',
+  Failed = 'failed',
+  Abandoned = 'abandoned',
+  Refunded = 'refunded',
+  PartialRefund = 'partial_refund',
+}
+
+export enum PaymentChannel {
+  MobileMoney = 'mobile_money',
+  Card = 'card',
+  Ghipss = 'ghipss',
+  BankTransfer = 'bank_transfer',
+}
+
 export enum TransactionStatus {
   Pending = 'pending',
   Success = 'success',
