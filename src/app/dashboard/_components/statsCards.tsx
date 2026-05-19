@@ -11,11 +11,7 @@ export type StatsCardsProps = {
   onClick?: () => void;
 };
 
-const StatsCards = ({
-  statsData,
-  numberOfCards = 3,
-  isLoading,
-}: StatsCardsProps): JSX.Element =>
+const StatsCards = ({ statsData, numberOfCards = 3, isLoading }: StatsCardsProps): JSX.Element =>
   isLoading ? (
     <>
       {Array.from({ length: numberOfCards }).map((value, index) => (
