@@ -20,7 +20,7 @@ import { z } from 'zod';
 import { MultiSelect } from '@/components/ui/multiSelect';
 import { updateHospitalDetails, getHospitalBySlug } from '@/lib/features/hospitals/hospitalThunk';
 import { selectExtra, selectUserRole } from '@/lib/features/auth/authSelector';
-import { cn } from '@/lib/utils';
+import { cn, ghcToPesewas, pesewasToGhc } from '@/lib/utils';
 import { PLACEHOLDER_HOSPITAL_NAME } from '@/constants/branding.constant';
 import { IHospital, IHospitalDetail, IHospitalImage } from '@/types/hospital.interface';
 import { ApproveDeclineStatus, Role } from '@/types/shared.enum';
@@ -30,8 +30,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TooltipComp } from '@/components/ui/tooltip';
-import { ghcToPesewas, pesewasToGhc } from '@/lib/utils';
-
 const IMAGE_ITEM_TYPE = 'hospital-image';
 const MAX_GALLERY_IMAGES = 10;
 

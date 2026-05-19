@@ -4,9 +4,8 @@ import UpcomingAppointments from '@/app/dashboard/appointment/_components/upcomi
 import AppointmentRequests from '@/app/dashboard/appointment/_components/appointmentRequests';
 import { JSX } from 'react';
 import { AppointmentView, useQueryParam } from '@/hooks/useQueryParam';
-import { selectUser } from '@/lib/features/auth/authSelector';
-import { useAppSelector } from '@/lib/hooks';
 import { selectUserRole } from '@/lib/features/auth/authSelector';
+import { useAppSelector } from '@/lib/hooks';
 import { Role } from '@/types/shared.enum';
 
 const Appointment = (): JSX.Element => {

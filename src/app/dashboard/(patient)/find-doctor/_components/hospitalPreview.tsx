@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { IHospital } from '@/types/hospital.interface';
 import { METERS_TO_KM_FACTOR } from '@/constants/constants';
-import { openExternalUrls, pesewasToGhc } from '@/lib/utils';
+import { pesewasToGhc } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { MedicalAppointmentType } from '@/hooks/useQueryParam';
 

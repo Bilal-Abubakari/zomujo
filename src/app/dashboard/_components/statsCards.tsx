@@ -15,7 +15,6 @@ const StatsCards = ({
   statsData,
   numberOfCards = 3,
   isLoading,
-  onClick,
 }: StatsCardsProps): JSX.Element =>
   isLoading ? (
     <>
