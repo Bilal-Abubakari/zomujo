@@ -232,8 +232,7 @@ function getInitialFormValues(org: OrgSource): HospitalFormValues {
     image: logoImage?.url ?? null,
     specialties: org?.specialties ?? ['general practice'],
     supportedInsurance: org?.supportedInsurance ?? ['nhis'],
-    regularFee:
-      org?.regularFee != null ? pesewasToGhc(Number(org.regularFee)) : '',
+    regularFee: org?.regularFee != null ? pesewasToGhc(Number(org.regularFee)) : '',
     description: (org as IHospitalDetail | undefined)?.description ?? '',
     organizationType: (org as IHospitalDetail | undefined)?.organizationType,
     mainPhone: (org as IHospitalDetail | undefined)?.mainPhone ?? '',
@@ -1041,7 +1040,7 @@ const HospitalSettings = (): JSX.Element => {
         <div ref={saveButtonRef}>
           <Button
             child="Save Changes"
-            className="md:mb-0 my-3.75 mb-24 ml-auto flex"
+            className="my-3.75 mb-24 ml-auto flex md:mb-0"
             isLoading={isLoading}
             disabled={!canSave || isLoading}
           />

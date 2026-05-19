@@ -134,11 +134,13 @@ const AppointmentPanel = ({ customClass }: AppointmentProps): JSX.Element => {
             onIncrement={() => setSelectedDate(moment(selectedDate).add(1, 'day').toDate())}
             date={selectedDate}
           />
-          {user?.role === Role.Doctor || user?.role === Role.Hospital && (
-            <Badge variant={'brown'}>
-              {todayAppointments.length} <span className="ml-1 hidden sm:block">appointments</span>
-            </Badge>
-          )}
+          {user?.role === Role.Doctor ||
+            (user?.role === Role.Hospital && (
+              <Badge variant={'brown'}>
+                {todayAppointments.length}{' '}
+                <span className="ml-1 hidden sm:block">appointments</span>
+              </Badge>
+            ))}
           <div className="flex h-8 items-center justify-center rounded-lg border bg-white px-3 text-center text-sm">
             Week
           </div>

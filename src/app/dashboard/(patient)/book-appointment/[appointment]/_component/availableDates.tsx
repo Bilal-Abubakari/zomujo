@@ -222,7 +222,7 @@ const AvailableDates = ({
               </div>
             </div>
           )}
-             
+
           {isAvailableSlotLoading && (
             <div className="flex gap-2">
               {new Array(5).map((num, index) => (

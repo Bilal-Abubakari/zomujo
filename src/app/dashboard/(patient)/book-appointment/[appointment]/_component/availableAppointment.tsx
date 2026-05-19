@@ -304,36 +304,37 @@ const AvailableAppointment = (): JSX.Element => {
                   <div className="w-full max-w-32 border-b border-dashed text-gray-400"></div>
                 </div>
 
-            <div className="mb-3 flex items-center justify-between">
-              <div className="text-gray-500">Consultation Fee</div>
-              <div className="font-medium">GHC {pesewasToGhc(getAmount())}.00</div>
-            </div>
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-gray-500">
-                Service &amp; Tax Fee{''}
-                <span
-                  className="inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-gray-500"
-                  title={`A ${SERVICE_CHARGE_PERCENTAGE}% platform service and tax fee applied to every booking.`}
-                >
-                  ?
-                </span>
-              </div>
-              <div className="font-medium">
-                GHC {((pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2)}
-              </div>
-            </div>
-            <div className="my-3 border-t border-dashed border-gray-200" />
-            <div className="flex items-center justify-between">
-              <div className="font-semibold text-gray-800">Total</div>
-              <div className="text-primary text-lg font-bold">
-                GHC {(pesewasToGhc(getAmount()) * (1 + SERVICE_CHARGE_PERCENTAGE / 100)).toFixed(2)}
-              </div>
-            </div>
-            <p className="mt-2 text-xs text-gray-400">
-              Includes a {SERVICE_CHARGE_PERCENTAGE}% (GHC{' '}
-              {((pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2)}) service
-              &amp; tax fee charged by the platform.
-            </p>
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="text-gray-500">Consultation Fee</div>
+                  <div className="font-medium">GHC {pesewasToGhc(getAmount())}.00</div>
+                </div>
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-gray-500">
+                    Service &amp; Tax Fee{''}
+                    <span
+                      className="inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-gray-500"
+                      title={`A ${SERVICE_CHARGE_PERCENTAGE}% platform service and tax fee applied to every booking.`}
+                    >
+                      ?
+                    </span>
+                  </div>
+                  <div className="font-medium">
+                    GHC {((pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2)}
+                  </div>
+                </div>
+                <div className="my-3 border-t border-dashed border-gray-200" />
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-gray-800">Total</div>
+                  <div className="text-primary text-lg font-bold">
+                    GHC{' '}
+                    {(pesewasToGhc(getAmount()) * (1 + SERVICE_CHARGE_PERCENTAGE / 100)).toFixed(2)}
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-400">
+                  Includes a {SERVICE_CHARGE_PERCENTAGE}% (GHC{' '}
+                  {((pesewasToGhc(getAmount()) * SERVICE_CHARGE_PERCENTAGE) / 100).toFixed(2)})
+                  service &amp; tax fee charged by the platform.
+                </p>
               </>
             )}
 

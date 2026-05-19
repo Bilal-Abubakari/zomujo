@@ -173,7 +173,12 @@ const AppointmentRequests = (): JSX.Element => {
 
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { register, setValue, watch, reset: resetBookingForm } = useForm<IBookingForm>({
+  const {
+    register,
+    setValue,
+    watch,
+    reset: resetBookingForm,
+  } = useForm<IBookingForm>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       reason: 'Reschedule appointment',
