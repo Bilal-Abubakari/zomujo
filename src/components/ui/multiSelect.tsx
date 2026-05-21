@@ -146,8 +146,15 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
     },
     ref,
   ) => {
-    const [selectedValues, setSelectedValues] = React.useState<string[]>(defaultValue);
+    const [selectedValues, setSelectedValues] = React.useState<string[]>(() =>
+      Array.isArray(defaultValue) ? defaultValue.filter((v) => v && typeof v === 'string') : [],
+    );
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
+
+    const validSelectedValues = React.useMemo(
+      () => selectedValues.filter((value) => value && options.some((o) => o.value === value)),
+      [selectedValues, options],
+    );
 
     const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
       if (event.key === 'Enter') {
@@ -212,10 +219,10 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                 className,
               )}
               child={
-                selectedValues.length > 0 ? (
+                validSelectedValues.length > 0 ? (
                   <div className="flex w-full items-center justify-between">
                     <div className="flex flex-wrap items-center">
-                      {selectedValues.slice(0, maxCount).map((value) => {
+                      {validSelectedValues.slice(0, maxCount).map((value) => {
                         const option = options.find((o) => o.value === value);
                         const IconComponent = option?.icon;
                         return (
@@ -236,7 +243,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                           </Badge>
                         );
                       })}
-                      {selectedValues.length > maxCount && (
+                      {validSelectedValues.length > maxCount && (
                         <Badge
                           className={cn(
                             'border-foreground/1 text-foreground bg-transparent hover:bg-transparent',
@@ -244,7 +251,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                           )}
                           style={{ animationDuration: `${animation}s` }}
                         >
-                          {`+ ${selectedValues.length - maxCount} more`}
+                          {`+ ${validSelectedValues.length - maxCount} more`}
                           <XCircle
                             className="ml-2 h-4 w-4 cursor-pointer"
                             onClick={(event) => {
@@ -290,7 +297,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                     <div
                       className={cn(
                         'border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border',
-                        selectedValues.length === options.length
+                        validSelectedValues.length === options.length
                           ? 'bg-primary text-primary-foreground'
                           : 'opacity-50 [&_svg]:invisible',
                       )}
@@ -328,7 +335,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                 <CommandSeparator />
                 <CommandGroup>
                   <div className="flex items-center justify-between">
-                    {selectedValues.length > 0 && (
+                    {validSelectedValues.length > 0 && (
                       <>
                         <CommandItem
                           onSelect={handleClear}

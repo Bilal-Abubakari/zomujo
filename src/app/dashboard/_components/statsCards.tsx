@@ -8,6 +8,7 @@ export type StatsCardsProps = {
   statsData: IStatsCard[];
   numberOfCards?: number;
   isLoading?: boolean;
+  onClick?: () => void;
 };
 
 const StatsCards = ({ statsData, numberOfCards = 3, isLoading }: StatsCardsProps): JSX.Element =>

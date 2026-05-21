@@ -1,9 +1,16 @@
 'use client';
-import React, { JSX } from 'react';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import React, { JSX, useState, useEffect } from 'react';
 import { Label } from '../ui/label';
-import { Option } from 'react-google-places-autocomplete/build/types';
 import { cn } from '@/lib/utils';
+import { Input } from '../ui/input';
+
+export interface Option {
+  label: string;
+  value: {
+    place_id: string;
+    description: string;
+  };
+}
 
 interface LocationProps {
   placeHolder: string;
@@ -11,6 +18,8 @@ interface LocationProps {
   error: string;
   handleLocationValue: (data: Option) => void;
   onBlur?: () => void;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 const Location = ({
@@ -19,32 +28,42 @@ const Location = ({
   error,
   handleLocationValue,
   onBlur,
-}: LocationProps): JSX.Element => (
-  <div>
-    <div className={cn('w-[100%]', classStyle)}>
-      <Label>Location</Label>
-      <GooglePlacesAutocomplete
-        apiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}
-        selectProps={{
-          onChange: (place) => place && handleLocationValue(place),
-          placeholder: placeHolder,
-          onBlur: () => onBlur && onBlur(),
-          styles: {
-            control: (provided, { isFocused }) => ({
-              ...provided,
-              borderColor: isFocused ? 'green' : error ? 'red' : 'none',
-              '&:hover': {
-                borderColor: 'none',
-              },
-              boxShadow: isFocused ? '0 0 0 1px green' : 'none',
-              fontSize: '14px',
-            }),
-          },
-        }}
-      />
-      <small className="-mt-1 text-xs font-medium text-red-500">{error}</small>
+  value: controlledValue,
+  onChange,
+}: LocationProps): JSX.Element => {
+  const [inputValue, setInputValue] = useState(controlledValue || '');
+
+  useEffect(() => {
+    if (controlledValue !== undefined) {
+      setInputValue(controlledValue);
+    }
+  }, [controlledValue]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    setInputValue(value);
+    onChange?.(value);
+    handleLocationValue({ label: value, value: { place_id: value, description: value } });
+  };
+
+  return (
+    <div>
+      <div className={cn('relative w-full', classStyle)}>
+        <Label>Location</Label>
+        <Input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={() => {
+            onBlur?.();
+          }}
+          placeholder={placeHolder}
+          error={error}
+          className={cn('w-full', error ? 'border-red-500' : '')}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Location;
