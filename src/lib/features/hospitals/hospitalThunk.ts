@@ -206,13 +206,11 @@ export const getDepartments = createAsyncThunk(
   'hospitals/getDepartments',
   async (): Promise<IHospitalNamedEntity[] | Toast> => {
     try {
-      const { data } =
-        await axios.get<IResponse<IHospitalNamedEntity[]>>('common/departments');
+      const { data } = await axios.get<IResponse<IHospitalNamedEntity[]>>('common/departments');
       return data.data;
     } catch (error) {
       try {
-        const { data } =
-          await axios.get<IResponse<IHospitalNamedEntity[]>>('departments');
+        const { data } = await axios.get<IResponse<IHospitalNamedEntity[]>>('departments');
         return data.data;
       } catch (innerError) {
         return axiosErrorHandler(error ?? innerError, true) as Toast;
