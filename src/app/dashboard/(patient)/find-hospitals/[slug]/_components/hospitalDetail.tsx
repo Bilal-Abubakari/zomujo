@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import SkeletonDoctorPatientCard from '@/components/skeleton/skeletonDoctorPatientCard';
-import ReviewSection from './reviewSection';
+// import ReviewSection from './reviewSection'; // TODO: re-enable when review API is ready
 
 interface HospitalDetailProps {
   slug: string;
@@ -635,8 +635,7 @@ const HospitalDetail = ({ slug }: HospitalDetailProps): JSX.Element => {
           );
         })()}
 
-      {/* Review Section */}
-      <ReviewSection hospitalName={name} />
+      {/* Review Section — disabled until API is implemented */}
     </div>
   );
 };

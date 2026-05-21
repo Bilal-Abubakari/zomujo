@@ -1,6 +1,60 @@
 import { ApproveDeclineStatus } from '@/types/shared.enum';
 
-export type OrganizationType = 'private' | 'public' | 'teaching' | 'clinic';
+export enum OrganizationType {
+  Private = 'private',
+  Public = 'public',
+  Teaching = 'teaching',
+  Clinic = 'clinic',
+}
+
+export enum HospitalImageType {
+  Logo = 'logo',
+  Photo = 'photo',
+  Floorplan = 'floorplan',
+}
+
+export enum ServiceAvailability {
+  Available = 'available',
+  Limited = 'limited',
+  NotAvailable = 'not_available',
+}
+
+export interface IHospitalNamedEntity {
+  id: string;
+  name: string;
+  icon?: string;
+}
+
+export interface IHospitalServiceInfo {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+}
+
+export interface IHospitalOpeningHours {
+  id: string;
+  weekday: string;
+  openTime?: string;
+  closeTime?: string;
+  is24Hours: boolean;
+  isClosed: boolean;
+  notes?: string;
+}
+
+export interface IInsuranceCompany {
+  id: string;
+  name: string;
+  code?: string;
+  logo?: string;
+}
+
+export interface IHospitalInsuranceNetwork {
+  id: string;
+  insuranceCompany: IInsuranceCompany;
+  planNotes?: string;
+  acceptedSince?: Date;
+}
 
 // Legacy interface for organizations (kept for backward compatibility)
 export interface IHospital extends IHospitalProfile {
@@ -24,7 +78,6 @@ export interface IHospitalProfile {
   image: string | null | File;
   images?: (File | string)[];
   imageOrder?: string[];
-  // New fields
   description?: string;
   organizationType?: OrganizationType;
   mainPhone?: string;
@@ -34,7 +87,6 @@ export interface IHospitalProfile {
   bedCount?: number;
   telemedicine?: boolean;
   hasEmergency?: boolean;
-  // Address fields
   street?: string;
   city?: string;
   state?: string;
@@ -51,7 +103,6 @@ export interface INearByQueryParams {
   radius: number;
 }
 
-// New hospital interface matching the backend model
 export interface IHospitalAddress {
   id: string;
   label?: string;
@@ -67,7 +118,7 @@ export interface IHospitalAddress {
 
 export interface IHospitalImage {
   id: string;
-  type: 'logo' | 'photo' | 'floorplan';
+  type: HospitalImageType;
   url: string;
   meta?: unknown;
 }
@@ -75,13 +126,8 @@ export interface IHospitalImage {
 export interface IHospitalService {
   id: string;
   serviceId: string;
-  service: {
-    id: string;
-    name: string;
-    description?: string;
-    category?: string;
-  };
-  availability: 'available' | 'limited' | 'not_available';
+  service: IHospitalServiceInfo;
+  availability: ServiceAvailability;
   priceRange?: unknown;
   notes?: string;
   bookingUrl?: string;
@@ -106,29 +152,11 @@ export interface IHospitalDetail {
   addresses?: IHospitalAddress[];
   images?: IHospitalImage[];
   services?: IHospitalService[];
-  departments?: Array<{ id: string; name: string }>;
-  amenities?: Array<{ id: string; name: string; icon?: string }>;
-  tags?: Array<{ id: string; name: string }>;
-  openingHours?: Array<{
-    id: string;
-    weekday: string;
-    openTime?: string;
-    closeTime?: string;
-    is24Hours: boolean;
-    isClosed: boolean;
-    notes?: string;
-  }>;
-  insuranceNetworks?: Array<{
-    id: string;
-    insuranceCompany: {
-      id: string;
-      name: string;
-      code?: string;
-      logo?: string;
-    };
-    planNotes?: string;
-    acceptedSince?: Date;
-  }>;
+  departments?: IHospitalNamedEntity[];
+  amenities?: IHospitalNamedEntity[];
+  tags?: IHospitalNamedEntity[];
+  openingHours?: IHospitalOpeningHours[];
+  insuranceNetworks?: IHospitalInsuranceNetwork[];
 }
 
 export interface IHospitalListItem {

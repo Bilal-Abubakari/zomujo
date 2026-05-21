@@ -55,8 +55,8 @@ export interface IUserSignUpRole extends IUserSignUp, IAuthBooking {
 export interface IOrganizationRequest extends Pick<IBaseUser, 'email'> {
   name: string;
   location: string;
-  lat: number;
-  long: number;
+  lat?: number;
+  long?: number;
   gpsLink: string;
 }
 
@@ -66,8 +66,8 @@ export interface IHospitalSignUp {
   confirmPassword: string;
   hospitalName: string;
   location: string;
-  lat: number;
-  long: number;
+  lat?: number;
+  long?: number;
   gpsLink: string;
   phone?: string;
 }

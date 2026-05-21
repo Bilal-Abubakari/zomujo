@@ -7,6 +7,7 @@ import {
   INearByQueryParams,
   IHospitalListItem,
   IHospitalDetail,
+  IHospitalNamedEntity,
 } from '@/types/hospital.interface';
 import { AcceptDeclineStatus } from '@/types/shared.enum';
 import { Toast } from '@/hooks/use-toast';
@@ -203,15 +204,15 @@ export const getServices = createAsyncThunk(
 // Fetch departments for filtering
 export const getDepartments = createAsyncThunk(
   'hospitals/getDepartments',
-  async (): Promise<Array<{ id: string; name: string }> | Toast> => {
+  async (): Promise<IHospitalNamedEntity[] | Toast> => {
     try {
       const { data } =
-        await axios.get<IResponse<Array<{ id: string; name: string }>>>('common/departments');
+        await axios.get<IResponse<IHospitalNamedEntity[]>>('common/departments');
       return data.data;
     } catch (error) {
       try {
         const { data } =
-          await axios.get<IResponse<Array<{ id: string; name: string }>>>('departments');
+          await axios.get<IResponse<IHospitalNamedEntity[]>>('departments');
         return data.data;
       } catch (innerError) {
         return axiosErrorHandler(error ?? innerError, true) as Toast;

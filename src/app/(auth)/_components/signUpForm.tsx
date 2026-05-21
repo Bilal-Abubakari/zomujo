@@ -49,8 +49,8 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     name: nameSchema,
     email: emailSchema,
     location: requiredStringSchema(),
-    long: z.number(),
-    lat: z.number(),
+    long: z.number().default(0),
+    lat: z.number().default(0),
     gpsLink: requiredStringSchema(),
   });
 
@@ -61,8 +61,8 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
       confirmPassword: z.string(),
       hospitalName: nameSchema,
       location: requiredStringSchema(),
-      long: z.number(),
-      lat: z.number(),
+      long: z.number().default(0),
+      lat: z.number().default(0),
       gpsLink: requiredStringSchema(),
       phone: z.string().optional(),
     })
@@ -91,7 +91,6 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
     handleSubmit: handleSubmitHospital,
     watch: watchHospital,
     setValue: setValueHospital,
-    trigger: triggerHospital,
     formState: { errors: errorsHospital, isValid: isValidHospital },
   } = useForm<IHospitalSignUp>({
     resolver: zodResolver(hospitalSignUpSchema),
@@ -146,37 +145,20 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
 
   const [openModal, setOpenModal] = useState(false);
 
-  // Dummy GPS coordinates for different locations
-  const DUMMY_COORDINATES: Record<string, { lat: number; lng: number; url: string }> = {
-    '1': { lat: 5.6037, lng: -0.187, url: 'https://maps.google.com/?q=Liberation+Road+Accra' },
-    '2': { lat: 5.5558, lng: -0.1969, url: 'https://maps.google.com/?q=Osu+Accra' },
-    '3': { lat: 5.6698, lng: -0.0166, url: 'https://maps.google.com/?q=Tema+Ghana' },
-    '4': { lat: 6.6885, lng: -1.6244, url: 'https://maps.google.com/?q=Kumasi+Ghana' },
-    '5': { lat: 4.8845, lng: -1.7554, url: 'https://maps.google.com/?q=Takoradi+Ghana' },
-  };
-
   const handleLocationValue = ({ value }: Option): void => {
-    const placeId = value.place_id;
-    const coords = DUMMY_COORDINATES[placeId] || DUMMY_COORDINATES['1'];
-
-    setValue('lat', coords.lat);
-    setValue('long', coords.lng);
-    setValue('gpsLink', coords.url);
-    setValue('location', value.description, {
-      shouldValidate: true,
-    });
+    const gpsLink = `https://maps.google.com/?q=${encodeURIComponent(value.description)}`;
+    setValue('lat', 0);
+    setValue('long', 0);
+    setValue('gpsLink', gpsLink, { shouldValidate: true });
+    setValue('location', value.description, { shouldValidate: true });
   };
 
   const handleHospitalLocationValue = ({ value }: Option): void => {
-    const placeId = value.place_id;
-    const coords = DUMMY_COORDINATES[placeId] || DUMMY_COORDINATES['1'];
-
-    setValueHospital('lat', coords.lat);
-    setValueHospital('long', coords.lng);
-    setValueHospital('gpsLink', coords.url);
-    setValueHospital('location', value.description, {
-      shouldValidate: true,
-    });
+    const gpsLink = `https://maps.google.com/?q=${encodeURIComponent(value.description)}`;
+    setValueHospital('lat', 0);
+    setValueHospital('long', 0);
+    setValueHospital('gpsLink', gpsLink, { shouldValidate: true });
+    setValueHospital('location', value.description, { shouldValidate: true });
   };
 
   const handleRoleChange = ({ target }: ChangeEvent<HTMLInputElement>): void =>
@@ -328,21 +310,6 @@ const SignUpForm = ({ hasBookingInfo, slotId, doctorId }: SignUpFormProps): JSX.
               value={hospitalLocation || ''}
               onChange={(value) => {
                 setValueHospital('location', value, { shouldValidate: true });
-                // Set default coordinates if not already set (when typing directly)
-                const currentLat = watchHospital('lat');
-                const currentLong = watchHospital('long');
-                const currentGpsLink = watchHospital('gpsLink');
-                if (currentLat === undefined || currentLong === undefined || !currentGpsLink) {
-                  // Use default coordinates from first location
-                  const defaultCoords = DUMMY_COORDINATES['1'];
-                  setValueHospital('lat', defaultCoords.lat, { shouldValidate: true });
-                  setValueHospital('long', defaultCoords.lng, { shouldValidate: true });
-                  setValueHospital('gpsLink', defaultCoords.url, { shouldValidate: true });
-                  // Trigger validation for all location-related fields
-                  setTimeout(() => {
-                    triggerHospital(['location', 'lat', 'long', 'gpsLink']);
-                  }, 0);
-                }
               }}
               handleLocationValue={handleHospitalLocationValue}
               onBlur={() => {
